@@ -3,7 +3,6 @@
 //
 //   Mixer VCV Module
 //
-
 //   Strum 2017
 //
 ///////////////////////////////////////////////////
@@ -13,83 +12,88 @@
 #include "dsp/filter.hpp"
 
 ///////////////////////////////////////////////////
-struct PerfMixer : Module {
-	enum ParamIds {
-		MIX_PARAM,
-   	VOL_PARAM,
-    AUX_SEND_1_PARAM,
-    AUX_SEND_2_PARAM,
-    AUX_RETURN_1_PARAM,
-    AUX_RETURN_2_PARAM,
-    PAN_PARAM = VOL_PARAM + 16 ,
-    AUX_1_PARAM = PAN_PARAM + 16 ,
-    AUX_2_PARAM = AUX_1_PARAM + 16,
-    MUTE_PARAM = AUX_2_PARAM + 16,
-    MONO_PARAM = MUTE_PARAM + 16,		
-		NUM_PARAMS = MONO_PARAM + 16
+struct PerfMixer : Module 
+{
+	enum ParamIds 
+	{
+			MIX_PARAM,
+   		VOL_PARAM,
+    	AUX_SEND_1_PARAM,
+    	AUX_SEND_2_PARAM,
+    	AUX_RETURN_1_PARAM,
+    	AUX_RETURN_2_PARAM,
+    	PAN_PARAM = VOL_PARAM + 8 ,
+    	AUX_1_PARAM = PAN_PARAM + 8 ,
+    	AUX_2_PARAM = AUX_1_PARAM + 8,
+    	MUTE_PARAM = AUX_2_PARAM + 8,
+    	MONO_PARAM = MUTE_PARAM + 8,		
+			NUM_PARAMS = MONO_PARAM + 8
 	};
-	enum InputIds {
-	CH_INPUT,
-	CH_VOL_INPUT = CH_INPUT + 16,
-    CH_MUTE_INPUT = CH_VOL_INPUT + 16,
-    CH_PAN_INPUT = CH_MUTE_INPUT + 16,
-    RETURN_1_L_INPUT = CH_PAN_INPUT + 16,
-    RETURN_1_R_INPUT,
-    RETURN_2_L_INPUT,
-    RETURN_2_R_INPUT,		
-		NUM_INPUTS
+
+	enum InputIds 
+	{
+			CH_INPUT,
+			CH_VOL_INPUT = CH_INPUT + 8,
+    	CH_MUTE_INPUT = CH_VOL_INPUT + 8,
+    	CH_PAN_INPUT = CH_MUTE_INPUT + 8,
+    	RETURN_1_L_INPUT = CH_PAN_INPUT + 16,
+    	RETURN_1_R_INPUT,
+    	RETURN_2_L_INPUT,
+    	RETURN_2_R_INPUT,		
+			NUM_INPUTS
 	};
   
-	enum OutputIds {
-		MIX_OUTPUT_L,
-    MIX_OUTPUT_R,
-    SEND_1_L_OUTPUT,
-    SEND_1_R_OUTPUT,
-    SEND_2_L_OUTPUT,
-    SEND_2_R_OUTPUT,    
-		NUM_OUTPUTS
+	enum OutputIds 
+	{
+			MIX_OUTPUT_L,
+    	MIX_OUTPUT_R,
+    	SEND_1_L_OUTPUT,
+    	SEND_1_R_OUTPUT,
+    	SEND_2_L_OUTPUT,
+    	SEND_2_R_OUTPUT,    
+			NUM_OUTPUTS
 	};
 
-  SchmittTrigger mute_triggers[16];
-  float mute_lights[16] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0};
-  bool mute_states[16]= {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+  		SchmittTrigger mute_triggers[8];
+  		float mute_lights[8] = {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0};
+  		bool mute_states[8]= {1,1,1,1,1,1,1,1};
 
-  SchmittTrigger mono_triggers[16];
-  float mono_lights[16] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
-  bool mono_states[16]= {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+  		SchmittTrigger mono_triggers[8];
+  		float mono_lights[8] = {0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
+  		bool mono_states[8]= {0,0,0,0,0,0,0,0};
 
-  float pan_cv_ins[16];
-  float pan_positions[16];
+  		float pan_cv_ins[8];
+  		float pan_positions[8];
 
-  float channel_ins[16]; 
-  float channel_outs_l[16];
-  float channel_outs_r[16];
-  float channel_sends_1_L[16];
-  float channel_sends_1_R[16];
-  float channel_sends_2_L[16];
-  float channel_sends_2_R[16];
-  float left_sum = 0.0;
-  float right_sum = 0.0;
+  		float channel_ins[16]; 
+  		float channel_outs_l[16];
+  		float channel_outs_r[16];
+  		float channel_sends_1_L[16];
+  		float channel_sends_1_R[16];
+  		float channel_sends_2_L[16];
+  		float channel_sends_2_R[16];
+  		float left_sum = 0.0;
+  		float right_sum = 0.0;
 
-  float send_1_L_sum = 0.0;
-  float send_1_R_sum = 0.0;
-  float send_2_R_sum = 0.0;
-  float send_2_L_sum = 0.0;
+  		float send_1_L_sum = 0.0;
+  		float send_1_R_sum = 0.0;
+  		float send_2_R_sum = 0.0;
+  		float send_2_L_sum = 0.0;
   
-	PerfMixer() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) {}
-	void step() override ;
+  		PerfMixer() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) {}
+  		void step() override ;
 
-	float vuLightsL[7] = {};
-	float vuLightsR[7] = {};
-	float lightsL[1] = {};
-	float lightsR[1] = {};
+  		float vuLightsL[7] = {};
+  		float vuLightsR[7] = {};
+  		float lightsL[1] = {};
+  		float lightsR[1] = {};
 
 
 
-	PeakFilter vuFilterL;
-	PeakFilter vuFilterR;
-	PeakFilter lightFilterL;
-	PeakFilter lightFilterR;
+  	PeakFilter vuFilterL;
+  	PeakFilter vuFilterR;
+  	PeakFilter lightFilterL;
+  	PeakFilter lightFilterR;
 
 };
 
@@ -109,7 +113,7 @@ void PerfMixer::step()
   
   // mute triggers
 
-    for  (int i = 0 ; i < 16; i++)
+    for  (int i = 0 ; i < 8; i++)
       {
         if (mute_triggers[i].process(params[MUTE_PARAM + i].value))
         {
@@ -120,7 +124,7 @@ void PerfMixer::step()
 
 
 // mono triggers
-     for  (int i = 0 ; i < 16; i++)
+     for  (int i = 0 ; i < 8; i ++)
       {
         if (mono_triggers[i].process(params[MONO_PARAM + i].value))
         {
@@ -139,7 +143,7 @@ void PerfMixer::step()
         if (!mute_states[v] || inputs[CH_MUTE_INPUT + v].value > 0.0 )
         {
           channel_ins[i] = 0.0;
-          mute_lights[i] = 0;      
+          mute_lights[v] = 0;      
         }
 
         if (!mono_states[v] > 0.0 )
@@ -148,17 +152,17 @@ void PerfMixer::step()
           if ( i%2 == 0)
             {
               channel_outs_l[i] = channel_ins[i] * 2;
-              channel_sends_1_L[i] = channel_ins[i] * params[AUX_1_PARAM + v].value * clampf(inputs[CH_VOL_INPUT + i].normalize(10.0) / 10.0, 0.0, 1.0);
-              channel_sends_2_L[i] = channel_ins[i] * params[AUX_2_PARAM + v].value * clampf(inputs[CH_VOL_INPUT + i].normalize(10.0) / 10.0, 0.0, 1.0);
+              channel_sends_1_L[i] = channel_ins[i] * params[AUX_1_PARAM + v].value * clampf(inputs[CH_VOL_INPUT + v].normalize(10.0) / 10.0, 0.0, 1.0);
+              channel_sends_2_L[i] = channel_ins[i] * params[AUX_2_PARAM + v].value * clampf(inputs[CH_VOL_INPUT + v].normalize(10.0) / 10.0, 0.0, 1.0);
 
             }
           else
             {
               channel_outs_r[i] = channel_ins[i] * 2;
-              channel_sends_1_R[i] = channel_ins[i] * params[AUX_1_PARAM + v].value * clampf(inputs[CH_VOL_INPUT + i].normalize(10.0) / 10.0, 0.0, 1.0);
-              channel_sends_2_R[i] = channel_ins[i] * params[AUX_2_PARAM + v].value * clampf(inputs[CH_VOL_INPUT + i].normalize(10.0) / 10.0, 0.0, 1.0);
+              channel_sends_1_R[i] = channel_ins[i] * params[AUX_1_PARAM + v].value * clampf(inputs[CH_VOL_INPUT + v].normalize(10.0) / 10.0, 0.0, 1.0);
+              channel_sends_2_R[i] = channel_ins[i] * params[AUX_2_PARAM + v].value * clampf(inputs[CH_VOL_INPUT + v].normalize(10.0) / 10.0, 0.0, 1.0);
 
-              v = v+2;
+              v = v+1;
             } 
         }
 
@@ -169,21 +173,25 @@ void PerfMixer::step()
             {
                pan_cv_ins[v] = inputs[CH_PAN_INPUT + v].value/5;
                pan_positions[v] = pan_cv_ins[v] + params[PAN_PARAM+v].value;   
-               if (pan_positions[i] < 0) pan_positions[i] = 0;
-               if (pan_positions[i] > 1) pan_positions[i] = 1;    
+               if (pan_positions[v] < 0) pan_positions[v] = 0;
+               if (pan_positions[v] > 1) pan_positions[v] = 1;    
                channel_outs_l[i]= channel_ins[i] * (1-pan_positions[v])* 2;
-               channel_outs_r[i]= channel_ins[i] * pan_positions[v] * 2;     
+							 channel_outs_r[i]= channel_ins[i] * pan_positions[v] * 2;
+							 channel_sends_1_L[i] = channel_ins[i] * params[AUX_1_PARAM + v].value * clampf(inputs[CH_VOL_INPUT + v].normalize(10.0) / 10.0, 0.0, 1.0);
+							 channel_sends_2_L[i] = channel_ins[i] * params[AUX_2_PARAM + v].value * clampf(inputs[CH_VOL_INPUT + v].normalize(10.0) / 10.0, 0.0, 1.0);     
             }
           else
             {
                pan_cv_ins[v] = inputs[CH_PAN_INPUT + v].value/5;
                pan_positions[v] = pan_cv_ins[v] + params[PAN_PARAM+v].value;   
-               if (pan_positions[i] < 0) pan_positions[i] = 0;
-               if (pan_positions[i] > 1) pan_positions[i] = 1;    
+               if (pan_positions[v] < 0) pan_positions[v] = 0;
+               if (pan_positions[v] > 1) pan_positions[v] = 1;    
                channel_outs_l[i]= channel_ins[i] * (1-pan_positions[v])* 2;
-               channel_outs_r[i]= channel_ins[i] * pan_positions[v] * 2;  
+							 channel_outs_r[i]= channel_ins[i] * pan_positions[v] * 2;  
+							 channel_sends_1_R[i] = channel_ins[i] * params[AUX_1_PARAM + v].value * clampf(inputs[CH_VOL_INPUT + v].normalize(10.0) / 10.0, 0.0, 1.0);
+							 channel_sends_2_R[i] = channel_ins[i] * params[AUX_2_PARAM + v].value * clampf(inputs[CH_VOL_INPUT + v].normalize(10.0) / 10.0, 0.0, 1.0);
 
-              v = v+2;
+							 v = v+1;
             } 
          }  
 
@@ -267,13 +275,12 @@ PerfMixerWidget::PerfMixerWidget() {
 	{
 		SVGPanel *panel = new SVGPanel();
 		panel->box.size = box.size;
-		//panel->setBackground(SVG::load("plugins/mental/res/Mixer.svg"));
-    panel->setBackground(SVG::load(assetPlugin(plugin,"res/PerfMixer.svg")));
+    	panel->setBackground(SVG::load(assetPlugin(plugin,"res/PerfMixer.svg")));
 		addChild(panel);
 	}
+
   int column_1 = 18;
   int right_column = 460;
-
   int top_row = 90;
   int row_spacing = 28;
   int column_spacing = 24;
@@ -281,68 +288,72 @@ PerfMixerWidget::PerfMixerWidget() {
 
 	addParam(createParam<LDaviesBlu>(Vec(400, 20), module, PerfMixer::MIX_PARAM, 0.0, 1.0, 0.5)); // master volume
 
-  addParam(createParam<Davies1900hSmallBlackKnob>(Vec(right_column - 50, 225), module, PerfMixer::AUX_RETURN_1_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<Davies1900hSmallBlackKnob>(Vec(right_column - 50, 295), module, PerfMixer::AUX_RETURN_2_PARAM, 0.0, 1.0, 0.0));
+  	addParam(createParam<Davies1900hSmallBlackKnob>(Vec(right_column - 50, 225), module, PerfMixer::AUX_RETURN_1_PARAM, 0.0, 1.0, 0.0));
+  	addParam(createParam<Davies1900hSmallBlackKnob>(Vec(right_column - 50, 295), module, PerfMixer::AUX_RETURN_2_PARAM, 0.0, 1.0, 0.0));
   
-  addParam(createParam<Davies1900hSmallBlackKnob>(Vec(right_column - 50, 100), module, PerfMixer::AUX_SEND_1_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<Davies1900hSmallBlackKnob>(Vec(right_column - 50, 160), module, PerfMixer::AUX_SEND_2_PARAM, 0.0, 1.0, 0.0));
+  	addParam(createParam<Davies1900hSmallBlackKnob>(Vec(right_column - 50, 100), module, PerfMixer::AUX_SEND_1_PARAM, 0.0, 1.0, 0.0));
+  	addParam(createParam<Davies1900hSmallBlackKnob>(Vec(right_column - 50, 160), module, PerfMixer::AUX_SEND_2_PARAM, 0.0, 1.0, 0.0))	;
 
-  // channel strips
+		// channel strips
+		
+int v=0;
+
   for (int i = 0 ; i < 16 ; i++)
   {
     
     if ( i%2 == 0)
       {
 
-          addParam(createParam<SmallBlu>(Vec(column_1+column_spacing*i, 10 ), module, PerfMixer::AUX_1_PARAM + i, 0.0, 1.0, 0.0));
-          addParam(createParam<SmallBlu>(Vec(column_1+column_spacing*i, 40), module, PerfMixer::AUX_2_PARAM + i, 0.0, 1.0, 0.0));
+          addParam(createParam<SmallBlu>(Vec(column_1+column_spacing*i, 10 ), module, PerfMixer::AUX_1_PARAM + v, 0.0, 1.0, 0.0));
+          addParam(createParam<SmallBlu>(Vec(column_1+column_spacing*i, 40), module, PerfMixer::AUX_2_PARAM + v, 0.0, 1.0, 0.0));
 
 
           addInput(createInput<PJ301MIPort>(Vec(column_1+column_spacing*i, top_row - 20), module, PerfMixer::CH_INPUT + i));
-          addParam(createParam<SlidePot>(Vec(column_1+column_spacing*i,top_row + row_spacing*2-20), module, PerfMixer::VOL_PARAM + i, 0.0, 1.0, 0.0));
+          addParam(createParam<SlidePot>(Vec(column_1+column_spacing*i,top_row + row_spacing*2-20), module, PerfMixer::VOL_PARAM + v, 0.0, 1.0, 0.0));
 
-          addInput(createInput<PJ301MCPort>(Vec(column_1+column_spacing*i - 5, top_row + row_spacing *6-20), module, PerfMixer::CH_VOL_INPUT + i));
+          addInput(createInput<PJ301MCPort>(Vec(column_1+column_spacing*i - 5, top_row + row_spacing *6-20), module, PerfMixer::CH_VOL_INPUT + v));
     
-          addParam(createParam<SmallOra>(Vec(column_1+column_spacing*i+15, top_row + row_spacing * 3-5), module, PerfMixer::PAN_PARAM + i, 0.0, 1.0, 0.5));
-          addInput(createInput<PJ301MCPort>(Vec(column_1+column_spacing*i+15, (top_row + row_spacing * 4) - 5), module, PerfMixer::CH_PAN_INPUT + i));
+          addParam(createParam<SmallOra>(Vec(column_1+column_spacing*i+15, top_row + row_spacing * 3-5), module, PerfMixer::PAN_PARAM + v, 0.0, 1.0, 0.5));
+          addInput(createInput<PJ301MCPort>(Vec(column_1+column_spacing*i+15, (top_row + row_spacing * 4) - 5), module, PerfMixer::CH_PAN_INPUT + v));
     
-          addParam(createParam<LEDButton>(Vec(column_1+column_spacing*i+15,top_row + row_spacing * 2), module, PerfMixer::MONO_PARAM + i, 0.0, 1.0, 0.0));
-          addChild(createValueLight<SmallLight<GreenValueLight>>(Vec(column_1+column_spacing*i+ 15 + 5, top_row + row_spacing * 2 + 5), &module->mono_lights[i]));
+          addParam(createParam<LEDButton>(Vec(column_1+column_spacing*i+15,top_row + row_spacing * 2), module, PerfMixer::MONO_PARAM + v, 0.0, 1.0, 0.0));
+          addChild(createValueLight<SmallLight<GreenValueLight>>(Vec(column_1+column_spacing*i+ 15 + 5, top_row + row_spacing * 2 + 5), &module->mono_lights[v]));
 
 
-          addParam(createParam<LEDButton>(Vec(column_1+column_spacing*i,top_row + row_spacing * 7), module, PerfMixer::MUTE_PARAM + i, 0.0, 1.0, 0.0));
-	        addChild(createValueLight<SmallLight<GreenValueLight>>(Vec(column_1+column_spacing*i + 5, top_row + row_spacing * 7 + 5), &module->mute_lights[i]));
-          addInput(createInput<PJ301MCPort>(Vec(column_1+column_spacing*i, top_row + row_spacing * 8), module, PerfMixer::CH_MUTE_INPUT + i));
+          addParam(createParam<LEDButton>(Vec(column_1+column_spacing*i,top_row + row_spacing * 7), module, PerfMixer::MUTE_PARAM + v, 0.0, 1.0, 0.0));
+	        addChild(createValueLight<SmallLight<GreenValueLight>>(Vec(column_1+column_spacing*i + 5, top_row + row_spacing * 7 + 5), &module->mute_lights[v]));
+          addInput(createInput<PJ301MCPort>(Vec(column_1+column_spacing*i, top_row + row_spacing * 8), module, PerfMixer::CH_MUTE_INPUT + v));
       }
       else
         {
-          addInput(createInput<PJ301MIPort>(Vec(column_spacing*i - 7 , top_row + row_spacing - 20), module, PerfMixer::CH_INPUT + i));
+					addInput(createInput<PJ301MIPort>(Vec(column_spacing*i - 7 , top_row + row_spacing - 20), module, PerfMixer::CH_INPUT + i));
+					v=v+1;
         }
 	}
 
 
 //Screw
 
-  addChild(createScrew<ScrewSilver>(Vec(15, 0)));
+ 	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 0)));
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 365)));
 
   // outputs
-  addOutput(createOutput<PJ301MLPort>(Vec(right_column - 10 , 20), module, PerfMixer::MIX_OUTPUT_L));
-	addOutput(createOutput<PJ301MRPort>(Vec(right_column - 10 , 45), module, PerfMixer::MIX_OUTPUT_R));
+  	addOutput(createOutput<PJ301MLPort>(Vec(right_column - 10 , 20), module, PerfMixer::MIX_OUTPUT_L));
+		addOutput(createOutput<PJ301MRPort>(Vec(right_column - 10 , 45), module, PerfMixer::MIX_OUTPUT_R));
 
-  addOutput(createOutput<PJ301MLPort>(Vec(right_column -10, 100), module, PerfMixer::SEND_1_L_OUTPUT));
-  addOutput(createOutput<PJ301MRPort>(Vec(right_column -10, 125), module, PerfMixer::SEND_1_R_OUTPUT));
+  	addOutput(createOutput<PJ301MLPort>(Vec(right_column -10, 100), module, PerfMixer::SEND_1_L_OUTPUT));
+  	addOutput(createOutput<PJ301MRPort>(Vec(right_column -10, 125), module, PerfMixer::SEND_1_R_OUTPUT));
   
-  addOutput(createOutput<PJ301MLPort>(Vec(right_column -10, 160), module, PerfMixer::SEND_2_L_OUTPUT));
-  addOutput(createOutput<PJ301MRPort>(Vec(right_column -10, 185), module, PerfMixer::SEND_2_R_OUTPUT));
+  	addOutput(createOutput<PJ301MLPort>(Vec(right_column -10, 160), module, PerfMixer::SEND_2_L_OUTPUT));
+  	addOutput(createOutput<PJ301MRPort>(Vec(right_column -10, 185), module, PerfMixer::SEND_2_R_OUTPUT));
 
-  addInput(createInput<PJ301MLPort>(Vec(right_column -10, 225), module, PerfMixer::RETURN_1_L_INPUT));
-  addInput(createInput<PJ301MRPort>(Vec(right_column -10, 250), module, PerfMixer::RETURN_1_R_INPUT));
+  	addInput(createInput<PJ301MLPort>(Vec(right_column -10, 225), module, PerfMixer::RETURN_1_L_INPUT));
+  	addInput(createInput<PJ301MRPort>(Vec(right_column -10, 250), module, PerfMixer::RETURN_1_R_INPUT));
 
-  addInput(createInput<PJ301MLPort>(Vec(right_column -10, 295), module, PerfMixer::RETURN_2_L_INPUT));
-  addInput(createInput<PJ301MRPort>(Vec(right_column -10, 320), module, PerfMixer::RETURN_2_R_INPUT));
+  	addInput(createInput<PJ301MLPort>(Vec(right_column -10, 295), module, PerfMixer::RETURN_2_L_INPUT));
+  	addInput(createInput<PJ301MRPort>(Vec(right_column -10, 320), module, PerfMixer::RETURN_2_R_INPUT));
 
 	addChild(createValueLight<SmallLight<RedValueLight>>(Vec(460, 75), &module->vuLightsL[0]));
 	addChild(createValueLight<SmallLight<YellowValueLight>>(Vec(450, 75), &module->vuLightsL[1]));
