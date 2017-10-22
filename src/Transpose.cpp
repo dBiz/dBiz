@@ -10,13 +10,15 @@
 #include "dBiz.hpp"
 
 
-//////////////////////////////////////////////////////
+/////added fine out /////////////////////////////////////////////////
 struct Transpose : Module {
 	enum ParamIds {
     OCTAVE_SHIFT_1,
     OCTAVE_SHIFT_2,
     SEMITONE_SHIFT_1,
-    SEMITONE_SHIFT_2,    
+    SEMITONE_SHIFT_2,
+    FINE_SHIFT_1,
+    FINE_SHIFT_2,
     NUM_PARAMS
 	};
 	enum InputIds {
@@ -27,14 +29,20 @@ struct Transpose : Module {
     OCTAVE_SHIFT_1_CVINPUT,
     OCTAVE_SHIFT_2_CVINPUT,
     SEMITONE_SHIFT_1_CVINPUT,
-    SEMITONE_SHIFT_2_CVINPUT, 
+    SEMITONE_SHIFT_2_CVINPUT,
+    FINE_SHIFT_1_INPUT,
+    FINE_SHIFT_2_INPUT, 
+    FINE_SHIFT_1_CVINPUT,
+    FINE_SHIFT_2_CVINPUT,
     NUM_INPUTS
 	};
 	enum OutputIds {
 		OCTAVE_SHIFT_1_OUTPUT,
     OCTAVE_SHIFT_2_OUTPUT,
     SEMITONE_SHIFT_1_OUTPUT,
-    SEMITONE_SHIFT_2_OUTPUT, 
+    SEMITONE_SHIFT_2_OUTPUT,
+    FINE_SHIFT_1_OUTPUT,
+    FINE_SHIFT_2_OUTPUT,
     NUM_OUTPUTS
 	};
 
@@ -44,9 +52,11 @@ struct Transpose : Module {
   float octave_2_out = 0.0;
   float semitone_1_out = 0.0;
   float semitone_2_out = 0.0;
+  float fine_1_out = 0.0;
+  float fine_2_out = 0.0;
+
+  void step() override;
   
-  
-	void step() override;
 };
 
 
@@ -57,11 +67,15 @@ void Transpose::step() {
   octave_2_out = inputs[OCTAVE_SHIFT_2_INPUT].value + round(params[OCTAVE_SHIFT_2].value) + round(inputs[OCTAVE_SHIFT_1_CVINPUT].value/2);
   semitone_1_out = inputs[SEMITONE_SHIFT_1_INPUT].value + round(params[SEMITONE_SHIFT_1].value)*(1.0/12.0) + round(inputs[SEMITONE_SHIFT_1_CVINPUT].value/2)*(1.0/12.0);
   semitone_2_out = inputs[SEMITONE_SHIFT_2_INPUT].value + round(params[SEMITONE_SHIFT_2].value)*(1.0/12.0) + round(inputs[SEMITONE_SHIFT_2_CVINPUT].value/2)*(1.0/12.0);
-    
+  fine_1_out = inputs[FINE_SHIFT_1_INPUT].value + (params[FINE_SHIFT_1].value)*(1.0/12.0) + (inputs[FINE_SHIFT_1_CVINPUT].value/2)*(1.0/2.0);
+  fine_2_out = inputs[FINE_SHIFT_2_INPUT].value + (params[FINE_SHIFT_2].value)*(1.0/12.0) + (inputs[FINE_SHIFT_2_CVINPUT].value/2)*(1.0/2.0);
+
   outputs[OCTAVE_SHIFT_1_OUTPUT].value = octave_1_out;
   outputs[OCTAVE_SHIFT_2_OUTPUT].value = octave_2_out;
   outputs[SEMITONE_SHIFT_1_OUTPUT].value = semitone_1_out;
   outputs[SEMITONE_SHIFT_2_OUTPUT].value = semitone_2_out;
+  outputs[FINE_SHIFT_1_OUTPUT].value = fine_1_out;
+  outputs[FINE_SHIFT_2_OUTPUT].value = fine_2_out;
 
 }
 
@@ -74,35 +88,47 @@ TransposeWidget::TransposeWidget() {
 	{
 		SVGPanel *panel = new SVGPanel();
 		panel->box.size = box.size;
-		//panel->setBackground(SVG::load("plugins/mental/res/Transpose.svg"));
     panel->setBackground(SVG::load(assetPlugin(plugin,"res/Transpose.svg")));
 		addChild(panel);
 	}
 
 //Screw
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
+	  addChild(createScrew<ScrewSilver>(Vec(15, 0)));
+	  addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	
+//
 
-  addParam(createParam<SmallOra>(Vec(2, 20), module, Transpose::OCTAVE_SHIFT_1, -4.5, 4.5, 0.0));
-  addParam(createParam<SmallOra>(Vec(2, 80), module, Transpose::OCTAVE_SHIFT_2, -4.5, 4.5, 0.0));
-  addParam(createParam<SmallVio>(Vec(2, 150), module, Transpose::SEMITONE_SHIFT_1, -6.5, 6.5, 0.0));
-  addParam(createParam<SmallVio>(Vec(2, 210), module, Transpose::SEMITONE_SHIFT_2, -6.5, 6.5, 0.0));
+    addParam(createParam<SmallOraSnapKnob>(Vec(4, 15), module, Transpose::OCTAVE_SHIFT_1, -4.5, 4.5, 0.0));
+    addParam(createParam<SmallOraSnapKnob>(Vec(4, 75), module, Transpose::OCTAVE_SHIFT_2, -4.5, 4.5, 0.0));
+    addParam(createParam<SmallOraSnapKnob>(Vec(4, 135), module, Transpose::SEMITONE_SHIFT_1, -6.5, 6.5, 0.0));
+    addParam(createParam<SmallOraSnapKnob>(Vec(4, 195), module, Transpose::SEMITONE_SHIFT_2, -6.5, 6.5, 0.0));
+    addParam(createParam<SmallOra>(Vec(4, 255), module, Transpose::FINE_SHIFT_1, -1, 1, 0.0));
+    addParam(createParam<SmallOra>(Vec(4, 315), module, Transpose::FINE_SHIFT_2, -1, 1, 0.0));
 
-  addInput(createInput<PJ301MIPort>(Vec(3, 50), module, Transpose::OCTAVE_SHIFT_1_INPUT));
-	addInput(createInput<PJ301MIPort>(Vec(3, 110), module, Transpose::OCTAVE_SHIFT_2_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(3, 180), module, Transpose::SEMITONE_SHIFT_1_INPUT));
-	addInput(createInput<PJ301MIPort>(Vec(3, 240), module, Transpose::SEMITONE_SHIFT_2_INPUT));
+
+
+    addInput(createInput<PJ301MIPort>(Vec(3, 45), module, Transpose::OCTAVE_SHIFT_1_INPUT));
+	  addInput(createInput<PJ301MIPort>(Vec(3, 105), module, Transpose::OCTAVE_SHIFT_2_INPUT));
+    addInput(createInput<PJ301MIPort>(Vec(3, 165), module, Transpose::SEMITONE_SHIFT_1_INPUT));
+    addInput(createInput<PJ301MIPort>(Vec(3, 225), module, Transpose::SEMITONE_SHIFT_2_INPUT));
+    addInput(createInput<PJ301MIPort>(Vec(3, 285), module, Transpose::FINE_SHIFT_1_INPUT));
+    addInput(createInput<PJ301MIPort>(Vec(3, 345), module, Transpose::FINE_SHIFT_2_INPUT));
+
   
-  addInput(createInput<PJ301MCPort>(Vec(33, 20), module, Transpose::OCTAVE_SHIFT_1_CVINPUT));
-	addInput(createInput<PJ301MCPort>(Vec(33, 80), module, Transpose::OCTAVE_SHIFT_2_CVINPUT));
-  addInput(createInput<PJ301MCPort>(Vec(33, 150), module, Transpose::SEMITONE_SHIFT_1_CVINPUT));
-	addInput(createInput<PJ301MCPort>(Vec(33, 210), module, Transpose::SEMITONE_SHIFT_2_CVINPUT));
+    addInput(createInput<PJ301MCPort>(Vec(33, 15), module, Transpose::OCTAVE_SHIFT_1_CVINPUT));
+	  addInput(createInput<PJ301MCPort>(Vec(33, 75), module, Transpose::OCTAVE_SHIFT_2_CVINPUT));
+    addInput(createInput<PJ301MCPort>(Vec(33, 135), module, Transpose::SEMITONE_SHIFT_1_CVINPUT));
+    addInput(createInput<PJ301MCPort>(Vec(33, 195), module, Transpose::SEMITONE_SHIFT_2_CVINPUT));
+    addInput(createInput<PJ301MCPort>(Vec(33, 255), module, Transpose::FINE_SHIFT_1_CVINPUT));
+    addInput(createInput<PJ301MCPort>(Vec(33, 315), module, Transpose::FINE_SHIFT_2_CVINPUT));
 
-  addOutput(createOutput<PJ301MOPort>(Vec(33, 50), module, Transpose::OCTAVE_SHIFT_1_OUTPUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(33, 110), module, Transpose::OCTAVE_SHIFT_2_OUTPUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(33, 180), module, Transpose::SEMITONE_SHIFT_1_OUTPUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(33, 240), module, Transpose::SEMITONE_SHIFT_2_OUTPUT));
+
+    addOutput(createOutput<PJ301MOPort>(Vec(33, 45), module, Transpose::OCTAVE_SHIFT_1_OUTPUT));
+    addOutput(createOutput<PJ301MOPort>(Vec(33, 105), module, Transpose::OCTAVE_SHIFT_2_OUTPUT));
+    addOutput(createOutput<PJ301MOPort>(Vec(33, 165), module, Transpose::SEMITONE_SHIFT_1_OUTPUT));
+    addOutput(createOutput<PJ301MOPort>(Vec(33, 225), module, Transpose::SEMITONE_SHIFT_2_OUTPUT));
+    addOutput(createOutput<PJ301MOPort>(Vec(33, 285), module, Transpose::FINE_SHIFT_1_OUTPUT));
+    addOutput(createOutput<PJ301MOPort>(Vec(33, 345), module, Transpose::FINE_SHIFT_2_OUTPUT));
 
 }

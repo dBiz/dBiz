@@ -12,7 +12,6 @@ namespace rack {
 
 
 
-
 struct SmallKnob : SVGKnob {
 	SmallKnob() {
 		minAngle = -0.83*M_PI;
@@ -25,6 +24,12 @@ struct SmallOra : SmallKnob {
 	SmallOra() {
 		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/knobs/SmallOra.svg")));
 	}
+};
+
+struct SmallOraSnapKnob : SmallOra {
+	SmallOraSnapKnob() {
+		snap = true;
+	};
 };
 
 struct LargeOra : SmallOra {
@@ -57,6 +62,12 @@ struct LargeAzz : SmallAzz {
 	}
 };
 
+struct SmallAzzSnapKnob : SmallAzz {
+	SmallAzzSnapKnob() {
+		snap = true;
+	};
+};
+
 struct SmallVio : SmallKnob {
 	SmallVio() {
 		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/Knobs/SmallVio.svg")));
@@ -68,6 +79,12 @@ struct LargeVio : SmallVio {
 		box.size = Vec(46, 46);
 	}
 };	
+
+struct SmallVioSnapKnob : SmallVio {
+	SmallVioSnapKnob() {
+		snap = true;
+	};
+};
 
 struct SmallYel : SmallKnob {
 	SmallYel() {
@@ -116,8 +133,6 @@ struct LargeBla : SmallBla {
 		box.size = Vec(46, 46);
 	}
 };
-
-// struct SmallKnobSnapKnob : SmallKnob, SnapKnob {};
 
 
 struct DaviesKnob : SVGKnob {
@@ -260,5 +275,4 @@ struct PJ301MCPort : SVGPort {
 };
 
 }
-
 
