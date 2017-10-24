@@ -30,11 +30,14 @@ struct PerfMixerWidget : ModuleWidget {
 	   PerfMixerWidget(); 
 };
 
-struct MentalCartesianWidget : ModuleWidget {
-	   MentalCartesianWidget(); 
+struct BeneWidget : ModuleWidget {
+	   BeneWidget(); 
 };
 
-
+struct BenePadsWidget : ModuleWidget
+{
+	BenePadsWidget();
+};
 
 //struct NAMEWidget : ModuleWidget {
 //	 NAMEWidget(); 

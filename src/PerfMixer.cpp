@@ -36,7 +36,7 @@ struct PerfMixer : Module
 		CH_VOL_INPUT = CH_INPUT + 8,
     	CH_MUTE_INPUT = CH_VOL_INPUT + 8,
     	CH_PAN_INPUT = CH_MUTE_INPUT + 8,
-    	RETURN_1_L_INPUT = CH_PAN_INPUT + 8,
+    	RETURN_1_L_INPUT,
     	RETURN_1_R_INPUT,
     	RETURN_2_L_INPUT,
     	RETURN_2_R_INPUT,		

@@ -258,6 +258,16 @@ struct PJ301MIPort : SVGPort {
 	}
 };
 
+struct PJ301MOrPort : SVGPort
+{
+	PJ301MOrPort()
+	{
+		background->svg = SVG::load(assetGlobal("plugins/dBiz/res/jack/PJ301MO.svg"));
+		background->wrap();
+		box.size = background->box.size;
+	}
+};
+
 struct PJ301MOPort : SVGPort {
 	PJ301MOPort() {
 		background->svg = SVG::load(assetGlobal("plugins/dBiz/res/jack/PJ301MB.svg"));
