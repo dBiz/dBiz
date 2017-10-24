@@ -19,11 +19,12 @@ struct BenePads : Module {
     };
     enum InputIds
     {
-        NUM_INPUTS
+     NUM_INPUTS
     };
 	enum OutputIds {
 	X_OUT,
-    Y_OUT,    
+  Y_OUT, 
+  G_OUT,  
 	NUM_OUTPUTS
 	};
 
@@ -40,30 +41,41 @@ struct BenePads : Module {
     
 	BenePads() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) {}
 	void step() override;
-   
 };
 
 void BenePads::step() {
+int x;
+int y;
 
-  	// handle button triggers
     for (int i = 0; i < 4; i++)
     {
       for (int j = 0; j < 4; j++)
       {
-        if ((params[BUTTON_PARAM + i + j * 4].value))
+      
+        if ((params[BUTTON_PARAM + i + j*4].value))
         {
           button_lights[i][j] = 1.0;
           x_position = i;
-          y_position = j;
-          outputs[X_OUT].value = i+1;
-          outputs[Y_OUT].value = j+1;
+          y_position = j; 
+          outputs[X_OUT].value = i + 1;
+          outputs[Y_OUT].value = j + 1;
+          x=i;
+          y=j;
         }
         else
+        {
           button_lights[i][j] = 0.0;
         }
+      } 
     }
-       
-    
+        if (button_lights[x][y] == 1.0)
+        {
+          outputs[G_OUT].value = 5.0;
+        }
+        else
+        {
+          outputs[G_OUT].value = 0.0;
+        }
 }
 
 ////////////////////////////////
@@ -87,9 +99,10 @@ BenePadsWidget::BenePadsWidget() {
   int button_offset = 20;
 
   addOutput(createOutput<PJ301MOrPort>(Vec(130, 10), module, BenePads::X_OUT));  
-  addOutput(createOutput<PJ301MOrPort>(Vec(130, 40), module, BenePads::Y_OUT));	
-  
-  for ( int i = 0 ; i < 4 ; i++)
+  addOutput(createOutput<PJ301MOrPort>(Vec(130, 40), module, BenePads::Y_OUT));
+  addOutput(createOutput<PJ301MOrPort>(Vec(130, 70), module, BenePads::G_OUT));
+
+      for (int i = 0; i < 4; i++)
   {
     for ( int j = 0 ; j < 4 ; j++)
     {

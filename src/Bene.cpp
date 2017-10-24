@@ -25,6 +25,7 @@ struct Bene : Module {
     RIGHT,
     X_PAD,
     Y_PAD,
+    G_PAD,
     RESET,
     X_RESET,
     Y_RESET,
@@ -70,7 +71,6 @@ void Bene::step() {
     bool step_left = false;
     bool step_up = false;
     bool step_down = false;
-
     grid_lights[x_position][y_position] = 1.0;
 
     // handle clock inputs
@@ -139,24 +139,24 @@ void Bene::step() {
    
     // handle button triggers
 
-    
-    if (inputs[X_PAD].value && inputs[Y_PAD].value !=0)
-    {
-      int xpad = std::round(inputs[X_PAD].value);
-      int ypad = std::round(inputs[Y_PAD].value);
+    int xpad = std::round(inputs[X_PAD].value);
+    int ypad = std::round(inputs[Y_PAD].value);
 
+    bool gated = inputs[G_PAD].value > 0.0;
+
+    if (gated)
+    {
       for (int i = 0; i < 4; i++)
       {
         for (int j = 0; j < 4; j++)
         {
-        
           grid_lights[x_position][y_position] = 0.0;
           x_position = xpad-1;
           y_position = ypad-1;
           grid_lights[x_position][y_position] = 1.0;
-        }
-       
+          
       }
+    }
     }
 
     // change x and y    
@@ -240,13 +240,14 @@ BeneWidget::BeneWidget() {
   addInput(createInput<PJ301MIPort>(Vec(left+column_spacing * 2, top), module, Bene::X_RESET));
   addInput(createInput<PJ301MIPort>(Vec(left + column_spacing * 2, top + 40), module, Bene::Y_RESET));
 
-  addInput(createInput<PJ301MOrPort>(Vec(left + column_spacing * 3, top), module, Bene::X_PAD));
-  addInput(createInput<PJ301MOrPort>(Vec(left + column_spacing * 3, top + 40), module, Bene::Y_PAD));
+  addInput(createInput<PJ301MOrPort>(Vec(left , top+85), module, Bene::X_PAD));
+  addInput(createInput<PJ301MOrPort>(Vec(left + column_spacing , top + 85), module, Bene::Y_PAD));
+  addInput(createInput<PJ301MOrPort>(Vec(left + column_spacing * 2, top + 85), module, Bene::G_PAD));
 
-  addInput(createInput<PJ301MIPort>(Vec(left + column_spacing * 2, top + 80), module, Bene::RESET));
+  addInput(createInput<PJ301MIPort>(Vec(left + column_spacing * 3, top ), module, Bene::RESET));
 
   addOutput(createOutput<PJ301MOPort>(Vec(left + column_spacing * 5-20, top), module, Bene::UNQUANT_OUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(left + column_spacing * 5-20, top+40), module, Bene::QUANT_OUT));
+  addOutput(createOutput<PJ301MOPort>(Vec(left + column_spacing * 5-20, top+30), module, Bene::QUANT_OUT));
 
   for ( int i = 0 ; i < 4 ; i++)
   {
