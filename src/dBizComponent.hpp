@@ -36,11 +36,25 @@ struct LargeOra : SmallOra {
 	LargeOra() {
 		box.size = Vec(46, 46);
 	}
-};	
+};
+struct MicroOra : SmallOra
+{
+	MicroOra()
+	{
+		box.size = Vec(25, 25);
+	}
+};
 
 struct SmallBlu : SmallKnob {
 	SmallBlu() {
 		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/Knobs/SmallBlu.svg")));
+	}
+};
+struct MicroBlu : SmallBlu
+{
+	MicroBlu()
+	{
+		box.size = Vec(25, 25);
 	}
 };
 

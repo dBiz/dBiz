@@ -166,7 +166,7 @@ void Chord::step() {
 ChordWidget::ChordWidget() {
 	Chord *module = new Chord();
 	setModule(module);
-	box.size = Vec(15*12, 380);
+	box.size = Vec(15*9, 380);
 
   {
 		SVGPanel *panel = new SVGPanel();
@@ -183,50 +183,54 @@ ChordWidget::ChordWidget() {
   addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 365)));
 //
 
+int off =2.5;
 
-  addParam(createParam<DaviesAzz>(Vec(13, 20), module, Chord::OFFSET_PARAM, 0.0, 1.0, 0.5));
-  addInput(createInput<PJ301MCPort>(Vec(19, 60), module, Chord::OFFSET_CV_INPUT));
-  addParam(createParam<DaviesBlu>(Vec(73, 20), module, Chord::INVERSION_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<DaviesRed>(Vec(133, 20), module, Chord::VOICING_PARAM, 0.0, 1.0, 0.0));
-	
+  addParam(createParam<DaviesAzz>(Vec(3+off, 20), module, Chord::OFFSET_PARAM, 0.0, 1.0, 0.5));
+  addInput(createInput<PJ301MCPort>(Vec(9 + off, 60), module, Chord::OFFSET_CV_INPUT));
+
+  addParam(createParam<DaviesBlu>(Vec(48 + off, 20), module, Chord::INVERSION_PARAM, 0.0, 1.0, 0.0));
+  addInput(createInput<PJ301MCPort>(Vec(53 + off, 60), module, Chord::INVERSION_CV_INPUT));
+
+  addParam(createParam<DaviesRed>(Vec(93 + off, 20), module, Chord::VOICING_PARAM, 0.0, 1.0, 0.0));
+  addInput(createInput<PJ301MCPort>(Vec(99 + off, 60), module, Chord::VOICING_CV_INPUT));
+
   addInput(createInput<PJ301MIPort>(Vec(3, 95), module, Chord::INPUT));
 
 
-  addInput(createInput<PJ301MCPort>(Vec(79, 60), module, Chord::INVERSION_CV_INPUT));
-  addInput(createInput<PJ301MCPort>(Vec(139, 60), module, Chord::VOICING_CV_INPUT));
-  
 //
 
-  addInput(createInput<PJ301MIPort>(Vec(15, 180), module, Chord::FLAT_3RD_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(15, 205), module, Chord::FLAT_5TH_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(15, 230), module, Chord::FLAT_7TH_INPUT));
-  
+int right = 75 ;
+int left = 20;
+
+  addInput(createInput<PJ301MIPort>(Vec(left, 180), module, Chord::FLAT_3RD_INPUT));
+  addInput(createInput<PJ301MIPort>(Vec(left, 205), module, Chord::FLAT_5TH_INPUT));
+  addInput(createInput<PJ301MIPort>(Vec(left, 230), module, Chord::FLAT_7TH_INPUT));
+
   //
-  addInput(createInput<PJ301MIPort>(Vec(65, 205), module, Chord::SUS_2_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(65, 230), module, Chord::SUS_4_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(65, 255), module, Chord::SIX_FOR_5_INPUT));
+  addInput(createInput<PJ301MIPort>(Vec(right, 180), module, Chord::SUS_2_INPUT));
+  addInput(createInput<PJ301MIPort>(Vec(right, 205), module, Chord::SUS_4_INPUT));
+  addInput(createInput<PJ301MIPort>(Vec(right, 230), module, Chord::SIX_FOR_5_INPUT));
 
   //
 
-  addInput(createInput<PJ301MIPort>(Vec(115, 230), module, Chord::ONE_FOR_7_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(115, 255), module, Chord::FLAT_9_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(115, 280), module, Chord::SHARP_9_INPUT));
-  
-//
-  addInput(createInput<PJ301MIPort>(Vec(15, 285), module, Chord::SIX_FOR_7_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(15, 310), module, Chord::SHARP_5_INPUT));
-  
+  addInput(createInput<PJ301MIPort>(Vec(right, 255), module, Chord::ONE_FOR_7_INPUT));
+  addInput(createInput<PJ301MIPort>(Vec(right, 280), module, Chord::FLAT_9_INPUT));
+  addInput(createInput<PJ301MIPort>(Vec(right, 305), module, Chord::SHARP_9_INPUT));
 
   //
-  
-  addOutput(createOutput<PJ301MOPort>(Vec(60, 95), module, Chord::OUTPUT_ROOT));
-  addOutput(createOutput<PJ301MOPort>(Vec(90, 95), module, Chord::OUTPUT_THIRD));
-  addOutput(createOutput<PJ301MOPort>(Vec(120, 95), module, Chord::OUTPUT_FIFTH));
-  addOutput(createOutput<PJ301MOPort>(Vec(150, 95), module, Chord::OUTPUT_SEVENTH));  
+  addInput(createInput<PJ301MIPort>(Vec(left, 255), module, Chord::SIX_FOR_7_INPUT));
+  addInput(createInput<PJ301MIPort>(Vec(left, 280), module, Chord::SHARP_5_INPUT));
+
+  //
+  int outoff = 30;
+  addOutput(createOutput<PJ301MOPort>(Vec(60-outoff, 95), module, Chord::OUTPUT_ROOT));
+  addOutput(createOutput<PJ301MOPort>(Vec(85-outoff, 95), module, Chord::OUTPUT_THIRD));
+  addOutput(createOutput<PJ301MOPort>(Vec(110-outoff, 95), module, Chord::OUTPUT_FIFTH));
+  addOutput(createOutput<PJ301MOPort>(Vec(135-outoff, 95), module, Chord::OUTPUT_SEVENTH));  
     
-  addOutput(createOutput<PJ301MOPort>(Vec(60, 125), module, Chord::OUTPUT_1));
-  addOutput(createOutput<PJ301MOPort>(Vec(90, 125), module, Chord::OUTPUT_2));
-  addOutput(createOutput<PJ301MOPort>(Vec(120, 125), module, Chord::OUTPUT_3));
-  addOutput(createOutput<PJ301MOPort>(Vec(150, 125), module, Chord::OUTPUT_4));
+  addOutput(createOutput<PJ301MOPort>(Vec(60-outoff, 125), module, Chord::OUTPUT_1));
+  addOutput(createOutput<PJ301MOPort>(Vec(85-outoff, 125), module, Chord::OUTPUT_2));
+  addOutput(createOutput<PJ301MOPort>(Vec(110-outoff, 125), module, Chord::OUTPUT_3));
+  addOutput(createOutput<PJ301MOPort>(Vec(135-outoff, 125), module, Chord::OUTPUT_4));
     
 }
