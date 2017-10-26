@@ -26,20 +26,19 @@ struct BenePads : Module {
   Y_OUT, 
   G_OUT,  
 	NUM_OUTPUTS
-	};
+  };
+  enum LightIds
+  {
+    PAD_LIGHTS,
+    NUM_LIGHTS =PAD_LIGHTS+16
+  };
 
-      
   SchmittTrigger button_triggers[4][4];
   
-  float button_lights[4][4] = {0.0,0.0,0.0,0.0,
-                              0.0,0.0,0.0,0.0,
-                              0.0,0.0,0.0,0.0,
-                              0.0,0.0,0.0,0.0};
-    
   int x_position = 0;
   int y_position = 0;
     
-	BenePads() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) {}
+	BenePads() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
 };
 
@@ -54,7 +53,7 @@ int y;
       
         if ((params[BUTTON_PARAM + i + j*4].value))
         {
-          button_lights[i][j] = 1.0;
+          lights[PAD_LIGHTS+i+j*4].value = 1.0;
           x_position = i;
           y_position = j; 
           outputs[X_OUT].value = i + 1;
@@ -64,13 +63,13 @@ int y;
         }
         else
         {
-          button_lights[i][j] = 0.0;
+        lights[PAD_LIGHTS+i+j*4].value=0.0  ;
         }
       } 
     }
-        if (button_lights[x][y] == 1.0)
-        {
-          outputs[G_OUT].value = 5.0;
+    if (lights[PAD_LIGHTS+x+y*4].value == 1.0)
+    {
+      outputs[G_OUT].value = 5.0;
         }
         else
         {
@@ -108,7 +107,7 @@ BenePadsWidget::BenePadsWidget() {
     {
      
       addParam(createParam<PB61303>(Vec(button_offset+left+column_spacing * i-10, top + row_spacing * j + 150 ), module, BenePads::BUTTON_PARAM + i + j * 4, 0.0, 1.0, 0.0));
-      addChild(createValueLight<LargeLight<YellowValueLight>>(Vec(button_offset+left+column_spacing * i -10 + 4.5, top + row_spacing * j + 150 + 4.5), &module->button_lights[i][j]));
+      addChild(createLight<BigLight<OrangeLight>>(Vec(button_offset + left + column_spacing * i - 10 + 4.5, top + row_spacing * j + 150 + 4.5), module, BenePads::PAD_LIGHTS + i + j * 4));
     }
     
     }  

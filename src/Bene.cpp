@@ -37,7 +37,13 @@ struct Bene : Module {
     ROW_OUT,
     COLUMN_OUT = ROW_OUT + 4,    
 		NUM_OUTPUTS = COLUMN_OUT + 4
-	};
+  };
+
+  enum LightIds
+  {
+    GRID_LIGHTS,
+    NUM_LIGHTS = GRID_LIGHTS + 16
+  };
 
   SchmittTrigger leftTrigger;
   SchmittTrigger rightTrigger;
@@ -47,12 +53,7 @@ struct Bene : Module {
   SchmittTrigger x_resetTrigger;
   SchmittTrigger y_resetTrigger;
     
-  SchmittTrigger button_triggers[4][4];
-    
-  float grid_lights[4][4] = {0.0,0.0,0.0,0.0,
-                            0.0,0.0,0.0,0.0,
-                            0.0,0.0,0.0,0.0,
-                            0.0,0.0,0.0,0.0};                   
+  SchmittTrigger button_triggers[4][4];                
     
   float row_outs[4] = {0.0,0.0,0.0,0.0};
   float column_outs[4] = {0.0,0.0,0.0,0.0};
@@ -60,7 +61,7 @@ struct Bene : Module {
   int x_position = 0;
   int y_position = 0;
     
-	Bene() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) {}
+	Bene() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
    
 };
@@ -71,7 +72,8 @@ void Bene::step() {
     bool step_left = false;
     bool step_up = false;
     bool step_down = false;
-    grid_lights[x_position][y_position] = 1.0;
+    lights[GRID_LIGHTS+x_position+y_position*4].value =1.0;
+    
 
     // handle clock inputs
     if (inputs[RIGHT].active)
@@ -106,10 +108,10 @@ void Bene::step() {
 
     if (resetTrigger.process(inputs[RESET].value))
     {
-      grid_lights[x_position][y_position] = 0.0;
-		  x_position = 0;
+      lights[GRID_LIGHTS + x_position + y_position*4].value = 0.0;
+      x_position = 0;
       y_position = 0;
-      grid_lights[x_position][y_position] = 1.0;
+      lights[GRID_LIGHTS + x_position + y_position*4].value = 1.0;
       step_right = false;
       step_left = false;
       step_up = false;	
@@ -117,9 +119,9 @@ void Bene::step() {
 	  }
     if (x_resetTrigger.process(inputs[X_RESET].value))
     {
-      grid_lights[x_position][y_position] = 0.0;
+      lights[GRID_LIGHTS + x_position + y_position*4].value  = 0.0;
 		  x_position = 0;
-      grid_lights[x_position][y_position] = 1.0;
+      lights[GRID_LIGHTS + x_position + y_position*4].value  = 1.0;
       step_right = false;
       step_left = false;
       step_up = false;	
@@ -127,9 +129,9 @@ void Bene::step() {
 	  }
     if (y_resetTrigger.process(inputs[Y_RESET].value))
     {
-      grid_lights[x_position][y_position] = 0.0;
+      lights[GRID_LIGHTS + x_position + y_position*4].value  = 0.0;
 		  y_position = 0;
-      grid_lights[x_position][y_position] = 1.0;
+      lights[GRID_LIGHTS + x_position + y_position*4].value  = 1.0;
       step_right = false;
       step_left = false;
       step_up = false;	
@@ -150,11 +152,10 @@ void Bene::step() {
       {
         for (int j = 0; j < 4; j++)
         {
-          grid_lights[x_position][y_position] = 0.0;
+          lights[GRID_LIGHTS + x_position + y_position*4].value = 0.0;
           x_position = xpad-1;
           y_position = ypad-1;
-          grid_lights[x_position][y_position] = 1.0;
-          
+          lights[GRID_LIGHTS + x_position + y_position*4].value = 1.0;
       }
     }
     }
@@ -162,31 +163,31 @@ void Bene::step() {
     // change x and y    
     if (step_right)
     {
-      grid_lights[x_position][y_position] = 0.0;
+       lights[GRID_LIGHTS + x_position + y_position*4].value  = 0.0;
       x_position += 1;
       if (x_position > 3) x_position = 0;
-      grid_lights[x_position][y_position] = 1.0;
+       lights[GRID_LIGHTS + x_position + y_position*4].value  = 1.0;
     }
     if (step_left)
     {
-      grid_lights[x_position][y_position] = 0.0;
+       lights[GRID_LIGHTS + x_position + y_position*4].value  = 0.0;
       x_position -= 1;
       if (x_position < 0) x_position = 3;      
-      grid_lights[x_position][y_position] = 1.0;
+       lights[GRID_LIGHTS + x_position + y_position*4].value  = 1.0;
     }
     if (step_down)
     {
-      grid_lights[x_position][y_position] = 0.0;
+       lights[GRID_LIGHTS + x_position + y_position*4].value  = 0.0;
       y_position += 1;
       if (y_position > 3) y_position = 0;
-      grid_lights[x_position][y_position] = 1.0;
+       lights[GRID_LIGHTS + x_position + y_position*4].value  = 1.0;
     }
     if (step_up)
     {
-      grid_lights[x_position][y_position] = 0.0;
+       lights[GRID_LIGHTS + x_position + y_position*4].value  = 0.0;
       y_position -= 1;
       if (y_position < 0) y_position = 3;      
-      grid_lights[x_position][y_position] = 1.0;
+       lights[GRID_LIGHTS + x_position + y_position*4].value  = 1.0;
     }
     
     /// set outputs
@@ -254,7 +255,7 @@ BeneWidget::BeneWidget() {
     for ( int j = 0 ; j < 4 ; j++)
     {
       addParam(createParam<Rogan2PWhite>(Vec(left+column_spacing * i, top + row_spacing * j + 150 ), module, Bene::KNOB_PARAM + i + j * 4, -2.0, 2.0, 0.0));
-      addChild(createValueLight<LargeLight<YellowValueLight>>(Vec(left+column_spacing * i + 7, top + row_spacing * j + 150 + 7), &module->grid_lights[i][j]));
+      addChild(createLight<BigLight<OrangeLight>>(Vec(left + column_spacing * i + 7, top + row_spacing * j + 150 + 7), module, Bene::GRID_LIGHTS + i + j * 4));
     }
     addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * i+5, top + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + i));
     addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top + row_spacing * i + 155 ), module, Bene::COLUMN_OUT + i));
