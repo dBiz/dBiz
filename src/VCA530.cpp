@@ -53,9 +53,17 @@ struct VCA530 : Module {
         MIX_OUTPUT_L,
         NUM_OUTPUTS
     };
-   
 
-    VCA530() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) {}
+    enum LightIds
+    {
+        MIX1_LIGHTS,
+        CLIP1_LIGHTS,
+        MIX2_LIGHTS,
+        CLIP2_LIGHTS,
+        NUM_LIGHTS
+    };
+
+    VCA530() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
   void step() override ;
 };
 
@@ -76,16 +84,28 @@ void VCA530::step()
     float ch5 = inputs[CH5_INPUT].value * params[CH5_PARAM].value * cv4 * cv5 * cv6;
     float ch6 = inputs[CH6_INPUT].value * params[CH6_PARAM].value * cv4 * cv5 * cv6;
 
-    float sum_l = (ch1 + ch2 + ch3 + ch4 + ch5 + ch6) * params[MIX2_PARAM].value * cv1 * cv2 * cv3 * cv4 * cv5 * cv6;
-    float sum_r = (ch1 + ch2 + ch3 + ch4 + ch5 + ch6) * params[MIX1_PARAM].value * cv1 * cv2 * cv3 * cv4 * cv5 * cv6;
+    float sum_l = (ch1 + ch2 + ch3 + ch4 + ch5 + ch6) * params[MIX1_PARAM].value * cv1 * cv2 * cv3 * cv4 * cv5 * cv6;
+    float sum_r = (ch1 + ch2 + ch3 + ch4 + ch5 + ch6) * params[MIX2_PARAM].value * cv1 * cv2 * cv3 * cv4 * cv5 * cv6;
 
-    float mix_l = (ch1 + ch2 + ch3) * params[MIX2_PARAM].value * cv1 * cv2 * cv3;
-    float mix_r = (ch4 + ch5 + ch6) * params[MIX1_PARAM].value * cv4 * cv5 * cv6;
+    float mix_l = (ch1 + ch2 + ch3) * params[MIX1_PARAM].value * cv1 * cv2 * cv3;
+    float mix_r = (ch4 + ch5 + ch6) * params[MIX2_PARAM].value * cv4 * cv5 * cv6;
 
     outputs[SUM_OUTPUT_R].value = sum_r;
     outputs[SUM_OUTPUT_L].value = sum_l;
     outputs[MIX_OUTPUT_R].value = mix_r;
     outputs[MIX_OUTPUT_L].value = mix_l;
+
+    lights[MIX1_LIGHTS].value = mix_l;
+    lights[MIX2_LIGHTS].value = mix_r;
+    if (mix_l>5)
+        lights[CLIP1_LIGHTS].value =1.0;
+    else
+        lights[CLIP1_LIGHTS].value = 0.0;
+
+    if (mix_r > 5)
+        lights[CLIP2_LIGHTS].value = 1.0;
+    else
+        lights[CLIP2_LIGHTS].value = 0.0;
 };
 
 VCA530Widget::VCA530Widget()
@@ -111,8 +131,8 @@ VCA530Widget::VCA530Widget()
   
 
 
-  addParam(createParam<DaviesBlu>(Vec(45,med ), module, VCA530::MIX1_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<DaviesBlu>(Vec(130, med), module, VCA530::MIX2_PARAM, 0.0, 1.0, 0.0));
+  addParam(createParam<DaviesBlu>(Vec(52,med ), module, VCA530::MIX1_PARAM, 0.0, 1.0, 0.0));
+  addParam(createParam<DaviesBlu>(Vec(129, med), module, VCA530::MIX2_PARAM, 0.0, 1.0, 0.0));
 
   // channel strips
 
@@ -153,8 +173,16 @@ VCA530Widget::VCA530Widget()
 
   // outputs
   addOutput(createOutput<PJ301MOPort>(Vec(15 , med), module, VCA530::MIX_OUTPUT_L));
-  addOutput(createOutput<PJ301MOPort>(Vec(100 , med), module, VCA530::MIX_OUTPUT_R));
+  addOutput(createOutput<PJ301MOPort>(Vec(95 , med), module, VCA530::MIX_OUTPUT_R));
 //
   addOutput(createOutput<PJ301MOPort>(Vec(15, med+25), module, VCA530::SUM_OUTPUT_L));
-  addOutput(createOutput<PJ301MOPort>(Vec(100, med+25), module, VCA530::SUM_OUTPUT_R));
+  addOutput(createOutput<PJ301MOPort>(Vec(95, med+25), module, VCA530::SUM_OUTPUT_R));
+
+
+// lights
+
+  addChild(createLight<SmallLight<GreenLight>>(Vec(42,med+5+20), module, VCA530::MIX1_LIGHTS));
+  addChild(createLight<SmallLight<GreenLight>>(Vec(122,med+5+20), module, VCA530::MIX2_LIGHTS));
+  addChild(createLight<SmallLight<RedLight>>(Vec(42,med-10+20), module, VCA530::CLIP1_LIGHTS));
+  addChild(createLight<SmallLight<RedLight>>(Vec(122,med-10+20), module, VCA530::CLIP2_LIGHTS));
 }
