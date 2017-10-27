@@ -237,8 +237,9 @@ struct LDaviesYel : DaviesYel {
 };
 // struct DaviesKnobSnapKnob : DaviesKnob, SnapKnob {};
 
-
+//////////////////////
 //slider
+///////////////////
 
 struct SlidePot : SVGSlider {
 	SlidePot() {
@@ -254,6 +255,21 @@ struct SlidePot : SVGSlider {
 	}
 };
 
+struct SlidePot2 : SVGSlider
+{
+	SlidePot2()
+	{
+		Vec margin = Vec(3.5, 3.5);
+		maxHandlePos = Vec(-10, -2).plus(margin);
+		minHandlePos = Vec(-10, 87).plus(margin);
+		background->svg = SVG::load(assetGlobal("plugins/dBiz/res/Slider/SlidePot.svg"));
+		background->wrap();
+		background->box.pos = margin;
+		box.size = background->box.size.plus(margin.mult(2));
+		handle->svg = SVG::load(assetGlobal("plugins/dBiz/res/Slider/SlidePotHandle2.svg"));
+		handle->wrap();
+	}
+};
 ////////////////////
 // Lights
 ////////////////////
