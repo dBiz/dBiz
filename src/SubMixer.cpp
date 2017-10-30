@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////
 //
-//  dBiz revisited version of 
+//   dBiz revisited version of 
 //   Sub Mixer VCV Module
 //   Built from fundamental VCMixer 
 //
@@ -114,7 +114,7 @@ void SubMixer::step() {
 SubMixWidget::SubMixWidget() {
 	SubMixer *module = new SubMixer();
 	setModule(module);
-	box.size = Vec(165, 380);
+	box.size = Vec(150, 380);
 
 
 	{
@@ -129,7 +129,7 @@ SubMixWidget::SubMixWidget() {
 
 //Screw
 
-  	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
+  addChild(createScrew<ScrewSilver>(Vec(15, 0)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 0)));
 	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
 	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 365)));
@@ -137,45 +137,45 @@ SubMixWidget::SubMixWidget() {
   
 //mixer out
 
-  addOutput(createOutput<PJ301MLPort>(Vec(132, 20), module, SubMixer::MIX_OUTPUT_L));
-	addOutput(createOutput<PJ301MRPort>(Vec(132, 45), module, SubMixer::MIX_OUTPUT_R));
+  addOutput(createOutput<PJ301MLPort>(Vec(122, 20), module, SubMixer::MIX_OUTPUT_L));
+	addOutput(createOutput<PJ301MRPort>(Vec(122, 45), module, SubMixer::MIX_OUTPUT_R));
   
 //
 
 
-  	addParam(createParam<DaviesRed>(Vec(37,y_offset + 68), module, SubMixer::CH1_PARAM, 0.0, 1.0, 0.0));
-  	addParam(createParam<DaviesBlu>(Vec(90,y_offset + 68), module, SubMixer::CH1_PAN_PARAM, 0.0, 1.0, 0.5));
+  	addParam(createParam<DaviesRed>(Vec(32,y_offset + 68), module, SubMixer::CH1_PARAM, 0.0, 1.0, 0.0));
+  	addParam(createParam<DaviesBlu>(Vec(80,y_offset + 68), module, SubMixer::CH1_PAN_PARAM, 0.0, 1.0, 0.5));
   
-	addParam(createParam<DaviesRed>(Vec(37,y_offset + 134), module, SubMixer::CH2_PARAM, 0.0, 1.0, 0.0));
-  	addParam(createParam<DaviesBlu>(Vec(90,y_offset + 134), module, SubMixer::CH2_PAN_PARAM, 0.0, 1.0, 0.5));
+		addParam(createParam<DaviesRed>(Vec(32,y_offset + 134), module, SubMixer::CH2_PARAM, 0.0, 1.0, 0.0));
+  	addParam(createParam<DaviesBlu>(Vec(80,y_offset + 134), module, SubMixer::CH2_PAN_PARAM, 0.0, 1.0, 0.5));
   
-	addParam(createParam<DaviesRed>(Vec(37,y_offset + 199), module, SubMixer::CH3_PARAM, 0.0, 1.0, 0.0));
-  	addParam(createParam<DaviesBlu>(Vec(90,y_offset + 199), module, SubMixer::CH3_PAN_PARAM, 0.0, 1.0, 0.5));
+		addParam(createParam<DaviesRed>(Vec(32,y_offset + 199), module, SubMixer::CH3_PARAM, 0.0, 1.0, 0.0));
+  	addParam(createParam<DaviesBlu>(Vec(80,y_offset + 199), module, SubMixer::CH3_PAN_PARAM, 0.0, 1.0, 0.5));
   
- 	 addParam(createParam<DaviesRed>(Vec(37,y_offset + 264), module, SubMixer::CH4_PARAM, 0.0, 1.0, 0.0));
- 	 addParam(createParam<DaviesBlu>(Vec(90,y_offset + 264), module, SubMixer::CH4_PAN_PARAM, 0.0, 1.0, 0.5));		
+ 	 	addParam(createParam<DaviesRed>(Vec(32,y_offset + 264), module, SubMixer::CH4_PARAM, 0.0, 1.0, 0.0));
+ 	 	addParam(createParam<DaviesBlu>(Vec(80,y_offset + 264), module, SubMixer::CH4_PAN_PARAM, 0.0, 1.0, 0.5));		
   
 
-	addInput(createInput<PJ301MIPort>(Vec(3,y_offset + 75), module, SubMixer::CH1_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(35,y_offset + 105), module, SubMixer::CH1_CV_INPUT));
-  	addInput(createInput<PJ301MCPort>(Vec(98,y_offset + 105), module, SubMixer::CH1_PAN_INPUT));
+		addInput(createInput<PJ301MIPort>(Vec(3,y_offset + 75), module, SubMixer::CH1_INPUT));
+		addInput(createInput<PJ301MCPort>(Vec(35,y_offset + 105), module, SubMixer::CH1_CV_INPUT));
+  	addInput(createInput<PJ301MCPort>(Vec(88,y_offset + 105), module, SubMixer::CH1_PAN_INPUT));
   
-	addInput(createInput<PJ301MIPort>(Vec(3,y_offset + 140), module, SubMixer::CH2_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(35,y_offset + 170), module, SubMixer::CH2_CV_INPUT));
- 	 addInput(createInput<PJ301MCPort>(Vec(98,y_offset + 170), module, SubMixer::CH2_PAN_INPUT));
+		addInput(createInput<PJ301MIPort>(Vec(3,y_offset + 140), module, SubMixer::CH2_INPUT));
+		addInput(createInput<PJ301MCPort>(Vec(35,y_offset + 170), module, SubMixer::CH2_CV_INPUT));
+ 	 	addInput(createInput<PJ301MCPort>(Vec(88,y_offset + 170), module, SubMixer::CH2_PAN_INPUT));
   
-	addInput(createInput<PJ301MIPort>(Vec(3,y_offset + 205), module, SubMixer::CH3_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(35,y_offset + 235), module, SubMixer::CH3_CV_INPUT));
-  	addInput(createInput<PJ301MCPort>(Vec(98,y_offset + 235), module, SubMixer::CH3_PAN_INPUT));
+		addInput(createInput<PJ301MIPort>(Vec(3,y_offset + 205), module, SubMixer::CH3_INPUT));
+		addInput(createInput<PJ301MCPort>(Vec(35,y_offset + 235), module, SubMixer::CH3_CV_INPUT));
+  	addInput(createInput<PJ301MCPort>(Vec(88,y_offset + 235), module, SubMixer::CH3_PAN_INPUT));
   
- 	 addInput(createInput<PJ301MIPort>(Vec(3,y_offset + 270), module, SubMixer::CH4_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(35,y_offset + 300), module, SubMixer::CH4_CV_INPUT));
- 	 addInput(createInput<PJ301MCPort>(Vec(98,y_offset + 300), module, SubMixer::CH4_PAN_INPUT));
+ 	 	addInput(createInput<PJ301MIPort>(Vec(3,y_offset + 270), module, SubMixer::CH4_INPUT));
+		addInput(createInput<PJ301MCPort>(Vec(35,y_offset + 300), module, SubMixer::CH4_CV_INPUT));
+ 	 	addInput(createInput<PJ301MCPort>(Vec(88,y_offset + 300), module, SubMixer::CH4_PAN_INPUT));
     
   
-	addOutput(createOutput<PJ301MOPort>(Vec(132,y_offset + 75), module, SubMixer::CH1_OUTPUT));
-	addOutput(createOutput<PJ301MOPort>(Vec(132,y_offset + 140), module, SubMixer::CH2_OUTPUT));
-	addOutput(createOutput<PJ301MOPort>(Vec(132,y_offset + 205), module, SubMixer::CH3_OUTPUT));
-  	addOutput(createOutput<PJ301MOPort>(Vec(132,y_offset + 270), module, SubMixer::CH4_OUTPUT));
+		addOutput(createOutput<PJ301MOPort>(Vec(122,y_offset + 75), module, SubMixer::CH1_OUTPUT));
+		addOutput(createOutput<PJ301MOPort>(Vec(122,y_offset + 140), module, SubMixer::CH2_OUTPUT));
+		addOutput(createOutput<PJ301MOPort>(Vec(122,y_offset + 205), module, SubMixer::CH3_OUTPUT));
+  	addOutput(createOutput<PJ301MOPort>(Vec(122,y_offset + 270), module, SubMixer::CH4_OUTPUT));
   
 }

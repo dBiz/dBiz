@@ -9,9 +9,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="7.0462589mm"
-   height="7.1788893mm"
-   viewBox="0 0 7.0462589 7.1788893"
+   width="9mm"
+   height="9mm"
+   viewBox="0 0 9 9"
    version="1.1"
    id="svg6414"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
@@ -40,11 +40,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
-     inkscape:cx="-14.517457"
-     inkscape:cy="-3.9874205"
-     inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
+     inkscape:zoom="7.9195959"
+     inkscape:cx="13.354688"
+     inkscape:cy="19.487656"
+     inkscape:document-units="px"
+     inkscape:current-layer="g6344"
      showgrid="false"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -52,11 +52,9 @@
      fit-margin-bottom="0"
      inkscape:window-width="1600"
      inkscape:window-height="882"
-     inkscape:window-x="1645"
-     inkscape:window-y="126"
-     inkscape:window-maximized="0"
-     inkscape:snap-grids="true"
-     inkscape:snap-to-guides="true" />
+     inkscape:window-x="250"
+     inkscape:window-y="69"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata6411">
     <rdf:RDF>
@@ -65,7 +63,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -73,12 +71,12 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-36.542344,-107.44627)">
+     transform="translate(-36.542344,-105.62516)">
     <g
        id="g6344"
-       transform="matrix(0.35277777,0,0,-0.35277777,-474.41126,963.93894)">
+       transform="matrix(0.44990991,0,0,-0.44554886,-615.09478,1187.2857)">
       <g
-         style="clip-rule:nonzero"
+         style="clip-rule:nonzero;fill:#8d05db;fill-opacity:1"
          id="g28551"
          clip-path="url(#clip82)"
          transform="matrix(0.75000002,0,0,-0.75000002,713.70253,2631.9236)">
@@ -86,12 +84,12 @@
            inkscape:connector-curvature="0"
            id="path28547"
            d="m 1005.8555,288.88281 c -1.6407,7.16406 -8.78128,11.64844 -15.94925,10.00781 -7.16797,-1.64062 -11.64844,-8.78125 -10.00781,-15.94921 1.64062,-7.16797 8.78125,-11.64844 15.94922,-10.00782 7.16794,1.64063 11.64454,8.78125 10.00784,15.94922"
-           style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none" />
+           style="fill:#8d05db;fill-opacity:1;fill-rule:nonzero;stroke:none" />
         <path
            inkscape:connector-curvature="0"
            id="path28549"
            d="m 1005.8555,288.88281 c -1.6407,7.16406 -8.78128,11.64844 -15.94925,10.00781 -7.16797,-1.64062 -11.64844,-8.78125 -10.00781,-15.94921 1.64062,-7.16797 8.78125,-11.64844 15.94922,-10.00782 7.16794,1.64063 11.64454,8.78125 10.00784,15.94922"
-           style="fill:#434182;fill-opacity:1;fill-rule:nonzero;stroke:none" />
+           style="fill:#8d05db;fill-opacity:1;fill-rule:nonzero;stroke:none" />
       </g>
       <g
          style="clip-rule:nonzero"
@@ -106,12 +104,5 @@
            style="fill:none;stroke:#ffffff;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1" />
       </g>
     </g>
-    <ellipse
-       style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.25111437;stroke-opacity:1"
-       id="path19"
-       cx="40.097233"
-       cy="111.07811"
-       rx="3.41064"
-       ry="3.4380443" />
   </g>
 </svg>

@@ -255,7 +255,7 @@ BeneWidget::BeneWidget() {
     for ( int j = 0 ; j < 4 ; j++)
     {
       addParam(createParam<Rogan2PWhite>(Vec(left+column_spacing * i, top + row_spacing * j + 150 ), module, Bene::KNOB_PARAM + i + j * 4, -2.0, 2.0, 0.0));
-      addChild(createLight<BigLight<OrangeLight>>(Vec(left + column_spacing * i + 7, top + row_spacing * j + 150 + 7), module, Bene::GRID_LIGHTS + i + j * 4));
+      addChild(createLight<BigLight<OrangeLight>>(Vec(left + column_spacing * i + 8, top + row_spacing * j + 150 + 8), module, Bene::GRID_LIGHTS + i + j * 4));
     }
     addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * i+5, top + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + i));
     addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top + row_spacing * i + 155 ), module, Bene::COLUMN_OUT + i));

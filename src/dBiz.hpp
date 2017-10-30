@@ -1,5 +1,7 @@
 #include "rack.hpp"
 #include "dBizComponent.hpp"
+#include "Biquad.h"
+#include "VAStateVariableFilter.h"
 
 using namespace rack;
 
@@ -37,6 +39,16 @@ struct BeneWidget : ModuleWidget {
 struct BenePadsWidget : ModuleWidget
 {
 	BenePadsWidget();
+};
+
+struct VCA530Widget : ModuleWidget
+{
+	VCA530Widget();
+};
+
+struct DualFilterWidget : ModuleWidget
+{
+	DualFilterWidget();
 };
 
 //struct NAMEWidget : ModuleWidget {
