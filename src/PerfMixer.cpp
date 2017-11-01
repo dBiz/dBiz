@@ -111,8 +111,6 @@ struct PerfMixer : Module {
 ///////////////////////////////////////////////////////////////////
 void PerfMixer::step() 
 {
-
-
   send_1_L_sum = 0.0;
   send_1_R_sum = 0.0;
   send_2_L_sum = 0.0;
@@ -241,10 +239,6 @@ PerfMixerWidget::PerfMixerWidget() {
           addParam(createParam<LEDButton>(Vec(column_1 + column_spacing * i, top_row + row_spacing * 7 + top), module, PerfMixer::MUTE_PARAM + i, 0.0, 1.0, 0.0));
           addChild(createLight<MediumLight<GreenLight>>(Vec(column_1 + column_spacing * i + 3, top_row + row_spacing * 7 + 3 + top), module, PerfMixer::MUTE_LIGHTS + i));
           addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * i, top_row + row_spacing * 8 + top), module, PerfMixer::CH_MUTE_INPUT + i));
-
-  
-   
-        
 	}
 
 

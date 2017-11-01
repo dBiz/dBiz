@@ -15,7 +15,7 @@
    version="1.1"
    id="svg16908"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
-   sodipodi:docname="VerbosL.svg">
+   sodipodi:docname="VerboL.svg">
   <defs
      id="defs16902">
     <inkscape:path-effect
@@ -402,9 +402,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.9405877"
-     inkscape:cx="72.239504"
-     inkscape:cy="100.20781"
+     inkscape:zoom="4.158619"
+     inkscape:cx="75.193718"
+     inkscape:cy="134.71592"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="true"
@@ -448,14 +448,14 @@
      style="display:inline"
      transform="translate(0,40.474603)">
     <ellipse
-       style="fill:#e80000;fill-opacity:1;stroke:#9b0000;stroke-width:1.73597777;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#0811ff;fill-opacity:1;stroke:#00299b;stroke-width:1.73597777;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path821"
        cx="25.017344"
        cy="-15.559858"
        rx="23.881493"
        ry="24.161268" />
     <ellipse
-       style="display:inline;fill:#b42424;fill-opacity:1;stroke:none;stroke-width:1.82540405;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
+       style="display:inline;fill:#2429b4;fill-opacity:1;stroke:none;stroke-width:1.82540405;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
        id="path821-6"
        cx="25.017344"
        cy="-15.559858"

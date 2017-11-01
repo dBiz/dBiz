@@ -12,7 +12,7 @@
    version="1.1"
    viewBox="0 0 3.0961798 5.0990109"
    id="svg10"
-   sodipodi:docname="BefacoSlidePotHandle.svg"
+   sodipodi:docname="SlidePotHandle.svg"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
   <metadata
      id="metadata16">
@@ -22,6 +22,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -36,13 +37,13 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="716"
-     inkscape:window-height="480"
+     inkscape:window-width="1669"
+     inkscape:window-height="800"
      id="namedview12"
      showgrid="false"
      inkscape:zoom="12.247016"
-     inkscape:cx="5.8499999"
-     inkscape:cy="9.6350002"
+     inkscape:cx="-7.4185385"
+     inkscape:cy="9.6350004"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
@@ -53,16 +54,16 @@
     <g
        transform="matrix(.2566 0 0 -.2566 -287.9 711)"
        id="g6"
-       style="fill:#009ab2;fill-opacity:1">
+       style="fill:#005cd2;fill-opacity:1">
       <g
          transform="translate(1744 2370)"
          id="g4"
-         style="fill:#009ab2;fill-opacity:1">
+         style="fill:#005cd2;fill-opacity:1">
         <path
            d="m0 0c-.072-5.55-1.296-9.915-5.786-9.935-4.598-.02-6.277 4.247-6.277 9.843 0 5.502 1.494 10.03 6.178 10.03 4.422 0 5.956-4.44 5.885-9.935"
            fill="#ff0000"
            id="path2"
-           style="fill:#009ab2;fill-opacity:1" />
+           style="fill:#005cd2;fill-opacity:1" />
       </g>
     </g>
   </g>

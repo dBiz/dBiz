@@ -272,10 +272,10 @@ VerboWidget::VerboWidget() {
 	int left=40;
 	for(int i=0; i<8;i++)
 	{
-		addParam(createParam<BefacoSlidePot>(Vec(left+95+space*i, 110), module, Verbo::HARM_PARAM+i, 0.0, 1.0, 0.0));
+		addParam(createParam<SlidePot>(Vec(left+95+space*i, 110), module, Verbo::HARM_PARAM+i, 0.0, 1.0, 0.0));
 		addOutput(createOutput<PJ301MPort>(Vec(left+90+space*i, 80), module, Verbo::HARM_OUTPUT+i));
 		addInput(createInput<PJ301MPort>(Vec(left+90+space*i, 222), module, Verbo::HARM_INPUT+i));
-		addChild(createLight<MediumLight<RedLight>>(Vec(left+95+space*i, 250), module, Verbo::HARM_LIGHT+i));
+		addChild(createLight<MediumLight<BlueLight>>(Vec(left+95+space*i, 250), module, Verbo::HARM_LIGHT+i));
 	}
 
 int ks = 60;
