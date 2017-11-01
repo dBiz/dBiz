@@ -22,6 +22,23 @@ namespace rack {
 ////////////////////
 // Knobs
 ////////////////////
+struct VerboL : SVGKnob {
+	VerboL() {
+		minAngle = -0.83*M_PI;
+		maxAngle = 0.83*M_PI;
+		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/knobs/VerboL.svg")));
+		box.size = Vec(80, 80);
+	}
+};
+
+struct VerboS : SVGKnob {
+	VerboS() {
+		minAngle = -0.83*M_PI;
+		maxAngle = 0.83*M_PI;
+		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/knobs/VerboS.svg")));
+		box.size = Vec(35, 35);
+	}
+};
 
 
 

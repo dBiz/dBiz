@@ -51,6 +51,11 @@ struct DualFilterWidget : ModuleWidget
 	DualFilterWidget();
 };
 
+struct VerboWidget : ModuleWidget
+{
+	VerboWidget();
+};
+
 //struct NAMEWidget : ModuleWidget {
 //	 NAMEWidget(); 
 //};

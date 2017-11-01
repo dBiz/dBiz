@@ -27,5 +27,6 @@ void init(rack::Plugin *p)
 	p->addModel(createModel<BenePadsWidget>("dBiz", "dBiz", "CartesianPads", "BenePads"));
 	p->addModel(createModel<VCA530Widget>("dBiz", "dBiz", "VCA530", "VCA530"));
 	p->addModel(createModel<DualFilterWidget>("dBiz", "dBiz", "DualFilter", "DualFilter"));
+	p->addModel(createModel<VerboWidget>("dBiz", "dBiz", "VerboOsc", "VerboOsc"));
 }
 
