@@ -223,10 +223,10 @@ void Verbo::step() {
             if (boundl>7) boundl=7;
             int boundr = center - w;
 			if (boundr<0) boundr=0;
-			with_sum += 2.5 * bank[boundl].sin() * 0.125 * 10/params[WITH_PARAM].value;
-			with_sum += 2.5 * bank[boundr].sin() * 0.125 * 10/params[WITH_PARAM].value;
-			lights[HARM_LIGHT + boundl].value = 0.125 * w * 10/params[WITH_PARAM].value;
-			lights[HARM_LIGHT + boundr].value = 0.125 * w * 10/params[WITH_PARAM].value;
+			with_sum += 2.5 * bank[boundl].sin() * 0.125 * 10/(1+params[WITH_PARAM].value);
+			with_sum += 2.5 * bank[boundr].sin() * 0.125 * 10/(1+params[WITH_PARAM].value);
+			lights[HARM_LIGHT + boundl].value = 0.9 * 1/w;
+			lights[HARM_LIGHT + boundr].value = 0.9 * 1/w;
 		}   
     }
 
@@ -280,9 +280,9 @@ VerboWidget::VerboWidget() {
 
 int ks = 60;
 int vp=20;
-	addParam(createParam<VerboS>(Vec(10, vp+272), module, Verbo::FM_PARAM, 0.0, 1.0, 0.0));
+	addParam(createParam<VerboS>(Vec(10, vp+272), module, Verbo::FM_PARAM, -1.0, 1.0, 0.0));
 	addInput(createInput<PJ301MPort>(Vec(15, vp+320), module, Verbo::FM_INPUT));
-	addParam(createParam<VerboS>(Vec(55, vp+272), module, Verbo::CV_PARAM, 0.0, 1.0, 0.0));
+	addParam(createParam<VerboS>(Vec(55, vp+272), module, Verbo::CV_PARAM, -1.0, 1.0, 0.0));
 	addInput(createInput<PJ301MPort>(Vec(60, vp+320), module, Verbo::CV_INPUT));
 	addInput(createInput<PJ301MPort>(Vec(90, vp+320), module, Verbo::PITCH_INPUT));
 
