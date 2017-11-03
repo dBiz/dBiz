@@ -68,32 +68,38 @@ struct VCA530 : Module {
 };
 
 void VCA530::step()
-{
+{      
 
-    float cv1 = (clampf(inputs[CH1_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV1_PARAM].value)+1;
-    float cv2 = (clampf(inputs[CH2_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV2_PARAM].value)+1;
-    float cv3 = (clampf(inputs[CH3_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV3_PARAM].value)+1;
-    float cv4 = (clampf(inputs[CH4_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV4_PARAM].value)+1;
-    float cv5 = (clampf(inputs[CH5_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV5_PARAM].value)+1;
-    float cv6 = (clampf(inputs[CH6_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV6_PARAM].value)+1;
+    float ch1 = inputs[CH1_INPUT].value * params[CH1_PARAM].value;
+    float ch2 = inputs[CH2_INPUT].value * params[CH2_PARAM].value;
+    float ch3 = inputs[CH3_INPUT].value * params[CH3_PARAM].value;
+    float ch4 = inputs[CH4_INPUT].value * params[CH4_PARAM].value;
+    float ch5 = inputs[CH5_INPUT].value * params[CH5_PARAM].value;
+    float ch6 = inputs[CH6_INPUT].value * params[CH6_PARAM].value;
 
-    float ch1 = inputs[CH1_INPUT].value * params[CH1_PARAM].value * cv1 * cv2 * cv3;
-    float ch2 = inputs[CH2_INPUT].value * params[CH2_PARAM].value * cv1 * cv2 * cv3;
-    float ch3 = inputs[CH3_INPUT].value * params[CH3_PARAM].value * cv1 * cv2 * cv3;
-    float ch4 = inputs[CH4_INPUT].value * params[CH4_PARAM].value * cv4 * cv5 * cv6;
-    float ch5 = inputs[CH5_INPUT].value * params[CH5_PARAM].value * cv4 * cv5 * cv6;
-    float ch6 = inputs[CH6_INPUT].value * params[CH6_PARAM].value * cv4 * cv5 * cv6;
+    float sum_ch = (ch1 + ch2 + ch3 + ch4 + ch5 + ch6);
+    float sum_mix_l = (ch1 + ch2 + ch3);
+    float sum_mix_r = (ch4 + ch5 + ch6);
 
-    float sum_l = (ch1 + ch2 + ch3 + ch4 + ch5 + ch6) * params[MIX1_PARAM].value * cv1 * cv2 * cv3 * cv4 * cv5 * cv6;
-    float sum_r = (ch1 + ch2 + ch3 + ch4 + ch5 + ch6) * params[MIX2_PARAM].value * cv1 * cv2 * cv3 * cv4 * cv5 * cv6;
+    float cv1 = sum_mix_l * (clampf(inputs[CH1_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV1_PARAM].value);
+    float cv2 = sum_mix_l * (clampf(inputs[CH2_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV2_PARAM].value);
+    float cv3 = sum_mix_l * (clampf(inputs[CH3_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV3_PARAM].value);
+    float cv4 = sum_mix_r * (clampf(inputs[CH4_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV4_PARAM].value);
+    float cv5 = sum_mix_r * (clampf(inputs[CH5_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV5_PARAM].value);
+    float cv6 = sum_mix_r * (clampf(inputs[CH6_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV6_PARAM].value);
 
-    float mix_l = (ch1 + ch2 + ch3) * params[MIX1_PARAM].value * cv1 * cv2 * cv3;
-    float mix_r = (ch4 + ch5 + ch6) * params[MIX2_PARAM].value * cv4 * cv5 * cv6;
+    float sum_l = sum_ch * params[MIX1_PARAM].value;
+    float sum_r = sum_ch * params[MIX2_PARAM].value;
+    float mix_l = sum_mix_l * params[MIX1_PARAM].value;
+    float mix_r = sum_mix_r * params[MIX2_PARAM].value;
 
-    outputs[SUM_OUTPUT_R].value = sum_r;
-    outputs[SUM_OUTPUT_L].value = sum_l;
-    outputs[MIX_OUTPUT_R].value = mix_r;
-    outputs[MIX_OUTPUT_L].value = mix_l;
+    float sum_cv_l = (cv1 + cv2 + cv3);
+    float sum_cv_r = (cv4 + cv5 + cv6);
+
+    outputs[SUM_OUTPUT_R].value = sum_r + sum_cv_r + sum_cv_l;
+    outputs[SUM_OUTPUT_L].value = sum_l + sum_cv_l + sum_cv_r;
+    outputs[MIX_OUTPUT_R].value = mix_r + sum_cv_l;
+    outputs[MIX_OUTPUT_L].value = mix_l + sum_cv_r;
 
     lights[MIX1_LIGHTS].value = mix_l;
     lights[MIX2_LIGHTS].value = mix_r;
