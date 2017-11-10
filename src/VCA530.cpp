@@ -98,20 +98,26 @@ void VCA530::step()
 
     outputs[SUM_OUTPUT_R].value = sum_r + sum_cv_r + sum_cv_l;
     outputs[SUM_OUTPUT_L].value = sum_l + sum_cv_l + sum_cv_r;
-    outputs[MIX_OUTPUT_R].value = mix_r + sum_cv_l;
-    outputs[MIX_OUTPUT_L].value = mix_l + sum_cv_r;
+    outputs[MIX_OUTPUT_R].value = mix_r + sum_cv_r;
+    outputs[MIX_OUTPUT_L].value = mix_l + sum_cv_l;
 
-    lights[MIX1_LIGHTS].value = mix_l;
-    lights[MIX2_LIGHTS].value = mix_r;
-    if (mix_l>5)
+    lights[MIX1_LIGHTS].value = outputs[MIX_OUTPUT_L].value;
+    lights[MIX2_LIGHTS].value = outputs[MIX_OUTPUT_R].value;
+    if (outputs[MIX_OUTPUT_L].value > 4)
         lights[CLIP1_LIGHTS].value =1.0;
     else
         lights[CLIP1_LIGHTS].value = 0.0;
 
-    if (mix_r > 5)
+    if (outputs[MIX_OUTPUT_R].value > 4)
         lights[CLIP2_LIGHTS].value = 1.0;
     else
         lights[CLIP2_LIGHTS].value = 0.0;
+
+
+
+
+
+
 };
 
 VCA530Widget::VCA530Widget()
@@ -134,7 +140,7 @@ VCA530Widget::VCA530Widget()
   int low = 350;
   int low_f = 230 ;
   int med = 180;
-  int up =-10;
+  int up =-15;
   
 
 

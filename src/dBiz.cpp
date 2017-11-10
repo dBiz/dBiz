@@ -1,5 +1,5 @@
 #include "dBiz.hpp"
-#include <math.h>
+#include "math.h"
 #include "dsp/filter.hpp"
 #include "dsp/fir.hpp"
 #include "dsp/frame.hpp"
@@ -26,7 +26,7 @@ void init(rack::Plugin *p)
 	p->addModel(createModel<BeneWidget>("dBiz", "dBiz", "Cartesian", "Bene"));
 	p->addModel(createModel<BenePadsWidget>("dBiz", "dBiz", "CartesianPads", "BenePads"));
 	p->addModel(createModel<VCA530Widget>("dBiz", "dBiz", "VCA530", "VCA530"));
-	p->addModel(createModel<DualFilterWidget>("dBiz", "dBiz", "DualFilter", "DualFilter"));
+//	p->addModel(createModel<DualFilterWidget>("dBiz", "dBiz", "DualFilter", "DualFilter"));
 	p->addModel(createModel<VerboWidget>("dBiz", "dBiz", "VerboOsc", "VerboOsc"));
 }
 

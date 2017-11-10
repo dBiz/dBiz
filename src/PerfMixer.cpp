@@ -212,7 +212,7 @@ PerfMixerWidget::PerfMixerWidget() {
   int row_in = 40;
   int column_spacing = 30;
 
-  addParam(createParam<LDaviesPur>(Vec(right_column + 5, 10 ), module, PerfMixer::MIX_PARAM, 0.0, 1.0, 0.5)); // master volume
+  addParam(createParam<SynthTechAlco>(Vec(right_column + 5, 10), module, PerfMixer::MIX_PARAM, 0.0, 1.0, 0.5)); // master volume
 
   addParam(createParam<MicroBlu>(Vec(right_column+5, 225 ), module, PerfMixer::AUX_R1_PARAM, 0.0, 1.0, 0.0));
   addParam(createParam<MicroBlu>(Vec(right_column+5, 285 ), module, PerfMixer::AUX_R2_PARAM, 0.0, 1.0, 0.0));
@@ -232,12 +232,12 @@ PerfMixerWidget::PerfMixerWidget() {
           addInput(createInput<PJ301MIPort>(Vec(lb , top + row_in*i ), module, PerfMixer::CH_L_INPUT + i));
           addInput(createInput<PJ301MIPort>(Vec(lb + 25, top + row_in*i), module, PerfMixer::CH_R_INPUT + i));
 
-          addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * i, top_row + row_spacing * 2 - 20 + top), module, PerfMixer::VOL_PARAM + i, 0.0, 1.0, 0.0));
+          addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * i, top_row + row_spacing * 2 - 40 + top), module, PerfMixer::VOL_PARAM + i, 0.0, 1.0, 0.0));
 
           addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * i - 5, top_row + row_spacing * 6 - 20 + top), module, PerfMixer::CH_VOL_INPUT + i));
 
           addParam(createParam<LEDButton>(Vec(column_1 + column_spacing * i, top_row + row_spacing * 7 + top), module, PerfMixer::MUTE_PARAM + i, 0.0, 1.0, 0.0));
-          addChild(createLight<MediumLight<GreenLight>>(Vec(column_1 + column_spacing * i + 3, top_row + row_spacing * 7 + 3 + top), module, PerfMixer::MUTE_LIGHTS + i));
+          addChild(createLight<MediumLight<GreenLight>>(Vec(column_1 + column_spacing * i + 4, top_row + row_spacing * 7 + 4 + top), module, PerfMixer::MUTE_LIGHTS + i));
           addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * i, top_row + row_spacing * 8 + top), module, PerfMixer::CH_MUTE_INPUT + i));
 	}
 

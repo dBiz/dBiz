@@ -44,12 +44,10 @@ struct DualFilter : Module{
 		FREQ_INPUT,
 		FREQ_INPUT2,
 		RES_INPUT,
-		DRIVE_INPUT,
 		INPUT,
 		FREQ2_INPUT,
 		FREQ2_INPUT2,
 		RES2_INPUT,
-		DRIVE2_INPUT,
 		INPUT2,
 		FADE_CV,
 
@@ -71,7 +69,8 @@ struct DualFilter : Module{
 	};
 
 
-	DualFilter();
+DualFilter();
+
 VAStateVariableFilter *lpFilter = new VAStateVariableFilter() ;	// create a lpFilter;
 VAStateVariableFilter *hpFilter = new VAStateVariableFilter() ;	// create a lpFilter;
 VAStateVariableFilter *bpFilter = new VAStateVariableFilter() ;	// create a lpFilter;
@@ -103,33 +102,48 @@ float out2HP;
 float out2BP;
 float out2NP;
 
-//VAStateVariableFilter *peakFilter = new VAStateVariableFilter();
-
 float minfreq = 15.0;
 float maxfreq = 12000;
 
 
 void DualFilter::step() {
-	
-	
 
 	float input = inputs[INPUT].value * params[VOLA_PARAM].value / 5.0;
-	float input2 = inputs[INPUT2].value * params[VOLB_PARAM].value/ 5.0;
-	float drive = params[DRIVE_PARAM].value + inputs[DRIVE_INPUT].value / 10.0;
-	float drive2 = params[DRIVE2_PARAM].value + inputs[DRIVE2_INPUT].value / 10.0;
+	float input2 = inputs[INPUT2].value * params[VOLB_PARAM].value / 5.0;
+	float drive = params[DRIVE_PARAM].value;
+	float drive2 = params[DRIVE2_PARAM].value;
+	float out = 0.0;
+	float out2 = 0.0;
+
+	if (fabs(input) > (1.0 - drive))
+	{
+		out = (out * (1.0 - drive)) + (copysign(1.0, input) * drive);
+	}
+	if (fabs(input2) > (1.0 - drive2))
+	{
+		out2 = (out2 * (1.0 - drive2)) + (copysign(1.0, input2) * drive2);
+	}
 	float xfade = params[FADE_PARAM].value+inputs[FADE_CV].value / 10.0;
-	float gain = powf(100.0, drive);
-	float gain2 = powf(100.0, drive2);
-	input *= gain;
-	input2 *= gain2;
+
+	out = out * powf(2.0,20.0);
+	out = round(out);
+	out = out / powf(2.0,20.0);
+
+	out2 = out2 * powf(2.0,20.0);
+	out2 = round(out);
+	out2 = out2 / powf(2.0,20.0);
+
+	input += out;
+	input2 += out2;
+
+	
 
 	lights[FADEA_LIGHTS].value=(1-xfade);
 	lights[FADEB_LIGHTS].value=xfade;
 
-
-	// Add -60dB noise to bootstrap self-oscillation
+	 //Add -60dB noise to bootstrap self-oscillation
 	input += 1.0e-6 * (2.0*randomf() - 1.0)*1000;
-	input2 += 1.0e-6 * (2.0 * randomf() - 1.0) * 1000;
+    input2 += 1.0e-6 * (2.0 * randomf() - 1.0) * 1000;
 
 	// Set resonance
 	float res = clampf(params[RES_PARAM].value + clampf(inputs[RES_INPUT].value, 0,1), 0,1);
@@ -146,7 +160,7 @@ void DualFilter::step() {
 	cutoff = clampf(cutoff, minfreq, maxfreq);
 	cutoff2 = clampf(cutoff2, minfreq, maxfreq);
 
-
+ 
 	lpFilter->setFilterType(0);
 	hpFilter->setFilterType(2);
 	bpFilter->setFilterType(1);
@@ -289,8 +303,8 @@ int cv = 310;
 	addParam(createParam<RoundWhy>(Vec(of + 100, 145), module, DualFilter::DRIVE_PARAM, 0.0, 1.0, 0.0));
 	addParam(createParam<RoundWhy>(Vec(of + 33 + i, 145), module, DualFilter::DRIVE2_PARAM, 0.0, 1.0, 0.0));
 
-	addParam(createParam<RoundWhy>(Vec(of + 100, 200), module, DualFilter::VOLA_PARAM, 0.0, 5.0, 0.0));
-	addParam(createParam<RoundWhy>(Vec(of + 33 + i, 200), module, DualFilter::VOLB_PARAM, 0.0, 5.0, 0.0));
+	addParam(createParam<RoundWhy>(Vec(of + 100, 200), module, DualFilter::VOLA_PARAM, 0.0, 1.0, 0.0));
+	addParam(createParam<RoundWhy>(Vec(of + 33 + i, 200), module, DualFilter::VOLB_PARAM, 0.0, 1.0, 0.0));
 
 
 	addParam(createParam<RoundWhySnapKnob>(Vec(of + 33, 220), module, DualFilter::FILTERSEL_PARAM, 0.0, 3.0, 0.0));
@@ -302,14 +316,14 @@ int cv = 310;
 	addInput(createInput<PJ301MCPort>(Vec(l, 276), module, DualFilter::FREQ_INPUT));
 	addInput(createInput<PJ301MCPort>(Vec(l + s , 276), module, DualFilter::FREQ_INPUT2));
 	addInput(createInput<PJ301MCPort>(Vec(l + s * 2, 276), module, DualFilter::RES_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(l + s * 3, 276), module, DualFilter::DRIVE_INPUT));
+
 
 	addInput(createInput<PJ301MCPort>(Vec(l + s , cv), module, DualFilter::FADE_CV));
  
 	addInput(createInput<PJ301MCPort>(Vec(l + i, 276), module, DualFilter::FREQ2_INPUT));
 	addInput(createInput<PJ301MCPort>(Vec(l + s + i, 276), module, DualFilter::FREQ2_INPUT2));
 	addInput(createInput<PJ301MCPort>(Vec(l + s * 2 + i, 276), module, DualFilter::RES2_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(l + s * 3 + i, 276), module, DualFilter::DRIVE2_INPUT));
+
 
 	addInput(createInput<PJ301MOrPort>(Vec(l + s * 2, cv), module, DualFilter::INPUT));
 	addInput(createInput<PJ301MOrPort>(Vec(l + s  + i, cv), module, DualFilter::INPUT2));
