@@ -22,6 +22,23 @@ namespace rack {
 ////////////////////
 // Knobs
 ////////////////////
+struct VerboL : SVGKnob {
+	VerboL() {
+		minAngle = -0.83*M_PI;
+		maxAngle = 0.83*M_PI;
+		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/knobs/VerboL.svg")));
+		box.size = Vec(80, 80);
+	}
+};
+
+struct VerboS : SVGKnob {
+	VerboS() {
+		minAngle = -0.83*M_PI;
+		maxAngle = 0.83*M_PI;
+		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/knobs/VerboS.svg")));
+		box.size = Vec(35, 35);
+	}
+};
 
 
 
@@ -181,6 +198,27 @@ struct LDaviesGre : DaviesGre {
 	}
 };
 
+struct DaviesWhy : DaviesKnob
+{
+	DaviesWhy()
+	{
+		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/Knobs/DaviesWhy.svg")));
+	}
+};
+struct LDaviesWhy : DaviesWhy
+{
+	LDaviesWhy()
+	{
+		box.size = Vec(46, 46);
+	}
+};
+
+struct DaviesWhySnapKnob : DaviesWhy {
+	DaviesWhySnapKnob() {
+		snap = true;
+	};
+};
+
 struct DaviesAzz : DaviesKnob {
 	DaviesAzz() {
 		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/Knobs/DaviesAzz.svg")));
@@ -235,6 +273,39 @@ struct LDaviesYel : DaviesYel {
 		box.size = Vec(46, 46);	
 	}
 };
+
+
+struct RoundWhy : DaviesKnob {
+	RoundWhy() {
+		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/Knobs/RoundWhy.svg")));
+	}
+};
+
+struct RoundWhySnapKnob : RoundWhy {
+	RoundWhySnapKnob() {
+		snap = true;
+	};
+};
+
+struct LRoundWhy : RoundWhy {
+	LRoundWhy() {
+		box.size = Vec (46,46);
+	}
+};
+
+struct RoundBlu : DaviesKnob {
+	RoundBlu() {
+		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/Knobs/RoundBlu.svg")));
+	}
+};
+
+struct LRoundBlu : RoundBlu {
+	LRoundBlu() {
+		box.size = Vec (46,46);
+	}
+};
+
+
 // struct DaviesKnobSnapKnob : DaviesKnob, SnapKnob {};
 
 //////////////////////
