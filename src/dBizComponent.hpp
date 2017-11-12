@@ -314,7 +314,7 @@ struct LRoundBlu : RoundBlu {
 
 struct SlidePot : SVGSlider {
 	SlidePot() {
-		Vec margin = Vec(3.5, 3.5);
+		Vec margin = Vec(2, 2);
 		maxHandlePos = Vec(-1, -2).plus(margin);
 		minHandlePos = Vec(-1, 87).plus(margin);
 		background->svg = SVG::load(assetGlobal("plugins/dBiz/res/Slider/SlidePot.svg"));
@@ -330,12 +330,12 @@ struct SlidePot2 : SVGSlider
 {
 	SlidePot2()
 	{
-		Vec margin = Vec(3.5, 3.5);
-		maxHandlePos = Vec(-10, -2).plus(margin);
-		minHandlePos = Vec(-10, 87).plus(margin);
+		Vec margin = Vec(4, 4);
+		maxHandlePos = Vec(-8, -2).plus(margin);
+		minHandlePos = Vec(-8, 90).plus(margin);
 		background->svg = SVG::load(assetGlobal("plugins/dBiz/res/Slider/SlidePot.svg"));
 		background->wrap();
-		background->box.pos = margin;
+		background->box.pos = Vec(6.5,0).plus(margin);
 		box.size = background->box.size.plus(margin.mult(2));
 		handle->svg = SVG::load(assetGlobal("plugins/dBiz/res/Slider/SlidePotHandle2.svg"));
 		handle->wrap();

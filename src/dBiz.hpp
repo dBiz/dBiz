@@ -46,10 +46,17 @@ struct VCA530Widget : ModuleWidget
 	VCA530Widget();
 };
 
+<<<<<<< HEAD
 struct DVCOWidget : ModuleWidget
 {
 	DVCOWidget();
 };
+=======
+/*struct DualFilterWidget : ModuleWidget
+{
+	DualFilterWidget();
+};*/
+>>>>>>> 655532f335869e15e3ffb45719c858309e3f93eb
 
 struct VerboWidget : ModuleWidget
 {
