@@ -15,6 +15,7 @@
 struct Bene : Module {
   enum ParamIds
   {
+    QUANT_PARAM,
     KNOB_PARAM,
     NUM_PARAMS = KNOB_PARAM + 16
   };
@@ -199,12 +200,41 @@ void Bene::step() {
     int semi = round(left * 12);
     float quant_out = oct + semi/12.0;
 
+    int roct[4] {};
+    float rleft[4] {};
+    float rquant_out[4] {};
+    int rsemi [4] {};
+    int coct[4]{};
+    float cleft[4]{};
+    float cquant_out[4]{};
+    int csemi[4]{};
+
     for (int i = 0 ; i < 4 ; i++)
     {
       row_outs[i] = params[KNOB_PARAM + y_position * 4 + i ].value;
       column_outs[i] = params[KNOB_PARAM + x_position + i * 4].value;
-      outputs[ROW_OUT + i ].value = row_outs[i];
-      outputs[COLUMN_OUT + i ].value = column_outs[i];            
+      
+      
+        roct[i]= round(row_outs[i]);
+        rleft[i] = row_outs[i] - roct[i];
+        rsemi[i] = round(rleft[i] * 12);
+        rquant_out[i] = roct[i] + rsemi[i] / 12.0;
+
+        coct[i] = round(column_outs[i]);
+        cleft[i] = column_outs[i] - roct[i];
+        csemi[i] = round(cleft[i] * 12);
+        cquant_out[i] = coct[i] + csemi[i] / 12.0;
+
+        if(params[QUANT_PARAM].value == 1.0)
+        {
+          outputs[ROW_OUT + i].value = rquant_out[i];
+          outputs[COLUMN_OUT + i].value = cquant_out[i];
+        }
+        else
+        {
+        outputs[ROW_OUT + i].value = row_outs[i];
+        outputs[COLUMN_OUT + i].value = column_outs[i];
+        }
     }
 
     
@@ -230,7 +260,8 @@ BeneWidget::BeneWidget() {
   int left = 8;
   int column_spacing = 35; 
   int row_spacing = 35;
-  
+
+  addParam(createParam<CKSS>(Vec(left+column_spacing*3,top+ 85), module, Bene::QUANT_PARAM, 0.0, 1.0, 1.0));
 
   addInput(createInput<PJ301MIPort>(Vec(left, top), module, Bene::LEFT));
   addInput(createInput<PJ301MIPort>(Vec(left+column_spacing, top), module, Bene::RIGHT));
