@@ -206,7 +206,7 @@ struct DVCO : Module {
 		OSC_B_OUTPUT,
 		OSC_BN_OUTPUT,
 		RING_OUTPUT,
-		//SUM_OUTPUT,
+		SUM_OUTPUT,
 		NUM_OUTPUTS
 	};
 	enum LightIds {
@@ -294,22 +294,27 @@ else {
 if(inputs[CARRIER_INPUT].active)
 	{
 	outputs[RING_OUTPUT].value=5.0*carrier*out_b;
+	outputs[SUM_OUTPUT].value = 5.0 * (carrier + out_b);
 }
 else if (inputs[MODULATOR_INPUT].active){
 	outputs[RING_OUTPUT].value=5.0*out_a*modulator;
+	outputs[SUM_OUTPUT].value = 5.0 *(out_a + modulator);
 }
-else if (inputs[MODULATOR_INPUT].active && inputs[MODULATOR_INPUT].active){
+if (inputs[MODULATOR_INPUT].active && inputs[CARRIER_INPUT].active)
+{
 	outputs[RING_OUTPUT].value=5.0*carrier*modulator;
+	outputs[SUM_OUTPUT].value=5.0*(carrier+modulator);
 }
 else{
 	outputs[RING_OUTPUT].value=5.0*out_a*out_b;
+	outputs[SUM_OUTPUT].value = 2.5*(out_a + out_b);
 }
 
 	outputs[OSC_AN_OUTPUT].value = -5.0 * out_a;
 	outputs[OSC_BN_OUTPUT].value = -5.0 * out_b;
 	outputs[OSC_A_OUTPUT].value = 5.0 * out_a;
 	outputs[OSC_B_OUTPUT].value = 5.0 * out_b;
-	//outputs[SUM_OUTPUT].value = 2.5*(out_a+out_b);
+	
 	
 	
 }
@@ -354,7 +359,7 @@ DVCOWidget::DVCOWidget() {
 
 	addParam(createParam<Rogan1PSWhite>(Vec(85+oscb, 110), module, DVCO::PW_B_PARAM, 0.0, 1.0, 0.5));
 	addParam(createParam<Rogan1PSWhite>(Vec(20+oscb, 170), module, DVCO::FM_B_PARAM, 0.0, 1.0, 0.0));
-	addParam(createParam<Rogan1PSWhite>(Vec(90+oscb, 170), module, DVCO::PWM_B_PARAM, 0.0, 1.0, 0.0));
+	addParam(createParam<Rogan1PSWhite>(Vec(85+oscb, 170), module, DVCO::PWM_B_PARAM, 0.0, 1.0, 0.0));
 
 	addParam(createParam<Rogan1PSWhite>(Vec(85, 110), module, DVCO::WAVE_A_PARAM, 0.0, 3.0, 1.5));
 	addParam(createParam<Rogan1PSWhite>(Vec(20+oscb, 110), module, DVCO::WAVE_B_PARAM, 0.0, 3.0, 1.5));
@@ -374,14 +379,14 @@ DVCOWidget::DVCOWidget() {
 	addInput(createInput<PJ301MPort>(Vec(70+oscb, 310), module, DVCO::SYNC_B_INPUT));
 	addInput(createInput<PJ301MPort>(Vec(105+oscb, 310), module, DVCO::PW_B_INPUT));
 
-	addInput(createInput<PJ301MPort>(Vec(110, 300), module, DVCO::CARRIER_INPUT));
-	addInput(createInput<PJ301MPort>(Vec(150, 300), module, DVCO::MODULATOR_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(110, 290), module, DVCO::CARRIER_INPUT));
+	addInput(createInput<PJ301MPort>(Vec(150, 290), module, DVCO::MODULATOR_INPUT));
 	
 	addOutput(createOutput<PJ301MPort>(Vec(10, 225), module, DVCO::OSC_A_OUTPUT));
 	addOutput(createOutput<PJ301MPort>(Vec(45, 225), module, DVCO::OSC_AN_OUTPUT));
 	addOutput(createOutput<PJ301MPort>(Vec(70+oscb, 225), module, DVCO::OSC_B_OUTPUT));
 	addOutput(createOutput<PJ301MPort>(Vec(105+oscb, 225), module, DVCO::OSC_BN_OUTPUT));
-	//addOutput(createOutput<PJ301MPort>(Vec(130, 225), module, DVCO::SUM_OUTPUT));
+	addOutput(createOutput<PJ301MPort>(Vec(130, 340), module, DVCO::SUM_OUTPUT));
 	addOutput(createOutput<PJ301MPort>(Vec(130, 225), module, DVCO::RING_OUTPUT));
 
 	
