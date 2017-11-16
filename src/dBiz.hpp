@@ -56,6 +56,11 @@ struct VerboWidget : ModuleWidget
 	VerboWidget();
 };
 
+struct DAOSCWidget : ModuleWidget
+{
+	DAOSCWidget();
+};
+
 //struct NAMEWidget : ModuleWidget {
 //	 NAMEWidget(); 
 //};

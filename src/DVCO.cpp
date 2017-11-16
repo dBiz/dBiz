@@ -2,6 +2,8 @@
 #include "dsp/decimator.hpp"
 #include "dsp/filter.hpp"
 
+//// Based on Fundamental OSC
+
 
 extern float sawTable[2048];
 extern float triTable[2048];
@@ -242,7 +244,9 @@ void DVCO::step() {
 	if (inputs[FM_B_INPUT].active) {
 		pitchCv_b += quadraticBipolar(params[FM_B_PARAM].value) * 12.0 * inputs[FM_B_INPUT].value;
 	}
-	
+	else
+		pitchCv_b += quadraticBipolar(params[FM_B_PARAM].value) * 12.0 * outputs[OSC_A_OUTPUT].value;
+
 	if(params[LFO_A_MODE_PARAM].value==0.0){
 	oscillator_a.setPitch(params[FREQ_A_PARAM].value, pitchFine_a + pitchCv_a);
 	oscillator_a.freq=oscillator_a.freq/100;
@@ -290,25 +294,28 @@ else {
 	else
 		out_b = crossf(oscillator_b.saw(), oscillator_b.sqr(), wave_b - 2.0);
 
+	
 
-if(inputs[CARRIER_INPUT].active)
+	if (inputs[CARRIER_INPUT].active && inputs[MODULATOR_INPUT].value == 0.0)
 	{
 	outputs[RING_OUTPUT].value=5.0*carrier*out_b;
 	outputs[SUM_OUTPUT].value = 5.0 * (carrier + out_b);
-}
-else if (inputs[MODULATOR_INPUT].active){
-	outputs[RING_OUTPUT].value=5.0*out_a*modulator;
-	outputs[SUM_OUTPUT].value = 5.0 *(out_a + modulator);
-}
-if (inputs[MODULATOR_INPUT].active && inputs[CARRIER_INPUT].active)
-{
+	}
+	else if (inputs[MODULATOR_INPUT].active && inputs[CARRIER_INPUT].value == 0.0)
+	{
+		outputs[RING_OUTPUT].value = 5.0 * out_a * modulator;
+		outputs[SUM_OUTPUT].value = 5.0 * (out_a + modulator);
+	}
+	else if (inputs[MODULATOR_INPUT].active && inputs[CARRIER_INPUT].active)
+	{
 	outputs[RING_OUTPUT].value=5.0*carrier*modulator;
 	outputs[SUM_OUTPUT].value=5.0*(carrier+modulator);
-}
-else{
+	}
+	else 
+	{
 	outputs[RING_OUTPUT].value=5.0*out_a*out_b;
 	outputs[SUM_OUTPUT].value = 2.5*(out_a + out_b);
-}
+	}
 
 	outputs[OSC_AN_OUTPUT].value = -5.0 * out_a;
 	outputs[OSC_BN_OUTPUT].value = -5.0 * out_b;
@@ -349,9 +356,9 @@ DVCOWidget::DVCOWidget() {
 	addParam(createParam<CKSS>(Vec(135, 60), module, DVCO::OSC_SYNC_PARAM, 0.0, 1.0, 1.0));
 
 	addParam(createParam<Rogan1PSWhite>(Vec(20, 50), module, DVCO::FREQ_A_PARAM, -54.0, 54.0, 0.0));
-	addParam(createParam<Rogan1PSWhite>(Vec(85, 50), module, DVCO::FINE_A_PARAM, -1.0, 1.0, 0.0));
+	addParam(createParam<Rogan1PSWhite>(Vec(85, 50), module, DVCO::FINE_A_PARAM, -1.5, 1.5, 0.0));
 	addParam(createParam<Rogan1PSWhite>(Vec(20+oscb, 50), module, DVCO::FREQ_B_PARAM, -54.0, 54.0, 0.0));
-	addParam(createParam<Rogan1PSWhite>(Vec(85+oscb, 50), module, DVCO::FINE_B_PARAM, -1.0, 1.0, 0.0));
+	addParam(createParam<Rogan1PSWhite>(Vec(85+oscb, 50), module, DVCO::FINE_B_PARAM, -1.5, 1.5, 0.0));
 
 	addParam(createParam<Rogan1PSWhite>(Vec(20, 110), module, DVCO::PW_A_PARAM, 0.0, 1.0, 0.5));
 	addParam(createParam<Rogan1PSWhite>(Vec(85, 170), module, DVCO::FM_A_PARAM, 0.0, 1.0, 0.0));

@@ -106,8 +106,8 @@ BenePadsWidget::BenePadsWidget() {
     for ( int j = 0 ; j < 4 ; j++)
     {
      
-      addParam(createParam<PB61303>(Vec(button_offset+left+column_spacing * i-10, top + row_spacing * j + 150 ), module, BenePads::BUTTON_PARAM + i + j * 4, 0.0, 1.0, 0.0));
-      addChild(createLight<BigLight<OrangeLight>>(Vec(button_offset + left + column_spacing * i - 10 + 4.5, top + row_spacing * j + 150 + 4.5), module, BenePads::PAD_LIGHTS + i + j * 4));
+      addParam(createParam<PB61303>(Vec(button_offset+left+column_spacing * i-10, top + row_spacing * j + 170 ), module, BenePads::BUTTON_PARAM + i + j * 4, 0.0, 1.0, 0.0));
+      addChild(createLight<BigLight<OrangeLight>>(Vec(button_offset + left + column_spacing * i - 10 + 4.5, top + row_spacing * j + 170 + 4.5), module, BenePads::PAD_LIGHTS + i + j * 4));
     }
     
     }  
