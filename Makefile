@@ -11,5 +11,5 @@ endif
 	mkdir -p dist/dBiz
 	cp LICENSE* dist/dBiz/
 	cp plugin.* dist/dBiz/
-	cp -R res dist/dist/
+	cp -R res dist/dBiz/
 	cd dist && zip -5 -r dBiz-$(VERSION)-$(ARCH).zip dBiz
