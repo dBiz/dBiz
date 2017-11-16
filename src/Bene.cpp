@@ -11,16 +11,28 @@
 
 #include "dBiz.hpp"
 #include "dsp/digital.hpp"
+#include <ctime>
+#include <iostream>
+#include <vector>
+#include <random>
+#include <algorithm>
+
+using namespace std;
 
 struct Bene : Module {
   enum ParamIds
   {
-    QUANT_PARAM,
+    ROOT_NOTE_PARAM,
+    SCALE_PARAM,
+  //  QUANT_PARAM,
     KNOB_PARAM,
     NUM_PARAMS = KNOB_PARAM + 16
   };
-  enum InputIds {		
-		UP,
+  enum InputIds
+  {
+    ROOT_NOTE_INPUT,
+    SCALE_INPUT,
+    UP,
     DOWN,
     LEFT,
     RIGHT,
@@ -30,9 +42,9 @@ struct Bene : Module {
     RESET,
     X_RESET,
     Y_RESET,
-		NUM_INPUTS
-	};
-	enum OutputIds {
+    NUM_INPUTS
+  };
+  enum OutputIds {
 		UNQUANT_OUT,
     QUANT_OUT,
     ROW_OUT,
@@ -44,6 +56,65 @@ struct Bene : Module {
   {
     GRID_LIGHTS,
     NUM_LIGHTS = GRID_LIGHTS + 16
+  };
+
+  //copied from http://www.grantmuller.com/MidiReference/doc/midiReference/ScaleReference.html
+  int SCALE_AEOLIAN[7] = {0, 2, 3, 5, 7, 8, 10};
+  int SCALE_BLUES[9] = {0, 2, 3, 4, 5, 7, 9, 10, 11};
+  int SCALE_CHROMATIC[12] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+  int SCALE_DIATONIC_MINOR[7] = {0, 2, 3, 5, 7, 8, 10};
+  int SCALE_DORIAN[7] = {0, 2, 3, 5, 7, 9, 10};
+  int SCALE_HARMONIC_MINOR[7] = {0, 2, 3, 5, 7, 8, 11};
+  int SCALE_INDIAN[7] = {0, 1, 1, 4, 5, 8, 10};
+  int SCALE_LOCRIAN[7] = {0, 1, 3, 5, 6, 8, 10};
+  int SCALE_LYDIAN[7] = {0, 2, 4, 6, 7, 9, 10};
+  int SCALE_MAJOR[7] = {0, 2, 4, 5, 7, 9, 11};
+  int SCALE_MELODIC_MINOR[9] = {0, 2, 3, 5, 7, 8, 9, 10, 11};
+  int SCALE_MINOR[7] = {0, 2, 3, 5, 7, 8, 10};
+  int SCALE_MIXOLYDIAN[7] = {0, 2, 4, 5, 7, 9, 10};
+  int SCALE_NATURAL_MINOR[7] = {0, 2, 3, 5, 7, 8, 10};
+  int SCALE_PENTATONIC[5] = {0, 2, 4, 7, 9};
+  int SCALE_PHRYGIAN[7] = {0, 1, 3, 5, 7, 8, 10};
+  int SCALE_TURKISH[7] = {0, 1, 3, 5, 7, 10, 11};
+
+  enum Notes
+  {
+    NOTE_C,
+    NOTE_C_SHARP,
+    NOTE_D,
+    NOTE_D_SHARP,
+    NOTE_E,
+    NOTE_F,
+    NOTE_F_SHARP,
+    NOTE_G,
+    NOTE_G_SHARP,
+    NOTE_A,
+    NOTE_A_SHARP,
+    NOTE_B,
+    NUM_NOTES
+  };
+
+  enum Scales
+  {
+    AEOLIAN,
+    BLUES,
+    CHROMATIC,
+    DIATONIC_MINOR,
+    DORIAN,
+    HARMONIC_MINOR,
+    INDIAN,
+    LOCRIAN,
+    LYDIAN,
+    MAJOR,
+    MELODIC_MINOR,
+    MINOR,
+    MIXOLYDIAN,
+    NATURAL_MINOR,
+    PENTATONIC,
+    PHRYGIAN,
+    TURKISH,
+    NONE,
+    NUM_SCALES
   };
 
   SchmittTrigger leftTrigger;
@@ -61,11 +132,116 @@ struct Bene : Module {
   
   int x_position = 0;
   int y_position = 0;
-    
-	Bene() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
-	void step() override;
-   
+
+  int rootNote = 0;
+  int curScaleVal = 0;
+  float pitch = 0;
+  float previousPitch = 0;
+
+  Bene() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+  
+  void step() override;
+
+// Quantization based on JW quantizer module!!!
+
+  float closestVoltageInScale(float voltsIn)
+  {
+    rootNote = clampi(params[ROOT_NOTE_PARAM].value + inputs[ROOT_NOTE_INPUT].value, 0.0, Bene::NUM_NOTES - 1);
+    curScaleVal = clampi(params[SCALE_PARAM].value + inputs[SCALE_INPUT].value, 0.0, Bene::NUM_SCALES - 1);
+    int *curScaleArr;
+    int notesInScale = 0;
+    switch (curScaleVal)
+    {
+    case AEOLIAN:
+      curScaleArr = SCALE_AEOLIAN;
+      notesInScale = LENGTHOF(SCALE_AEOLIAN);
+      break;
+    case BLUES:
+      curScaleArr = SCALE_BLUES;
+      notesInScale = LENGTHOF(SCALE_BLUES);
+      break;
+    case CHROMATIC:
+      curScaleArr = SCALE_CHROMATIC;
+      notesInScale = LENGTHOF(SCALE_CHROMATIC);
+      break;
+    case DIATONIC_MINOR:
+      curScaleArr = SCALE_DIATONIC_MINOR;
+      notesInScale = LENGTHOF(SCALE_DIATONIC_MINOR);
+      break;
+    case DORIAN:
+      curScaleArr = SCALE_DORIAN;
+      notesInScale = LENGTHOF(SCALE_DORIAN);
+      break;
+    case HARMONIC_MINOR:
+      curScaleArr = SCALE_HARMONIC_MINOR;
+      notesInScale = LENGTHOF(SCALE_HARMONIC_MINOR);
+      break;
+    case INDIAN:
+      curScaleArr = SCALE_INDIAN;
+      notesInScale = LENGTHOF(SCALE_INDIAN);
+      break;
+    case LOCRIAN:
+      curScaleArr = SCALE_LOCRIAN;
+      notesInScale = LENGTHOF(SCALE_LOCRIAN);
+      break;
+    case LYDIAN:
+      curScaleArr = SCALE_LYDIAN;
+      notesInScale = LENGTHOF(SCALE_LYDIAN);
+      break;
+    case MAJOR:
+      curScaleArr = SCALE_MAJOR;
+      notesInScale = LENGTHOF(SCALE_MAJOR);
+      break;
+    case MELODIC_MINOR:
+      curScaleArr = SCALE_MELODIC_MINOR;
+      notesInScale = LENGTHOF(SCALE_MELODIC_MINOR);
+      break;
+    case MINOR:
+      curScaleArr = SCALE_MINOR;
+      notesInScale = LENGTHOF(SCALE_MINOR);
+      break;
+    case MIXOLYDIAN:
+      curScaleArr = SCALE_MIXOLYDIAN;
+      notesInScale = LENGTHOF(SCALE_MIXOLYDIAN);
+      break;
+    case NATURAL_MINOR:
+      curScaleArr = SCALE_NATURAL_MINOR;
+      notesInScale = LENGTHOF(SCALE_NATURAL_MINOR);
+      break;
+    case PENTATONIC:
+      curScaleArr = SCALE_PENTATONIC;
+      notesInScale = LENGTHOF(SCALE_PENTATONIC);
+      break;
+    case PHRYGIAN:
+      curScaleArr = SCALE_PHRYGIAN;
+      notesInScale = LENGTHOF(SCALE_PHRYGIAN);
+      break;
+    case TURKISH:
+      curScaleArr = SCALE_TURKISH;
+      notesInScale = LENGTHOF(SCALE_TURKISH);
+      break;
+    case NONE:
+      return voltsIn;
+    }
+
+    float closestVal = 10.0;
+    float closestDist = 10.0;
+    int octaveInVolts = int(voltsIn);
+    for (int i = 0; i < notesInScale; i++)
+    {
+      float scaleNoteInVolts = octaveInVolts + ((rootNote + curScaleArr[i]) / 12.0);
+      float distAway = fabs(voltsIn - scaleNoteInVolts);
+      if (distAway < closestDist)
+      {
+        closestVal = scaleNoteInVolts;
+        closestDist = distAway;
+      }
+    }
+    return closestVal;
+  }
 };
+
+
 
 void Bene::step() {
 
@@ -142,8 +318,8 @@ void Bene::step() {
    
     // handle button triggers
 
-    int xpad = std::round(inputs[X_PAD].value);
-    int ypad = std::round(inputs[Y_PAD].value);
+    int xpad = round(inputs[X_PAD].value);
+    int ypad = round(inputs[Y_PAD].value);
 
     bool gated = inputs[G_PAD].value > 0.0;
 
@@ -193,54 +369,157 @@ void Bene::step() {
     
     /// set outputs
     int which_knob = y_position * 4 + x_position;
-    float main_out = params[KNOB_PARAM + which_knob].value;
-    
-    int oct = round(main_out);
-    float left = main_out - oct;
-    int semi = round(left * 12);
-    float quant_out = oct + semi/12.0;
+    //float main_out = params[KNOB_PARAM + which_knob].value;
 
-    int roct[4] {};
-    float rleft[4] {};
-    float rquant_out[4] {};
-    int rsemi [4] {};
-    int coct[4]{};
-    float cleft[4]{};
-    float cquant_out[4]{};
-    int csemi[4]{};
+   // int oct = round(main_out);
+   // float left = main_out - oct;
+   // int semi = round(left * 12);
+   // float quant_out = oct + semi/12.0;
+//
 
     for (int i = 0 ; i < 4 ; i++)
     {
-      row_outs[i] = params[KNOB_PARAM + y_position * 4 + i ].value;
-      column_outs[i] = params[KNOB_PARAM + x_position + i * 4].value;
-      
-      
-        roct[i]= round(row_outs[i]);
-        rleft[i] = row_outs[i] - roct[i];
-        rsemi[i] = round(rleft[i] * 12);
-        rquant_out[i] = roct[i] + rsemi[i] / 12.0;
+    float main_out = params[KNOB_PARAM + which_knob].value;
+    float quant_out = closestVoltageInScale(params[KNOB_PARAM + which_knob].value);
+    row_outs[i] = closestVoltageInScale(params[KNOB_PARAM + y_position * 4 + i].value);
+    column_outs[i] = closestVoltageInScale(params[KNOB_PARAM + x_position + i * 4].value);
 
-        coct[i] = round(column_outs[i]);
-        cleft[i] = column_outs[i] - roct[i];
-        csemi[i] = round(cleft[i] * 12);
-        cquant_out[i] = coct[i] + csemi[i] / 12.0;
+   /* roct[i] = round(row_outs[i]);
+    rleft[i] = row_outs[i] - roct[i];
+    rsemi[i] = round(rleft[i] * 12);
+    rquant_out[i] = roct[i] + rsemi[i] / 12.0;
 
-        if(params[QUANT_PARAM].value == 1.0)
-        {
-          outputs[ROW_OUT + i].value = rquant_out[i];
-          outputs[COLUMN_OUT + i].value = cquant_out[i];
-        }
-        else
-        {
-        outputs[ROW_OUT + i].value = row_outs[i];
-        outputs[COLUMN_OUT + i].value = column_outs[i];
-        }
-    }
+    coct[i] = round(column_outs[i]);
+    cleft[i] = column_outs[i] - roct[i];
+    csemi[i] = round(cleft[i] * 12);
+    cquant_out[i] = coct[i] + csemi[i] / 12.0;
+  */
 
-    
+    outputs[ROW_OUT + i].value = row_outs[i];
+    outputs[COLUMN_OUT + i].value = column_outs[i];
+
     outputs[UNQUANT_OUT].value = main_out;
     outputs[QUANT_OUT].value = quant_out;
+   }
 }
+
+//////////////////////////////////// Display --- Based on DTROY by Bidoo  
+
+struct BeneDisplay : TransparentWidget
+{
+  Bene *module;
+  int frame = 0;
+  shared_ptr<Font> font;
+
+  string note, scale;
+
+  BeneDisplay()
+  {
+    font = Font::load(assetPlugin(plugin, "res/DejaVuSansMono.ttf"));
+  }
+
+  void drawMessage(NVGcontext *vg, Vec pos, string note,string scale)
+  {
+    nvgFontSize(vg, 18);
+    nvgFontFaceId(vg, font->handle);
+    nvgTextLetterSpacing(vg, -2);
+    nvgFillColor(vg, nvgRGBA(75, 199, 75, 0xff));
+    nvgFontSize(vg, 14);
+    nvgFillColor(vg, nvgRGBA(0xff, 0xff, 0xff, 0xff));
+    nvgText(vg, pos.x + 8, pos.y + 23, note.c_str(), NULL);
+    nvgText(vg, pos.x + 30, pos.y + 23, scale.c_str(), NULL);
+  
+  }
+
+  string displayRootNote(int value)
+  {
+    switch (value)
+    {
+    case Bene::NOTE_C:
+      return "C";
+    case Bene::NOTE_C_SHARP:
+      return "C#";
+    case Bene::NOTE_D:
+      return "D";
+    case Bene::NOTE_D_SHARP:
+      return "D#";
+    case Bene::NOTE_E:
+      return "E";
+    case Bene::NOTE_F:
+      return "F";
+    case Bene::NOTE_F_SHARP:
+      return "F#";
+    case Bene::NOTE_G:
+      return "G";
+    case Bene::NOTE_G_SHARP:
+      return "G#";
+    case Bene::NOTE_A:
+      return "A";
+    case Bene::NOTE_A_SHARP:
+      return "A#";
+    case Bene::NOTE_B:
+      return "B";
+    default:
+      return "";
+    }
+  }
+
+  string displayScale(int value)
+  {
+    switch (value)
+    {
+    case Bene::AEOLIAN:
+      return "Aeolian";
+    case Bene::BLUES:
+      return "Blues";
+    case Bene::CHROMATIC:
+      return "Chromatic";
+    case Bene::DIATONIC_MINOR:
+      return "Diat. Min.";
+    case Bene::DORIAN:
+      return "Dorian";
+    case Bene::HARMONIC_MINOR:
+      return "Harm. Min.";
+    case Bene::INDIAN:
+      return "Indian";
+    case Bene::LOCRIAN:
+      return "Locrian";
+    case Bene::LYDIAN:
+      return "Lydian";
+    case Bene::MAJOR:
+      return "Major";
+    case Bene::MELODIC_MINOR:
+      return "Melo. Min.";
+    case Bene::MINOR:
+      return "Minor";
+    case Bene::MIXOLYDIAN:
+      return "Mixolydian";
+    case Bene::NATURAL_MINOR:
+      return "Nat. Min.";
+    case Bene::PENTATONIC:
+      return "Pentatonic";
+    case Bene::PHRYGIAN:
+      return "Phrygian";
+    case Bene::TURKISH:
+      return "Turkish";
+    case Bene::NONE:
+      return "None";
+    default:
+      return "";
+    }
+  }
+
+  void draw(NVGcontext *vg) override
+  {
+    if (++frame >= 4)
+    {
+      frame = 0;
+      note = displayRootNote(module->rootNote);
+      scale = displayScale(module->curScaleVal);
+    }
+    drawMessage(vg, Vec(0, 20), note, scale);
+  }
+};
 
 ////////////////////////////////
 
@@ -248,20 +527,30 @@ BeneWidget::BeneWidget() {
 	Bene *module = new Bene();
 	setModule(module);
 	box.size = Vec(15*13, 380);
-  
-	{
+
+  int top = 20;
+  int top2 = 35;
+  int left = 8;
+  int column_spacing = 35;
+  int row_spacing = 35;
+
+  {
     SVGPanel *panel = new SVGPanel();
     panel->box.size = box.size;
         panel->setBackground(SVG::load(assetPlugin(plugin,"res/Bene.svg")));
     addChild(panel);
   }
- 
-  int top = 20;
-  int left = 8;
-  int column_spacing = 35; 
-  int row_spacing = 35;
 
-  addParam(createParam<CKSS>(Vec(left+column_spacing*3,top+ 85), module, Bene::QUANT_PARAM, 0.0, 1.0, 1.0));
+  {
+    BeneDisplay *display = new BeneDisplay();
+    display->module = module;
+    display->box.pos = Vec(left, top + 105);
+    display->box.size = Vec(250, 60);
+    addChild(display);
+  }
+
+ 
+
 
   addInput(createInput<PJ301MIPort>(Vec(left, top), module, Bene::LEFT));
   addInput(createInput<PJ301MIPort>(Vec(left+column_spacing, top), module, Bene::RIGHT));
@@ -280,18 +569,23 @@ BeneWidget::BeneWidget() {
 
   addOutput(createOutput<PJ301MOPort>(Vec(left + column_spacing * 5-20, top), module, Bene::UNQUANT_OUT));
   addOutput(createOutput<PJ301MOPort>(Vec(left + column_spacing * 5-20, top+30), module, Bene::QUANT_OUT));
-
+ 
   for ( int i = 0 ; i < 4 ; i++)
   {
     for ( int j = 0 ; j < 4 ; j++)
     {
-      addParam(createParam<Rogan2PWhite>(Vec(left+column_spacing * i, top + row_spacing * j + 150 ), module, Bene::KNOB_PARAM + i + j * 4, -2.0, 2.0, 0.0));
-      addChild(createLight<BigLight<OrangeLight>>(Vec(left + column_spacing * i + 8, top + row_spacing * j + 150 + 8), module, Bene::GRID_LIGHTS + i + j * 4));
+      addParam(createParam<Rogan2PWhite>(Vec(left+column_spacing * i, top2 + row_spacing * j + 150 ), module, Bene::KNOB_PARAM + i + j * 4, 0.0, 2.0, 1.0));
+      addChild(createLight<BigLight<OrangeLight>>(Vec(left + column_spacing * i + 8, top2 + row_spacing * j + 150 + 8), module, Bene::GRID_LIGHTS + i + j * 4));
     }
-    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * i+5, top + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + i));
-    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top + row_spacing * i + 155 ), module, Bene::COLUMN_OUT + i));
-	}  
-	
+    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * i+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + i));
+    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * i + 155 ), module, Bene::COLUMN_OUT + i));
+	}
+
+  addParam(createParam<Rogan2PWhite>(Vec(left + column_spacing*3-5, top + 85 + row_spacing), module, Bene::ROOT_NOTE_PARAM, 0.0, Bene::NUM_NOTES - 1 + 0.1, 0));
+  addParam(createParam<Rogan2PWhite>(Vec(left + column_spacing*4 , top + 85 + row_spacing), module, Bene::SCALE_PARAM, 0.0, Bene::NUM_SCALES - 1 + 0.1, 0));
+
+  addInput(createInput<PJ301MPort>(Vec(column_spacing * 4-25, top + 85), module, Bene::ROOT_NOTE_INPUT));
+  addInput(createInput<PJ301MPort>(Vec(column_spacing * 4 +15, top + 85), module, Bene::SCALE_INPUT));
 
   addChild(createScrew<ScrewSilver>(Vec(15, 0)));
   addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 0)));

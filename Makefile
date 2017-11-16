@@ -1,10 +1,4 @@
 
-FLAGS += \
-	-fshort-enums -DTEST \
-	-I./eurorack \
-	-Wno-unused-local-typedefs
-
-
 SOURCES = $(wildcard src/*.cpp) \
 
 include ../../plugin.mk

@@ -275,9 +275,24 @@ struct LDaviesYel : DaviesYel {
 };
 
 
-struct RoundWhy : DaviesKnob {
-	RoundWhy() {
-		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/Knobs/RoundWhy.svg")));
+struct RoundAzz : DaviesKnob {
+	RoundAzz() {
+		box.size = Vec(30, 30);
+		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/Knobs/RoundAzz.svg")));
+	}
+};
+struct RoundRed : DaviesKnob
+{
+	RoundRed(){
+		box.size = Vec(30, 30);
+		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/Knobs/RoundRed.svg")));
+	}
+};
+struct RoundWhy : DaviesKnob
+{
+	RoundWhy(){
+	box.size = Vec(30, 30);
+	setSVG(SVG::load(assetGlobal("plugins/dBiz/res/Knobs/RoundWhy.svg")));
 	}
 };
 
@@ -289,7 +304,7 @@ struct RoundWhySnapKnob : RoundWhy {
 
 struct LRoundWhy : RoundWhy {
 	LRoundWhy() {
-		box.size = Vec (46,46);
+		box.size = Vec (45,45);
 	}
 };
 
@@ -301,7 +316,7 @@ struct RoundBlu : DaviesKnob {
 
 struct LRoundBlu : RoundBlu {
 	LRoundBlu() {
-		box.size = Vec (46,46);
+		box.size = Vec (45,45);
 	}
 };
 
