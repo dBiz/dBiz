@@ -270,9 +270,9 @@ int down = 50;
 
 addParam(createParam<LRoundWhy>(Vec(box.size.x-mid-50, top), module, DAOSC::A_PITCH_PARAM, -54.0, 54.0, 0.0));
 addParam(createParam<RoundWhy>(Vec(box.size.x-mid-knob*2 - 10, top), module, DAOSC::A_FINE_PARAM, -1.0, 1.0, 0.0));
-addParam(createParam<RoundWhy>(Vec(box.size.x - mid - knob * 1 -5, top + knob + 25), module, DAOSC::A_FM_PARAM, 0.0, 1.0, 0.0));
+addParam(createParam<RoundWhy>(Vec(box.size.x - mid - knob * 1 , top + knob + 35), module, DAOSC::A_FM_PARAM, 0.0, 1.0, 0.0));
 addParam(createParam<RoundAzz>(Vec(box.size.x - mid - knob * 2 - 5, top + knob + 5), module, DAOSC::A_FOLD_PARAM, 0.0, 5.0, 0.0));
-addParam(createParam<RoundRed>(Vec(box.size.x - mid - knob * 2 - 5, 115), module, DAOSC::A_DRIVE_PARAM, -5.0, 5.0, 0.0));
+addParam(createParam<RoundRed>(Vec(box.size.x - mid - knob * 2 - 5, 125), module, DAOSC::A_DRIVE_PARAM, -5.0, 5.0, 0.0));
 addParam(createParam<RoundWhy>(Vec(box.size.x-mid-knob, 157), module, DAOSC::A_SQUARE_PARAM, 1.0, 20.0, 1.0));
 addParam(createParam<RoundWhy>(Vec(box.size.x-mid-knob*2, 177), module, DAOSC::A_SAW_PARAM, 1.0, 20.0, 1.0));
 
@@ -287,9 +287,9 @@ addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid-jack-5, 230+down), modu
 
 addParam(createParam<LRoundWhy>(Vec(box.size.x-mid+5, top), module, DAOSC::B_PITCH_PARAM, -54.0, 54.0, 0.0));
 addParam(createParam<RoundWhy>(Vec(box.size.x-mid+5+knob+10, top), module, DAOSC::B_FINE_PARAM, -1.0, 1.0, 0.0));
-addParam(createParam<RoundWhy>(Vec(box.size.x - mid + 10, top + knob+25), module, DAOSC::B_FM_PARAM, 0.0, 1.0, 0.0));
+addParam(createParam<RoundWhy>(Vec(box.size.x - mid + 5, top + knob+35), module, DAOSC::B_FM_PARAM, 0.0, 1.0, 0.0));
 addParam(createParam<RoundAzz>(Vec(box.size.x - mid + 10 + knob, top + knob + 5), module, DAOSC::B_FOLD_PARAM, 0.0, 5.0, 0.0));
-addParam(createParam<RoundRed>(Vec(box.size.x - mid + 10 + knob, 115), module, DAOSC::B_DRIVE_PARAM, -5.0, 5.0, 0.0));
+addParam(createParam<RoundRed>(Vec(box.size.x - mid + 10 + knob, 125), module, DAOSC::B_DRIVE_PARAM, -5.0, 5.0, 0.0));
 addParam(createParam<RoundWhy>(Vec(box.size.x-mid+5, 157), module, DAOSC::B_SQUARE_PARAM, 1.0, 20.0, 1.0));
 addParam(createParam<RoundWhy>(Vec(box.size.x-mid+5+knob, 177), module, DAOSC::B_SAW_PARAM, 1.0, 20.0, 1.0));
 

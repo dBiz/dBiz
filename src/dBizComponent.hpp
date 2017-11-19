@@ -64,7 +64,7 @@ struct SmallOraSnapKnob : SmallOra {
 
 struct LargeOra : SmallOra {
 	LargeOra() {
-		box.size = Vec(46, 46);
+		box.size = Vec(45, 45);
 	}
 };
 struct MicroOra : SmallOra
@@ -90,7 +90,7 @@ struct MicroBlu : SmallBlu
 
 struct LargeBlu : SmallBlu {
 	LargeBlu() {
-		box.size = Vec(46, 46);
+		box.size = Vec(45, 45);
 	}
 };
 
@@ -102,7 +102,7 @@ struct SmallAzz : SmallKnob {
 
 struct LargeAzz : SmallAzz {
 	LargeAzz() {
-		box.size = Vec(46, 46);
+		box.size = Vec(45, 45);
 	}
 };
 
@@ -120,7 +120,7 @@ struct SmallVio : SmallKnob {
 
 struct LargeVio : SmallVio {
 	LargeVio() {
-		box.size = Vec(46, 46);
+		box.size = Vec(45, 45);
 	}
 };	
 
@@ -138,7 +138,7 @@ struct SmallYel : SmallKnob {
 
 struct LargeYel : SmallYel {
 	LargeYel() {
-		box.size = Vec(46, 46);
+		box.size = Vec(45, 45);
 	}
 };
 
@@ -150,7 +150,7 @@ struct SmallGre : SmallKnob {
 
 struct LargeGre : SmallGre {
 	LargeGre() {
-		box.size = Vec(46, 46);
+		box.size = Vec(45, 45);
 	}
 };
 
@@ -162,7 +162,7 @@ struct SmallCre : SmallKnob {
 
 struct LargeCre : SmallCre {
 	LargeCre() {
-		box.size = Vec(46, 46);
+		box.size = Vec(45, 45);
 	}
 };
 
@@ -174,7 +174,7 @@ struct SmallBla : SmallKnob {
 
 struct LargeBla : SmallBla {
 	LargeBla() {
-		box.size = Vec(46, 46);
+		box.size = Vec(45, 45);
 	}
 };
 
@@ -194,7 +194,7 @@ struct DaviesGre : DaviesKnob {
 };
 struct LDaviesGre : DaviesGre {
 		LDaviesGre() {
-		box.size = Vec(46, 46);	
+		box.size = Vec(45, 45);	
 	}
 };
 
@@ -209,7 +209,7 @@ struct LDaviesWhy : DaviesWhy
 {
 	LDaviesWhy()
 	{
-		box.size = Vec(46, 46);
+		box.size = Vec(45, 45);
 	}
 };
 
@@ -226,7 +226,7 @@ struct DaviesAzz : DaviesKnob {
 };
 struct LDaviesAzz : DaviesAzz {
 		LDaviesAzz() {
-		box.size = Vec(46, 46);	
+		box.size = Vec(45, 45);	
 	}
 };
 
@@ -237,7 +237,7 @@ struct DaviesPur : DaviesKnob {
 };
 struct LDaviesPur : DaviesPur {
 		LDaviesPur() {
-		box.size = Vec(46, 46);	
+		box.size = Vec(45, 45);	
 	}
 };
 
@@ -248,7 +248,7 @@ struct DaviesBlu : DaviesKnob {
 };
 struct LDaviesBlu : DaviesBlu {
 		LDaviesBlu() {
-		box.size = Vec(46, 46);	
+		box.size = Vec(45, 45);	
 	}
 };
 
@@ -259,7 +259,7 @@ struct DaviesRed : DaviesKnob {
 };
 struct LDaviesRed : DaviesRed {
 		LDaviesRed() {
-		box.size = Vec(46, 46);	
+		box.size = Vec(45, 45);	
 	}
 };
 
@@ -270,7 +270,7 @@ struct DaviesYel : DaviesKnob {
 };
 struct LDaviesYel : DaviesYel {
 		LDaviesYel() {
-		box.size = Vec(46, 46);	
+		box.size = Vec(45, 45);	
 	}
 };
 
@@ -320,6 +320,39 @@ struct LRoundBlu : RoundBlu {
 	}
 };
 
+struct FlatA : DaviesKnob {
+	FlatA() {
+		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/Knobs/FlatA.svg")));
+		box.size = Vec (30,30);
+	}
+};
+struct FlatASnap : FlatA {
+	FlatASnap() {
+		snap = true;
+	}
+};
+
+struct FlatR : DaviesKnob {
+	FlatR() {
+		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/Knobs/FlatR.svg")));
+		box.size = Vec (30,30);
+
+	}
+};
+struct FlatS : DaviesKnob {
+	FlatS() {
+		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/Knobs/FlatS.svg")));
+		box.size = Vec (30,30);
+
+	}
+};
+struct FlatG : DaviesKnob {
+	FlatG() {
+		setSVG(SVG::load(assetGlobal("plugins/dBiz/res/Knobs/FlatG.svg")));
+		box.size = Vec (30,30);
+
+	}
+};
 
 // struct DaviesKnobSnapKnob : DaviesKnob, SnapKnob {};
 
@@ -359,27 +392,27 @@ struct SlidePot2 : SVGSlider
 ////////////////////
 // Lights
 ////////////////////
-struct OrangeLight : ColorLightWidget
+struct OrangeLight : ModuleLightWidget
 {
 	OrangeLight()
 	{
-		addColor(COLOR_ORANGE);
+		addBaseColor(COLOR_ORANGE);
 	}
 };
 
-struct CyanLight : ColorLightWidget
+struct CyanLight : ModuleLightWidget
 {
 	CyanLight()
 	{
-		addColor(COLOR_CYAN);
+		addBaseColor(COLOR_CYAN);
 	}
 };
 
-struct PurpleLight : ColorLightWidget
+struct PurpleLight : ModuleLightWidget
 {
 	PurpleLight()
 	{
-		addColor(COLOR_PURPLE);
+		addBaseColor(COLOR_PURPLE);
 	}
 };
 
@@ -447,5 +480,20 @@ struct PJ301MCPort : SVGPort {
 	}
 };
 
+
+
+//
+////////////////////////
+//  SWITCHES
+////////////////////////////////////////////////
+
+struct CKSSS : SVGSwitch, ToggleSwitch
+{
+	CKSSS()
+	{
+		addFrame(SVG::load(assetGlobal("plugins/dBiz/res/switch/CKSS_0.svg")));
+		addFrame(SVG::load(assetGlobal("plugins/dBiz/res/switch/CKSS_1.svg")));
+	}
+};
 }
 
