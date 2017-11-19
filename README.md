@@ -10,6 +10,5 @@ and some oscillators based on Fundamentals
 
 ![alt text](https://github.com/dBiz/VCVRack_Modules/blob/master/screenshot/OSC.jpg)
 
-just rename the cloned repo in dBiz before compiling!
 
 more to come!
