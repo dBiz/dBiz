@@ -29,5 +29,7 @@ void init(rack::Plugin *p)
 	p->addModel(createModel<VerboWidget>("dBiz","VerboOsc", "VerboOsc",OSCILLATOR_TAG));
 	p->addModel(createModel<DVCOWidget>("dBiz","Dual Oscillator", "Dual Oscillator",OSCILLATOR_TAG));
 	p->addModel(createModel<DAOSCWidget>("dBiz", "Dual SineBank Oscillator", "Dual Sine Bank Oscillator", OSCILLATOR_TAG));
+	p->addModel(createModel<UtilityWidget>("dBiz","Utility", "Utility",QUANTIZER_TAG));
+
 }
 

@@ -60,6 +60,10 @@ struct DAOSCWidget : ModuleWidget
 {
 	DAOSCWidget();
 };
+struct UtilityWidget : ModuleWidget
+{
+	UtilityWidget();
+};
 
 //struct NAMEWidget : ModuleWidget {
 //	 NAMEWidget(); 
