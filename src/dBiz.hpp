@@ -65,6 +65,11 @@ struct UtilityWidget : ModuleWidget
 	UtilityWidget();
 };
 
+struct ContornoWidget : ModuleWidget
+{
+	ContornoWidget();
+};
+
 //struct NAMEWidget : ModuleWidget {
 //	 NAMEWidget(); 
 //};

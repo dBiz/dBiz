@@ -37,17 +37,17 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1669"
-     inkscape:window-height="800"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
      id="namedview12"
      showgrid="false"
      inkscape:zoom="31.239458"
-     inkscape:cx="-12.620293"
-     inkscape:cy="9.6350006"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="g8" />
+     inkscape:cx="-4.2318303"
+     inkscape:cy="7.0741367"
+     inkscape:window-x="1912"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g4" />
   <g
      transform="translate(-156.6 -100.2)"
      id="g8">
@@ -60,10 +60,15 @@
          id="g4"
          style="fill:#05668d;fill-opacity:1">
         <path
-           d="m0 0c-.072-5.55-1.296-9.915-5.786-9.935-4.598-.02-6.277 4.247-6.277 9.843 0 5.502 1.494 10.03 6.178 10.03 4.422 0 5.956-4.44 5.885-9.935"
-           fill="#ff0000"
+           d="m 0.36313897,0.46217687 c -0.072,-5.54999997 -1.296,-9.91499997 -5.78599997,-9.93499997 -4.598,-0.02 -6.277,4.247 -6.277,9.84299997 0,5.50200003 1.494,10.03000013 6.178,10.03000013 4.422,0 5.95599997,-4.4400001 5.88499997,-9.93500013"
            id="path2"
-           style="fill:#05668d;fill-opacity:1" />
+           style="fill:#05668d;fill-opacity:1"
+           inkscape:connector-curvature="0" />
+        <path
+           style="fill:none;stroke:#ffffff;stroke-width:1.13442647;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+           d="M -11.665853,0.58813723 H 0.41677149"
+           id="path815"
+           inkscape:connector-curvature="0" />
       </g>
     </g>
   </g>
