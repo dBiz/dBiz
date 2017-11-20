@@ -408,6 +408,7 @@ struct CyanLight : ModuleLightWidget
 	}
 };
 
+
 struct PurpleLight : ModuleLightWidget
 {
 	PurpleLight()
@@ -424,7 +425,24 @@ struct BigLight : BASE
 		this->box.size = Vec(20, 20);
 	}
 };
+template <typename BASE>
+struct HugeLight : BASE
+{
+	HugeLight()
+	{
+		this->box.size = Vec(24, 24);
+	}
+};
 
+struct OBPLight : ModuleLightWidget
+{
+	OBPLight()
+	{
+		addBaseColor(COLOR_ORANGE);
+		addBaseColor(COLOR_BLUE);
+		addBaseColor(COLOR_PURPLE);
+	}
+};
 
 ////////////////////
 // Jacks
@@ -493,6 +511,34 @@ struct CKSSS : SVGSwitch, ToggleSwitch
 	{
 		addFrame(SVG::load(assetGlobal("plugins/dBiz/res/switch/CKSS_0.svg")));
 		addFrame(SVG::load(assetGlobal("plugins/dBiz/res/switch/CKSS_1.svg")));
+	}
+};
+
+struct LEDB : SVGSwitch, ToggleSwitch
+{
+	LEDB()
+	{
+		addFrame(SVG::load(assetGlobal("plugins/dBiz/res/switch/LEDB_0.svg")));
+		addFrame(SVG::load(assetGlobal("plugins/dBiz/res/switch/LEDB_1.svg")));
+	}
+};
+
+struct MCKSSS : SVGSwitch, ToggleSwitch
+{
+	MCKSSS()
+	{
+		addFrame(SVG::load(assetGlobal("plugins/dBiz/res/switch/MCKSSS_0.svg")));
+		addFrame(SVG::load(assetGlobal("plugins/dBiz/res/switch/MCKSSS_1.svg")));
+		addFrame(SVG::load(assetGlobal("plugins/dBiz/res/switch/MCKSSS_2.svg")));
+	}
+};
+
+struct BPush : SVGSwitch, MomentarySwitch
+{
+	BPush()
+	{
+		addFrame(SVG::load(assetGlobal("plugins/dBiz/res/switch/BPush_0.svg")));
+		addFrame(SVG::load(assetGlobal("plugins/dBiz/res/switch/BPush_1.svg")));
 	}
 };
 }
