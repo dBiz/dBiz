@@ -1,10 +1,6 @@
 #include "dBiz.hpp"
 #include <math.h>
-#include "dsp/filter.hpp"
-#include "dsp/fir.hpp"
-#include "dsp/frame.hpp"
-#include "dsp/ode.hpp"
-#include "dsp/samplerate.hpp"
+
 
 Plugin *plugin; 
 

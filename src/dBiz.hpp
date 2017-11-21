@@ -1,7 +1,6 @@
 #include "rack.hpp"
 #include "dBizComponent.hpp"
-//#include "Biquad.h"
-//#include "VAStateVariableFilter.h"
+
 
 using namespace rack;
 
