@@ -220,7 +220,7 @@ PerfMixerWidget::PerfMixerWidget() {
   int row_in = 40;
   int column_spacing = 30;
 
-  addParam(createParam<SynthTechAlco>(Vec(right_column + 5, 10), module, PerfMixer::MIX_PARAM, 0.0, 1.0, 0.5)); // master volume
+  addParam(createParam<LRoundWhy>(Vec(right_column + 5, 10), module, PerfMixer::MIX_PARAM, 0.0, 1.0, 0.5)); // master volume
 
   addParam(createParam<MicroBlu>(Vec(right_column+5, 225 ), module, PerfMixer::AUX_R1_PARAM, 0.0, 1.0, 0.0));
   addParam(createParam<MicroBlu>(Vec(right_column+5, 285 ), module, PerfMixer::AUX_R2_PARAM, 0.0, 1.0, 0.0));

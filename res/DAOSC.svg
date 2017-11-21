@@ -38,11 +38,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="-1.6679877"
-     inkscape:cy="186.80259"
+     inkscape:zoom="2.3789063"
+     inkscape:cx="185.348"
+     inkscape:cy="104.46062"
      inkscape:document-units="px"
-     inkscape:current-layer="layer4"
+     inkscape:current-layer="layer3"
      showgrid="true"
      units="px"
      inkscape:snap-bbox="true"
@@ -70,7 +70,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -79,7 +79,8 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-196.45832)"
-     style="display:inline">
+     style="display:inline"
+     sodipodi:insensitive="true">
     <path
        style="opacity:1;vector-effect:none;fill:#ececec;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.71560776;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
        d="M -0.01889949,196.6473 H 51.593752 V 297.18898 H -0.01889949 Z"
@@ -115,30 +116,11 @@
        y="-2.8421709e-014"
        ry="2.05357"
        transform="matrix(0.26458333,0,0,0.26458333,5.2916636,73.421875)" />
-    <rect
-       style="display:inline;opacity:1;fill:#ff6b55;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.32015958;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:fill markers stroke;enable-background:new"
-       id="rect1390-7"
-       width="22.560799"
-       height="14.791328"
-       x="14.910666"
-       y="54.000576"
-       ry="0.98608851" />
-    <rect
-       style="opacity:1;fill:#ff6b55;fill-opacity:0.95454544;fill-rule:nonzero;stroke:none;stroke-width:0.37041667;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
-       id="rect1390"
-       width="75.40625"
-       height="22.583263"
-       x="-11.451957"
-       y="62.964958"
-       ry="1.5055509" />
-    <rect
-       style="display:inline;opacity:1;fill:#ececec;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:8.52278996;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke;enable-background:new"
-       id="rect1390-7-0"
-       width="19.23649"
-       height="16.531759"
-       x="16.572821"
-       y="73.869453"
-       ry="1.1021173" />
+    <path
+       style="display:inline;opacity:1;fill:#ff6b55;fill-opacity:1;fill-rule:nonzero;stroke:#f51f00;stroke-width:1.21000001;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke markers fill;enable-background:new"
+       d="M 56.355469 204.0957 L 56.355469 237.97852 L -0.40625 237.97852 L -0.40625 323.33203 L 62.636719 323.33203 L 62.636719 279.19141 L 135.3418 279.19141 L 135.3418 323.33203 L 195.27344 323.33203 L 195.27344 237.97852 L 141.625 237.97852 L 141.625 204.0957 L 56.355469 204.0957 z "
+       transform="scale(0.26458334)"
+       id="rect1390-7" />
     <path
        style="opacity:1;fill:none;fill-opacity:0.39393945;fill-rule:nonzero;stroke:#000000;stroke-width:0.34619856;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
        id="path927"
@@ -312,8 +294,7 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Layer 5"
-     style="display:inline"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <g
        aria-label="COARSE"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860067px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053754"
@@ -354,7 +335,7 @@
        aria-label="FINE"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860055px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6"
-       transform="translate(-14.290321,-14.956893)">
+       transform="translate(-14.163638,-15.168871)">
       <path
          d="m 57.82506,30.431868 h 0.827754 v 0.160089 h -0.636589 v 0.414348 h 0.577262 v 0.160089 h -0.577262 v 0.671432 H 57.82506 Z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -380,7 +361,7 @@
        aria-label="COARSE"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860055px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-9"
-       transform="translate(-12.034172,-14.038763)">
+       transform="translate(-12.034172,-13.998769)">
       <path
          d="m 28.228103,32.629087 q -0.07251,0.03861 -0.148789,0.05744 -0.07628,0.01977 -0.161972,0.01977 -0.270268,0 -0.419998,-0.191165 -0.148789,-0.191165 -0.148789,-0.53771 0,-0.344662 0.14973,-0.536769 0.150672,-0.193048 0.419057,-0.193048 0.08569,0 0.161972,0.01978 0.07628,0.01883 0.148789,0.05744 v 0.194932 q -0.06969,-0.05744 -0.149731,-0.08758 -0.08004,-0.03013 -0.16103,-0.03013 -0.185515,0 -0.277802,0.143138 -0.09229,0.143138 -0.09229,0.43224 0,0.28816 0.09229,0.431298 0.09229,0.143139 0.277802,0.143139 0.08287,0 0.161972,-0.03014 0.08004,-0.03013 0.148789,-0.08758 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -416,7 +397,7 @@
        aria-label="FINE"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2"
-       transform="translate(-10.178352,-14.709788)">
+       transform="translate(-10.051669,-14.933578)">
       <path
          d="m 13.91456,30.196576 h 0.827753 v 0.160089 h -0.636588 v 0.414348 h 0.577261 v 0.160089 h -0.577261 v 0.671431 H 13.91456 Z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -442,7 +423,7 @@
        aria-label="FM"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3"
-       transform="translate(1.5663418,-8.4102198)">
+       transform="translate(1.5663418,-8.048214)">
       <path
          d="m 29.421786,44.380263 h 0.827753 v 0.160089 H 29.612951 V 44.9547 h 0.577261 v 0.160089 h -0.577261 v 0.671432 h -0.191165 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -458,7 +439,7 @@
        aria-label="FM"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-6"
-       transform="translate(-24.001489,17.886069)">
+       transform="translate(-24.001489,17.921951)">
       <path
          d="m 42.789294,44.380263 h 0.827753 v 0.160089 H 42.980459 V 44.9547 h 0.577261 v 0.160089 h -0.577261 v 0.671432 h -0.191165 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -474,7 +455,7 @@
        aria-label="CONTRAST"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-5"
-       transform="translate(-11.709205,-16.38251)">
+       transform="translate(-11.709205,-16.30186)">
       <path
          d="m 15.151574,45.638948 q -0.07251,0.03861 -0.148789,0.05744 -0.07628,0.01977 -0.161972,0.01977 -0.270268,0 -0.419998,-0.191165 -0.148788,-0.191165 -0.148788,-0.53771 0,-0.344662 0.14973,-0.536769 0.150672,-0.193048 0.419056,-0.193048 0.08569,0 0.161972,0.01978 0.07628,0.01883 0.148789,0.05744 v 0.194932 q -0.06969,-0.05744 -0.14973,-0.08758 -0.08005,-0.03013 -0.161031,-0.03013 -0.185515,0 -0.277801,0.143138 -0.09229,0.143138 -0.09229,0.43224 0,0.28816 0.09229,0.431298 0.09229,0.143139 0.277801,0.143139 0.08287,0 0.161972,-0.03014 0.08005,-0.03013 0.148789,-0.08758 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -566,7 +547,7 @@
        aria-label="DIST"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-5-6-3"
-       transform="translate(0.3149549,-0.76942508)">
+       transform="translate(0.3149549,-0.7636908)">
       <path
          d="m 4.8132613,45.361683 q 0.2401334,0 0.335245,-0.117712 0.095112,-0.118654 0.095112,-0.427532 0,-0.311702 -0.095112,-0.429415 -0.09417,-0.118654 -0.335245,-0.118654 h -0.090403 v 1.093313 z m 0.00377,-1.249635 q 0.3220613,0 0.4746166,0.171389 0.1525553,0.17139 0.1525553,0.533002 0,0.359729 -0.1525553,0.531119 -0.1525553,0.170447 -0.4746166,0.170447 H 4.5316932 v -1.405957 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -618,7 +599,7 @@
        aria-label="SAW.H"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-5-6-3-3"
-       transform="translate(1.5611295,-0.89144747)">
+       transform="translate(1.797064,-0.88161687)">
       <path
          d="m 5.0710914,57.991274 v 0.193049 q -0.086636,-0.05556 -0.1742144,-0.08381 -0.086636,-0.02825 -0.1751561,-0.02825 -0.134663,0 -0.2128241,0.06309 -0.078161,0.06215 -0.078161,0.168565 0,0.09323 0.050852,0.142196 0.051793,0.04897 0.1921066,0.08193 l 0.09982,0.0226 q 0.1977569,0.04614 0.28816,0.145022 0.090403,0.09888 0.090403,0.269326 0,0.200582 -0.1243044,0.306052 -0.1243043,0.10547 -0.3616125,0.10547 -0.098878,0 -0.1986986,-0.02166 -0.09982,-0.02072 -0.200582,-0.06309 v -0.202465 q 0.1082954,0.06874 0.2043488,0.100762 0.096995,0.03202 0.1949318,0.03202 0.14408,0 0.2241244,-0.06404 0.080045,-0.06498 0.080045,-0.180806 0,-0.105471 -0.05556,-0.161031 -0.054619,-0.05556 -0.191165,-0.0857 l -0.1017035,-0.02354 q -0.1958735,-0.04426 -0.2843932,-0.133721 -0.08852,-0.08946 -0.08852,-0.240134 0,-0.18834 0.1261877,-0.301343 0.1271295,-0.113946 0.3371284,-0.113946 0.080986,0 0.1704476,0.01883 0.089461,0.01789 0.1883399,0.05462 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -649,7 +630,7 @@
        aria-label="SAW.H"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-5-6-3-3-9"
-       transform="translate(-24.543393,-0.93869627)">
+       transform="translate(-24.425426,-0.88161687)">
       <path
          d="m 65.937611,57.991274 v 0.193049 q -0.08664,-0.05556 -0.174214,-0.08381 -0.08664,-0.02825 -0.175156,-0.02825 -0.134663,0 -0.212824,0.06309 -0.07816,0.06215 -0.07816,0.168565 0,0.09323 0.05085,0.142196 0.05179,0.04897 0.192107,0.08193 l 0.09982,0.0226 q 0.197757,0.04614 0.28816,0.145022 0.0904,0.09888 0.0904,0.269326 0,0.200582 -0.124304,0.306052 -0.124304,0.10547 -0.361612,0.10547 -0.09888,0 -0.198699,-0.02166 -0.09982,-0.02072 -0.200582,-0.06309 v -0.202465 q 0.108295,0.06874 0.204349,0.100762 0.09699,0.03202 0.194932,0.03202 0.14408,0 0.224124,-0.06404 0.08004,-0.06498 0.08004,-0.180806 0,-0.105471 -0.05556,-0.161031 -0.05462,-0.05556 -0.191165,-0.0857 l -0.101703,-0.02354 q -0.195874,-0.04426 -0.284394,-0.133721 -0.08852,-0.08946 -0.08852,-0.240134 0,-0.18834 0.126187,-0.301343 0.12713,-0.113946 0.337129,-0.113946 0.08099,0 0.170447,0.01883 0.08946,0.01789 0.18834,0.05462 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -711,7 +692,7 @@
        aria-label="SQR.H"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-5-6-3-3-8-6"
-       transform="translate(-23.440633,-6.1541706)">
+       transform="translate(-23.440633,-6.0661357)">
       <path
          d="m 53.643216,57.944617 v 0.193048 q -0.08664,-0.05556 -0.174215,-0.08381 -0.08664,-0.02825 -0.175156,-0.02825 -0.134663,0 -0.212824,0.06309 -0.07816,0.06215 -0.07816,0.168564 0,0.09323 0.05085,0.142197 0.05179,0.04897 0.192107,0.08193 l 0.09982,0.0226 q 0.197757,0.04614 0.28816,0.145022 0.0904,0.09888 0.0904,0.269326 0,0.200582 -0.124304,0.306052 -0.124305,0.105471 -0.361613,0.105471 -0.09888,0 -0.198698,-0.02166 -0.09982,-0.02072 -0.200582,-0.06309 v -0.202466 q 0.108295,0.06874 0.204348,0.100762 0.09699,0.03202 0.194932,0.03202 0.14408,0 0.224125,-0.06404 0.08004,-0.06498 0.08004,-0.180806 0,-0.10547 -0.05556,-0.16103 -0.05462,-0.05556 -0.191165,-0.0857 l -0.101704,-0.02354 q -0.195873,-0.04426 -0.284393,-0.133721 -0.08852,-0.08946 -0.08852,-0.240133 0,-0.18834 0.126188,-0.301344 0.127129,-0.113946 0.337128,-0.113946 0.08099,0 0.170448,0.01883 0.08946,0.01789 0.18834,0.05462 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -774,7 +755,7 @@
        aria-label="V.OCT"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-0-6"
-       transform="translate(-10.427798,2.9345951)">
+       transform="translate(-10.427798,3.006487)">
       <path
          d="m 28.41673,69.546759 0.330537,-1.245868 h 0.196815 l -0.411523,1.405957 H 28.301843 L 27.89032,68.300891 h 0.196815 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -805,7 +786,7 @@
        aria-label="V.OCT"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-0-6-5"
-       transform="translate(-13.296659,2.8063302)">
+       transform="translate(-13.296659,3.007433)">
       <path
          d="m 42.776208,69.545813 0.330537,-1.245868 h 0.196815 l -0.411523,1.405957 h -0.230716 l -0.411523,-1.405957 h 0.196815 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -836,7 +817,7 @@
        aria-label="CONTRAST"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-5-2"
-       transform="translate(-8.3954321,2.8016965)">
+       transform="translate(-8.3954321,2.804437)">
       <path
          d="m 15.993301,69.858987 q -0.07251,0.03861 -0.148788,0.05744 -0.07628,0.01978 -0.161973,0.01978 -0.270267,0 -0.419998,-0.191165 -0.148788,-0.191165 -0.148788,-0.537711 0,-0.344662 0.14973,-0.536768 0.150672,-0.193049 0.419056,-0.193049 0.0857,0 0.161973,0.01978 0.07628,0.01883 0.148788,0.05744 v 0.194931 q -0.06969,-0.05744 -0.14973,-0.08758 -0.08004,-0.03013 -0.161031,-0.03013 -0.185514,0 -0.277801,0.143138 -0.09229,0.143139 -0.09229,0.43224 0,0.28816 0.09229,0.431299 0.09229,0.143138 0.277801,0.143138 0.08287,0 0.161973,-0.03013 0.08004,-0.03014 0.148788,-0.08758 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -882,7 +863,7 @@
        aria-label="CONTRAST"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-5-6-8"
-       transform="translate(-15.367999,2.605878)">
+       transform="translate(-15.367999,2.764841)">
       <path
          d="m 52.125476,69.898584 q -0.07251,0.03861 -0.148789,0.05744 -0.07628,0.01977 -0.161972,0.01977 -0.270268,0 -0.419998,-0.191165 -0.148789,-0.191165 -0.148789,-0.53771 0,-0.344662 0.149731,-0.536769 0.150672,-0.193048 0.419056,-0.193048 0.0857,0 0.161972,0.01978 0.07628,0.01883 0.148789,0.05744 v 0.194932 q -0.06969,-0.05744 -0.149731,-0.08758 -0.08004,-0.03013 -0.16103,-0.03013 -0.185515,0 -0.277801,0.143138 -0.09229,0.143138 -0.09229,0.43224 0,0.28816 0.09229,0.431298 0.09229,0.143139 0.277801,0.143139 0.08287,0 0.161972,-0.03014 0.08004,-0.03013 0.148789,-0.08758 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -954,7 +935,7 @@
        aria-label="DIST"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-5-6-3-1-5"
-       transform="translate(-18.635758,2.54811)">
+       transform="translate(-18.635758,2.708018)">
       <path
          d="m 64.971509,69.848996 q 0.240134,0 0.335245,-0.117713 0.09511,-0.118654 0.09511,-0.427531 0,-0.311703 -0.09511,-0.429415 -0.09417,-0.118654 -0.335245,-0.118654 h -0.0904 v 1.093313 z m 0.0038,-1.249636 q 0.322061,0 0.474617,0.17139 0.152555,0.171389 0.152555,0.533002 0,0.359729 -0.152555,0.531118 -0.152556,0.170448 -0.474617,0.170448 H 64.689941 V 68.59936 Z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -980,7 +961,7 @@
        aria-label="SAW.H"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-5-6-3-3-1"
-       transform="translate(-4.6103995,3.0067823)">
+       transform="translate(-4.6103995,3.2028913)">
       <path
          d="m 6.6392462,79.048831 v 0.193048 q -0.086636,-0.05556 -0.1742144,-0.08381 -0.086636,-0.02825 -0.1751561,-0.02825 -0.134663,0 -0.212824,0.06309 -0.078161,0.06215 -0.078161,0.168564 0,0.09323 0.050852,0.142196 0.051793,0.04897 0.1921067,0.08193 l 0.09982,0.0226 q 0.1977569,0.04614 0.28816,0.145022 0.090403,0.09888 0.090403,0.269326 0,0.200582 -0.1243044,0.306052 -0.1243043,0.10547 -0.3616125,0.10547 -0.098879,0 -0.1986986,-0.02166 -0.09982,-0.02072 -0.200582,-0.06309 v -0.202466 q 0.1082954,0.06874 0.2043488,0.100762 0.096995,0.03202 0.1949318,0.03202 0.14408,0 0.2241244,-0.06404 0.080044,-0.06498 0.080044,-0.180806 0,-0.10547 -0.05556,-0.161031 -0.054619,-0.05556 -0.191165,-0.08569 l -0.1017035,-0.02354 q -0.1958735,-0.04426 -0.2843932,-0.133721 -0.08852,-0.08946 -0.08852,-0.240134 0,-0.188339 0.1261877,-0.301343 0.1271295,-0.113946 0.3371284,-0.113946 0.080986,0 0.1704476,0.01883 0.089462,0.01789 0.1883399,0.05462 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -1011,7 +992,7 @@
        aria-label="SAW.H"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-5-6-3-3-9-9"
-       transform="translate(-18.809093,2.8731476)">
+       transform="translate(-18.809093,3.2697083)">
       <path
          d="m 64.5658,78.982012 v 0.193049 q -0.08664,-0.05556 -0.174214,-0.08381 -0.08664,-0.02825 -0.175156,-0.02825 -0.134663,0 -0.212824,0.06309 -0.07816,0.06215 -0.07816,0.168565 0,0.09323 0.05085,0.142196 0.05179,0.04897 0.192106,0.08193 l 0.09982,0.0226 q 0.197757,0.04614 0.28816,0.145022 0.0904,0.09888 0.0904,0.269326 0,0.200582 -0.124305,0.306052 -0.124304,0.10547 -0.361612,0.10547 -0.09888,0 -0.198699,-0.02166 -0.09982,-0.02072 -0.200582,-0.06309 v -0.202465 q 0.108296,0.06874 0.204349,0.100762 0.09699,0.03202 0.194932,0.03202 0.14408,0 0.224124,-0.06404 0.08004,-0.06498 0.08004,-0.180806 0,-0.105471 -0.05556,-0.161031 -0.05462,-0.05556 -0.191165,-0.0857 l -0.101703,-0.02354 q -0.195874,-0.04426 -0.284393,-0.133721 -0.08852,-0.08946 -0.08852,-0.240134 0,-0.18834 0.126188,-0.301344 0.127129,-0.113945 0.337128,-0.113945 0.08099,0 0.170448,0.01883 0.08946,0.01789 0.188339,0.05462 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -1042,7 +1023,7 @@
        aria-label="SQR.H"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-5-6-3-3-8-8"
-       transform="translate(-8.0180861,3.040191)">
+       transform="translate(-8.0180861,3.0427583)">
       <path
          d="m 18.194543,78.982012 v 0.193049 q -0.08664,-0.05556 -0.174215,-0.08381 -0.08664,-0.02825 -0.175156,-0.02825 -0.134663,0 -0.212824,0.06309 -0.07816,0.06215 -0.07816,0.168565 0,0.09323 0.05085,0.142196 0.05179,0.04897 0.192106,0.08193 l 0.09982,0.0226 q 0.197756,0.04614 0.28816,0.145022 0.0904,0.09888 0.0904,0.269326 0,0.200582 -0.124305,0.306052 -0.124304,0.10547 -0.361612,0.10547 -0.09888,0 -0.198699,-0.02166 -0.09982,-0.02072 -0.200582,-0.06309 v -0.202465 q 0.108296,0.06874 0.204349,0.100762 0.09699,0.03202 0.194932,0.03202 0.14408,0 0.224124,-0.06404 0.08004,-0.06498 0.08004,-0.180806 0,-0.105471 -0.05556,-0.161031 -0.05462,-0.05556 -0.191165,-0.0857 l -0.101704,-0.02354 q -0.195873,-0.04426 -0.284393,-0.133721 -0.08852,-0.08946 -0.08852,-0.240134 0,-0.18834 0.126188,-0.301344 0.127129,-0.113945 0.337128,-0.113945 0.08099,0 0.170448,0.01883 0.08946,0.01789 0.18834,0.05462 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -1073,7 +1054,7 @@
        aria-label="SQR.H"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-5-6-3-3-8-6-3"
-       transform="translate(-15.902538,2.7729215)">
+       transform="translate(-15.902538,3.0226013)">
       <path
          d="m 54.008656,79.002169 v 0.193049 q -0.08664,-0.05556 -0.174214,-0.08381 -0.08664,-0.02825 -0.175156,-0.02825 -0.134663,0 -0.212824,0.06309 -0.07816,0.06215 -0.07816,0.168564 0,0.09323 0.05085,0.142197 0.05179,0.04897 0.192107,0.08193 l 0.09982,0.0226 q 0.197757,0.04614 0.28816,0.145021 0.0904,0.09888 0.0904,0.269326 0,0.200582 -0.124304,0.306053 -0.124304,0.10547 -0.361612,0.10547 -0.09888,0 -0.198699,-0.02166 -0.09982,-0.02072 -0.200582,-0.06309 v -0.202465 q 0.108295,0.06874 0.204349,0.100762 0.09699,0.03202 0.194932,0.03202 0.14408,0 0.224124,-0.06403 0.08004,-0.06498 0.08004,-0.180806 0,-0.105471 -0.05556,-0.161031 -0.05462,-0.05556 -0.191165,-0.0857 l -0.101703,-0.02354 q -0.195874,-0.04426 -0.284394,-0.133722 -0.08852,-0.08946 -0.08852,-0.240133 0,-0.18834 0.126187,-0.301344 0.12713,-0.113945 0.337129,-0.113945 0.08099,0 0.170447,0.01883 0.08946,0.01789 0.18834,0.05462 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
@@ -1135,7 +1116,7 @@
        aria-label="OSC.B"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.92860043px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.12053753;enable-background:new"
        id="text1151-6-2-3-5-2-3-5"
-       transform="translate(-12.702988,3.0138522)">
+       transform="translate(-12.702988,3.3908703)">
       <path
          d="m 42.751095,79.517214 q 0,-0.309819 -0.06403,-0.442598 -0.06309,-0.13278 -0.208116,-0.13278 -0.14408,0 -0.208116,0.13278 -0.06309,0.132779 -0.06309,0.442598 0,0.308878 0.06309,0.441657 0.06404,0.13278 0.208116,0.13278 0.145022,0 0.208116,-0.131838 0.06403,-0.132779 0.06403,-0.442599 z m 0.198699,0 q 0,0.367263 -0.116771,0.54807 -0.115829,0.180806 -0.354079,0.180806 -0.23825,0 -0.354079,-0.179865 -0.115829,-0.179864 -0.115829,-0.549011 0,-0.368204 0.115829,-0.54901 0.116771,-0.180807 0.354079,-0.180807 0.23825,0 0.354079,0.180807 0.116771,0.180806 0.116771,0.54901 z"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'DejaVu Sans Mono';-inkscape-font-specification:'DejaVu Sans Mono';stroke-width:0.12053753"
