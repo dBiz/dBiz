@@ -99,21 +99,19 @@ TransposeWidget::TransposeWidget() {
 	
 //
 
-    addParam(createParam<SmallOraSnapKnob>(Vec(4, 15), module, Transpose::OCTAVE_SHIFT_1, -4.5, 4.5, 0.0));
-    addParam(createParam<SmallOraSnapKnob>(Vec(4, 75), module, Transpose::OCTAVE_SHIFT_2, -4.5, 4.5, 0.0));
-    addParam(createParam<SmallOraSnapKnob>(Vec(4, 135), module, Transpose::SEMITONE_SHIFT_1, -6.5, 6.5, 0.0));
-    addParam(createParam<SmallOraSnapKnob>(Vec(4, 195), module, Transpose::SEMITONE_SHIFT_2, -6.5, 6.5, 0.0));
-    addParam(createParam<SmallOra>(Vec(4, 255), module, Transpose::FINE_SHIFT_1, -1, 1, 0.0));
-    addParam(createParam<SmallOra>(Vec(4, 315), module, Transpose::FINE_SHIFT_2, -1, 1, 0.0));
+    addParam(createParam<FlatASnap>(Vec(4, 15), module, Transpose::OCTAVE_SHIFT_1, -4.5, 4.5, 0.0));
+    addParam(createParam<FlatASnap>(Vec(4, 75), module, Transpose::OCTAVE_SHIFT_2, -4.5, 4.5, 0.0));
+    addParam(createParam<FlatASnap>(Vec(4, 135), module, Transpose::SEMITONE_SHIFT_1, -6.5, 6.5, 0.0));
+    addParam(createParam<FlatASnap>(Vec(4, 195), module, Transpose::SEMITONE_SHIFT_2, -6.5, 6.5, 0.0));
+    addParam(createParam<FlatA>(Vec(4, 255), module, Transpose::FINE_SHIFT_1, -1, 1, 0.0));
+    addParam(createParam<FlatA>(Vec(4, 315), module, Transpose::FINE_SHIFT_2, -1, 1, 0.0));
 
-
-
-    addInput(createInput<PJ301MIPort>(Vec(3, 45), module, Transpose::OCTAVE_SHIFT_1_INPUT));
-	  addInput(createInput<PJ301MIPort>(Vec(3, 105), module, Transpose::OCTAVE_SHIFT_2_INPUT));
-    addInput(createInput<PJ301MIPort>(Vec(3, 165), module, Transpose::SEMITONE_SHIFT_1_INPUT));
-    addInput(createInput<PJ301MIPort>(Vec(3, 225), module, Transpose::SEMITONE_SHIFT_2_INPUT));
-    addInput(createInput<PJ301MIPort>(Vec(3, 285), module, Transpose::FINE_SHIFT_1_INPUT));
-    addInput(createInput<PJ301MIPort>(Vec(3, 345), module, Transpose::FINE_SHIFT_2_INPUT));
+    addInput(createInput<PJ301MIPort>(Vec(3, 2+45), module, Transpose::OCTAVE_SHIFT_1_INPUT));
+	  addInput(createInput<PJ301MIPort>(Vec(3, 2+105), module, Transpose::OCTAVE_SHIFT_2_INPUT));
+    addInput(createInput<PJ301MIPort>(Vec(3, 2+165), module, Transpose::SEMITONE_SHIFT_1_INPUT));
+    addInput(createInput<PJ301MIPort>(Vec(3, 2+225), module, Transpose::SEMITONE_SHIFT_2_INPUT));
+    addInput(createInput<PJ301MIPort>(Vec(3, 2+285), module, Transpose::FINE_SHIFT_1_INPUT));
+    addInput(createInput<PJ301MIPort>(Vec(3, 2+345), module, Transpose::FINE_SHIFT_2_INPUT));
 
   
     addInput(createInput<PJ301MCPort>(Vec(33, 15), module, Transpose::OCTAVE_SHIFT_1_CVINPUT));
@@ -124,11 +122,11 @@ TransposeWidget::TransposeWidget() {
     addInput(createInput<PJ301MCPort>(Vec(33, 315), module, Transpose::FINE_SHIFT_2_CVINPUT));
 
 
-    addOutput(createOutput<PJ301MOPort>(Vec(33, 45), module, Transpose::OCTAVE_SHIFT_1_OUTPUT));
-    addOutput(createOutput<PJ301MOPort>(Vec(33, 105), module, Transpose::OCTAVE_SHIFT_2_OUTPUT));
-    addOutput(createOutput<PJ301MOPort>(Vec(33, 165), module, Transpose::SEMITONE_SHIFT_1_OUTPUT));
-    addOutput(createOutput<PJ301MOPort>(Vec(33, 225), module, Transpose::SEMITONE_SHIFT_2_OUTPUT));
-    addOutput(createOutput<PJ301MOPort>(Vec(33, 285), module, Transpose::FINE_SHIFT_1_OUTPUT));
-    addOutput(createOutput<PJ301MOPort>(Vec(33, 345), module, Transpose::FINE_SHIFT_2_OUTPUT));
+    addOutput(createOutput<PJ301MOPort>(Vec(33, 2+45), module, Transpose::OCTAVE_SHIFT_1_OUTPUT));
+    addOutput(createOutput<PJ301MOPort>(Vec(33, 2+105), module, Transpose::OCTAVE_SHIFT_2_OUTPUT));
+    addOutput(createOutput<PJ301MOPort>(Vec(33, 2+165), module, Transpose::SEMITONE_SHIFT_1_OUTPUT));
+    addOutput(createOutput<PJ301MOPort>(Vec(33, 2+225), module, Transpose::SEMITONE_SHIFT_2_OUTPUT));
+    addOutput(createOutput<PJ301MOPort>(Vec(33, 2+285), module, Transpose::FINE_SHIFT_1_OUTPUT));
+    addOutput(createOutput<PJ301MOPort>(Vec(33, 2+345), module, Transpose::FINE_SHIFT_2_OUTPUT));
 
 }
