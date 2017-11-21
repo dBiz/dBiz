@@ -1,4 +1,4 @@
-# VCV_Rack_Modules
+# dBiz_Modules
 
 Here's my collection of modules for VCVRack! 
 Many thx to Michael Hetrick, Strum's Mental and Jeremy Wen for sources and inspiring me!
