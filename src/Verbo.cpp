@@ -200,7 +200,7 @@ void Verbo::step() {
 	{
 			bank[i].freq=(i+2)*oscillator.freq;
 			bank[i].process(1.0 / engineGetSampleRate(),16.0);
-			outputs[HARM_OUTPUT+i].value=3*bank[i].sin();
+			outputs[HARM_OUTPUT + i].value = 3 * bank[i].sin() * clampf((params[HARM_PARAM + i].value + inputs[HARM_INPUT + i].value) , 0.0, 1.0);
 			harm_sum+=2*bank[i].sin()*params[HARM_PARAM+i].value * clampf(inputs[HARM_INPUT + i].normalize(10.0) / 10.0, 0.0, 1.0);
 			lights[HARM_LIGHT+i].value = params[HARM_PARAM+i].value * clampf(inputs[HARM_INPUT + i].normalize(10.0) / 10.0, 0.0, 1.0);
 	}
