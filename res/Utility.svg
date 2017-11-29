@@ -3163,9 +3163,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.2572546"
-     inkscape:cx="-29.284036"
-     inkscape:cy="235.95895"
+     inkscape:zoom="1.390945"
+     inkscape:cx="-190.43619"
+     inkscape:cy="242.11961"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="true"
@@ -3176,7 +3176,7 @@
      inkscape:window-x="1633"
      inkscape:window-y="27"
      inkscape:window-maximized="0"
-     inkscape:snap-grids="true"
+     inkscape:snap-grids="false"
      inkscape:snap-to-guides="false">
     <inkscape:grid
        type="xygrid"
@@ -3193,7 +3193,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -3201,7 +3201,7 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Layer 4"
-     style="display:inline">
+     style="display:inline;opacity:0.97">
     <rect
        style="fill:#cecece;fill-opacity:1;stroke:#000000;stroke-width:1.56623566;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke markers fill"
        id="rect844"
@@ -3210,6 +3210,32 @@
        x="-0.099477299"
        y="-0.099484898"
        ry="0" />
+    <g
+       transform="matrix(0.8681476,0,0,0.8681476,-24.561368,52.03403)"
+       aria-label="dBiz"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.73079109px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.60817444;enable-background:new"
+       id="text996">
+      <path
+         inkscape:connector-curvature="0"
+         d="m 82.106012,375.2778 v -6.4327 h -0.804087 v 6.4327 z m -4.020436,2.41226 -1.608174,-1.60817 v -8.04087 l 1.608174,-1.60818 h 4.020436 v -4.82452 h 4.824524 v 16.08174 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'High Volume';-inkscape-font-specification:'High Volume';fill:#000000;fill-opacity:1;stroke-width:1.60817444"
+         id="path1000" />
+      <path
+         inkscape:connector-curvature="0"
+         d="m 94.971408,368.04102 v -3.21635 h -0.804087 v 3.21635 z m -6.432698,9.64904 v -4.82452 h -0.804087 v -11.25722 h 12.061308 l 1.608179,1.60817 v 4.82453 l -1.608179,1.60817 1.608179,1.60818 v 0.80408 h -0.40205 v 4.42248 l -0.40204,0.40205 v -3.21635 h -0.804089 v 4.02043 H 99.393888 V 368.8451 H 98.5898 v 8.84496 h -0.402043 v -5.62861 H 97.38367 v 5.62861 h -0.402044 v -7.23678 h -0.804087 v 7.23678 h -0.402044 v -4.82452 h -0.804087 v -1.60817 h -0.804087 v 3.21634 h 0.804087 v 3.21635 h -0.402044 v -1.60817 h -0.804087 v 1.60817 h -0.402043 v -1.60817 h -0.804088 v 1.60817 h -0.402043 v -5.62861 h -0.804088 v 5.62861 h -0.402043 v -8.04087 h -0.804087 v 8.04087 h -0.402044 v -3.21635 h -0.804087 v 3.21635 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'High Volume';-inkscape-font-specification:'High Volume';fill:#000000;fill-opacity:1;stroke-width:1.60817444"
+         id="path1002" />
+      <path
+         inkscape:connector-curvature="0"
+         d="m 102.20819,377.69006 v -11.25722 h 4.82453 v 11.25722 z m 0,-12.0613 v -4.02044 h 4.82453 v 4.02044 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'High Volume';-inkscape-font-specification:'High Volume';fill:#000000;fill-opacity:1;stroke-width:1.60817444"
+         id="path1004" />
+      <path
+         inkscape:connector-curvature="0"
+         d="m 107.8368,377.69006 v -5.62861 l 1.60818,-1.60817 h 4.02043 v -1.60818 h -0.80408 v 0.80409 h -4.82453 v -1.60817 l 1.60818,-1.60818 h 8.84496 v 4.82453 l -1.60818,1.60817 h -4.02043 v 2.41226 h 0.80408 v -1.60817 h 4.82453 v 2.41226 l -1.60818,1.60817 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'High Volume';-inkscape-font-specification:'High Volume';fill:#000000;fill-opacity:1;stroke-width:1.60817444"
+         id="path1006" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"

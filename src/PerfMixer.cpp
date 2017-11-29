@@ -183,10 +183,10 @@ void PerfMixer::step()
     outputs[MIX_OUTPUT_R].value = mix_r;
 
 
-    outputs[SEND_1_L_OUTPUT].value = send_1_L_mix;
-    outputs[SEND_1_R_OUTPUT].value = send_1_R_mix;
-    outputs[SEND_2_L_OUTPUT].value = send_2_L_mix;
-    outputs[SEND_2_R_OUTPUT].value = send_2_R_mix;
+    outputs[SEND_1_L_OUTPUT].value = 3 * send_1_L_mix;
+    outputs[SEND_1_R_OUTPUT].value = 3 * send_1_R_mix;
+    outputs[SEND_2_L_OUTPUT].value = 3 * send_2_L_mix;
+    outputs[SEND_2_R_OUTPUT].value = 3 * send_2_R_mix;
 
     	
   }
