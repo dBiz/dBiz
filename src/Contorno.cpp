@@ -41,11 +41,6 @@ struct Contorno : Module {
 	};
 
 	float out[4] {};
-	//float in [4] {};
-	//float shape [4] {};
-	//float rise[4] {};
-	//float slew[4] {};
-	//float fall[4] {};
 	bool gate[4] = {};
 
 	
@@ -134,8 +129,8 @@ void ::Contorno::step() {
 			out[c] = in;
 		}
 
-		if (params[CYCLE_PARAM + c].value ==1.0) lights[CYCLE_LIGHT+c].value = 1.0;
-		
+		if (params[CYCLE_PARAM + c].value == 1.0 || inputs[CYCLE_INPUT+c].value>0.0) lights[CYCLE_LIGHT + c].value = 1.0;
+
 		lights[RISE_LIGHT + c].value = (rising ? 1.0 : 0.0);
 		lights[FALL_LIGHT + c].value = (falling ? 1.0 : 0.0);
 		outputs[OUT_OUTPUT + c].value = out[c];

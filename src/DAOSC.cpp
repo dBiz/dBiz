@@ -302,5 +302,5 @@ addInput(createInput<PJ301MIPort>(Vec(box.size.x-mid+10+jack*2, 230+down), modul
 
 addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid+10, 230+down), module, DAOSC::B_OUTPUT));
 
-addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid-12.5, 290+down), module, DAOSC::SUM_OUTPUT));
+addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid-12.5, 265+down), module, DAOSC::SUM_OUTPUT));
 }

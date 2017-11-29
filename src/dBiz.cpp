@@ -18,6 +18,7 @@ void init(rack::Plugin *p)
 	p->addModel(createModel<UtilityWidget>("dBiz","Utility", "Utility",QUANTIZER_TAG));
 	p->addModel(createModel<TransposeWidget>("dBiz","Transpose","Transpose",UTILITY_TAG));
 	p->addModel(createModel<BeneWidget>("dBiz","Bene", "Bene",SEQUENCER_TAG));
+	p->addModel(createModel<Bene2Widget>("dBiz", "Bene2", "Bene2", SEQUENCER_TAG));
 	p->addModel(createModel<BenePadsWidget>("dBiz","BenePads","BenePads",UTILITY_TAG));
 	p->addModel(createModel<SubMixWidget>("dBiz","dBiz SubMix", "SubMix",MIXER_TAG));
 	p->addModel(createModel<PerfMixerWidget>("dBiz","PerfMixer", "Performance mixer",MIXER_TAG));
