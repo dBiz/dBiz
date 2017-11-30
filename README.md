@@ -17,8 +17,7 @@ Those are basically a reskinned version of some Strum modules, but i splitted ca
 
 Starting from some grid sequencers like Cartesian by strum and Gridseq by JW i've made those grid sequencers:
 
-![alt text]
-(https://github.com/dBiz/VCVRack_Modules/blob/master/screenshot/Seq.jpg)
+![alt text](https://github.com/dBiz/VCVRack_Modules/blob/master/screenshot/Seq.jpg)
 - Bene
 Classical 4x4 cv sequencer with internal quantization , 
   BenePads is his "keyboard" it sends position to Bene(x,y) and a Gate out(g);
