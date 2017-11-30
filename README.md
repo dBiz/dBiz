@@ -6,16 +6,30 @@ Ready for v 0.5 here's what i have:
 
 - Quad envelope generator based on rampage,
 - Utility transposer octave/sem/fine with ability to link the inputs,
--Performance 8 channel stereo mixer with stereo sends and return
+- Performance 8 channel stereo mixer with stereo sends and return
 - VCA based on Roland VCA530
+
 ![alt text](https://github.com/dBiz/VCVRack_Modules/blob/master/screenshot/Utils.jpg)
 
 Those are basically a reskinned version of some Strum modules, but i splitted cartesian sequencer in case you don't need the pad/keyboard
 
 ![alt text](https://github.com/dBiz/VCVRack_Modules/blob/master/screenshot/Strumport.jpg)
 
+Starting from some grid sequencers like Cartesian by strum and Gridseq by JW i've made those grid sequencers:
+
+![alt text]
+(https://github.com/dBiz/VCVRack_Modules/blob/master/screenshot/Seq.jpg)
+- Bene
+Classical 4x4 cv sequencer with internal quantization , 
+  BenePads is his "keyboard" it sends position to Bene(x,y) and a Gate out(g);
+
+- Bene2
+ Evolution of Bene: Can out up to 8 individual sequence with cv (colums and rows) and gate (on the bottom) outs running with independent cloks. still some fix to do as usuall but it's really fun to play with it!
+
 And here's a collection of oscillator you might know...
 ![alt text](https://github.com/dBiz/VCVRack_Modules/blob/master/screenshot/OSC.jpg)
+
+
 
 
 I'm not a real coder so push req. and advice are always welcome
