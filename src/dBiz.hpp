@@ -643,29 +643,17 @@ struct BPush : SVGSwitch, MomentarySwitch
 // module widgets
 ////////////////////
 
-struct MultipleWidget : ModuleWidget {
-	MultipleWidget();
-};
+struct MultipleWidget : ModuleWidget {MultipleWidget();};
 
-struct SubMixWidget : ModuleWidget {
-	SubMixWidget();
-};
+struct SubMixWidget : ModuleWidget {SubMixWidget();};
 
-struct TransposeWidget : ModuleWidget {
-	TransposeWidget();
-};
+struct TransposeWidget : ModuleWidget {TransposeWidget();};
 
-struct ChordWidget : ModuleWidget {
-	ChordWidget();
-};
+struct ChordWidget : ModuleWidget {ChordWidget();};
 
-struct PerfMixerWidget : ModuleWidget {
-	   PerfMixerWidget(); 
-};
+struct PerfMixerWidget : ModuleWidget {PerfMixerWidget();};
 
-struct BeneWidget : ModuleWidget {
-	   BeneWidget(); 
-};
+struct BeneWidget : ModuleWidget {BeneWidget();};
 
 struct Bene2Widget : ModuleWidget
 {
@@ -673,38 +661,30 @@ struct Bene2Widget : ModuleWidget
 	Menu *createContextMenu() override;
 };
 
-struct BenePadsWidget : ModuleWidget
-{
-	BenePadsWidget();
-};
+struct BenePadsWidget : ModuleWidget{BenePadsWidget();};
 
-struct VCA530Widget : ModuleWidget
-{
-	VCA530Widget();
-};
+struct VCA530Widget : ModuleWidget{VCA530Widget();};
 
-struct DVCOWidget : ModuleWidget
-{
-	DVCOWidget();
-};
+struct DVCOWidget : ModuleWidget{DVCOWidget();};
 
-struct VerboWidget : ModuleWidget
-{
-	VerboWidget();
-};
+struct VerboWidget : ModuleWidget{VerboWidget();};
 
-struct DAOSCWidget : ModuleWidget
-{
-	DAOSCWidget();
-};
-struct UtilityWidget : ModuleWidget
-{
-	UtilityWidget();
-};
+struct DAOSCWidget : ModuleWidget{DAOSCWidget();};
 
-struct ContornoWidget : ModuleWidget
+struct UtilityWidget : ModuleWidget{UtilityWidget();};
+
+struct ContornoWidget : ModuleWidget{ContornoWidget();};
+
+struct dBizBlankWidget : ModuleWidget
 {
-	ContornoWidget();
+	SVGPanel *panel1;
+	SVGPanel *panel2;
+	SVGPanel *panel3;
+	SVGPanel *panel4;
+	SVGPanel *panel5;
+	dBizBlankWidget();
+	void step() override;
+	Menu *createContextMenu() override;
 };
 
 //struct NAMEWidget : ModuleWidget {
