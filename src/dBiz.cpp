@@ -12,6 +12,7 @@ void init(rack::Plugin *p)
 	p->version = TOSTRING(VERSION);
 #endif
 
+	p->addModel(createModel<dBizBlankWidget>("dBiz", "Blank", "Blank", BLANK_TAG));
 	p->addModel(createModel<MultipleWidget>("dBiz","Multiple", "Multiple",UTILITY_TAG));
 	p->addModel(createModel<ContornoWidget>("dBiz","Contorno", "Contorno",ENVELOPE_GENERATOR_TAG));
 	p->addModel(createModel<ChordWidget>("dBiz","dBiz Chord","Chord",UTILITY_TAG));
