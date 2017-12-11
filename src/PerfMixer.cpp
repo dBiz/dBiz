@@ -7,7 +7,7 @@
  
 #include "dBiz.hpp"
 #include "dsp/digital.hpp"
-#include "dsp/VUMeter.hpp"
+#include "dsp/vumeter.hpp"
 
 ///////////////////////////////////////////////////
 struct PerfMixer : Module {
