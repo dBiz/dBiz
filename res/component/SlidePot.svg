@@ -14,8 +14,8 @@
    viewBox="0 0 2.2731193 27.516666"
    version="1.1"
    id="svg1579"
-   sodipodi:docname="BefacoSlidePot.svg"
-   inkscape:version="0.92.1 r">
+   sodipodi:docname="SlidePot.svg"
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
   <defs
      id="defs1573" />
   <sodipodi:namedview
@@ -25,11 +25,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="-45.207049"
-     inkscape:cy="13.722615"
+     inkscape:zoom="8.0390625"
+     inkscape:cx="-51.67478"
+     inkscape:cy="87.326497"
      inkscape:document-units="mm"
-     inkscape:current-layer="g1558"
+     inkscape:current-layer="g6763"
      showgrid="false"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -49,7 +49,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -62,13 +62,13 @@
        transform="matrix(0.25661767,0,0,-0.25661767,-287.89299,711.01086)"
        id="g1558">
       <g
-         transform="matrix(1,0,0,0.85245901,1737.2207,2414.7499)"
+         transform="matrix(0.30380843,0,0,0.85245901,1737.9294,2414.7499)"
          id="g6763">
         <path
            inkscape:connector-curvature="0"
            id="path6765"
-           style="fill:#444444;fill-opacity:1;fill-rule:nonzero;stroke:none"
-           d="M 0,0 H 2.036 C 3.92,0 5.447,-2.028 5.447,-4.529 v -116.729 c 0,-2.502 -1.527,-4.529 -3.411,-4.529 H 0 c -1.884,0 -3.411,2.027 -3.411,4.529 V -4.529 C -3.411,-2.028 -1.884,0 0,0" />
+           style="fill:#444444;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.17527163"
+           d="M -0.38812605,0 H 2.424126 c 2.6023001,0 4.7114892,-2.028 4.7114892,-4.529 v -116.729 c 0,-2.502 -2.1091891,-4.529 -4.7114892,-4.529 h -2.81225205 c -2.60230005,0 -4.71148915,2.027 -4.71148915,4.529 V -4.529 c 0,2.501 2.1091891,4.529 4.71148915,4.529" />
       </g>
     </g>
   </g>

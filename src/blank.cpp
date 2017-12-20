@@ -165,7 +165,7 @@ Menu *dBizBlankWidget::createContextMenu()
     menu->addChild(construct<MenuLabel>(&MenuEntry::text, "Panels Art"));
 	menu->addChild(construct<Panel1Item>(&MenuEntry::text, "DeepBlue", &Panel1Item::blank, blank));
 	menu->addChild(construct<Panel2Item>(&MenuEntry::text, "Flat Volume", &Panel2Item::blank, blank));
-	menu->addChild(construct<Panel3Item>(&MenuEntry::text, "Yellow Wave", &Panel3Item::blank, blank));
+	menu->addChild(construct<Panel3Item>(&MenuEntry::text, "Circles", &Panel3Item::blank, blank));
     menu->addChild(construct<Panel4Item>(&MenuEntry::text, "Dark Wave",     &Panel4Item::blank, blank));
     menu->addChild(construct<Panel5Item>(&MenuEntry::text, "Clouds Pattern",    &Panel5Item::blank, blank));
 
