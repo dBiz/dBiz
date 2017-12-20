@@ -11,9 +11,9 @@ Ready for v 0.5 here's what i have:
 
 ![alt text](https://github.com/dBiz/VCVRack_Modules/blob/master/screenshot/Utils.jpg)
 
-Those are basically a reskinned version of some Strum modules, but i splitted cartesian sequencer in case you don't need the pad/keyboard
+Based on Strum modules i've made a compact 4 channel mixer, a 8 channel mixer,a chord utility and from Michael Hetrick Scanner i've made Remix Module !
 
-![alt text](https://github.com/dBiz/VCVRack_Modules/blob/master/screenshot/Strumport.jpg)
+![alt text](https://github.com/dBiz/VCVRack_Modules/blob/master/screenshot/Updates.jpg)
 
 Starting from some grid sequencers like Cartesian by strum and Gridseq by JW i've made those grid sequencers:
 
