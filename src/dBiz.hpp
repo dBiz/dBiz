@@ -675,6 +675,8 @@ struct UtilityWidget : ModuleWidget{UtilityWidget();};
 
 struct ContornoWidget : ModuleWidget{ContornoWidget();};
 
+struct RemixWidget : ModuleWidget{RemixWidget();};
+
 struct dBizBlankWidget : ModuleWidget
 {
 	SVGPanel *panel1;

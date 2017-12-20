@@ -37,51 +37,55 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="978"
+     inkscape:window-width="1353"
      inkscape:window-height="774"
      id="namedview25"
      showgrid="false"
-     inkscape:zoom="2.1091366"
-     inkscape:cx="2.8583199"
-     inkscape:cy="86.10388"
-     inkscape:window-x="2613"
-     inkscape:window-y="80"
+     inkscape:zoom="1.1405678"
+     inkscape:cx="-88.184184"
+     inkscape:cy="166.2511"
+     inkscape:window-x="2038"
+     inkscape:window-y="61"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg8" />
   <title
      id="title2">BlankPanel1</title>
   <g
      id="layer1"
-     style="fill:#0a2633;fill-opacity:1">
+     style="fill:#008cba;fill-opacity:1">
     <path
        id="rect817"
        d="M0,0H90V380H0Z"
        transform="translate(0 0.00002)"
-       style="fill:#0a2633;fill-opacity:1" />
+       style="fill:#008cba;fill-opacity:1" />
   </g>
   <g
      aria-label="dBiz"
-     transform="rotate(-90)"
+     transform="rotate(-90,-39.89241,-39.89241)"
      inkscape:transform-center-x="80.156175"
      inkscape:transform-center-y="22.54397"
-     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:132.04801941px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#d1dede;fill-opacity:1;stroke:none;stroke-width:8.25300121"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:132.04801941px;line-height:1.25;font-family:'DejaVu Math TeX Gyre';-inkscape-font-specification:'DejaVu Math TeX Gyre';letter-spacing:0px;word-spacing:0px;fill:#e8fcc2;fill-opacity:1;stroke:none;stroke-width:8.25300121"
      id="text4528">
     <path
        d="M -345.55386,74.831825 V 41.81982 h -4.1265 v 33.012005 z m -20.6325,12.379502 -8.253,-8.253002 V 37.693319 l 8.253,-8.253001 h 20.6325 V 4.6813145 h 24.75901 V 87.211327 Z"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'High Volume';-inkscape-font-specification:'High Volume';fill:#d1dede;fill-opacity:1;stroke-width:8.25300121"
-       id="path825" />
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'High Volume';-inkscape-font-specification:'High Volume';fill:#e8fcc2;fill-opacity:1;stroke-width:8.25300121"
+       id="path825"
+       inkscape:connector-curvature="0" />
     <path
        d="M -279.52985,37.693319 V 21.187317 h -4.1265 v 16.506002 z m -33.012,49.518008 V 62.452323 h -4.1265 V 4.6813145 h 61.89751 l 8.253,8.2530015 v 24.759003 l -8.253,8.253002 8.253,8.253001 v 4.1265 h -2.06325 v 22.695754 l -2.06325,2.06325 V 66.578824 h -4.1265 v 20.632503 h -2.06326 V 41.81982 h -4.1265 v 45.391507 h -2.06325 V 58.325822 h -4.1265 v 28.885505 h -2.06325 V 50.072821 h -4.1265 v 37.138506 h -2.06325 V 62.452323 h -4.1265 v -8.253001 h -4.1265 v 16.506002 h 4.1265 v 16.506003 h -2.06325 v -8.253002 h -4.1265 v 8.253002 h -2.06325 v -8.253002 h -4.1265 v 8.253002 h -2.06325 V 58.325822 h -4.1265 v 28.885505 h -2.06325 V 45.946321 h -4.1265 v 41.265006 h -2.06325 V 70.705324 h -4.1265 v 16.506003 z"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'High Volume';-inkscape-font-specification:'High Volume';fill:#d1dede;fill-opacity:1;stroke-width:8.25300121"
-       id="path827" />
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'High Volume';-inkscape-font-specification:'High Volume';fill:#e8fcc2;fill-opacity:1;stroke-width:8.25300121"
+       id="path827"
+       inkscape:connector-curvature="0" />
     <path
        d="M -242.39134,87.211327 V 29.440318 h 24.759 v 57.771009 z m 0,-61.897509 V 4.6813145 h 24.759 V 25.313818 Z"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'High Volume';-inkscape-font-specification:'High Volume';fill:#d1dede;fill-opacity:1;stroke-width:8.25300121"
-       id="path829" />
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'High Volume';-inkscape-font-specification:'High Volume';fill:#e8fcc2;fill-opacity:1;stroke-width:8.25300121"
+       id="path829"
+       inkscape:connector-curvature="0" />
     <path
        d="M -213.50584,87.211327 V 58.325822 l 8.253,-8.253001 h 20.6325 V 41.81982 h -4.1265 v 4.126501 h -24.759 v -8.253002 l 8.253,-8.253001 h 45.3915 v 24.759004 l -8.253,8.253001 h -20.6325 v 12.379502 h 4.1265 v -8.253001 h 24.759 v 12.379501 l -8.253,8.253002 z"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'High Volume';-inkscape-font-specification:'High Volume';fill:#d1dede;fill-opacity:1;stroke-width:8.25300121"
-       id="path831" />
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'High Volume';-inkscape-font-specification:'High Volume';fill:#e8fcc2;fill-opacity:1;stroke-width:8.25300121"
+       id="path831"
+       inkscape:connector-curvature="0" />
   </g>
   <text
      xml:space="preserve"
