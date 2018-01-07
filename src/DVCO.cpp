@@ -365,8 +365,8 @@ DVCOWidget::DVCOWidget() {
 
 ///////////////////////////////////////port//////////////////////////////////////////////////
 	addParam(createParam<CKSS>(Vec(mid/2-10, 20), module, DVCO::LFO_A_MODE_PARAM, 0.0, 1.0, 1.0));
-	addParam(createParam<CKSS>(Vec(mid-8, 20), module, DVCO::LFO_B_MODE_PARAM, 0.0, 1.0, 1.0));
-	addParam(createParam<CKSS>(Vec(mid+(mid/2-5), 20), module, DVCO::OSC_SYNC_PARAM, 0.0, 1.0, 1.0));
+	addParam(createParam<CKSS>(Vec(mid-8, 20), module, DVCO::OSC_SYNC_PARAM, 0.0, 1.0, 1.0));
+	addParam(createParam<CKSS>(Vec(mid+(mid/2-5), 20), module,DVCO::LFO_B_MODE_PARAM, 0.0, 1.0, 1.0));
 
 	addParam(createParam<CKSS>(Vec(border, 260), module, DVCO::MODE_A_PARAM, 0.0, 1.0, 1.0));
 	addParam(createParam<CKSS>(Vec(border+jacks, 260), module, DVCO::SYNC_A_PARAM, 0.0, 1.0, 1.0));
