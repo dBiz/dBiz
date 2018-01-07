@@ -127,22 +127,24 @@ struct VoltageControlledOscillator {
 
 struct Verbo : Module {
 	enum ParamIds {
+		SLOPE_PARAM,
 		FREQ_PARAM,
 		FINE_PARAM,
 		CV_PARAM,
 		CENTER_PARAM,
 		CENTER_CV_PARAM,
-		WITH_PARAM,
-		WITH_CV_PARAM,
+		WIDTH_PARAM,
+		WIDTH_CV_PARAM,
 		FM_PARAM,
 		HARM_PARAM,
 		NUM_PARAMS=HARM_PARAM+8
 	};
 	enum InputIds {
+		SLOPE_INPUT,
 		PITCH_INPUT,
 		CV_INPUT,
 		CENTER_INPUT,
-		WITH_INPUT,
+		WIDTH_INPUT,
 		FM_INPUT,
 		HARM_INPUT,
 		NUM_INPUTS=HARM_INPUT+8
@@ -163,25 +165,35 @@ struct Verbo : Module {
 	VoltageControlledOscillator<16, 16> oscillator;
     VoltageControlledOscillator<16, 16> bank[8]={};
 
+	float inMults[8] = {};
+    float widthTable[9] = {0, 0, 0, 0.285, 0.285, 0.2608, 0.23523, 0.2125, 0.193};
+
     Verbo() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override;
+
+	int clampInt(const int _in, const int min = 0, const int max = 7)
+    {
+        if (_in > max) return max;
+        if (_in < min) return min;
+        return _in;
+    }
+
+    float triShape(float _in)
+    {
+        _in = _in - round(_in);
+        return std::abs(_in + _in);
+    }
+
+	float LERP(const float _amountOfA, const float _inA, const float _inB)
+    {
+        return ((_amountOfA * _inA) + ((1.0f - _amountOfA) * _inB));
+    }
+
 };
 
 
 void Verbo::step() {
 
-	int center = roundf((params[CENTER_PARAM].value - 1) + (params[CENTER_CV_PARAM].value*inputs[CENTER_INPUT].value));
-	int with  =  roundf((params[WITH_PARAM].value - 1) + (params[WITH_CV_PARAM].value*inputs[WITH_INPUT].value));
-	;
-	if (center<0) center=0;
-	if (center>7) center=7;
-    if (with<0) with=0;
-
-	float centerSel =0.0;
-    const int MAX_HARM=8;
-    
-    float harm_sum=0.0;
-    float with_sum=0.0;
 	float pitchFine = 3.0 * quadraticBipolar(params[FINE_PARAM].value);
 	float pitchCv = 12.0 * inputs[PITCH_INPUT].value;
 	if (inputs[FM_INPUT].active) {
@@ -193,47 +205,81 @@ void Verbo::step() {
 	}
 	oscillator.setPitch(params[FREQ_PARAM].value, pitchFine + pitchCv);
 	oscillator.process(1.0 / engineGetSampleRate(),16.0);
-	
-	// Set output
-	
-	for (int i=0; i<MAX_HARM; i++) 
-	{
-			bank[i].freq=(i+2)*oscillator.freq;
-			bank[i].process(1.0 / engineGetSampleRate(),16.0);
-			outputs[HARM_OUTPUT + i].value = 3 * bank[i].sin() * clampf((params[HARM_PARAM + i].value + inputs[HARM_INPUT + i].value) , 0.0, 1.0);
-			harm_sum+=2*bank[i].sin()*params[HARM_PARAM+i].value * clampf(inputs[HARM_INPUT + i].normalize(10.0) / 10.0, 0.0, 1.0);
-			lights[HARM_LIGHT+i].value = params[HARM_PARAM+i].value * clampf(inputs[HARM_INPUT + i].normalize(10.0) / 10.0, 0.0, 1.0);
+
+	///////////////////////////////////////////
+	///////////////////////////////////////////
+
+    int stages = 8;
+    const float invStages = 1.0f/stages;
+    const float halfStages = stages * 0.5f;
+    const float remainInvStages = 1.0f - invStages;
+
+    float widthControl = params[WIDTH_PARAM].value + inputs[WIDTH_INPUT].value*params[WIDTH_CV_PARAM].value;
+    widthControl = clampf(widthControl, 0.0f, 5.0f) * 0.2f;
+    widthControl = widthControl * widthControl * widthTable[stages];
+
+    float CenterControl = params[CENTER_PARAM].value + inputs[CENTER_INPUT].value*params[CENTER_CV_PARAM].value;
+    CenterControl = clampf(CenterControl, 0.0f, 5.0f) * 0.2f;
+
+    float slopeControl = params[SLOPE_PARAM].value + inputs[SLOPE_INPUT].value;
+    slopeControl = clampf(slopeControl, 0.0f, 5.0f) * 0.2f;
+
+    float scanFactor1 = LERP(widthControl, halfStages, invStages);
+    float scanFactor2 = LERP(widthControl, halfStages + remainInvStages, 1.0f);
+    float scanFinal = LERP(CenterControl, scanFactor2, scanFactor1);
+
+    float invWidth = 1.0f/(LERP(widthControl, float(stages), invStages+invStages));
+
+    float subStage = 0.0f;
+    for(int i = 0; i < 8; i++)
+    {
+        inMults[i] = (scanFinal + subStage) * invWidth;
+        subStage = subStage - invStages;
+    }
+
+    for(int i = 0; i < 8; i++)
+    {
+        inMults[i] = clampf(inMults[i], 0.0f, 1.0f);
+        inMults[i] = triShape(inMults[i]);
+        inMults[i] = clampf(inMults[i], 0.0f, 1.0f);
+
+        const float shaped = (2.0f - inMults[i]) * inMults[i];
+        inMults[i] = LERP(slopeControl, shaped, inMults[i]);
+    }
+
+	float harm_sum=0.0f;
+	float harm_out=0.0f;
+
+    for(int i = 0; i < 8; i++)
+    {
+		bank[i].freq=(i+2)*oscillator.freq;
+		bank[i].process(1.0 / engineGetSampleRate(),16.0);
+		outputs[HARM_OUTPUT + i].value = 5 * bank[i].sin() * clampf((params[HARM_PARAM + i].value + inputs[HARM_INPUT + i].value) , 0.0, 1.0);
+		harm_out+=0.5*bank[i].sin() * clampf((params[HARM_PARAM + i].value + inputs[HARM_INPUT + i].value) , 0.0, 1.0);
+		lights[HARM_LIGHT + i].setBrightnessSmooth(params[HARM_PARAM + i].value*1.2);
 	}
 
-	for (int i=0; i<MAX_HARM; i++) 
-	{
-		if (params[CENTER_PARAM].value>0.5)
-		{
-			centerSel += 0.125 * bank[center].sin();
-			lights[HARM_LIGHT+center].value=1.0;
-		}
-		else lights[HARM_LIGHT+center].value=0.0;
-    }
+if(params[CENTER_PARAM].value<0){
+	 harm_sum=crossf(bank[0].sin()*inMults[0],0.0,params[CENTER_PARAM].value*-1.0);
+	 lights[HARM_LIGHT ].setBrightnessSmooth(crossf(inMults[0],0.0,params[CENTER_PARAM].value*-1.0));
+}
 
-    if (params[WITH_PARAM].value > 0.5 && params[CENTER_PARAM].value > 0.5)
+if(params[CENTER_PARAM].value>=0){
+    for(int i = 0; i < 8; i++)
     {
-        for (int w = 1; w < with ; w++)
-        {
-            int boundl =center+w; 
-            if (boundl>7) boundl=7;
-            int boundr = center - w;
-			if (boundr<0) boundr=0;
-			with_sum += 2.5 * bank[boundl].sin() * 0.3 / w;
-			with_sum += 2.5 * bank[boundr].sin() * 0.3 / w;
-			lights[HARM_LIGHT + boundl].value = 0.9 * 1/w;
-			lights[HARM_LIGHT + boundr].value = 0.9 * 1/w;
-		}   
+		harm_sum+=bank[i].sin()*inMults[i]*1.2;
+        lights[HARM_LIGHT + i].setBrightnessSmooth(fmaxf(0.0, inMults[i]));
     }
+}
+
+
+//////////////////////////////
+/////////////////////////////
 
     if (outputs[SIN_OUTPUT].active)
     {
 
-        outputs[SIN_OUTPUT].value = 5.0 * oscillator.sin() + 0.5*harm_sum + centerSel+with_sum;
+        outputs[SIN_OUTPUT].value = 5.0 * oscillator.sin() + 0.5 * harm_sum + harm_out ;
         }
 
         if (outputs[TRI_OUTPUT].active)
@@ -280,17 +326,22 @@ VerboWidget::VerboWidget() {
 
 int ks = 60;
 int vp=20;
+
 	addParam(createParam<VerboS>(Vec(10, vp+272), module, Verbo::FM_PARAM, 0.0, 1.0, 0.0));
 	addInput(createInput<PJ301MPort>(Vec(15, vp+320), module, Verbo::FM_INPUT));
 	addParam(createParam<VerboS>(Vec(55, vp+272), module, Verbo::CV_PARAM, -1.0, 1.0, 0.0));
 	addInput(createInput<PJ301MPort>(Vec(60, vp+320), module, Verbo::CV_INPUT));
 	addInput(createInput<PJ301MPort>(Vec(90, vp+320), module, Verbo::PITCH_INPUT));
 
-	addParam(createParam<VerboS>(Vec(30+left+ks, vp+272), module, Verbo::WITH_CV_PARAM, -1.0, 1.0, 0.0));
-	addParam(createParam<VerboS>(Vec(30+left+ks+space*2, vp+272), module, Verbo::WITH_PARAM, 1.0, 8.0, 0.0));
+	addParam(createParam<VerboS>(Vec(30+left+ks, vp+272), module, Verbo::WIDTH_CV_PARAM, -1.0, 1.0, 0.0));
+	addParam(createParam<VerboS>(Vec(30+left+ks+space*2, vp+272), module, Verbo::WIDTH_PARAM, 1.0, 8.0, 0.0));
+
+	addParam(createParam<Trimpot>(Vec(30+left+ks*2-15, vp+322.5), module, Verbo::SLOPE_PARAM, 0.0, 5.0, 0.0));
+	addInput(createInput<PJ301MPort>(Vec(30+left+ks*2+25, vp+320), module, Verbo::SLOPE_INPUT));
+
 	addParam(createParam<VerboS>(Vec(30+left+ks*3, vp+272), module, Verbo::CENTER_CV_PARAM, -1.0, 1.0, 0.0));
-	addParam(createParam<VerboS>(Vec(30+left+ks*3+space*2, vp+272), module, Verbo::CENTER_PARAM, 0.0, 8.0, 0.0));
-	addInput(createInput<PJ301MPort>(Vec(30+left+ks+5, vp+320), module, Verbo::WITH_INPUT));
+	addParam(createParam<VerboS>(Vec(30+left+ks*3+space*2, vp+272), module, Verbo::CENTER_PARAM, -1.0, 8.0, -1.0));
+	addInput(createInput<PJ301MPort>(Vec(30+left+ks+5, vp+320), module, Verbo::WIDTH_INPUT));
 	addInput(createInput<PJ301MPort>(Vec(30+left+ks*3+5, vp+320), module, Verbo::CENTER_INPUT));
 	
 
