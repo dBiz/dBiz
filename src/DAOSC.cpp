@@ -1,5 +1,6 @@
 #include "dBiz.hpp"
 
+#include "dsp/functions.hpp"
 
 struct sinebank {
 
@@ -26,7 +27,7 @@ struct sinebank {
 		if (phase >= 1.0)
 			phase -= 1.0;
 	}
-	
+
 	void setFreq(float freq2)
 	{
 		// Accumulate the phase
@@ -65,7 +66,7 @@ struct DAOSC : Module {
         B_SQUARE_PARAM,
         B_FM_PARAM,
 
-        
+
         NUM_PARAMS
     };
 	enum InputIds
@@ -117,10 +118,10 @@ struct DAOSC : Module {
 void DAOSC::step() {
 
 
-	int a_harm = round(params[A_SAW_PARAM].value+clampf(inputs[A_SAW_INPUT].value, 0.0, 19.0));
-	int a_harmq = round(params[A_SQUARE_PARAM].value+clampf(inputs[A_SQUARE_INPUT].value, 0.0, 19.0));
-	int b_harm = round(params[B_SAW_PARAM].value + clampf(inputs[B_SAW_INPUT].value, 0.0, 19.0));
-	int b_harmq = round(params[B_SQUARE_PARAM].value + clampf(inputs[B_SQUARE_INPUT].value, 0.0, 19.0));
+	int a_harm = round(params[A_SAW_PARAM].value+clamp(inputs[A_SAW_INPUT].value, 0.0, 19.0));
+	int a_harmq = round(params[A_SQUARE_PARAM].value+clamp(inputs[A_SQUARE_INPUT].value, 0.0, 19.0));
+	int b_harm = round(params[B_SAW_PARAM].value + clamp(inputs[B_SAW_INPUT].value, 0.0, 19.0));
+	int b_harmq = round(params[B_SQUARE_PARAM].value + clamp(inputs[B_SQUARE_INPUT].value, 0.0, 19.0));
 
 	if(a_harm >20) a_harm = 20;
 	if(a_harmq>20) a_harmq = 20;
@@ -183,14 +184,14 @@ void DAOSC::step() {
 	float a_inputf = 3.0 * osc_a.light() + a_harmsum + a_harmsumq;
 	float b_inputf = 3.0 * osc_b.light() + b_harmsum + b_harmsumq;
 
-	a_inputf = clampf(a_inputf, -6.0f, 6.0f) * 0.2f;
-	b_inputf = clampf(b_inputf, -6.0f, 6.0f) * 0.2f;
+	a_inputf = clamp(a_inputf, -6.0f, 6.0f) * 0.2f;
+	b_inputf = clamp(b_inputf, -6.0f, 6.0f) * 0.2f;
 
-	float a_contrast = params[A_FOLD_PARAM].value + clampf(inputs[A_FOLD_INPUT].value, 0.0, 6.0);
-	float b_contrast = params[B_FOLD_PARAM].value + clampf(inputs[B_FOLD_INPUT].value, 0.0, 6.0);
+	float a_contrast = params[A_FOLD_PARAM].value + clamp(inputs[A_FOLD_INPUT].value, 0.0, 6.0);
+	float b_contrast = params[B_FOLD_PARAM].value + clamp(inputs[B_FOLD_INPUT].value, 0.0, 6.0);
 
-	a_contrast = clampf(a_contrast, 0.0f, 6.0f) * 0.2f;
-	b_contrast = clampf(b_contrast, 0.0f, 6.0f) * 0.2f;
+	a_contrast = clamp(a_contrast, 0.0f, 6.0f) * 0.2f;
+	b_contrast = clamp(b_contrast, 0.0f, 6.0f) * 0.2f;
 
 	const float a_factor1 = a_inputf * 1.57143;
 	const float a_factor2 = sinf(a_inputf * 6.28571) * a_contrast;
@@ -209,15 +210,15 @@ void DAOSC::step() {
 	float a_inputd = a_outputf;
 	float b_inputd = b_outputf;
 
-	a_inputd = clampf(a_inputd, -5.0f, 5.0f) * 0.2f;
-	b_inputd = clampf(b_inputd, -5.0f, 5.0f) * 0.2f;
+	a_inputd = clamp(a_inputd, -5.0f, 5.0f) * 0.2f;
+	b_inputd = clamp(b_inputd, -5.0f, 5.0f) * 0.2f;
 
-	float a_shape = params[A_DRIVE_PARAM].value + clampf(inputs[A_DRIVE_INPUT].value, -5.0, 5.0);
-	a_shape = clampf(a_shape, -5.0f, 5.0f) * 0.2f;
+	float a_shape = params[A_DRIVE_PARAM].value + clamp(inputs[A_DRIVE_INPUT].value, -5.0, 5.0);
+	a_shape = clamp(a_shape, -5.0f, 5.0f) * 0.2f;
 	a_shape *= 0.99f;
 
-	float b_shape = params[B_DRIVE_PARAM].value + clampf(inputs[B_DRIVE_INPUT].value, -5.0, 5.0);
-	b_shape = clampf(b_shape, -5.0f, 5.0f) * 0.2f;
+	float b_shape = params[B_DRIVE_PARAM].value + clamp(inputs[B_DRIVE_INPUT].value, -5.0, 5.0);
+	b_shape = clamp(b_shape, -5.0f, 5.0f) * 0.2f;
 	b_shape *= 0.99f;
 
 	const float a_shapeB = (1.0 - a_shape) / (1.0 + a_shape);
@@ -241,9 +242,9 @@ void DAOSC::step() {
 	outputs[SUM_OUTPUT].value = 3.0 * (a_outputd + b_outputd) / 2;
 }
 
-DAOSCWidget::DAOSCWidget() {
-	DAOSC *module = new DAOSC();
-	setModule(module);
+struct DAOSCWidget : ModuleWidget{DAOSCWidget(DAOSC *module);};
+
+DAOSCWidget::DAOSCWidget(DAOSC *module) : ModuleWidget(module) {
 	box.size = Vec(13 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -253,10 +254,10 @@ DAOSCWidget::DAOSCWidget() {
 		addChild(panel);
 	}
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
 
 int knob=42;
@@ -265,42 +266,44 @@ float mid = 97.5;
 int top = 20;
 int down = 50;
 
-// addParam(createParam<CKSS>(Vec(off * 2 + 18, 30), module, DAOSC::A_MODE_PARAM, 0.0, 1.0, 0.0));
-// addParam(createParam<CKSS>(Vec(off * 3 + 18, 30), module, DAOSC::B_MODE_PARAM, 0.0, 1.0, 0.0));
+// addParam(ParamWidget::create<CKSS>(Vec(off * 2 + 18, 30), module, DAOSC::A_MODE_PARAM, 0.0, 1.0, 0.0));
+// addParam(ParamWidget::create<CKSS>(Vec(off * 3 + 18, 30), module, DAOSC::B_MODE_PARAM, 0.0, 1.0, 0.0));
 
-addParam(createParam<LRoundWhy>(Vec(box.size.x-mid-50, top), module, DAOSC::A_PITCH_PARAM, -54.0, 54.0, 0.0));
-addParam(createParam<RoundWhy>(Vec(box.size.x-mid-knob*2 - 10, top), module, DAOSC::A_FINE_PARAM, -1.0, 1.0, 0.0));
-addParam(createParam<RoundWhy>(Vec(box.size.x - mid - knob * 1 , top + knob + 35), module, DAOSC::A_FM_PARAM, 0.0, 1.0, 0.0));
-addParam(createParam<RoundAzz>(Vec(box.size.x - mid - knob * 2 - 5, top + knob + 5), module, DAOSC::A_FOLD_PARAM, 0.0, 5.0, 0.0));
-addParam(createParam<RoundRed>(Vec(box.size.x - mid - knob * 2 - 5, 125), module, DAOSC::A_DRIVE_PARAM, -5.0, 5.0, 0.0));
-addParam(createParam<RoundWhy>(Vec(box.size.x-mid-knob, 157), module, DAOSC::A_SQUARE_PARAM, 1.0, 20.0, 1.0));
-addParam(createParam<RoundWhy>(Vec(box.size.x-mid-knob*2, 177), module, DAOSC::A_SAW_PARAM, 1.0, 20.0, 1.0));
+addParam(ParamWidget::create<LRoundWhy>(Vec(box.size.x-mid-50, top), module, DAOSC::A_PITCH_PARAM, -54.0, 54.0, 0.0));
+addParam(ParamWidget::create<RoundWhy>(Vec(box.size.x-mid-knob*2 - 10, top), module, DAOSC::A_FINE_PARAM, -1.0, 1.0, 0.0));
+addParam(ParamWidget::create<RoundWhy>(Vec(box.size.x - mid - knob * 1 , top + knob + 35), module, DAOSC::A_FM_PARAM, 0.0, 1.0, 0.0));
+addParam(ParamWidget::create<RoundAzz>(Vec(box.size.x - mid - knob * 2 - 5, top + knob + 5), module, DAOSC::A_FOLD_PARAM, 0.0, 5.0, 0.0));
+addParam(ParamWidget::create<RoundRed>(Vec(box.size.x - mid - knob * 2 - 5, 125), module, DAOSC::A_DRIVE_PARAM, -5.0, 5.0, 0.0));
+addParam(ParamWidget::create<RoundWhy>(Vec(box.size.x-mid-knob, 157), module, DAOSC::A_SQUARE_PARAM, 1.0, 20.0, 1.0));
+addParam(ParamWidget::create<RoundWhy>(Vec(box.size.x-mid-knob*2, 177), module, DAOSC::A_SAW_PARAM, 1.0, 20.0, 1.0));
 
-addInput(createInput<PJ301MIPort>(Vec(box.size.x-mid-jack-5, 160+down), module, DAOSC::A_FM_INPUT));
-addInput(createInput<PJ301MIPort>(Vec(box.size.x-mid-jack-5, 190+down), module, DAOSC::A_PITCH_INPUT));
-addInput(createInput<PJ301MIPort>(Vec(box.size.x-mid-jack*2-5, 190+down), module, DAOSC::A_FOLD_INPUT));
-addInput(createInput<PJ301MIPort>(Vec(box.size.x-mid-jack*3-5, 190+down), module, DAOSC::A_DRIVE_INPUT));
-addInput(createInput<PJ301MIPort>(Vec(box.size.x-mid-jack*2-5, 230+down), module, DAOSC::A_SAW_INPUT));
-addInput(createInput<PJ301MIPort>(Vec(box.size.x-mid-jack*3-5, 230+down), module, DAOSC::A_SQUARE_INPUT));
+addInput(Port::create<PJ301MIPort>(Vec(box.size.x-mid-jack-5, 160+down), Port::INPUT, module, DAOSC::A_FM_INPUT));
+addInput(Port::create<PJ301MIPort>(Vec(box.size.x-mid-jack-5, 190+down), Port::INPUT, module, DAOSC::A_PITCH_INPUT));
+addInput(Port::create<PJ301MIPort>(Vec(box.size.x-mid-jack*2-5, 190+down), Port::INPUT, module, DAOSC::A_FOLD_INPUT));
+addInput(Port::create<PJ301MIPort>(Vec(box.size.x-mid-jack*3-5, 190+down), Port::INPUT, module, DAOSC::A_DRIVE_INPUT));
+addInput(Port::create<PJ301MIPort>(Vec(box.size.x-mid-jack*2-5, 230+down), Port::INPUT, module, DAOSC::A_SAW_INPUT));
+addInput(Port::create<PJ301MIPort>(Vec(box.size.x-mid-jack*3-5, 230+down), Port::INPUT, module, DAOSC::A_SQUARE_INPUT));
 
-addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid-jack-5, 230+down), module, DAOSC::A_OUTPUT));
+addOutput(Port::create<PJ301MOPort>(Vec(box.size.x - mid-jack-5, 230+down), Port::OUTPUT, module, DAOSC::A_OUTPUT));
 
-addParam(createParam<LRoundWhy>(Vec(box.size.x-mid+5, top), module, DAOSC::B_PITCH_PARAM, -54.0, 54.0, 0.0));
-addParam(createParam<RoundWhy>(Vec(box.size.x-mid+5+knob+10, top), module, DAOSC::B_FINE_PARAM, -1.0, 1.0, 0.0));
-addParam(createParam<RoundWhy>(Vec(box.size.x - mid + 5, top + knob+35), module, DAOSC::B_FM_PARAM, 0.0, 1.0, 0.0));
-addParam(createParam<RoundAzz>(Vec(box.size.x - mid + 10 + knob, top + knob + 5), module, DAOSC::B_FOLD_PARAM, 0.0, 5.0, 0.0));
-addParam(createParam<RoundRed>(Vec(box.size.x - mid + 10 + knob, 125), module, DAOSC::B_DRIVE_PARAM, -5.0, 5.0, 0.0));
-addParam(createParam<RoundWhy>(Vec(box.size.x-mid+5, 157), module, DAOSC::B_SQUARE_PARAM, 1.0, 20.0, 1.0));
-addParam(createParam<RoundWhy>(Vec(box.size.x-mid+5+knob, 177), module, DAOSC::B_SAW_PARAM, 1.0, 20.0, 1.0));
+addParam(ParamWidget::create<LRoundWhy>(Vec(box.size.x-mid+5, top), module, DAOSC::B_PITCH_PARAM, -54.0, 54.0, 0.0));
+addParam(ParamWidget::create<RoundWhy>(Vec(box.size.x-mid+5+knob+10, top), module, DAOSC::B_FINE_PARAM, -1.0, 1.0, 0.0));
+addParam(ParamWidget::create<RoundWhy>(Vec(box.size.x - mid + 5, top + knob+35), module, DAOSC::B_FM_PARAM, 0.0, 1.0, 0.0));
+addParam(ParamWidget::create<RoundAzz>(Vec(box.size.x - mid + 10 + knob, top + knob + 5), module, DAOSC::B_FOLD_PARAM, 0.0, 5.0, 0.0));
+addParam(ParamWidget::create<RoundRed>(Vec(box.size.x - mid + 10 + knob, 125), module, DAOSC::B_DRIVE_PARAM, -5.0, 5.0, 0.0));
+addParam(ParamWidget::create<RoundWhy>(Vec(box.size.x-mid+5, 157), module, DAOSC::B_SQUARE_PARAM, 1.0, 20.0, 1.0));
+addParam(ParamWidget::create<RoundWhy>(Vec(box.size.x-mid+5+knob, 177), module, DAOSC::B_SAW_PARAM, 1.0, 20.0, 1.0));
 
-addInput(createInput<PJ301MIPort>(Vec(box.size.x-mid+10, 160+down), module, DAOSC::B_FM_INPUT));
-addInput(createInput<PJ301MIPort>(Vec(box.size.x-mid+10, 190+down), module, DAOSC::B_PITCH_INPUT));
-addInput(createInput<PJ301MIPort>(Vec(box.size.x-mid+10+jack, 190+down), module, DAOSC::B_FOLD_INPUT));
-addInput(createInput<PJ301MIPort>(Vec(box.size.x-mid+10+jack*2, 190+down), module, DAOSC::B_DRIVE_INPUT));
-addInput(createInput<PJ301MIPort>(Vec(box.size.x-mid+10+jack, 230+down), module, DAOSC::B_SAW_INPUT));
-addInput(createInput<PJ301MIPort>(Vec(box.size.x-mid+10+jack*2, 230+down), module, DAOSC::B_SQUARE_INPUT));
+addInput(Port::create<PJ301MIPort>(Vec(box.size.x-mid+10, 160+down), Port::INPUT, module, DAOSC::B_FM_INPUT));
+addInput(Port::create<PJ301MIPort>(Vec(box.size.x-mid+10, 190+down), Port::INPUT, module, DAOSC::B_PITCH_INPUT));
+addInput(Port::create<PJ301MIPort>(Vec(box.size.x-mid+10+jack, 190+down), Port::INPUT, module, DAOSC::B_FOLD_INPUT));
+addInput(Port::create<PJ301MIPort>(Vec(box.size.x-mid+10+jack*2, 190+down), Port::INPUT, module, DAOSC::B_DRIVE_INPUT));
+addInput(Port::create<PJ301MIPort>(Vec(box.size.x-mid+10+jack, 230+down), Port::INPUT, module, DAOSC::B_SAW_INPUT));
+addInput(Port::create<PJ301MIPort>(Vec(box.size.x-mid+10+jack*2, 230+down), Port::INPUT, module, DAOSC::B_SQUARE_INPUT));
 
-addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid+10, 230+down), module, DAOSC::B_OUTPUT));
+addOutput(Port::create<PJ301MOPort>(Vec(box.size.x - mid+10, 230+down), Port::OUTPUT, module, DAOSC::B_OUTPUT));
 
-addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid-12.5, 265+down), module, DAOSC::SUM_OUTPUT));
+addOutput(Port::create<PJ301MOPort>(Vec(box.size.x - mid-12.5, 265+down), Port::OUTPUT, module, DAOSC::SUM_OUTPUT));
 }
+
+Model *modelDAOSC = Model::create<DAOSC, DAOSCWidget>("dBiz", "Dual SineBank Oscillator", "Dual Sine Bank Oscillator", OSCILLATOR_TAG);

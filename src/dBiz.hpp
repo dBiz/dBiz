@@ -1,5 +1,5 @@
 #include "rack.hpp"
- 
+
 
 using namespace rack;
 
@@ -447,7 +447,7 @@ struct FlatG : DaviesKnob
 //slider
 ///////////////////
 
-struct SlidePot : SVGSlider
+struct SlidePot : SVGFader
 {
 	SlidePot()
 	{
@@ -463,7 +463,7 @@ struct SlidePot : SVGSlider
 	}
 };
 
-struct SlidePot2 : SVGSlider
+struct SlidePot2 : SVGFader
 {
 	SlidePot2()
 	{
@@ -638,57 +638,19 @@ struct BPush : SVGSwitch, MomentarySwitch
 	}
 };
 
-
-////////////////////
-// module widgets
-////////////////////
-
-struct MultipleWidget : ModuleWidget {MultipleWidget();};
-
-struct SubMixWidget : ModuleWidget {SubMixWidget();};
-
-struct TransposeWidget : ModuleWidget {TransposeWidget();};
-
-struct ChordWidget : ModuleWidget {ChordWidget();};
-
-struct PerfMixerWidget : ModuleWidget {PerfMixerWidget();};
-
-struct BeneWidget : ModuleWidget {BeneWidget();};
-
-struct Bene2Widget : ModuleWidget
-{
-	Bene2Widget();
-	Menu *createContextMenu() override;
-};
-
-struct BenePadsWidget : ModuleWidget{BenePadsWidget();};
-
-struct VCA530Widget : ModuleWidget{VCA530Widget();};
-
-struct DVCOWidget : ModuleWidget{DVCOWidget();};
-
-struct VerboWidget : ModuleWidget{VerboWidget();};
-
-struct DAOSCWidget : ModuleWidget{DAOSCWidget();};
-
-struct UtilityWidget : ModuleWidget{UtilityWidget();};
-
-struct ContornoWidget : ModuleWidget{ContornoWidget();};
-
-struct RemixWidget : ModuleWidget{RemixWidget();};
-
-struct dBizBlankWidget : ModuleWidget
-{
-	SVGPanel *panel1;
-	SVGPanel *panel2;
-	SVGPanel *panel3;
-	SVGPanel *panel4;
-	SVGPanel *panel5;
-	dBizBlankWidget();
-	void step() override;
-	Menu *createContextMenu() override;
-};
-
-//struct NAMEWidget : ModuleWidget {
-//	 NAMEWidget(); 
-//};
+extern Model *modeldBizBlank;
+extern Model *modelMultiple;
+extern Model *modelContorno;
+extern Model *modelChord;
+extern Model *modelUtility;
+extern Model *modelTranspose;
+extern Model *modelBene;
+extern Model *modelBene2;
+extern Model *modelBenePads;
+extern Model *modelSubMix;
+extern Model *modelRemix;
+extern Model *modelPerfMixer;
+extern Model *modelVCA530;
+extern Model *modelVerbo;
+extern Model *modelDVCO;
+extern Model *modelDAOSC;

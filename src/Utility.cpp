@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////
 //  dBiz Utility
-// 
+//
 ///////////////////////////////////////////////////
 
 #include "dBiz.hpp"
@@ -113,15 +113,15 @@ struct Utility : Module {
   float octave_out[3] {};
   float semitone_out[3] {};
   float fine_out[3] {};
-  
+
 
   Utility() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 
 
   void step() override;
 
-  
-  
+
+
 // Quantization based on JW quantizer module!!!
 
   float closestVoltageInScale(float voltsIn)
@@ -220,7 +220,7 @@ struct Utility : Module {
     }
     return octaveInVolts + rootNote/12.0 + closestVal;
   }
-  
+
 };
 
 
@@ -276,7 +276,7 @@ struct UtilityDisplay : TransparentWidget
     nvgFillColor(vg, nvgRGBA(0xff, 0xff, 0xff, 0xff));
     nvgText(vg, pos.x + 8, pos.y + 23, note.c_str(), NULL);
     nvgText(vg, pos.x + 30, pos.y + 23, scale.c_str(), NULL);
-  
+
   }
 
   string displayRootNote(int value)
@@ -371,9 +371,10 @@ struct UtilityDisplay : TransparentWidget
 
 
 //////////////////////////////////////////////////////////////////
-UtilityWidget::UtilityWidget() {
-	Utility *module = new Utility();
-	setModule(module);
+
+struct UtilityWidget : ModuleWidget{UtilityWidget(Utility *module);};
+
+UtilityWidget::UtilityWidget(Utility *module) : ModuleWidget(module) {
 	box.size = Vec(15*8, 380);
 
 	{
@@ -382,7 +383,7 @@ UtilityWidget::UtilityWidget() {
     panel->setBackground(SVG::load(assetPlugin(plugin,"res/Utility.svg")));
 		addChild(panel);
     }
-    
+
   {
     UtilityDisplay *display = new UtilityDisplay();
     display->module = module;
@@ -392,38 +393,40 @@ UtilityWidget::UtilityWidget() {
   }
 
 //Screw
-  addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-  addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 0)));
-  addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-  addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 365)));
-    
-   int knob=35;  
-  
+  addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+  addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
+  addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+  addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
+
+   int knob=35;
+
 
 
 //
 for (int i=0;i<3;i++)
-{ 
-    addParam(createParam<FlatASnap>(Vec(10+knob*i, 20), module, Utility::OCTAVE_SHIFT+i, -4.5, 4.5, 0.0));
-    addParam(createParam<FlatASnap>(Vec(10+knob*i, 60), module, Utility::SEMITONE_SHIFT+i, -5.0 ,5.0, 0.0));
-    addParam(createParam<FlatA>(Vec(10+knob*i, 100), module, Utility::FINE_SHIFT+i, -1, 1, 0.0));
+{
+    addParam(ParamWidget::create<FlatASnap>(Vec(10+knob*i, 20), module, Utility::OCTAVE_SHIFT+i, -4.5, 4.5, 0.0));
+    addParam(ParamWidget::create<FlatASnap>(Vec(10+knob*i, 60), module, Utility::SEMITONE_SHIFT+i, -5.0 ,5.0, 0.0));
+    addParam(ParamWidget::create<FlatA>(Vec(10+knob*i, 100), module, Utility::FINE_SHIFT+i, -1, 1, 0.0));
 
-    addInput(createInput<PJ301MIPort>(Vec(12.5+knob*i, 100+knob*1.3), module, Utility::OCTAVE_INPUT+i));
-    addInput(createInput<PJ301MCPort>(Vec(12.5+knob*i, 130+knob*1.3), module, Utility::OCTAVE_CVINPUT+i));
-    addInput(createInput<PJ301MCPort>(Vec(12.5+knob*i, 160+knob*1.3), module, Utility::SEMITONE_CVINPUT+i));
-    addInput(createInput<PJ301MCPort>(Vec(12.5+knob*i, 190+knob*1.3), module, Utility::FINE_CVINPUT+i));   
+    addInput(Port::create<PJ301MIPort>(Vec(12.5+knob*i, 100+knob*1.3), Port::INPUT, module, Utility::OCTAVE_INPUT+i));
+    addInput(Port::create<PJ301MCPort>(Vec(12.5+knob*i, 130+knob*1.3), Port::INPUT, module, Utility::OCTAVE_CVINPUT+i));
+    addInput(Port::create<PJ301MCPort>(Vec(12.5+knob*i, 160+knob*1.3), Port::INPUT, module, Utility::SEMITONE_CVINPUT+i));
+    addInput(Port::create<PJ301MCPort>(Vec(12.5+knob*i, 190+knob*1.3), Port::INPUT, module, Utility::FINE_CVINPUT+i));
 }
 
-  addParam(createParam<Trimpot>(Vec(65,304), module, Utility::ROOT_NOTE_PARAM, 0.0, Utility::NUM_NOTES - 1 + 0.1, 0));
-  addParam(createParam<Trimpot>(Vec(90,304), module, Utility::SCALE_PARAM, 0.0, Utility::NUM_SCALES - 1 + 0.1, 0));
+  addParam(ParamWidget::create<Trimpot>(Vec(65,304), module, Utility::ROOT_NOTE_PARAM, 0.0, Utility::NUM_NOTES - 1 + 0.1, 0));
+  addParam(ParamWidget::create<Trimpot>(Vec(90,304), module, Utility::SCALE_PARAM, 0.0, Utility::NUM_SCALES - 1 + 0.1, 0));
 
-  addInput(createInput<PJ301MPort>(Vec(10,300), module, Utility::ROOT_NOTE_INPUT));
-  addInput(createInput<PJ301MPort>(Vec(37,300), module, Utility::SCALE_INPUT));
+  addInput(Port::create<PJ301MPort>(Vec(10,300), Port::INPUT, module, Utility::ROOT_NOTE_INPUT));
+  addInput(Port::create<PJ301MPort>(Vec(37,300), Port::INPUT, module, Utility::SCALE_INPUT));
 
-  addOutput(createOutput<PJ301MOPort>(Vec(12.5,340), module, Utility::A_OUTPUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(12.5+knob*1,340), module, Utility::B_OUTPUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(12.5+knob*2,340), module, Utility::C_OUTPUT));
+  addOutput(Port::create<PJ301MOPort>(Vec(12.5,340), Port::OUTPUT, module, Utility::A_OUTPUT));
+  addOutput(Port::create<PJ301MOPort>(Vec(12.5+knob*1,340), Port::OUTPUT, module, Utility::B_OUTPUT));
+  addOutput(Port::create<PJ301MOPort>(Vec(12.5+knob*2,340), Port::OUTPUT, module, Utility::C_OUTPUT));
 
-  addParam(createParam<CKSSS>(Vec(39,150), module, Utility::LINK_A_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<CKSSS>(Vec(74.5, 150), module, Utility::LINK_B_PARAM, 0.0, 1.0, 0.0));
+  addParam(ParamWidget::create<CKSSS>(Vec(39,150), module, Utility::LINK_A_PARAM, 0.0, 1.0, 0.0));
+  addParam(ParamWidget::create<CKSSS>(Vec(74.5, 150), module, Utility::LINK_B_PARAM, 0.0, 1.0, 0.0));
 }
+
+Model *modelUtility = Model::create<Utility, UtilityWidget>("dBiz","Utility", "Utility",QUANTIZER_TAG);
