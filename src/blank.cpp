@@ -172,12 +172,12 @@ Menu *dBizBlankWidget::createContextMenu()
 	assert(blank);
 
     menu->addChild(construct<MenuEntry>());
-    menu->addChild(construct<MenuLabel>(&MenuEntry::text, "Panels Art"));
-	menu->addChild(construct<Panel1Item>(&MenuEntry::text, "DeepBlue", &Panel1Item::blank, blank));
-	menu->addChild(construct<Panel2Item>(&MenuEntry::text, "Flat Volume", &Panel2Item::blank, blank));
-	menu->addChild(construct<Panel3Item>(&MenuEntry::text, "Circles", &Panel3Item::blank, blank));
-    menu->addChild(construct<Panel4Item>(&MenuEntry::text, "Dark Wave",     &Panel4Item::blank, blank));
-    menu->addChild(construct<Panel5Item>(&MenuEntry::text, "Clouds Pattern",    &Panel5Item::blank, blank));
+    menu->addChild(construct<MenuLabel>(&MenuLabel::text, "Panels Art"));
+	menu->addChild(construct<Panel1Item>(&Panel1Item::text, "DeepBlue", &Panel1Item::blank, blank));
+	menu->addChild(construct<Panel2Item>(&Panel2Item::text, "Flat Volume", &Panel2Item::blank, blank));
+	menu->addChild(construct<Panel3Item>(&Panel3Item::text, "Circles", &Panel3Item::blank, blank));
+    menu->addChild(construct<Panel4Item>(&Panel4Item::text, "Dark Wave",     &Panel4Item::blank, blank));
+    menu->addChild(construct<Panel5Item>(&Panel5Item::text, "Clouds Pattern",    &Panel5Item::blank, blank));
 
 	return menu;
 }
