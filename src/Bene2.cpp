@@ -6,9 +6,9 @@
 
 #include "dBiz.hpp"
 #include "dsp/digital.hpp"
- 
+
 using namespace std;
- 
+
 struct Bene2 : Module {
   enum ParamIds
   {
@@ -68,11 +68,11 @@ struct Bene2 : Module {
   SchmittTrigger runningCTrigger;
 
   SchmittTrigger gateTriggers[16]={};
-  SchmittTrigger button_triggers[4][4];                
-    
+  SchmittTrigger button_triggers[4][4];
+
   float row_outs[4] = {0.0,0.0,0.0,0.0};
   float column_outs[4] = {0.0,0.0,0.0,0.0};
-  
+
   int posX[4] = {};
   int posY[4] = {};
   int index[16]={};
@@ -93,7 +93,7 @@ struct Bene2 : Module {
   PulseGenerator gatePulse;
 
   Bene2() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
-  
+
   void step() override;
 
   json_t *toJson() override
@@ -175,25 +175,25 @@ struct Bene2 : Module {
 
   void handleMoveRight() {
     for (int i=0; i<4; i++)
-     { 
+     {
        posX[i] = posX[i] == 3 ? 0 : posX[i] + 1;
       }
     }
   void handleMoveLeft() {
     for (int i=0; i<4; i++)
-     { 
+     {
        posX[i] = posX[i] == 0 ? 3 : posX[i] - 1;
       }
     }
   void handleMoveDown() {
     for (int i=0; i<4; i++)
-     { 
+     {
        posY[i] = posY[i] == 3 ? 0 : posY[i] + 1;
       }
     }
   void handleMoveUp() {
     for (int i=0; i<4; i++)
-     { 
+     {
        posY[i] = posY[i] == 0 ? 3 : posY[i] - 1;
       }
     }
@@ -211,7 +211,7 @@ struct Bene2 : Module {
      bool step_left[4] = {false};
      bool step_up[4] = {false};
      bool step_down[4] = {false};
-   
+
 
 
     const float lightLambda = 0.1;
@@ -334,7 +334,7 @@ struct Bene2 : Module {
         }
        }
 
-       
+
 
      for (int i = 0; i < 4; i++)
      {
@@ -388,7 +388,7 @@ struct Bene2 : Module {
          {
            gateState[i] = !gateState[i];
          }
-         
+
          if (lights[STEPS_LIGHT + i].value > 0)
          {
            lights[STEPS_LIGHT + i].value -= lights[STEPS_LIGHT + i].value / lightLambda / engineGetSampleRate();
@@ -398,7 +398,7 @@ struct Bene2 : Module {
 
 
        // Outputs
-    
+
        for (int i=0;i<4;i++)
        {
          bool gatesOnL = (runningL && gateState[i + posY[i] * 4]);
@@ -430,10 +430,10 @@ struct Bene2 : Module {
          outputs[GATES_ROW_OUT + i].value = gatesOnL ? 10.0 : 0.0;
        }
       }
-     
-  
-  
-    
+
+
+
+
 
 
 template <typename BASE>
@@ -445,11 +445,15 @@ struct RunLight : BASE
   }
 };
 
-Bene2Widget::Bene2Widget() {
+struct Bene2Widget : ModuleWidget
+{
+	Bene2Widget(Bene2 *module);
+	Menu *createContextMenu() override;
+};
+
+Bene2Widget::Bene2Widget(Bene2 *module) : ModuleWidget(module) {
 
 
-  Bene2 *module = new Bene2();
-	setModule(module);
 	box.size = Vec(15*20, 380);
 
   int top = 90;
@@ -469,56 +473,56 @@ Bene2Widget::Bene2Widget() {
 
 for (int i=0;i<4;i++)
 {
-  addInput(createInput<PJ301MPort>(Vec(lb, top+jacks*i), module, Bene2::LEFT+i));
-  addInput(createInput<PJ301MPort>(Vec(lb+27, top+jacks*i), module, Bene2::RIGHT+i));
-  addInput(createInput<PJ301MPort>(Vec(lb + 27 + 27, top + jacks * i), module, Bene2::RESETL + i));
+  addInput(Port::create<PJ301MPort>(Vec(lb, top+jacks*i), Port::INPUT, module, Bene2::LEFT+i));
+  addInput(Port::create<PJ301MPort>(Vec(lb+27, top+jacks*i), Port::INPUT, module, Bene2::RIGHT+i));
+  addInput(Port::create<PJ301MPort>(Vec(lb + 27 + 27, top + jacks * i), Port::INPUT, module, Bene2::RESETL + i));
 
-  addInput(createInput<PJ301MPort>(Vec(lb, top+jacks*i + 140), module, Bene2::UP+i));
-  addInput(createInput<PJ301MPort>(Vec(lb + 27, top + jacks * i + 140), module, Bene2::DOWN + i));
-  addInput(createInput<PJ301MPort>(Vec(lb + 27 + 27, top + jacks * i + 140), module, Bene2::RESETC + i));
+  addInput(Port::create<PJ301MPort>(Vec(lb, top+jacks*i + 140), Port::INPUT, module, Bene2::UP+i));
+  addInput(Port::create<PJ301MPort>(Vec(lb + 27, top + jacks * i + 140), Port::INPUT, module, Bene2::DOWN + i));
+  addInput(Port::create<PJ301MPort>(Vec(lb + 27 + 27, top + jacks * i + 140), Port::INPUT, module, Bene2::RESETC + i));
 }
 
-addParam(createParam<LEDBezel>(Vec(lb,5+ 10 ), module, Bene2::RUNL_PARAM, 0.0, 1.0, 0.0));
-addParam(createParam<LEDBezel>(Vec(lb,5+ 10+30), module, Bene2::RUNC_PARAM, 0.0, 1.0, 0.0));
+addParam(ParamWidget::create<LEDBezel>(Vec(lb,5+ 10 ), module, Bene2::RUNL_PARAM, 0.0, 1.0, 0.0));
+addParam(ParamWidget::create<LEDBezel>(Vec(lb,5+ 10+30), module, Bene2::RUNC_PARAM, 0.0, 1.0, 0.0));
 
-addChild(createLight<RunLight<OrangeLight>>(Vec(lb+3,5+ 10+3), module, Bene2::RUNL_LIGHT));
-addChild(createLight<RunLight<OrangeLight>>(Vec(lb+3,5+ 10+3+30), module, Bene2::RUNC_LIGHT));
+addChild(ModuleLightWidget::create<RunLight<OrangeLight>>(Vec(lb+3,5+ 10+3), module, Bene2::RUNL_LIGHT));
+addChild(ModuleLightWidget::create<RunLight<OrangeLight>>(Vec(lb+3,5+ 10+3+30), module, Bene2::RUNC_LIGHT));
 
-addInput(createInput<PJ301MPort>(Vec(lb+30,5+ 9), module, Bene2::RUNL_INPUT));
-addInput(createInput<PJ301MPort>(Vec(lb+ 30,5+ 9 + 30), module, Bene2::RUNC_INPUT));
+addInput(Port::create<PJ301MPort>(Vec(lb+30,5+ 9), Port::INPUT, module, Bene2::RUNL_INPUT));
+addInput(Port::create<PJ301MPort>(Vec(lb+ 30,5+ 9 + 30), Port::INPUT, module, Bene2::RUNC_INPUT));
 
-addParam(createParam<LEDBezel>(Vec(lb+ 120, 5 + 10), module, Bene2::RESET_LINE, 0.0, 1.0, 0.0));
-addParam(createParam<LEDBezel>(Vec(lb+ 120, 5 + 10 + 30), module, Bene2::RESET_COL, 0.0, 1.0, 0.0));
+addParam(ParamWidget::create<LEDBezel>(Vec(lb+ 120, 5 + 10), module, Bene2::RESET_LINE, 0.0, 1.0, 0.0));
+addParam(ParamWidget::create<LEDBezel>(Vec(lb+ 120, 5 + 10 + 30), module, Bene2::RESET_COL, 0.0, 1.0, 0.0));
 
-addChild(createLight<RunLight<OrangeLight>>(Vec(lb +  120+3, 5 + 10 + 3), module, Bene2::RESETL_LIGHT));
-addChild(createLight<RunLight<OrangeLight>>(Vec(lb +  120+3, 5 + 10 + 3 + 30), module, Bene2::RESETC_LIGHT));
+addChild(ModuleLightWidget::create<RunLight<OrangeLight>>(Vec(lb +  120+3, 5 + 10 + 3), module, Bene2::RESETL_LIGHT));
+addChild(ModuleLightWidget::create<RunLight<OrangeLight>>(Vec(lb +  120+3, 5 + 10 + 3 + 30), module, Bene2::RESETC_LIGHT));
 
-addInput(createInput<PJ301MPort>(Vec(lb + 150, 5 + 9), module, Bene2::RESETL_INPUT));
-addInput(createInput<PJ301MPort>(Vec(lb + 150, 5 + 9 + 30), module, Bene2::RESETC_INPUT));
+addInput(Port::create<PJ301MPort>(Vec(lb + 150, 5 + 9), Port::INPUT, module, Bene2::RESETL_INPUT));
+addInput(Port::create<PJ301MPort>(Vec(lb + 150, 5 + 9 + 30), Port::INPUT, module, Bene2::RESETC_INPUT));
 
-//addInput(createInput<PJ301MPort>(Vec(left + column_spacing * 3, top ), module, Bene2::RESET));
- 
- 
+//addInput(Port::create<PJ301MPort>(Vec(left + column_spacing * 3, top ), Port::INPUT, module, Bene2::RESET));
+
+
   for ( int i = 0 ; i < 4 ; i++)
   {
     for ( int j = 0 ; j < 4 ; j++)
     {
-      addParam(createParam<Rogan2PWhite>(Vec(left + column_spacing * i, top2 + row_spacing * j + 70), module, Bene2::KNOB_PARAM + i + j * 4, 0.0, 2.0, 1.0));
-      addParam(createParam<LEDBezel>(Vec(left + column_spacing * i + 7.0, top2 + row_spacing * j + 70 + 7.0), module, Bene2::GATE_PARAM + i + j * 4, 0.0, 1.0, 0.0));
-      addChild(createLight<RunLight<OrangeLight>>(Vec(left + column_spacing * i + 10, top2 + row_spacing * j + 70 + 10), module, Bene2::STEPS_LIGHT + i + j * 4));
-      addChild(createLight<RunLight<OrangeLight>>(Vec(left + column_spacing * i + 10, top2 + row_spacing * j + 70 + 10), module, Bene2::GATE_LIGHT + i + j * 4));
+      addParam(ParamWidget::create<Rogan2PWhite>(Vec(left + column_spacing * i, top2 + row_spacing * j + 70), module, Bene2::KNOB_PARAM + i + j * 4, 0.0, 2.0, 1.0));
+      addParam(ParamWidget::create<LEDBezel>(Vec(left + column_spacing * i + 7.0, top2 + row_spacing * j + 70 + 7.0), module, Bene2::GATE_PARAM + i + j * 4, 0.0, 1.0, 0.0));
+      addChild(ModuleLightWidget::create<RunLight<OrangeLight>>(Vec(left + column_spacing * i + 10, top2 + row_spacing * j + 70 + 10), module, Bene2::STEPS_LIGHT + i + j * 4));
+      addChild(ModuleLightWidget::create<RunLight<OrangeLight>>(Vec(left + column_spacing * i + 10, top2 + row_spacing * j + 70 + 10), module, Bene2::GATE_LIGHT + i + j * 4));
     }
-    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * i+5, top2 + row_spacing * 4 + 75 ), module, Bene2::ROW_OUT + i));
-    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * i + 75 ), module, Bene2::COLUMN_OUT + i));
+    addOutput(Port::create<PJ301MOPort>(Vec(left+column_spacing * i+5, top2 + row_spacing * 4 + 75 ), Port::OUTPUT, module, Bene2::ROW_OUT + i));
+    addOutput(Port::create<PJ301MOPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * i + 75 ), Port::OUTPUT, module, Bene2::COLUMN_OUT + i));
 
-    addOutput(createOutput<PJ301MOPort>(Vec(left + column_spacing*i,300), module, Bene2::GATES_COL_OUT + i));
-    addOutput(createOutput<PJ301MOPort>(Vec(left + column_spacing * i,330), module, Bene2::GATES_ROW_OUT + i));
+    addOutput(Port::create<PJ301MOPort>(Vec(left + column_spacing*i,300), Port::OUTPUT, module, Bene2::GATES_COL_OUT + i));
+    addOutput(Port::create<PJ301MOPort>(Vec(left + column_spacing * i,330), Port::OUTPUT, module, Bene2::GATES_ROW_OUT + i));
   }
 
-  addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-  addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 0)));
-  addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-  addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 365)));
+  addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+  addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
+  addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+  addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
 
 }
 struct Bene2PitchMenuItem : MenuItem
@@ -586,7 +590,8 @@ Menu *Bene2Widget::createContextMenu()
   pitchMenuItem->text = "Ignore Gate for V/OCT Out";
   pitchMenuItem->bene2 = bene2;
   menu->addChild(pitchMenuItem);
-  
+
 
   return menu;
 }
+Model *modelBene2 = Model::create<Bene2, Bene2Widget>("dBiz", "Bene2", "Bene2", SEQUENCER_TAG);

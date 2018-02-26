@@ -64,7 +64,7 @@ struct VoltageControlledOscillator {
 	}
 	void setPulseWidth(float pulseWidth) {
 		const float pwMin = 0.01;
-		pw = clampf(pulseWidth, pwMin, 1.0 - pwMin);
+		pw = clamp(pulseWidth, pwMin, 1.0 - pwMin);
 	}
 
 	void process(float deltaTime, float syncValue) {
@@ -78,7 +78,7 @@ struct VoltageControlledOscillator {
 		}
 
 		// Advance phase
-		float deltaPhase = clampf(freq * deltaTime, 1e-6, 0.5);
+		float deltaPhase = clamp(freq * deltaTime, 1e-6, 0.5);
 
 		// Detect sync
 		int syncIndex = -1; // Index in the oversample loop where sync occurs [0, OVERSAMPLE)
@@ -286,7 +286,7 @@ else {
 	oscillator_b.process(1.0 / engineGetSampleRate(), inputs[SYNC_B_INPUT].value);
 	}
 
-	float wave_a = clampf(params[WAVE_A_PARAM].value + inputs[WAVE_A_INPUT].value, 0.0, 3.0);
+	float wave_a = clamp(params[WAVE_A_PARAM].value + inputs[WAVE_A_INPUT].value, 0.0, 3.0);
 	float out_a;
 	if (wave_a < 1.0)
 		out_a = crossf(oscillator_a.sin(), oscillator_a.tri(), wave_a);
@@ -295,7 +295,7 @@ else {
 	else
 		out_a = crossf(oscillator_a.saw(), oscillator_a.sqr(), wave_a - 2.0);
 
-	float wave_b = clampf(params[WAVE_B_PARAM].value + inputs[WAVE_B_INPUT].value, 0.0, 3.0);
+	float wave_b = clamp(params[WAVE_B_PARAM].value + inputs[WAVE_B_INPUT].value, 0.0, 3.0);
 	float out_b;
 	if (wave_b < 1.0)
 		out_b = crossf(oscillator_b.sin(), oscillator_b.tri(), wave_b);
@@ -304,7 +304,7 @@ else {
 	else
 		out_b = crossf(oscillator_b.saw(), oscillator_b.sqr(), wave_b - 2.0);
 
-	
+
 
 	if (inputs[CARRIER_INPUT].active && inputs[MODULATOR_INPUT].value == 0.0)
 	{
@@ -321,7 +321,7 @@ else {
 	outputs[RING_OUTPUT].value=5.0*carrier*modulator;
 	outputs[SUM_OUTPUT].value=5.0*(carrier+modulator);
 	}
-	else 
+	else
 	{
 	outputs[RING_OUTPUT].value=5.0*out_a*out_b;
 	outputs[SUM_OUTPUT].value = 2.5*(out_a + out_b);
@@ -331,15 +331,15 @@ else {
 	outputs[OSC_BN_OUTPUT].value = -5.0 * out_b;
 	outputs[OSC_A_OUTPUT].value = 5.0 * out_a;
 	outputs[OSC_B_OUTPUT].value = 5.0 * out_b;
-	
-	
-	
+
+
+
 }
 
 
-DVCOWidget::DVCOWidget() {
-	DVCO *module = new DVCO();
-	setModule(module);
+struct DVCOWidget : ModuleWidget{DVCOWidget(DVCO *module);};
+
+DVCOWidget::DVCOWidget(DVCO *module) : ModuleWidget(module) {
 	box.size = Vec(15*13, 380);
 
 	{
@@ -349,7 +349,7 @@ DVCOWidget::DVCOWidget() {
 		addChild(panel);
 	}
 
-	
+
 	float mid = (15*13)/2;
 	int jacks = 27;
 	int knobs = 38;
@@ -357,76 +357,78 @@ DVCOWidget::DVCOWidget() {
 
 
 
-	addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
 
 
 ///////////////////////////////////////port//////////////////////////////////////////////////
-	addParam(createParam<CKSS>(Vec(mid/2-10, 20), module, DVCO::LFO_A_MODE_PARAM, 0.0, 1.0, 1.0));
-	addParam(createParam<CKSS>(Vec(mid-8, 20), module, DVCO::OSC_SYNC_PARAM, 0.0, 1.0, 1.0));
-	addParam(createParam<CKSS>(Vec(mid+(mid/2-5), 20), module,DVCO::LFO_B_MODE_PARAM, 0.0, 1.0, 1.0));
+	addParam(ParamWidget::create<CKSS>(Vec(mid/2-10, 20), module, DVCO::LFO_A_MODE_PARAM, 0.0, 1.0, 1.0));
+	addParam(ParamWidget::create<CKSS>(Vec(mid-8, 20), module, DVCO::OSC_SYNC_PARAM, 0.0, 1.0, 1.0));
+	addParam(ParamWidget::create<CKSS>(Vec(mid+(mid/2-5), 20), module,DVCO::LFO_B_MODE_PARAM, 0.0, 1.0, 1.0));
 
-	addParam(createParam<CKSS>(Vec(border, 260), module, DVCO::MODE_A_PARAM, 0.0, 1.0, 1.0));
-	addParam(createParam<CKSS>(Vec(border+jacks, 260), module, DVCO::SYNC_A_PARAM, 0.0, 1.0, 1.0));
+	addParam(ParamWidget::create<CKSS>(Vec(border, 260), module, DVCO::MODE_A_PARAM, 0.0, 1.0, 1.0));
+	addParam(ParamWidget::create<CKSS>(Vec(border+jacks, 260), module, DVCO::SYNC_A_PARAM, 0.0, 1.0, 1.0));
 
-	addParam(createParam<CKSS>(Vec(box.size.x - 26, 260), module, DVCO::MODE_B_PARAM, 0.0, 1.0, 1.0));
-	addParam(createParam<CKSS>(Vec(box.size.x - jacks - 26, 260), module, DVCO::SYNC_B_PARAM, 0.0, 1.0, 1.0));
+	addParam(ParamWidget::create<CKSS>(Vec(box.size.x - 26, 260), module, DVCO::MODE_B_PARAM, 0.0, 1.0, 1.0));
+	addParam(ParamWidget::create<CKSS>(Vec(box.size.x - jacks - 26, 260), module, DVCO::SYNC_B_PARAM, 0.0, 1.0, 1.0));
 
 	///////////////////////////////////////params////////////////////////////////////////
 
 
-	addParam(createParam<LRoundWhy>(Vec(10, 50), module, DVCO::FREQ_A_PARAM, -54.0, 54.0, 0.0));
-	addParam(createParam<RoundWhy>(Vec(55, 40), module, DVCO::FINE_A_PARAM, -1.5, 1.5, 0.0));
+	addParam(ParamWidget::create<LRoundWhy>(Vec(10, 50), module, DVCO::FREQ_A_PARAM, -54.0, 54.0, 0.0));
+	addParam(ParamWidget::create<RoundWhy>(Vec(55, 40), module, DVCO::FINE_A_PARAM, -1.5, 1.5, 0.0));
 
-	addParam(createParam<LRoundWhy>(Vec(box.size.x -45-10, 50), module, DVCO::FREQ_B_PARAM, -54.0, 54.0, 0.0));
-	addParam(createParam<RoundWhy>(Vec(box.size.x-95, 40), module, DVCO::FINE_B_PARAM, -1.5, 1.5, 0.0));
+	addParam(ParamWidget::create<LRoundWhy>(Vec(box.size.x -45-10, 50), module, DVCO::FREQ_B_PARAM, -54.0, 54.0, 0.0));
+	addParam(ParamWidget::create<RoundWhy>(Vec(box.size.x-95, 40), module, DVCO::FINE_B_PARAM, -1.5, 1.5, 0.0));
 
 
-	addParam(createParam<RoundAzz>(Vec(15, 110), module, DVCO::PW_A_PARAM, 0.0, 1.0, 0.5));
-	addParam(createParam<RoundWhy>(Vec(15+knobs+5, 100), module, DVCO::FM_A_PARAM, 0.0, 1.0, 0.0));
-	addParam(createParam<RoundAzz>(Vec(5, 160), module, DVCO::PWM_A_PARAM, 0.0, 1.0, 0.0));
+	addParam(ParamWidget::create<RoundAzz>(Vec(15, 110), module, DVCO::PW_A_PARAM, 0.0, 1.0, 0.5));
+	addParam(ParamWidget::create<RoundWhy>(Vec(15+knobs+5, 100), module, DVCO::FM_A_PARAM, 0.0, 1.0, 0.0));
+	addParam(ParamWidget::create<RoundAzz>(Vec(5, 160), module, DVCO::PWM_A_PARAM, 0.0, 1.0, 0.0));
 
-	addParam(createParam<RoundAzz>(Vec(box.size.x - knobs-15, 110), module, DVCO::PW_B_PARAM, 0.0, 1.0, 0.5));
-	addParam(createParam<RoundWhy>(Vec(box.size.x - (knobs*2)-15-5, 100), module, DVCO::FM_B_PARAM, 0.0, 1.0, 0.0));
-	addParam(createParam<RoundAzz>(Vec(box.size.x - knobs-5, 160), module, DVCO::PWM_B_PARAM, 0.0, 1.0, 0.0));
+	addParam(ParamWidget::create<RoundAzz>(Vec(box.size.x - knobs-15, 110), module, DVCO::PW_B_PARAM, 0.0, 1.0, 0.5));
+	addParam(ParamWidget::create<RoundWhy>(Vec(box.size.x - (knobs*2)-15-5, 100), module, DVCO::FM_B_PARAM, 0.0, 1.0, 0.0));
+	addParam(ParamWidget::create<RoundAzz>(Vec(box.size.x - knobs-5, 160), module, DVCO::PWM_B_PARAM, 0.0, 1.0, 0.0));
 
-	addParam(createParam<RoundRed>(Vec(15+knobs, 150), module, DVCO::WAVE_A_PARAM, 0.0, 3.0, 1.5));
-	addParam(createParam<RoundRed>(Vec(box.size.x - (knobs * 2) - 15 , 150), module, DVCO::WAVE_B_PARAM, 0.0, 3.0, 1.5));
+	addParam(ParamWidget::create<RoundRed>(Vec(15+knobs, 150), module, DVCO::WAVE_A_PARAM, 0.0, 3.0, 1.5));
+	addParam(ParamWidget::create<RoundRed>(Vec(box.size.x - (knobs * 2) - 15 , 150), module, DVCO::WAVE_B_PARAM, 0.0, 3.0, 1.5));
 
 	////////////////////////////////jacks//////////////////////////////////////////////////////////
 
 
-	addInput(createInput<PJ301MIPort>(Vec(border, 290), module, DVCO::PITCH_A_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(border+jacks, 290), module, DVCO::FM_A_INPUT));
-	addInput(createInput<PJ301MIPort>(Vec(border + jacks*2, 290), module, DVCO::WAVE_A_INPUT));
+	addInput(Port::create<PJ301MIPort>(Vec(border, 290), Port::INPUT, module, DVCO::PITCH_A_INPUT));
+	addInput(Port::create<PJ301MCPort>(Vec(border+jacks, 290), Port::INPUT, module, DVCO::FM_A_INPUT));
+	addInput(Port::create<PJ301MIPort>(Vec(border + jacks*2, 290), Port::INPUT, module, DVCO::WAVE_A_INPUT));
 
-	addInput(createInput<PJ301MIPort>(Vec(border+jacks, 330), module, DVCO::SYNC_A_INPUT));
-	addInput(createInput<PJ301MIPort>(Vec(border, 330), module, DVCO::PW_A_INPUT));
+	addInput(Port::create<PJ301MIPort>(Vec(border+jacks, 330), Port::INPUT, module, DVCO::SYNC_A_INPUT));
+	addInput(Port::create<PJ301MIPort>(Vec(border, 330), Port::INPUT, module, DVCO::PW_A_INPUT));
 
-	addInput(createInput<PJ301MIPort>(Vec(box.size.x-8-jacks, 290), module, DVCO::PITCH_B_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(box.size.x-8-jacks*2, 290), module, DVCO::FM_B_INPUT));
-	addInput(createInput<PJ301MIPort>(Vec(box.size.x-8-jacks*3, 290), module, DVCO::WAVE_B_INPUT));
+	addInput(Port::create<PJ301MIPort>(Vec(box.size.x-8-jacks, 290), Port::INPUT, module, DVCO::PITCH_B_INPUT));
+	addInput(Port::create<PJ301MCPort>(Vec(box.size.x-8-jacks*2, 290), Port::INPUT, module, DVCO::FM_B_INPUT));
+	addInput(Port::create<PJ301MIPort>(Vec(box.size.x-8-jacks*3, 290), Port::INPUT, module, DVCO::WAVE_B_INPUT));
 
-	addInput(createInput<PJ301MIPort>(Vec(box.size.x-(jacks*2)-8, 330), module, DVCO::SYNC_B_INPUT));
-	addInput(createInput<PJ301MIPort>(Vec(box.size.x-jacks-8, 330), module, DVCO::PW_B_INPUT));
+	addInput(Port::create<PJ301MIPort>(Vec(box.size.x-(jacks*2)-8, 330), Port::INPUT, module, DVCO::SYNC_B_INPUT));
+	addInput(Port::create<PJ301MIPort>(Vec(box.size.x-jacks-8, 330), Port::INPUT, module, DVCO::PW_B_INPUT));
 
-	addInput(createInput<PJ301MOrPort>(Vec(mid-jacks-15,245), module, DVCO::CARRIER_INPUT));
-	addInput(createInput<PJ301MOrPort>(Vec(mid+3+10, 245), module, DVCO::MODULATOR_INPUT));
-	
+	addInput(Port::create<PJ301MOrPort>(Vec(mid-jacks-15,245), Port::INPUT, module, DVCO::CARRIER_INPUT));
+	addInput(Port::create<PJ301MOrPort>(Vec(mid+3+10, 245), Port::INPUT, module, DVCO::MODULATOR_INPUT));
+
 //////////////////////////////OUTPUTS////////////////////////////////////////////////////////////////
 
-	addOutput(createOutput<PJ301MOPort>(Vec(border, 225), module, DVCO::OSC_A_OUTPUT));
-	addOutput(createOutput<PJ301MOPort>(Vec(border+jacks, 225), module, DVCO::OSC_AN_OUTPUT));
+	addOutput(Port::create<PJ301MOPort>(Vec(border, 225), Port::OUTPUT, module, DVCO::OSC_A_OUTPUT));
+	addOutput(Port::create<PJ301MOPort>(Vec(border+jacks, 225), Port::OUTPUT, module, DVCO::OSC_AN_OUTPUT));
 
-	addOutput(createOutput<PJ301MOPort>(Vec(box.size.x-jacks-8 , 225), module, DVCO::OSC_B_OUTPUT));
-	addOutput(createOutput<PJ301MOPort>(Vec(box.size.x-jacks*2-8 , 225), module, DVCO::OSC_BN_OUTPUT));
+	addOutput(Port::create<PJ301MOPort>(Vec(box.size.x-jacks-8 , 225), Port::OUTPUT, module, DVCO::OSC_B_OUTPUT));
+	addOutput(Port::create<PJ301MOPort>(Vec(box.size.x-jacks*2-8 , 225), Port::OUTPUT, module, DVCO::OSC_BN_OUTPUT));
 
 
-	addOutput(createOutput<PJ301MOPort>(Vec(mid-14, 255), module, DVCO::SUM_OUTPUT));
-	addOutput(createOutput<PJ301MOPort>(Vec(mid-14, 225), module, DVCO::RING_OUTPUT));
+	addOutput(Port::create<PJ301MOPort>(Vec(mid-14, 255), Port::OUTPUT, module, DVCO::SUM_OUTPUT));
+	addOutput(Port::create<PJ301MOPort>(Vec(mid-14, 225), Port::OUTPUT, module, DVCO::RING_OUTPUT));
 
-	
+
 }
 
+
+Model *modelDVCO = Model::create<DVCO, DVCOWidget>("dBiz","Dual Oscillator", "Dual Oscillator",OSCILLATOR_TAG);

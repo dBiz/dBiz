@@ -4,10 +4,10 @@
 //  based on Fundamental Mixer
 //
 ///////////////////////////////////////////////////
- 
+
 #include "dBiz.hpp"
 #include "dsp/digital.hpp"
- 
+
 ///////////////////////////////////////////////////
 struct VCA530 : Module {
     enum ParamIds
@@ -68,7 +68,7 @@ struct VCA530 : Module {
 };
 
 void VCA530::step()
-{      
+{
 
     float ch1 = inputs[CH1_INPUT].value * params[CH1_PARAM].value;
     float ch2 = inputs[CH2_INPUT].value * params[CH2_PARAM].value;
@@ -120,10 +120,10 @@ void VCA530::step()
 
 };
 
-VCA530Widget::VCA530Widget()
+struct VCA530Widget : ModuleWidget{VCA530Widget(VCA530 *module);};
+
+VCA530Widget::VCA530Widget(VCA530 *module) : ModuleWidget(module)
 {
-    VCA530 *module = new VCA530();
-	setModule(module);
 	box.size = Vec(15*12, 380);
 
 	{
@@ -141,61 +141,63 @@ VCA530Widget::VCA530Widget()
   int low_f = 230 ;
   int med = 180;
   int up =-15;
-  
 
 
-  addParam(createParam<DaviesBlu>(Vec(52,  med + up ), module, VCA530::MIX1_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<DaviesBlu>(Vec(129, med + up), module, VCA530::MIX2_PARAM, 0.0, 1.0, 0.0));
+
+  addParam(ParamWidget::create<DaviesBlu>(Vec(52,  med + up ), module, VCA530::MIX1_PARAM, 0.0, 1.0, 0.0));
+  addParam(ParamWidget::create<DaviesBlu>(Vec(129, med + up), module, VCA530::MIX2_PARAM, 0.0, 1.0, 0.0));
 
   // channel strips
 
-  addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 1-5, 30+up), module, VCA530::CH1_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 2-5, 30+up), module, VCA530::CH2_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 3-5, 30+up), module, VCA530::CH3_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 4-5, 30+up), module, VCA530::CH4_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 5-5, 30+up), module, VCA530::CH5_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 6-5, 30+up), module, VCA530::CH6_INPUT));
+  addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * 1-5, 30+up), Port::INPUT, module, VCA530::CH1_INPUT));
+  addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * 2-5, 30+up), Port::INPUT, module, VCA530::CH2_INPUT));
+  addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * 3-5, 30+up), Port::INPUT, module, VCA530::CH3_INPUT));
+  addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * 4-5, 30+up), Port::INPUT, module, VCA530::CH4_INPUT));
+  addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * 5-5, 30+up), Port::INPUT, module, VCA530::CH5_INPUT));
+  addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * 6-5, 30+up), Port::INPUT, module, VCA530::CH6_INPUT));
 
-  addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 1 ,top_row+up), module, VCA530::CH1_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 2, top_row+up), module, VCA530::CH2_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 3, top_row+up), module, VCA530::CH3_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 4, top_row+up), module, VCA530::CH4_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 5, top_row+up), module, VCA530::CH5_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 6, top_row+up), module, VCA530::CH6_PARAM, 0.0, 1.0, 0.0));
+  addParam(ParamWidget::create<SlidePot2>(Vec(column_1 + column_spacing * 1 ,top_row+up), module, VCA530::CH1_PARAM, 0.0, 1.0, 0.0));
+  addParam(ParamWidget::create<SlidePot2>(Vec(column_1 + column_spacing * 2, top_row+up), module, VCA530::CH2_PARAM, 0.0, 1.0, 0.0));
+  addParam(ParamWidget::create<SlidePot2>(Vec(column_1 + column_spacing * 3, top_row+up), module, VCA530::CH3_PARAM, 0.0, 1.0, 0.0));
+  addParam(ParamWidget::create<SlidePot2>(Vec(column_1 + column_spacing * 4, top_row+up), module, VCA530::CH4_PARAM, 0.0, 1.0, 0.0));
+  addParam(ParamWidget::create<SlidePot2>(Vec(column_1 + column_spacing * 5, top_row+up), module, VCA530::CH5_PARAM, 0.0, 1.0, 0.0));
+  addParam(ParamWidget::create<SlidePot2>(Vec(column_1 + column_spacing * 6, top_row+up), module, VCA530::CH6_PARAM, 0.0, 1.0, 0.0));
 
-  addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 1-5, low+up), module, VCA530::CH1_CV_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 2-5, low+up), module, VCA530::CH2_CV_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 3-5, low+up), module, VCA530::CH3_CV_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 4-5, low+up), module, VCA530::CH4_CV_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 5-5, low+up), module, VCA530::CH5_CV_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 6-5, low+up), module, VCA530::CH6_CV_INPUT));
+  addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * 1-5, low+up), Port::INPUT, module, VCA530::CH1_CV_INPUT));
+  addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * 2-5, low+up), Port::INPUT, module, VCA530::CH2_CV_INPUT));
+  addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * 3-5, low+up), Port::INPUT, module, VCA530::CH3_CV_INPUT));
+  addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * 4-5, low+up), Port::INPUT, module, VCA530::CH4_CV_INPUT));
+  addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * 5-5, low+up), Port::INPUT, module, VCA530::CH5_CV_INPUT));
+  addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * 6-5, low+up), Port::INPUT, module, VCA530::CH6_CV_INPUT));
 
-  addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 1 ,low_f+up), module, VCA530::CV1_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 2, low_f+up), module, VCA530::CV2_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 3, low_f+up), module, VCA530::CV3_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 4, low_f+up), module, VCA530::CV4_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 5, low_f+up), module, VCA530::CV5_PARAM, 0.0, 1.0, 0.0));
-  addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 6, low_f+up), module, VCA530::CV6_PARAM, 0.0, 1.0, 0.0));
+  addParam(ParamWidget::create<SlidePot2>(Vec(column_1 + column_spacing * 1 ,low_f+up), module, VCA530::CV1_PARAM, 0.0, 1.0, 0.0));
+  addParam(ParamWidget::create<SlidePot2>(Vec(column_1 + column_spacing * 2, low_f+up), module, VCA530::CV2_PARAM, 0.0, 1.0, 0.0));
+  addParam(ParamWidget::create<SlidePot2>(Vec(column_1 + column_spacing * 3, low_f+up), module, VCA530::CV3_PARAM, 0.0, 1.0, 0.0));
+  addParam(ParamWidget::create<SlidePot2>(Vec(column_1 + column_spacing * 4, low_f+up), module, VCA530::CV4_PARAM, 0.0, 1.0, 0.0));
+  addParam(ParamWidget::create<SlidePot2>(Vec(column_1 + column_spacing * 5, low_f+up), module, VCA530::CV5_PARAM, 0.0, 1.0, 0.0));
+  addParam(ParamWidget::create<SlidePot2>(Vec(column_1 + column_spacing * 6, low_f+up), module, VCA530::CV6_PARAM, 0.0, 1.0, 0.0));
 
   //Screw
 
-  addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-  addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 0)));
-  addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-  addChild(createScrew<ScrewSilver>(Vec(box.size.x - 30, 365)));
+  addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+  addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
+  addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+  addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
 
   // outputs
-  addOutput(createOutput<PJ301MOPort>(Vec(15 , med+up), module, VCA530::MIX_OUTPUT_L));
-  addOutput(createOutput<PJ301MOPort>(Vec(95 , med+up), module, VCA530::MIX_OUTPUT_R));
+  addOutput(Port::create<PJ301MOPort>(Vec(15 , med+up), Port::OUTPUT, module, VCA530::MIX_OUTPUT_L));
+  addOutput(Port::create<PJ301MOPort>(Vec(95 , med+up), Port::OUTPUT, module, VCA530::MIX_OUTPUT_R));
 //
-  addOutput(createOutput<PJ301MOPort>(Vec(15, med+25+up), module, VCA530::SUM_OUTPUT_L));
-  addOutput(createOutput<PJ301MOPort>(Vec(95, med+25+up), module, VCA530::SUM_OUTPUT_R));
+  addOutput(Port::create<PJ301MOPort>(Vec(15, med+25+up), Port::OUTPUT, module, VCA530::SUM_OUTPUT_L));
+  addOutput(Port::create<PJ301MOPort>(Vec(95, med+25+up), Port::OUTPUT, module, VCA530::SUM_OUTPUT_R));
 
 
 // lights
 
-  addChild(createLight<SmallLight<GreenLight>>(Vec(42,med+5+20), module, VCA530::MIX1_LIGHTS));
-  addChild(createLight<SmallLight<GreenLight>>(Vec(122,med+5+20), module, VCA530::MIX2_LIGHTS));
-  addChild(createLight<SmallLight<RedLight>>(Vec(42,med-10+20), module, VCA530::CLIP1_LIGHTS));
-  addChild(createLight<SmallLight<RedLight>>(Vec(122,med-10+20), module, VCA530::CLIP2_LIGHTS));
+  addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(42,med+5+20), module, VCA530::MIX1_LIGHTS));
+  addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(122,med+5+20), module, VCA530::MIX2_LIGHTS));
+  addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(42,med-10+20), module, VCA530::CLIP1_LIGHTS));
+  addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(122,med-10+20), module, VCA530::CLIP2_LIGHTS));
 }
+
+Model *modelVCA530 = Model::create<VCA530, VCA530Widget>("dBiz","VCA530", "VCA530",AMPLIFIER_TAG);
