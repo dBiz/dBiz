@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////
 //
-//   dBiz revisited version of 
+//   dBiz revisited version of
 //   Sub Mixer VCV Module
-//   Built from fundamental VCMixer 
+//   Built from fundamental VCMixer
 //
 //   Strum 2017
 //
@@ -65,15 +65,15 @@ struct SubMixer : Module {
 
 void SubMixer::step() {
 
-  
+
   float ch1 = inputs[CH1_INPUT].value * params[CH1_PARAM].value * clampf(inputs[CH1_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0);
 
   float pan_cv_in_1 = inputs[CH1_PAN_INPUT].value/5;
   float pan_position_1 = pan_cv_in_1 + params[CH1_PAN_PARAM].value;
-   
+
   if (pan_position_1 < 0) pan_position_1 = 0;
-  if (pan_position_1 > 1) pan_position_1 = 1;  
-    
+  if (pan_position_1 > 1) pan_position_1 = 1;
+
   float ch1_l = ch1 * (1-pan_position_1)* 2;
   float ch1_r = ch1 * pan_position_1 * 2;
 
@@ -86,13 +86,13 @@ void SubMixer::step() {
 	}
 
 	float ch2 = inputs[CH2_INPUT].value * params[CH2_PARAM].value * clampf(inputs[CH2_CV_INPUT].normalize(10.0) / 10.0, -1.0, 1.0);
-  
+
   float pan_cv_in_2 = inputs[CH2_PAN_INPUT].value/5;
   float pan_position_2 = pan_cv_in_2 + params[CH2_PAN_PARAM].value;
-   
+
   if (pan_position_2 < 0) pan_position_2 = 0;
-  if (pan_position_2 > 1) pan_position_2 = 1;  
-    
+  if (pan_position_2 > 1) pan_position_2 = 1;
+
   float ch2_l = ch2 * (1-pan_position_2)* 2;
   float ch2_r = ch2 * pan_position_2 * 2;
 
@@ -108,10 +108,10 @@ void SubMixer::step() {
 
   float pan_cv_in_3 = inputs[CH3_PAN_INPUT].value/5;
   float pan_position_3 = pan_cv_in_3 + params[CH3_PAN_PARAM].value;
-   
+
   if (pan_position_3 < 0) pan_position_3 = 0;
-  if (pan_position_3 > 1) pan_position_3 = 1;  
-    
+  if (pan_position_3 > 1) pan_position_3 = 1;
+
   float ch3_l = ch3 * (1-pan_position_3)* 2;
   float ch3_r = ch3 * pan_position_3 * 2;
 
@@ -127,10 +127,10 @@ void SubMixer::step() {
 
   float pan_cv_in_4 = inputs[CH4_PAN_INPUT].value/5;
   float pan_position_4 = pan_cv_in_4 + params[CH4_PAN_PARAM].value;
-   
+
   if (pan_position_4 < 0) pan_position_4 = 0;
-  if (pan_position_4 > 1) pan_position_4 = 1;  
-    
+  if (pan_position_4 > 1) pan_position_4 = 1;
+
   float ch4_l = ch4 * (1-pan_position_4)* 2;
   float ch4_r = ch4 * pan_position_4 * 2;
 
@@ -153,10 +153,9 @@ void SubMixer::step() {
   outputs[MIX_OUTPUT_R].value = mix_r;
 }
 
+struct SubMixWidget : ModuleWidget {SubMixWidget(SubMixer *module);};
 
-SubMixWidget::SubMixWidget() {
-	SubMixer *module = new SubMixer();
-	setModule(module);
+SubMixWidget::SubMixWidget(SubMixer * module) : ModuleWidget(module) {
 	box.size = Vec(15*12, 380);
 
 
@@ -173,79 +172,81 @@ SubMixWidget::SubMixWidget() {
 	int borderl = 25;
 	int light = 13;
 
-	addParam(createParam<LRoundWhy>(Vec(10, 15), module, SubMixer::MIX_PARAM, 0.0, 1.0, 0.5));
-  addInput(createInput<PJ301MIPort>(Vec(box.size.x-10-jcv*4, 20), module, SubMixer::MIX_CV_INPUT));
+	addParam(ParamWidget::create<LRoundWhy>(Vec(10, 15), module, SubMixer::MIX_PARAM, 0.0, 1.0, 0.5));
+  addInput(Port::create<PJ301MIPort>(Vec(box.size.x-10-jcv*4, 20), Port::INPUT, module, SubMixer::MIX_CV_INPUT));
 
 //Screw
 
-  addChild(createScrew<ScrewSilver>(Vec(15, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(15, 365)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x-30, 365)));
+  addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
 
-  
+
 //mixer out
 
-  addOutput(createOutput<PJ301MLPort>(Vec(box.size.x-10-jcv*1, 20), module, SubMixer::MIX_OUTPUT_L));
-	addOutput(createOutput<PJ301MRPort>(Vec(box.size.x-10-jcv*2, 20), module, SubMixer::MIX_OUTPUT_R));
-  
+  addOutput(Port::create<PJ301MLPort>(Vec(box.size.x-10-jcv*1, 20), Port::OUTPUT, module, SubMixer::MIX_OUTPUT_L));
+	addOutput(Port::create<PJ301MRPort>(Vec(box.size.x-10-jcv*2, 20), Port::OUTPUT, module, SubMixer::MIX_OUTPUT_R));
+
 //
 
 
-  	addParam(createParam<RoundRed>(Vec(10+knob*0,150), module, SubMixer::CH1_PARAM, 0.0, 1.0, 0.0));
- 	  addParam(createParam<RoundRed>(Vec(10+knob*1,150), module, SubMixer::CH2_PARAM, 0.0, 1.0, 0.0));
-  	addParam(createParam<RoundRed>(Vec(10+knob*2,150), module, SubMixer::CH3_PARAM, 0.0, 1.0, 0.0));
-  	addParam(createParam<RoundRed>(Vec(10+knob*3,150), module, SubMixer::CH4_PARAM, 0.0, 1.0, 0.0));
-//  
-    addParam(createParam<RoundAzz>(Vec(10+knob*0,190), module, SubMixer::CH1_PAN_PARAM, 0.0, 1.0, 0.5));
-    addParam(createParam<RoundAzz>(Vec(10+knob*1,190), module, SubMixer::CH2_PAN_PARAM, 0.0, 1.0, 0.5));
-    addParam(createParam<RoundAzz>(Vec(10+knob*2,190), module, SubMixer::CH3_PAN_PARAM, 0.0, 1.0, 0.5));
-    addParam(createParam<RoundAzz>(Vec(10+knob*3,190), module, SubMixer::CH4_PAN_PARAM, 0.0, 1.0, 0.5));		
-//  
+  	addParam(ParamWidget::create<RoundRed>(Vec(10+knob*0,150), module, SubMixer::CH1_PARAM, 0.0, 1.0, 0.0));
+ 	  addParam(ParamWidget::create<RoundRed>(Vec(10+knob*1,150), module, SubMixer::CH2_PARAM, 0.0, 1.0, 0.0));
+  	addParam(ParamWidget::create<RoundRed>(Vec(10+knob*2,150), module, SubMixer::CH3_PARAM, 0.0, 1.0, 0.0));
+  	addParam(ParamWidget::create<RoundRed>(Vec(10+knob*3,150), module, SubMixer::CH4_PARAM, 0.0, 1.0, 0.0));
 //
-		addChild(createLight<MediumLight<RedLight>>(Vec(borderl,80), module, SubMixer::VU1_LIGHT + 0));
-		addChild(createLight<MediumLight<YellowLight>>(Vec(borderl,80 + light), module, SubMixer::VU1_LIGHT + 1));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(borderl, 80 + light * 2), module, SubMixer::VU1_LIGHT + 2));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(borderl,80 + light * 3 ), module, SubMixer::VU1_LIGHT + 3));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(borderl,80 + light * 4 ), module, SubMixer::VU1_LIGHT + 4));
-		addChild(createLight<MediumLight<RedLight>>(Vec(borderl+knob,80 ), module, SubMixer::VU2_LIGHT + 0));
-		addChild(createLight<MediumLight<YellowLight>>(Vec(borderl+knob,80 + light ), module, SubMixer::VU2_LIGHT + 1));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(borderl + knob, 80 + light * 2), module, SubMixer::VU2_LIGHT + 2));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(borderl + knob, 80 + light * 3), module, SubMixer::VU2_LIGHT + 3));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(borderl + knob, 80 + light * 4), module, SubMixer::VU2_LIGHT + 4));
-		addChild(createLight<MediumLight<RedLight>>(Vec(borderl + knob * 2,80 ), module, SubMixer::VU3_LIGHT + 0));
-		addChild(createLight<MediumLight<YellowLight>>(Vec(borderl + knob * 2,80 + light ), module, SubMixer::VU3_LIGHT + 1));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(borderl + knob * 2, 80 + light * 2), module, SubMixer::VU3_LIGHT + 2));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(borderl + knob * 2, 80 + light * 3), module, SubMixer::VU3_LIGHT + 3));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(borderl + knob * 2, 80 + light * 4), module, SubMixer::VU3_LIGHT + 4));
-		addChild(createLight<MediumLight<RedLight>>(Vec(borderl + knob * 3,80 ), module, SubMixer::VU4_LIGHT + 0));
-		addChild(createLight<MediumLight<YellowLight>>(Vec(borderl + knob * 3,80 + light ), module, SubMixer::VU4_LIGHT + 1));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(borderl + knob * 3, 80 + light * 2), module, SubMixer::VU4_LIGHT + 2));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(borderl + knob * 3, 80 + light * 3), module, SubMixer::VU4_LIGHT + 3));
-		addChild(createLight<MediumLight<GreenLight>>(Vec(borderl + knob * 3, 80 + light * 4), module, SubMixer::VU4_LIGHT + 4));
+    addParam(ParamWidget::create<RoundAzz>(Vec(10+knob*0,190), module, SubMixer::CH1_PAN_PARAM, 0.0, 1.0, 0.5));
+    addParam(ParamWidget::create<RoundAzz>(Vec(10+knob*1,190), module, SubMixer::CH2_PAN_PARAM, 0.0, 1.0, 0.5));
+    addParam(ParamWidget::create<RoundAzz>(Vec(10+knob*2,190), module, SubMixer::CH3_PAN_PARAM, 0.0, 1.0, 0.5));
+    addParam(ParamWidget::create<RoundAzz>(Vec(10+knob*3,190), module, SubMixer::CH4_PAN_PARAM, 0.0, 1.0, 0.5));
+//
+//
+		addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(borderl,80), module, SubMixer::VU1_LIGHT + 0));
+		addChild(ModuleLightWidget::create<MediumLight<YellowLight>>(Vec(borderl,80 + light), module, SubMixer::VU1_LIGHT + 1));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(borderl, 80 + light * 2), module, SubMixer::VU1_LIGHT + 2));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(borderl,80 + light * 3 ), module, SubMixer::VU1_LIGHT + 3));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(borderl,80 + light * 4 ), module, SubMixer::VU1_LIGHT + 4));
+		addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(borderl+knob,80 ), module, SubMixer::VU2_LIGHT + 0));
+		addChild(ModuleLightWidget::create<MediumLight<YellowLight>>(Vec(borderl+knob,80 + light ), module, SubMixer::VU2_LIGHT + 1));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(borderl + knob, 80 + light * 2), module, SubMixer::VU2_LIGHT + 2));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(borderl + knob, 80 + light * 3), module, SubMixer::VU2_LIGHT + 3));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(borderl + knob, 80 + light * 4), module, SubMixer::VU2_LIGHT + 4));
+		addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(borderl + knob * 2,80 ), module, SubMixer::VU3_LIGHT + 0));
+		addChild(ModuleLightWidget::create<MediumLight<YellowLight>>(Vec(borderl + knob * 2,80 + light ), module, SubMixer::VU3_LIGHT + 1));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(borderl + knob * 2, 80 + light * 2), module, SubMixer::VU3_LIGHT + 2));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(borderl + knob * 2, 80 + light * 3), module, SubMixer::VU3_LIGHT + 3));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(borderl + knob * 2, 80 + light * 4), module, SubMixer::VU3_LIGHT + 4));
+		addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(borderl + knob * 3,80 ), module, SubMixer::VU4_LIGHT + 0));
+		addChild(ModuleLightWidget::create<MediumLight<YellowLight>>(Vec(borderl + knob * 3,80 + light ), module, SubMixer::VU4_LIGHT + 1));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(borderl + knob * 3, 80 + light * 2), module, SubMixer::VU4_LIGHT + 2));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(borderl + knob * 3, 80 + light * 3), module, SubMixer::VU4_LIGHT + 3));
+		addChild(ModuleLightWidget::create<MediumLight<GreenLight>>(Vec(borderl + knob * 3, 80 + light * 4), module, SubMixer::VU4_LIGHT + 4));
 
 		//
 		//
-		addInput(createInput<PJ301MIPort>(Vec(border,cvs+jcv*0), module, SubMixer::CH1_INPUT));
-		addInput(createInput<PJ301MCPort>(Vec(border,cvs+jcv*1), module, SubMixer::CH1_CV_INPUT));
-  	addInput(createInput<PJ301MCPort>(Vec(border,cvs+jcv*2), module, SubMixer::CH1_PAN_INPUT));
-  	addOutput(createOutput<PJ301MOPort>(Vec(border,cvs+jcv*3), module, SubMixer::CH1_OUTPUT));
-//  
-		addInput(createInput<PJ301MIPort>(Vec(border+knob,cvs+jcv*0), module, SubMixer::CH2_INPUT));
-		addInput(createInput<PJ301MCPort>(Vec(border+knob,cvs+jcv*1), module, SubMixer::CH2_CV_INPUT));
- 	 	addInput(createInput<PJ301MCPort>(Vec(border+knob,cvs+jcv*2), module, SubMixer::CH2_PAN_INPUT));
-		addOutput(createOutput<PJ301MOPort>(Vec(border+knob,cvs+jcv*3), module, SubMixer::CH2_OUTPUT));
-//  
-		addInput(createInput<PJ301MIPort>(Vec(border+knob*2,cvs+jcv*0), module, SubMixer::CH3_INPUT));
-		addInput(createInput<PJ301MCPort>(Vec(border+knob*2,cvs+jcv*1), module, SubMixer::CH3_CV_INPUT));
-  	addInput(createInput<PJ301MCPort>(Vec(border+knob*2,cvs+jcv*2), module, SubMixer::CH3_PAN_INPUT));
-		addOutput(createOutput<PJ301MOPort>(Vec(border+knob*2,cvs+jcv*3), module, SubMixer::CH3_OUTPUT));
-//  
-	 	addInput(createInput<PJ301MIPort>(Vec(border+knob*3,cvs+jcv*0), module, SubMixer::CH4_INPUT));
-		addInput(createInput<PJ301MCPort>(Vec(border+knob*3,cvs+jcv*1), module, SubMixer::CH4_CV_INPUT));
-	 	addInput(createInput<PJ301MCPort>(Vec(border+knob*3,cvs+jcv*2), module, SubMixer::CH4_PAN_INPUT));
- 	  addOutput(createOutput<PJ301MOPort>(Vec(border+knob*3,cvs+jcv*3), module, SubMixer::CH4_OUTPUT));
-    
-  
-  
+		addInput(Port::create<PJ301MIPort>(Vec(border,cvs+jcv*0), Port::INPUT, module, SubMixer::CH1_INPUT));
+		addInput(Port::create<PJ301MCPort>(Vec(border,cvs+jcv*1), Port::INPUT, module, SubMixer::CH1_CV_INPUT));
+  	addInput(Port::create<PJ301MCPort>(Vec(border,cvs+jcv*2), Port::INPUT, module, SubMixer::CH1_PAN_INPUT));
+  	addOutput(Port::create<PJ301MOPort>(Vec(border,cvs+jcv*3), Port::OUTPUT, module, SubMixer::CH1_OUTPUT));
+//
+		addInput(Port::create<PJ301MIPort>(Vec(border+knob,cvs+jcv*0), Port::INPUT, module, SubMixer::CH2_INPUT));
+		addInput(Port::create<PJ301MCPort>(Vec(border+knob,cvs+jcv*1), Port::INPUT, module, SubMixer::CH2_CV_INPUT));
+ 	 	addInput(Port::create<PJ301MCPort>(Vec(border+knob,cvs+jcv*2), Port::INPUT, module, SubMixer::CH2_PAN_INPUT));
+		addOutput(Port::create<PJ301MOPort>(Vec(border+knob,cvs+jcv*3), Port::OUTPUT, module, SubMixer::CH2_OUTPUT));
+//
+		addInput(Port::create<PJ301MIPort>(Vec(border+knob*2,cvs+jcv*0), Port::INPUT, module, SubMixer::CH3_INPUT));
+		addInput(Port::create<PJ301MCPort>(Vec(border+knob*2,cvs+jcv*1), Port::INPUT, module, SubMixer::CH3_CV_INPUT));
+  	addInput(Port::create<PJ301MCPort>(Vec(border+knob*2,cvs+jcv*2), Port::INPUT, module, SubMixer::CH3_PAN_INPUT));
+		addOutput(Port::create<PJ301MOPort>(Vec(border+knob*2,cvs+jcv*3), Port::OUTPUT, module, SubMixer::CH3_OUTPUT));
+//
+	 	addInput(Port::create<PJ301MIPort>(Vec(border+knob*3,cvs+jcv*0), Port::INPUT, module, SubMixer::CH4_INPUT));
+		addInput(Port::create<PJ301MCPort>(Vec(border+knob*3,cvs+jcv*1), Port::INPUT, module, SubMixer::CH4_CV_INPUT));
+	 	addInput(Port::create<PJ301MCPort>(Vec(border+knob*3,cvs+jcv*2), Port::INPUT, module, SubMixer::CH4_PAN_INPUT));
+ 	  addOutput(Port::create<PJ301MOPort>(Vec(border+knob*3,cvs+jcv*3), Port::OUTPUT, module, SubMixer::CH4_OUTPUT));
+
+
+
 }
+
+Model *modelSubMix = Model::create<SubMixer, SubMixWidget>("dBiz","dBiz SubMix", "SubMix",MIXER_TAG);

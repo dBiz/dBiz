@@ -108,15 +108,15 @@ void Remix::step()
     const float remainInvStages = 1.0f - invStages;
 
     float widthControl = params[WIDTH_PARAM].value + inputs[WIDTH_INPUT].value*params[CV_WIDTH_PARAM].value;
-    widthControl = clampf(widthControl, 0.0f, 5.0f) * 0.2f;
+    widthControl = clamp(widthControl, 0.0f, 5.0f) * 0.2f;
     widthControl = widthControl * widthControl * widthTable[stages];
 
     float scanControl = params[SCAN_PARAM].value + inputs[SCAN_INPUT].value*params[CV_SCAN_PARAM].value;
-    scanControl = clampf(scanControl, 0.0f, 5.0f) * 0.2f;
+    scanControl = clamp(scanControl, 0.0f, 5.0f) * 0.2f;
 
     float slopeControl = params[SLOPE_PARAM].value + inputs[SLOPE_INPUT].value;
-    slopeControl = clampf(slopeControl, 0.0f, 5.0f) * 0.2f;
-    
+    slopeControl = clamp(slopeControl, 0.0f, 5.0f) * 0.2f;
+
 
     float scanFactor1 = LERP(widthControl, halfStages, invStages);
     float scanFactor2 = LERP(widthControl, halfStages + remainInvStages, 1.0f);
@@ -133,9 +133,9 @@ void Remix::step()
 
     for (int i = 0; i < 6; i++)
     {
-        inMults[i] = clampf(inMults[i], 0.0f, 1.0f);
+        inMults[i] = clamp(inMults[i], 0.0f, 1.0f);
         inMults[i] = triShape(inMults[i]);
-        inMults[i] = clampf(inMults[i], 0.0f, 1.0f);
+        inMults[i] = clamp(inMults[i], 0.0f, 1.0f);
 
         const float shaped = (2.0f - inMults[i]) * inMults[i];
         inMults[i] = LERP(slopeControl, shaped, inMults[i]);
@@ -152,13 +152,13 @@ void Remix::step()
         outputs[B_OUTPUT].value = outputs[B_OUTPUT].value + outputs[i].value;
     }
 
-    outputs[B_OUTPUT].value = crossf(outputs[B_OUTPUT].value * params[LEVEL_PARAM].value, outputs[B_OUTPUT].value * params[LEVEL_PARAM].value*clampf(inputs[LEVEL_INPUT].normalize(10)/10,0.0,1.0),params[CV_LEVEL_PARAM].value);
+    outputs[B_OUTPUT].value = crossf(outputs[B_OUTPUT].value * params[LEVEL_PARAM].value, outputs[B_OUTPUT].value * params[LEVEL_PARAM].value*clamp(inputs[LEVEL_INPUT].normalize(10)/10,0.0,1.0),params[CV_LEVEL_PARAM].value);
 }
 
-RemixWidget::RemixWidget()
+struct RemixWidget : ModuleWidget{RemixWidget(Remix *module);};
+
+RemixWidget::RemixWidget(Remix *module) : ModuleWidget(module)
 {
-    Remix *module = new Remix();
-	setModule(module);
 	box.size = Vec(14 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -173,62 +173,64 @@ RemixWidget::RemixWidget()
     int board =20;
     int light = 15;
     float mid = (14*15)/2;
-    float midy= 190; 
+    float midy= 190;
 
-	addChild(createScrew<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-	addChild(createScrew<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-	addChild(createScrew<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-
-
-	addParam(createParam<RoundRed>(Vec(board, midy+10), module, Remix::SCAN_PARAM,0.0, 5.0,0.0));
-    addParam(createParam<RoundWhy>(Vec(board, midy+10+knob+10), module, Remix::CV_SCAN_PARAM, 0.0, 1.0, 0.0));
-
-    addParam(createParam<RoundRed>(Vec(mid-15, midy+10), module, Remix::WIDTH_PARAM, 0.0, 5.0, 0.0));
-    addParam(createParam<RoundWhy>(Vec(mid-15, midy+10+knob+10), module, Remix::CV_WIDTH_PARAM, 0.0, 1.0, 0.0));
-
-    addParam(createParam<Trimpot>(Vec(mid - 20, 322.5), module, Remix::SLOPE_PARAM, 0.0, 5.0, 0.0));
-    addInput(createInput<PJ301MPort>(Vec(mid +10 , 320), module, Remix::SLOPE_INPUT));
-
-    addParam(createParam<RoundRed>(Vec(box.size.x - board - 32.5, midy+10), module, Remix::LEVEL_PARAM, 0.0, 1.0, 0.0));
-    addParam(createParam<RoundWhy>(Vec(box.size.x - board - 32.5, midy+10+knob+10), module, Remix::CV_LEVEL_PARAM, 0.0, 1.0, 0.0));
-
-    addOutput(createOutput<PJ301MPort>(Vec(board + 7.5, 20), module, Remix::A_OUTPUT));
-    addInput(createInput<PJ301MPort>(Vec(board+7.5, 320), module, Remix::SCAN_INPUT));
-
-    addOutput(createOutput<PJ301MPort>(Vec(mid-15 + 7.5, 20), module, Remix::B_OUTPUT));
-    addInput(createInput<PJ301MPort>(Vec(mid-15+ 7.5, 290), module, Remix::WIDTH_INPUT));
-
-    addOutput(createOutput<PJ301MPort>(Vec(box.size.x-knob-board + 7.5, 20), module, Remix::C_OUTPUT));
-    addInput(createInput<PJ301MPort>(Vec(box.size.x-knob-board + 7.5, 320), module, Remix::LEVEL_INPUT));
+	addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
+	addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 
-            addInput(createInput<PJ301MPort>(Vec(board +5+ jack*0, 70), module, Remix::CH1_INPUT));
-            addParam(createParam<Trimpot>(Vec(board +10+ jack*0,130),module,Remix::CH1_LEVEL_PARAM,0.0,1.0,0.0));
-            addChild(createLight<MediumLight<RedLight>>(Vec(board+30+light*0,midy),module,Remix::CH1_LIGHT));
+	addParam(ParamWidget::create<RoundRed>(Vec(board, midy+10), module, Remix::SCAN_PARAM,0.0, 5.0,0.0));
+    addParam(ParamWidget::create<RoundWhy>(Vec(board, midy+10+knob+10), module, Remix::CV_SCAN_PARAM, 0.0, 1.0, 0.0));
 
-            addInput(createInput<PJ301MPort>(Vec(board + 5 + jack * 1, 70), module, Remix::CH2_INPUT));
-            addParam(createParam<Trimpot>(Vec(board + 10 + jack * 1, 130), module, Remix::CH2_LEVEL_PARAM, 0.0, 1.0, 0.0));
-            addChild(createLight<MediumLight<RedLight>>(Vec(board + 30 + light * 1, midy), module, Remix::CH2_LIGHT));
+    addParam(ParamWidget::create<RoundRed>(Vec(mid-15, midy+10), module, Remix::WIDTH_PARAM, 0.0, 5.0, 0.0));
+    addParam(ParamWidget::create<RoundWhy>(Vec(mid-15, midy+10+knob+10), module, Remix::CV_WIDTH_PARAM, 0.0, 1.0, 0.0));
 
-            addInput(createInput<PJ301MPort>(Vec(board + 5 + jack * 2, 70), module, Remix::CH3_INPUT));
-            addParam(createParam<Trimpot>(Vec(board + 10 + jack * 2, 130), module, Remix::CH3_LEVEL_PARAM, 0.0, 1.0, 0.0));
-            addChild(createLight<MediumLight<RedLight>>(Vec(board + 30 + light * 2, midy), module, Remix::CH3_LIGHT));
+    addParam(ParamWidget::create<Trimpot>(Vec(mid - 20, 322.5), module, Remix::SLOPE_PARAM, 0.0, 5.0, 0.0));
+    addInput(Port::create<PJ301MPort>(Vec(mid +10 , 320), Port::INPUT, module, Remix::SLOPE_INPUT));
 
-            
+    addParam(ParamWidget::create<RoundRed>(Vec(box.size.x - board - 32.5, midy+10), module, Remix::LEVEL_PARAM, 0.0, 1.0, 0.0));
+    addParam(ParamWidget::create<RoundWhy>(Vec(box.size.x - board - 32.5, midy+10+knob+10), module, Remix::CV_LEVEL_PARAM, 0.0, 1.0, 0.0));
 
-            addInput(createInput<PJ301MPort>(Vec(board +10+ jack*3+7.5, 70), module, Remix::CH4_INPUT));
-            addParam(createParam<Trimpot>(Vec(board +10+ jack*3+9,130),module,Remix::CH4_LEVEL_PARAM,0.0,1.0,0.0));
-            addChild(createLight<MediumLight<RedLight>>(Vec(board+60+light*3,midy),module,Remix::CH4_LIGHT));
+    addOutput(Port::create<PJ301MPort>(Vec(board + 7.5, 20), Port::OUTPUT, module, Remix::A_OUTPUT));
+    addInput(Port::create<PJ301MPort>(Vec(board+7.5, 320), Port::INPUT, module, Remix::SCAN_INPUT));
 
-            addInput(createInput<PJ301MPort>(Vec(board + 10 + jack * 4 + 7.5, 70), module, Remix::CH5_INPUT));
-            addParam(createParam<Trimpot>(Vec(board + 10 + jack * 4 + 9, 130), module, Remix::CH5_LEVEL_PARAM, 0.0, 1.0, 0.0));
-            addChild(createLight<MediumLight<RedLight>>(Vec(board + 60 + light * 4, midy), module, Remix::CH5_LIGHT));
+    addOutput(Port::create<PJ301MPort>(Vec(mid-15 + 7.5, 20), Port::OUTPUT, module, Remix::B_OUTPUT));
+    addInput(Port::create<PJ301MPort>(Vec(mid-15+ 7.5, 290), Port::INPUT, module, Remix::WIDTH_INPUT));
 
-            addInput(createInput<PJ301MPort>(Vec(board + 10 + jack * 5 + 7.5, 70), module, Remix::CH6_INPUT));
-            addParam(createParam<Trimpot>(Vec(board + 10 + jack * 5 +9, 130), module, Remix::CH6_LEVEL_PARAM , 0.0, 1.0, 0.0));
-            addChild(createLight<MediumLight<RedLight>>(Vec(board + 60 + light * 5, midy), module, Remix::CH6_LIGHT));
+    addOutput(Port::create<PJ301MPort>(Vec(box.size.x-knob-board + 7.5, 20), Port::OUTPUT, module, Remix::C_OUTPUT));
+    addInput(Port::create<PJ301MPort>(Vec(box.size.x-knob-board + 7.5, 320), Port::INPUT, module, Remix::LEVEL_INPUT));
 
-            // addChild(createLight<MediumLight<RedLight>>(Vec(41, 59), module, Remix::CH_LIGHT));
+
+            addInput(Port::create<PJ301MPort>(Vec(board +5+ jack*0, 70), Port::INPUT, module, Remix::CH1_INPUT));
+            addParam(ParamWidget::create<Trimpot>(Vec(board +10+ jack*0,130),module,Remix::CH1_LEVEL_PARAM,0.0,1.0,0.0));
+            addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(board+30+light*0,midy),module,Remix::CH1_LIGHT));
+
+            addInput(Port::create<PJ301MPort>(Vec(board + 5 + jack * 1, 70), Port::INPUT, module, Remix::CH2_INPUT));
+            addParam(ParamWidget::create<Trimpot>(Vec(board + 10 + jack * 1, 130), module, Remix::CH2_LEVEL_PARAM, 0.0, 1.0, 0.0));
+            addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(board + 30 + light * 1, midy), module, Remix::CH2_LIGHT));
+
+            addInput(Port::create<PJ301MPort>(Vec(board + 5 + jack * 2, 70), Port::INPUT, module, Remix::CH3_INPUT));
+            addParam(ParamWidget::create<Trimpot>(Vec(board + 10 + jack * 2, 130), module, Remix::CH3_LEVEL_PARAM, 0.0, 1.0, 0.0));
+            addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(board + 30 + light * 2, midy), module, Remix::CH3_LIGHT));
+
+
+
+            addInput(Port::create<PJ301MPort>(Vec(board +10+ jack*3+7.5, 70), Port::INPUT, module, Remix::CH4_INPUT));
+            addParam(ParamWidget::create<Trimpot>(Vec(board +10+ jack*3+9,130),module,Remix::CH4_LEVEL_PARAM,0.0,1.0,0.0));
+            addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(board+60+light*3,midy),module,Remix::CH4_LIGHT));
+
+            addInput(Port::create<PJ301MPort>(Vec(board + 10 + jack * 4 + 7.5, 70), Port::INPUT, module, Remix::CH5_INPUT));
+            addParam(ParamWidget::create<Trimpot>(Vec(board + 10 + jack * 4 + 9, 130), module, Remix::CH5_LEVEL_PARAM, 0.0, 1.0, 0.0));
+            addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(board + 60 + light * 4, midy), module, Remix::CH5_LIGHT));
+
+            addInput(Port::create<PJ301MPort>(Vec(board + 10 + jack * 5 + 7.5, 70), Port::INPUT, module, Remix::CH6_INPUT));
+            addParam(ParamWidget::create<Trimpot>(Vec(board + 10 + jack * 5 +9, 130), module, Remix::CH6_LEVEL_PARAM , 0.0, 1.0, 0.0));
+            addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(board + 60 + light * 5, midy), module, Remix::CH6_LIGHT));
+
+            // addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(41, 59), module, Remix::CH_LIGHT));
 
 }
+
+Model *modelRemix = Model::create<Remix, RemixWidget>("dBiz", "dBiz Remix", "Remix", MIXER_TAG);
