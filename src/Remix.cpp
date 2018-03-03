@@ -116,7 +116,7 @@ void Remix::step()
 
     float slopeControl = params[SLOPE_PARAM].value + inputs[SLOPE_INPUT].value;
     slopeControl = clamp(slopeControl, 0.0f, 5.0f) * 0.2f;
-
+    
 
     float scanFactor1 = LERP(widthControl, halfStages, invStages);
     float scanFactor2 = LERP(widthControl, halfStages + remainInvStages, 1.0f);
@@ -141,7 +141,9 @@ void Remix::step()
         inMults[i] = LERP(slopeControl, shaped, inMults[i]);
     }
 
+    outputs[A_OUTPUT].value = 0.0f;
     outputs[B_OUTPUT].value = 0.0f;
+    outputs[C_OUTPUT].value = 0.0f;
 
     for (int i = 0; i < 6; i++)
     {
@@ -150,14 +152,26 @@ void Remix::step()
         lights[CH1_LIGHT + i].setBrightnessSmooth(fmaxf(0.0, inMults[i]));
 
         outputs[B_OUTPUT].value = outputs[B_OUTPUT].value + outputs[i].value;
-    }
 
-    outputs[B_OUTPUT].value = crossf(outputs[B_OUTPUT].value * params[LEVEL_PARAM].value, outputs[B_OUTPUT].value * params[LEVEL_PARAM].value*clamp(inputs[LEVEL_INPUT].normalize(10)/10,0.0,1.0),params[CV_LEVEL_PARAM].value);
+        if (i <= 1)
+        {
+            outputs[A_OUTPUT].value = outputs[A_OUTPUT].value + outputs[i].value;
+        }
+        else if (i >= 4)
+        {
+            outputs[C_OUTPUT].value = outputs[C_OUTPUT].value + outputs[i].value;
+        }
+
+    outputs[A_OUTPUT].value = crossfade(outputs[A_OUTPUT].value * params[LEVEL_PARAM].value, outputs[A_OUTPUT].value * params[LEVEL_PARAM].value*clamp(inputs[LEVEL_INPUT].normalize(10)/10,0.0f,1.0f),params[CV_LEVEL_PARAM].value);
+    outputs[B_OUTPUT].value = crossfade(outputs[B_OUTPUT].value * params[LEVEL_PARAM].value, outputs[B_OUTPUT].value * params[LEVEL_PARAM].value*clamp(inputs[LEVEL_INPUT].normalize(10)/10,0.0f,1.0f),params[CV_LEVEL_PARAM].value);
+    outputs[C_OUTPUT].value = crossfade(outputs[C_OUTPUT].value * params[LEVEL_PARAM].value, outputs[C_OUTPUT].value * params[LEVEL_PARAM].value*clamp(inputs[LEVEL_INPUT].normalize(10)/10,0.0f,1.0f),params[CV_LEVEL_PARAM].value);
+    }
 }
 
-struct RemixWidget : ModuleWidget{RemixWidget(Remix *module);};
 
-RemixWidget::RemixWidget(Remix *module) : ModuleWidget(module)
+struct RemixWidget : ModuleWidget 
+{
+RemixWidget(Remix *module) : ModuleWidget(module)
 {
 	box.size = Vec(14 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
@@ -173,7 +187,7 @@ RemixWidget::RemixWidget(Remix *module) : ModuleWidget(module)
     int board =20;
     int light = 15;
     float mid = (14*15)/2;
-    float midy= 190;
+    float midy= 190; 
 
 	addChild(Widget::create<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
 	addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -205,32 +219,33 @@ RemixWidget::RemixWidget(Remix *module) : ModuleWidget(module)
 
             addInput(Port::create<PJ301MPort>(Vec(board +5+ jack*0, 70), Port::INPUT, module, Remix::CH1_INPUT));
             addParam(ParamWidget::create<Trimpot>(Vec(board +10+ jack*0,130),module,Remix::CH1_LEVEL_PARAM,0.0,1.0,0.0));
-            addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(board+30+light*0,midy),module,Remix::CH1_LIGHT));
+            addChild(GrayModuleLightWidget::create<MediumLight<RedLight>>(Vec(board+30+light*0,midy),module,Remix::CH1_LIGHT));
 
             addInput(Port::create<PJ301MPort>(Vec(board + 5 + jack * 1, 70), Port::INPUT, module, Remix::CH2_INPUT));
             addParam(ParamWidget::create<Trimpot>(Vec(board + 10 + jack * 1, 130), module, Remix::CH2_LEVEL_PARAM, 0.0, 1.0, 0.0));
-            addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(board + 30 + light * 1, midy), module, Remix::CH2_LIGHT));
+            addChild(GrayModuleLightWidget::create<MediumLight<RedLight>>(Vec(board + 30 + light * 1, midy), module, Remix::CH2_LIGHT));
 
             addInput(Port::create<PJ301MPort>(Vec(board + 5 + jack * 2, 70), Port::INPUT, module, Remix::CH3_INPUT));
             addParam(ParamWidget::create<Trimpot>(Vec(board + 10 + jack * 2, 130), module, Remix::CH3_LEVEL_PARAM, 0.0, 1.0, 0.0));
-            addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(board + 30 + light * 2, midy), module, Remix::CH3_LIGHT));
+            addChild(GrayModuleLightWidget::create<MediumLight<RedLight>>(Vec(board + 30 + light * 2, midy), module, Remix::CH3_LIGHT));
 
-
+            
 
             addInput(Port::create<PJ301MPort>(Vec(board +10+ jack*3+7.5, 70), Port::INPUT, module, Remix::CH4_INPUT));
             addParam(ParamWidget::create<Trimpot>(Vec(board +10+ jack*3+9,130),module,Remix::CH4_LEVEL_PARAM,0.0,1.0,0.0));
-            addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(board+60+light*3,midy),module,Remix::CH4_LIGHT));
+            addChild(GrayModuleLightWidget::create<MediumLight<RedLight>>(Vec(board+60+light*3,midy),module,Remix::CH4_LIGHT));
 
             addInput(Port::create<PJ301MPort>(Vec(board + 10 + jack * 4 + 7.5, 70), Port::INPUT, module, Remix::CH5_INPUT));
             addParam(ParamWidget::create<Trimpot>(Vec(board + 10 + jack * 4 + 9, 130), module, Remix::CH5_LEVEL_PARAM, 0.0, 1.0, 0.0));
-            addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(board + 60 + light * 4, midy), module, Remix::CH5_LIGHT));
+            addChild(GrayModuleLightWidget::create<MediumLight<RedLight>>(Vec(board + 60 + light * 4, midy), module, Remix::CH5_LIGHT));
 
             addInput(Port::create<PJ301MPort>(Vec(board + 10 + jack * 5 + 7.5, 70), Port::INPUT, module, Remix::CH6_INPUT));
             addParam(ParamWidget::create<Trimpot>(Vec(board + 10 + jack * 5 +9, 130), module, Remix::CH6_LEVEL_PARAM , 0.0, 1.0, 0.0));
-            addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(board + 60 + light * 5, midy), module, Remix::CH6_LIGHT));
+            addChild(GrayModuleLightWidget::create<MediumLight<RedLight>>(Vec(board + 60 + light * 5, midy), module, Remix::CH6_LIGHT));
 
-            // addChild(ModuleLightWidget::create<MediumLight<RedLight>>(Vec(41, 59), module, Remix::CH_LIGHT));
+            // addChild(GrayModuleLightWidget::create<MediumLight<RedLight>>(Vec(41, 59), module, Remix::CH_LIGHT));
 
 }
+};
+Model *modelRemix = Model::create<Remix, RemixWidget>("dBiz", "Remix", "Remix", UTILITY_TAG);
 
-Model *modelRemix = Model::create<Remix, RemixWidget>("dBiz", "dBiz Remix", "Remix", MIXER_TAG);

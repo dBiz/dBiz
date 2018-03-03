@@ -1,9 +1,28 @@
 #include "rack.hpp"
 
 
+
 using namespace rack;
 
 extern Plugin *plugin;
+
+
+//extern Model *modelBlank;
+extern Model *modelMultiple;
+extern Model *modelContorno;
+extern Model *modelChord;  
+extern Model *modelUtility;
+extern Model *modelTranspose;
+extern Model *modelBene;  
+extern Model *modelBene2; 
+extern Model *modelBenePads;
+extern Model *modelSubMix;
+extern Model *modelRemix; 
+extern Model *modelPerfMixer;
+extern Model *modelVCA530;
+extern Model *modelVerbo;
+extern Model *modelDVCO; 
+extern Model *modelDAOSC;
 
 ////////////////////
 // Colors
@@ -108,99 +127,12 @@ struct LargeBlu : SmallBlu
 	}
 };
 
-struct SmallAzz : SmallKnob
-{
-	SmallAzz()
-	{
-		setSVG(SVG::load(assetPlugin(plugin, "res/component/SmallAzz.svg")));
-	}
-};
-
-struct LargeAzz : SmallAzz
-{
-	LargeAzz()
-	{
-		box.size = Vec(45, 45);
-	}
-};
-
-struct SmallAzzSnapKnob : SmallAzz
-{
-	SmallAzzSnapKnob()
-	{
-		snap = true;
-	};
-};
-
-struct SmallVio : SmallKnob
-{
-	SmallVio()
-	{
-		setSVG(SVG::load(assetPlugin(plugin, "res/component/SmallVio.svg")));
-	}
-};
-
-struct LargeVio : SmallVio
-{
-	LargeVio()
-	{
-		box.size = Vec(45, 45);
-	}
-};
-
-struct SmallVioSnapKnob : SmallVio
-{
-	SmallVioSnapKnob()
-	{
-		snap = true;
-	};
-};
-
-struct SmallYel : SmallKnob
-{
-	SmallYel()
-	{
-		setSVG(SVG::load(assetPlugin(plugin, "res/component/SmallYel.svg")));
-	}
-};
-
-struct LargeYel : SmallYel
-{
-	LargeYel()
-	{
-		box.size = Vec(45, 45);
-	}
-};
-
-struct SmallGre : SmallKnob
-{
-	SmallGre()
-	{
-		setSVG(SVG::load(assetPlugin(plugin, "res/component/SmallGre.svg")));
-	}
-};
-
-struct LargeGre : SmallGre
-{
-	LargeGre()
-	{
-		box.size = Vec(45, 45);
-	}
-};
 
 struct SmallCre : SmallKnob
 {
 	SmallCre()
 	{
 		setSVG(SVG::load(assetPlugin(plugin, "res/component/SmallCre.svg")));
-	}
-};
-
-struct LargeCre : SmallCre
-{
-	LargeCre()
-	{
-		box.size = Vec(45, 45);
 	}
 };
 
@@ -481,7 +413,8 @@ struct SlidePot2 : SVGFader
 ////////////////////
 // Lights
 ////////////////////
-struct OrangeLight : ModuleLightWidget
+
+struct OrangeLight : GrayModuleLightWidget
 {
 	OrangeLight()
 	{
@@ -489,7 +422,7 @@ struct OrangeLight : ModuleLightWidget
 	}
 };
 
-struct CyanLight : ModuleLightWidget
+struct CyanLight : GrayModuleLightWidget
 {
 	CyanLight()
 	{
@@ -497,13 +430,14 @@ struct CyanLight : ModuleLightWidget
 	}
 };
 
-struct PurpleLight : ModuleLightWidget
+struct WhiteLight : GrayModuleLightWidget
 {
-	PurpleLight()
+	WhiteLight()
 	{
-		addBaseColor(COLOR_PURPLE);
+		addBaseColor(COLOR_WHITE);
 	}
 };
+
 
 template <typename BASE>
 struct BigLight : BASE
@@ -513,6 +447,7 @@ struct BigLight : BASE
 		this->box.size = Vec(20, 20);
 	}
 };
+
 template <typename BASE>
 struct HugeLight : BASE
 {
@@ -522,7 +457,7 @@ struct HugeLight : BASE
 	}
 };
 
-struct OBPLight : ModuleLightWidget
+struct OBPLight : GrayModuleLightWidget
 {
 	OBPLight()
 	{
@@ -638,19 +573,5 @@ struct BPush : SVGSwitch, MomentarySwitch
 	}
 };
 
-extern Model *modeldBizBlank;
-extern Model *modelMultiple;
-extern Model *modelContorno;
-extern Model *modelChord;
-extern Model *modelUtility;
-extern Model *modelTranspose;
-extern Model *modelBene;
-extern Model *modelBene2;
-extern Model *modelBenePads;
-extern Model *modelSubMix;
-extern Model *modelRemix;
-extern Model *modelPerfMixer;
-extern Model *modelVCA530;
-extern Model *modelVerbo;
-extern Model *modelDVCO;
-extern Model *modelDAOSC;
+
+
