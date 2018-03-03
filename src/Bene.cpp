@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////
 //
-//  dBiz revisited version of
+//  dBiz revisited version of 
 //
 //  Cartesian Sequencer Module for VCV
-// many thx to
+// many thx to 
 //  Strum 2017
 //  strum@softhome.net
 //
@@ -44,7 +44,7 @@ struct Bene : Module {
 		UNQUANT_OUT,
     QUANT_OUT,
     ROW_OUT,
-    COLUMN_OUT = ROW_OUT + 4,
+    COLUMN_OUT = ROW_OUT + 4,    
 		NUM_OUTPUTS = COLUMN_OUT + 4
   };
 
@@ -120,12 +120,12 @@ struct Bene : Module {
   SchmittTrigger resetTrigger;
   SchmittTrigger x_resetTrigger;
   SchmittTrigger y_resetTrigger;
-
-  SchmittTrigger button_triggers[4][4];
-
+    
+  SchmittTrigger button_triggers[4][4];                
+    
   float row_outs[4] = {0.0,0.0,0.0,0.0};
   float column_outs[4] = {0.0,0.0,0.0,0.0};
-
+  
   int x_position = 0;
   int y_position = 0;
 
@@ -135,15 +135,15 @@ struct Bene : Module {
   float previousPitch = 0;
 
   Bene() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
-
+  
   void step() override;
 
 // Quantization based on JW quantizer module!!!
 
   float closestVoltageInScale(float voltsIn)
   {
-    rootNote = params[ROOT_NOTE_PARAM].value + rescalef(inputs[ROOT_NOTE_INPUT].value, 0,10,0, Bene::NUM_NOTES - 1);
-    curScaleVal =params[SCALE_PARAM].value + rescalef(inputs[SCALE_INPUT].value, 0,10,0, Bene::NUM_SCALES - 1);
+    rootNote = params[ROOT_NOTE_PARAM].value + rescale(inputs[ROOT_NOTE_INPUT].value, 0,10,0, Bene::NUM_NOTES - 1);
+    curScaleVal =params[SCALE_PARAM].value + rescale(inputs[SCALE_INPUT].value, 0,10,0, Bene::NUM_SCALES - 1);
     int *curScaleArr;
     int notesInScale = 0;
     switch (curScaleVal)
@@ -236,7 +236,7 @@ struct Bene : Module {
     }
     return octaveInVolts + rootNote/12.0 + closestVal;
   }
-
+  
 };
 
 
@@ -248,7 +248,7 @@ void Bene::step() {
     bool step_up = false;
     bool step_down = false;
     lights[GRID_LIGHTS+x_position+y_position*4].value =1.0;
-
+    
 
     // handle clock inputs
     if (inputs[RIGHT].active)
@@ -289,8 +289,8 @@ void Bene::step() {
       lights[GRID_LIGHTS + x_position + y_position*4].value = 1.0;
       step_right = false;
       step_left = false;
-      step_up = false;
-      step_down = false;
+      step_up = false;	
+      step_down = false;	
 	  }
     if (x_resetTrigger.process(inputs[X_RESET].value))
     {
@@ -299,8 +299,8 @@ void Bene::step() {
       lights[GRID_LIGHTS + x_position + y_position*4].value  = 1.0;
       step_right = false;
       step_left = false;
-      step_up = false;
-      step_down = false;
+      step_up = false;	
+      step_down = false;	
 	  }
     if (y_resetTrigger.process(inputs[Y_RESET].value))
     {
@@ -309,11 +309,11 @@ void Bene::step() {
       lights[GRID_LIGHTS + x_position + y_position*4].value  = 1.0;
       step_right = false;
       step_left = false;
-      step_up = false;
-      step_down = false;
+      step_up = false;	
+      step_down = false;	
 	  }
-
-
+   
+   
     // handle button triggers
 
     int xpad = round(inputs[X_PAD].value);
@@ -335,7 +335,7 @@ void Bene::step() {
     }
     }
 
-    // change x and y
+    // change x and y    
     if (step_right)
     {
        lights[GRID_LIGHTS + x_position + y_position*4].value  = 0.0;
@@ -347,7 +347,7 @@ void Bene::step() {
     {
        lights[GRID_LIGHTS + x_position + y_position*4].value  = 0.0;
       x_position -= 1;
-      if (x_position < 0) x_position = 3;
+      if (x_position < 0) x_position = 3;      
        lights[GRID_LIGHTS + x_position + y_position*4].value  = 1.0;
     }
     if (step_down)
@@ -361,10 +361,10 @@ void Bene::step() {
     {
        lights[GRID_LIGHTS + x_position + y_position*4].value  = 0.0;
       y_position -= 1;
-      if (y_position < 0) y_position = 3;
+      if (y_position < 0) y_position = 3;      
        lights[GRID_LIGHTS + x_position + y_position*4].value  = 1.0;
     }
-
+    
     /// set outputs
     int which_knob = y_position * 4 + x_position;
     //float main_out = params[KNOB_PARAM + which_knob].value;
@@ -401,7 +401,7 @@ void Bene::step() {
    }
 }
 
-//////////////////////////////////// Display --- Based on DTROY by Bidoo
+//////////////////////////////////// Display --- Based on DTROY by Bidoo  
 
 struct BeneDisplay : TransparentWidget
 {
@@ -426,7 +426,7 @@ struct BeneDisplay : TransparentWidget
     nvgFillColor(vg, nvgRGBA(0xff, 0xff, 0xff, 0xff));
     nvgText(vg, pos.x + 8, pos.y + 23, note.c_str(), NULL);
     nvgText(vg, pos.x + 30, pos.y + 23, scale.c_str(), NULL);
-
+  
   }
 
   string displayRootNote(int value)
@@ -521,9 +521,10 @@ struct BeneDisplay : TransparentWidget
 
 ////////////////////////////////
 
-struct BeneWidget : ModuleWidget {BeneWidget(Bene *module);};
-
-BeneWidget::BeneWidget(Bene *module) : ModuleWidget(module) {
+struct BeneWidget : ModuleWidget 
+{
+BeneWidget(Bene *module) : ModuleWidget(module)
+{
 	box.size = Vec(15*13, 380);
 
   int top = 20;
@@ -547,7 +548,7 @@ BeneWidget::BeneWidget(Bene *module) : ModuleWidget(module) {
     addChild(display);
   }
 
-
+ 
 
 
   addInput(Port::create<PJ301MIPort>(Vec(left, top), Port::INPUT, module, Bene::LEFT));
@@ -555,7 +556,7 @@ BeneWidget::BeneWidget(Bene *module) : ModuleWidget(module) {
 
   addInput(Port::create<PJ301MIPort>(Vec(left, top + 40), Port::INPUT, module, Bene::UP));
   addInput(Port::create<PJ301MIPort>(Vec(left + column_spacing, top + 40), Port::INPUT, module, Bene::DOWN));
-
+  
   addInput(Port::create<PJ301MIPort>(Vec(left+column_spacing * 2, top), Port::INPUT, module, Bene::X_RESET));
   addInput(Port::create<PJ301MIPort>(Vec(left + column_spacing * 2, top + 40), Port::INPUT, module, Bene::Y_RESET));
 
@@ -567,13 +568,13 @@ BeneWidget::BeneWidget(Bene *module) : ModuleWidget(module) {
 
   addOutput(Port::create<PJ301MOPort>(Vec(left + column_spacing * 5-20, top), Port::OUTPUT, module, Bene::UNQUANT_OUT));
   addOutput(Port::create<PJ301MOPort>(Vec(left + column_spacing * 5-20, top+30), Port::OUTPUT, module, Bene::QUANT_OUT));
-
+ 
   for ( int i = 0 ; i < 4 ; i++)
   {
     for ( int j = 0 ; j < 4 ; j++)
     {
       addParam(ParamWidget::create<Rogan2PWhite>(Vec(left+column_spacing * i, top2 + row_spacing * j + 150 ), module, Bene::KNOB_PARAM + i + j * 4, 0.0, 2.0, 1.0));
-      addChild(ModuleLightWidget::create<BigLight<OrangeLight>>(Vec(left + column_spacing * i + 8, top2 + row_spacing * j + 150 + 8), module, Bene::GRID_LIGHTS + i + j * 4));
+      addChild(GrayModuleLightWidget::create<BigLight<OrangeLight>>(Vec(left + column_spacing * i + 8, top2 + row_spacing * j + 150 + 8), module, Bene::GRID_LIGHTS + i + j * 4));
     }
     addOutput(Port::create<PJ301MOPort>(Vec(left+column_spacing * i+5, top2 + row_spacing * 4 + 155 ), Port::OUTPUT, module, Bene::ROW_OUT + i));
     addOutput(Port::create<PJ301MOPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * i + 155 ), Port::OUTPUT, module, Bene::COLUMN_OUT + i));
@@ -589,7 +590,7 @@ BeneWidget::BeneWidget(Bene *module) : ModuleWidget(module) {
   addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
   addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
   addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
-
 }
+};
+Model *modelBene = Model::create<Bene, BeneWidget>("dBiz", "Bene", "Bene", UTILITY_TAG);
 
-Model *modelBene = Model::create<Bene, BeneWidget>("dBiz","Bene", "Bene",SEQUENCER_TAG);

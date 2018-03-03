@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////
-//  dBiz revisited version of
+//  dBiz revisited version of 
 //
 //   Pitch Shifter VCV Module
 //
@@ -25,13 +25,13 @@ struct Transpose : Module {
 		OCTAVE_SHIFT_1_INPUT,
     OCTAVE_SHIFT_2_INPUT,
     SEMITONE_SHIFT_1_INPUT,
-    SEMITONE_SHIFT_2_INPUT,
+    SEMITONE_SHIFT_2_INPUT, 
     OCTAVE_SHIFT_1_CVINPUT,
     OCTAVE_SHIFT_2_CVINPUT,
     SEMITONE_SHIFT_1_CVINPUT,
     SEMITONE_SHIFT_2_CVINPUT,
     FINE_SHIFT_1_INPUT,
-    FINE_SHIFT_2_INPUT,
+    FINE_SHIFT_2_INPUT, 
     FINE_SHIFT_1_CVINPUT,
     FINE_SHIFT_2_CVINPUT,
     NUM_INPUTS
@@ -47,7 +47,7 @@ struct Transpose : Module {
 	};
 
 	Transpose() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS) {}
-
+  
   float octave_1_out = 0.0;
   float octave_2_out = 0.0;
   float semitone_1_out = 0.0;
@@ -56,7 +56,7 @@ struct Transpose : Module {
   float fine_2_out = 0.0;
 
   void step() override;
-
+  
 };
 
 
@@ -80,9 +80,10 @@ void Transpose::step() {
 }
 
 //////////////////////////////////////////////////////////////////
-struct TransposeWidget : ModuleWidget {TransposeWidget(Transpose *module);};
-
-TransposeWidget::TransposeWidget(Transpose *module) : ModuleWidget(module) {
+struct TransposeWidget : ModuleWidget 
+{
+TransposeWidget(Transpose *module) : ModuleWidget(module)
+{
 	box.size = Vec(15*4, 380);
 
 	{
@@ -96,7 +97,7 @@ TransposeWidget::TransposeWidget(Transpose *module) : ModuleWidget(module) {
 
 	  addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
 	  addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-
+	
 //
 
     addParam(ParamWidget::create<FlatASnap>(Vec(4, 15), module, Transpose::OCTAVE_SHIFT_1, -4.5, 4.5, 0.0));
@@ -113,7 +114,7 @@ TransposeWidget::TransposeWidget(Transpose *module) : ModuleWidget(module) {
     addInput(Port::create<PJ301MIPort>(Vec(3, 2+285), Port::INPUT, module, Transpose::FINE_SHIFT_1_INPUT));
     addInput(Port::create<PJ301MIPort>(Vec(3, 2+345), Port::INPUT, module, Transpose::FINE_SHIFT_2_INPUT));
 
-
+  
     addInput(Port::create<PJ301MCPort>(Vec(33, 15), Port::INPUT, module, Transpose::OCTAVE_SHIFT_1_CVINPUT));
 	  addInput(Port::create<PJ301MCPort>(Vec(33, 75), Port::INPUT, module, Transpose::OCTAVE_SHIFT_2_CVINPUT));
     addInput(Port::create<PJ301MCPort>(Vec(33, 135), Port::INPUT, module, Transpose::SEMITONE_SHIFT_1_CVINPUT));
@@ -130,5 +131,6 @@ TransposeWidget::TransposeWidget(Transpose *module) : ModuleWidget(module) {
     addOutput(Port::create<PJ301MOPort>(Vec(33, 2+345), Port::OUTPUT, module, Transpose::FINE_SHIFT_2_OUTPUT));
 
 }
+};
+Model *modelTranspose = Model::create<Transpose, TransposeWidget>("dBiz", "Transpose", "Transpose", UTILITY_TAG);
 
-Model *modelTranspose = Model::create<Transpose, TransposeWidget>("dBiz","Transpose","Transpose",UTILITY_TAG);

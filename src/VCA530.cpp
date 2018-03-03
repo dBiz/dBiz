@@ -4,10 +4,10 @@
 //  based on Fundamental Mixer
 //
 ///////////////////////////////////////////////////
-
+ 
 #include "dBiz.hpp"
 #include "dsp/digital.hpp"
-
+ 
 ///////////////////////////////////////////////////
 struct VCA530 : Module {
     enum ParamIds
@@ -68,7 +68,7 @@ struct VCA530 : Module {
 };
 
 void VCA530::step()
-{
+{      
 
     float ch1 = inputs[CH1_INPUT].value * params[CH1_PARAM].value;
     float ch2 = inputs[CH2_INPUT].value * params[CH2_PARAM].value;
@@ -81,12 +81,12 @@ void VCA530::step()
     float sum_mix_l = (ch1 + ch2 + ch3);
     float sum_mix_r = (ch4 + ch5 + ch6);
 
-    float cv1 = sum_mix_l * (clampf(inputs[CH1_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV1_PARAM].value);
-    float cv2 = sum_mix_l * (clampf(inputs[CH2_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV2_PARAM].value);
-    float cv3 = sum_mix_l * (clampf(inputs[CH3_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV3_PARAM].value);
-    float cv4 = sum_mix_r * (clampf(inputs[CH4_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV4_PARAM].value);
-    float cv5 = sum_mix_r * (clampf(inputs[CH5_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV5_PARAM].value);
-    float cv6 = sum_mix_r * (clampf(inputs[CH6_CV_INPUT].normalize(10.0) / 10.0, 0.0, 1.0)) * (params[CV6_PARAM].value);
+    float cv1 = sum_mix_l * (clamp(inputs[CH1_CV_INPUT].normalize(10.0f) / 10.0f, 0.0f, 1.0f)) * (params[CV1_PARAM].value);
+    float cv2 = sum_mix_l * (clamp(inputs[CH2_CV_INPUT].normalize(10.0f) / 10.0f, 0.0f, 1.0f)) * (params[CV2_PARAM].value);
+    float cv3 = sum_mix_l * (clamp(inputs[CH3_CV_INPUT].normalize(10.0f) / 10.0f, 0.0f, 1.0f)) * (params[CV3_PARAM].value);
+    float cv4 = sum_mix_r * (clamp(inputs[CH4_CV_INPUT].normalize(10.0f) / 10.0f, 0.0f, 1.0f)) * (params[CV4_PARAM].value);
+    float cv5 = sum_mix_r * (clamp(inputs[CH5_CV_INPUT].normalize(10.0f) / 10.0f, 0.0f, 1.0f)) * (params[CV5_PARAM].value);
+    float cv6 = sum_mix_r * (clamp(inputs[CH6_CV_INPUT].normalize(10.0f) / 10.0f, 0.0f, 1.0f)) * (params[CV6_PARAM].value);
 
     float sum_l = sum_ch * params[MIX1_PARAM].value;
     float sum_r = sum_ch * params[MIX2_PARAM].value;
@@ -120,9 +120,9 @@ void VCA530::step()
 
 };
 
-struct VCA530Widget : ModuleWidget{VCA530Widget(VCA530 *module);};
-
-VCA530Widget::VCA530Widget(VCA530 *module) : ModuleWidget(module)
+struct VCA530Widget : ModuleWidget 
+{
+VCA530Widget(VCA530 *module) : ModuleWidget(module)
 {
 	box.size = Vec(15*12, 380);
 
@@ -141,7 +141,7 @@ VCA530Widget::VCA530Widget(VCA530 *module) : ModuleWidget(module)
   int low_f = 230 ;
   int med = 180;
   int up =-15;
-
+  
 
 
   addParam(ParamWidget::create<DaviesBlu>(Vec(52,  med + up ), module, VCA530::MIX1_PARAM, 0.0, 1.0, 0.0));
@@ -194,10 +194,11 @@ VCA530Widget::VCA530Widget(VCA530 *module) : ModuleWidget(module)
 
 // lights
 
-  addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(42,med+5+20), module, VCA530::MIX1_LIGHTS));
-  addChild(ModuleLightWidget::create<SmallLight<GreenLight>>(Vec(122,med+5+20), module, VCA530::MIX2_LIGHTS));
-  addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(42,med-10+20), module, VCA530::CLIP1_LIGHTS));
-  addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(122,med-10+20), module, VCA530::CLIP2_LIGHTS));
+  addChild(GrayModuleLightWidget::create<SmallLight<GreenLight>>(Vec(42,med+5+20), module, VCA530::MIX1_LIGHTS));
+  addChild(GrayModuleLightWidget::create<SmallLight<GreenLight>>(Vec(122,med+5+20), module, VCA530::MIX2_LIGHTS));
+  addChild(GrayModuleLightWidget::create<SmallLight<RedLight>>(Vec(42,med-10+20), module, VCA530::CLIP1_LIGHTS));
+  addChild(GrayModuleLightWidget::create<SmallLight<RedLight>>(Vec(122,med-10+20), module, VCA530::CLIP2_LIGHTS));
 }
+};
+Model *modelVCA530 = Model::create<VCA530, VCA530Widget>("dBiz", "VCA530", "VCA530", MIXER_TAG);
 
-Model *modelVCA530 = Model::create<VCA530, VCA530Widget>("dBiz","VCA530", "VCA530",AMPLIFIER_TAG);

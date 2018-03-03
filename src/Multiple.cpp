@@ -24,11 +24,11 @@ struct Multiple : Module {
 	void step() override;
 };
 
-void Multiple::step()
+void Multiple::step() 
 {
 	float in1 = inputs[A_INPUT].normalize(0.0);
 	float in2 = inputs[B_INPUT].normalize(0.0);
-
+	
 	outputs[A1_OUTPUT].value = in1;
 	outputs[A2_OUTPUT].value = in1;
 	outputs[A3_OUTPUT].value = in1;
@@ -39,9 +39,9 @@ void Multiple::step()
 
 }
 
-struct MultipleWidget : ModuleWidget {MultipleWidget(Multiple *module);};
-
-MultipleWidget::MultipleWidget(Multiple *module) : ModuleWidget(module)
+struct MultipleWidget : ModuleWidget 
+{
+MultipleWidget(Multiple *module) : ModuleWidget(module)
 {
 	box.size = Vec(15 * 2, 380);
 
@@ -59,11 +59,12 @@ MultipleWidget::MultipleWidget(Multiple *module) : ModuleWidget(module)
 	addOutput(Port::create<PJ301MOPort>(Vec(3,  58), Port::OUTPUT, module, Multiple::A1_OUTPUT));
 	addOutput(Port::create<PJ301MOPort>(Vec(3,  98), Port::OUTPUT, module, Multiple::A2_OUTPUT));
 	addOutput(Port::create<PJ301MOPort>(Vec(3, 138), Port::OUTPUT, module, Multiple::A3_OUTPUT));
-	addInput (Port::create<PJ301MIPort>(Vec(3,  178), Port::INPUT, module, Multiple::B_INPUT));
+	addInput (Port::create<PJ301MIPort>(Vec(3, 178), Port::INPUT, module, Multiple::B_INPUT));
 	addOutput(Port::create<PJ301MOPort>(Vec(3, 218), Port::OUTPUT, module, Multiple::B1_OUTPUT));
 	addOutput(Port::create<PJ301MOPort>(Vec(3, 258), Port::OUTPUT, module, Multiple::B2_OUTPUT));
 	addOutput(Port::create<PJ301MOPort>(Vec(3, 298), Port::OUTPUT, module, Multiple::B3_OUTPUT));
-
+	
 }
 
-Model *modelMultiple = Model::create<Multiple, MultipleWidget>("dBiz","Multiple", "Multiple",UTILITY_TAG);
+};
+Model *modelMultiple = Model::create<Multiple, MultipleWidget>("dBiz", "Multiple", "Multiple", MULTIPLE_TAG);
