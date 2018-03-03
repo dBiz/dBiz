@@ -1,6 +1,6 @@
 #include "dBiz.hpp"
-
 #include "dsp/functions.hpp"
+
 
 struct sinebank {
 
@@ -27,7 +27,7 @@ struct sinebank {
 		if (phase >= 1.0)
 			phase -= 1.0;
 	}
-
+	
 	void setFreq(float freq2)
 	{
 		// Accumulate the phase
@@ -66,7 +66,7 @@ struct DAOSC : Module {
         B_SQUARE_PARAM,
         B_FM_PARAM,
 
-
+        
         NUM_PARAMS
     };
 	enum InputIds
@@ -118,10 +118,10 @@ struct DAOSC : Module {
 void DAOSC::step() {
 
 
-	int a_harm = round(params[A_SAW_PARAM].value+clamp(inputs[A_SAW_INPUT].value, 0.0, 19.0));
-	int a_harmq = round(params[A_SQUARE_PARAM].value+clamp(inputs[A_SQUARE_INPUT].value, 0.0, 19.0));
-	int b_harm = round(params[B_SAW_PARAM].value + clamp(inputs[B_SAW_INPUT].value, 0.0, 19.0));
-	int b_harmq = round(params[B_SQUARE_PARAM].value + clamp(inputs[B_SQUARE_INPUT].value, 0.0, 19.0));
+	int a_harm = round(params[A_SAW_PARAM].value+clamp(inputs[A_SAW_INPUT].value, 0.0f, 19.0f));
+	int a_harmq = round(params[A_SQUARE_PARAM].value+clamp(inputs[A_SQUARE_INPUT].value, 0.0f, 19.0f));
+	int b_harm = round(params[B_SAW_PARAM].value + clamp(inputs[B_SAW_INPUT].value, 0.0f, 19.0f));
+	int b_harmq = round(params[B_SQUARE_PARAM].value + clamp(inputs[B_SQUARE_INPUT].value, 0.0f, 19.0f));
 
 	if(a_harm >20) a_harm = 20;
 	if(a_harmq>20) a_harmq = 20;
@@ -187,8 +187,8 @@ void DAOSC::step() {
 	a_inputf = clamp(a_inputf, -6.0f, 6.0f) * 0.2f;
 	b_inputf = clamp(b_inputf, -6.0f, 6.0f) * 0.2f;
 
-	float a_contrast = params[A_FOLD_PARAM].value + clamp(inputs[A_FOLD_INPUT].value, 0.0, 6.0);
-	float b_contrast = params[B_FOLD_PARAM].value + clamp(inputs[B_FOLD_INPUT].value, 0.0, 6.0);
+	float a_contrast = params[A_FOLD_PARAM].value + clamp(inputs[A_FOLD_INPUT].value, 0.0f, 6.0f);
+	float b_contrast = params[B_FOLD_PARAM].value + clamp(inputs[B_FOLD_INPUT].value, 0.0f, 6.0f);
 
 	a_contrast = clamp(a_contrast, 0.0f, 6.0f) * 0.2f;
 	b_contrast = clamp(b_contrast, 0.0f, 6.0f) * 0.2f;
@@ -213,11 +213,11 @@ void DAOSC::step() {
 	a_inputd = clamp(a_inputd, -5.0f, 5.0f) * 0.2f;
 	b_inputd = clamp(b_inputd, -5.0f, 5.0f) * 0.2f;
 
-	float a_shape = params[A_DRIVE_PARAM].value + clamp(inputs[A_DRIVE_INPUT].value, -5.0, 5.0);
+	float a_shape = params[A_DRIVE_PARAM].value + clamp(inputs[A_DRIVE_INPUT].value, -5.0f, 5.0f);
 	a_shape = clamp(a_shape, -5.0f, 5.0f) * 0.2f;
 	a_shape *= 0.99f;
 
-	float b_shape = params[B_DRIVE_PARAM].value + clamp(inputs[B_DRIVE_INPUT].value, -5.0, 5.0);
+	float b_shape = params[B_DRIVE_PARAM].value + clamp(inputs[B_DRIVE_INPUT].value, -5.0f, 5.0f);
 	b_shape = clamp(b_shape, -5.0f, 5.0f) * 0.2f;
 	b_shape *= 0.99f;
 
@@ -242,9 +242,10 @@ void DAOSC::step() {
 	outputs[SUM_OUTPUT].value = 3.0 * (a_outputd + b_outputd) / 2;
 }
 
-struct DAOSCWidget : ModuleWidget{DAOSCWidget(DAOSC *module);};
-
-DAOSCWidget::DAOSCWidget(DAOSC *module) : ModuleWidget(module) {
+struct DAOSCWidget : ModuleWidget 
+{
+DAOSCWidget(DAOSC *module) : ModuleWidget(module)
+{
 	box.size = Vec(13 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT);
 
 	{
@@ -305,5 +306,6 @@ addOutput(Port::create<PJ301MOPort>(Vec(box.size.x - mid+10, 230+down), Port::OU
 
 addOutput(Port::create<PJ301MOPort>(Vec(box.size.x - mid-12.5, 265+down), Port::OUTPUT, module, DAOSC::SUM_OUTPUT));
 }
+};
+Model *modelDAOSC = Model::create<DAOSC, DAOSCWidget>("dBiz", "DAOSC", "DAOSC", OSCILLATOR_TAG);
 
-Model *modelDAOSC = Model::create<DAOSC, DAOSCWidget>("dBiz", "Dual SineBank Oscillator", "Dual Sine Bank Oscillator", OSCILLATOR_TAG);

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////
-//  dBiz revisited version of
+//  dBiz revisited version of 
 //
 //   Chord Creator VCV Module
 //
@@ -48,7 +48,7 @@ struct Chord : Module {
       FLAT_9_INPUT,
       SHARP_9_INPUT,
       SIX_FOR_7_INPUT,
-      SHARP_5_INPUT,
+      SHARP_5_INPUT,      
       NUM_INPUTS
 	};
 	enum OutputIds {
@@ -83,7 +83,7 @@ struct Chord : Module {
 
   };
 
-
+  
 	Chord() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 	void step() override ;
 };
@@ -92,35 +92,35 @@ struct Chord : Module {
 /////////////////////////////////////////////////////
 void Chord::step() {
 
-  float in = inputs[INPUT].value;
+  float in = inputs[INPUT].value;  
   int octave = round(in);
-
+  
   float offset_raw = (params[OFFSET_PARAM].value) * 12 - 6 + (inputs[OFFSET_CV_INPUT].value*params[OFFSET_AMT_PARAM].value) / 1.5;
   float pitch_offset = round(offset_raw) / 12;
-
+  
   float root = in - 1.0*octave + pitch_offset;
   float root_or_2nd = root;
-
+  
   float inversion_raw = (params[INVERSION_PARAM].value) * 4 - 1 + ((inputs[INVERSION_CV_INPUT].value*params[INVERSION_AMT_PARAM].value) / 3);
   int inversion = round(inversion_raw);
   if (inversion > 2) inversion = 2;
   if (inversion < -1) inversion = -1;
-
+  
   float voicing_raw = (params[VOICING_PARAM].value) * 5 - 2 + ((inputs[VOICING_CV_INPUT].value*params[VOICING_AMT_PARAM].value) / 3);
   int voicing = round(voicing_raw);
   if (voicing > 2) voicing = 2;
   if (voicing < -2) voicing = -2;
-
-
+  
+  
   float voice_1 = 0.0;
   float voice_2 = 0.0;
   float voice_3 = 0.0;
   float voice_4 = 0.0;
-
+  
   int third = 4;
   int fifth = 7;
   int seventh = 11;
-
+    
   if (inputs[FLAT_3RD_INPUT].value+params[FLAT_3RD_PARAM].value > 0.0)
   {
      third = 3;
@@ -141,7 +141,7 @@ void Chord::step() {
      lights[SHARP_5_LIGHT].value=1.0;
   }
   else lights[SHARP_5_LIGHT].value=0.0;
-
+  
 
   if (inputs[FLAT_7TH_INPUT].value+params[FLAT_7TH_PARAM].value > 0.0)
   {
@@ -178,7 +178,7 @@ void Chord::step() {
   }
   else lights[SIX_FOR_7_LIGHT].value=0.0;
 
-
+  
   if (inputs[FLAT_9_INPUT].value+params[FLAT_9_PARAM].value > 0.0)
   {
      root_or_2nd = root + 1.0/12.0;
@@ -204,9 +204,9 @@ void Chord::step() {
   outputs[OUTPUT_THIRD].value = root + third * (1.0/12.0);
   outputs[OUTPUT_FIFTH].value = root + fifth * (1.0/12.0);
   outputs[OUTPUT_SEVENTH].value = root + seventh * (1.0/12.0);
-
-
-
+  
+  
+  
   if (inversion == -1 )
   {
     voice_1 = root_or_2nd;
@@ -235,7 +235,7 @@ void Chord::step() {
     voice_3 = root + 1.0 + third * (1.0/12.0);
     voice_4 = root + 1.0 + fifth * (1.0/12.0);
   }
-
+  
   if (voicing == -1) voice_2 -= 1.0;
   if (voicing == -0) voice_3 -= 1.0;
   if (voicing == 1)
@@ -248,15 +248,15 @@ void Chord::step() {
     voice_2 += 1.0;
     voice_4 += 1.0;
   }
-
-
+  
+  
   outputs[OUTPUT_1].value = voice_1;
   outputs[OUTPUT_2].value = voice_2;
   outputs[OUTPUT_3].value = voice_3;
-  outputs[OUTPUT_4].value = voice_4;
+  outputs[OUTPUT_4].value = voice_4; 
 
 
-
+ 
 }
 
 template <typename BASE>
@@ -268,9 +268,10 @@ struct ChordLight : BASE
   }
 };
 //////////////////////////////////////////////////////////////////
-struct ChordWidget : ModuleWidget {ChordWidget(Chord *module);};
-
-ChordWidget::ChordWidget(Chord *module) : ModuleWidget(module) {
+struct ChordWidget : ModuleWidget 
+{
+ChordWidget(Chord *module) : ModuleWidget(module)
+{
 	box.size = Vec(15*9, 380);
 
   {
@@ -300,7 +301,7 @@ int space = 40;
   addParam(ParamWidget::create<Trimpot>(Vec(off*2,pot*2), module, Chord::INVERSION_AMT_PARAM, 0.0, 1.0, 0.0));
   addParam(ParamWidget::create<Trimpot>(Vec(off*2,pot*3), module, Chord::VOICING_AMT_PARAM, 0.0, 1.0, 0.0));
 
-
+  
 
   addParam(ParamWidget::create<FlatG>(Vec(off + 30 ,space*1-15), module, Chord::OFFSET_PARAM, 0.0, 1.0, 0.5));
   addParam(ParamWidget::create<FlatA>(Vec(off + 30 ,space*2-15), module, Chord::INVERSION_PARAM, 0.0, 1.0, 0.0));
@@ -347,17 +348,17 @@ int left = 30;
 
   //
 
-  addChild(ModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(left-19.5,185.5), module, Chord::FLAT_3RD_LIGHT));
-  addChild(ModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(left-19.5,185.5+jacks*1), module, Chord::FLAT_5TH_LIGHT));
-  addChild(ModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(left-19.5,185.5+jacks*2), module, Chord::FLAT_7TH_LIGHT));
-  addChild(ModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(left-19.5,185.5+jacks*3), module, Chord::SIX_FOR_7_LIGHT));
-  addChild(ModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(left-19.5,185.5+jacks*4), module, Chord::SHARP_5_LIGHT));
-  addChild(ModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(right-19.5,185.5), module, Chord::SUS_2_LIGHT));
-  addChild(ModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(right-19.5,185.5+jacks*1), module, Chord::SUS_4_LIGHT));
-  addChild(ModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(right-19.5,185.5+jacks*2), module, Chord::SIX_FOR_5_LIGHT));
-  addChild(ModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(right-19.5,185.5+jacks*3), module, Chord::ONE_FOR_7_LIGHT));
-  addChild(ModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(right-19.5,185.5+jacks*4), module, Chord::FLAT_9_LIGHT));
-  addChild(ModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(right-19.5,185.5+jacks*5), module, Chord::SHARP_9_LIGHT));
+  addChild(GrayModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(left-19.5,185.5), module, Chord::FLAT_3RD_LIGHT));
+  addChild(GrayModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(left-19.5,185.5+jacks*1), module, Chord::FLAT_5TH_LIGHT));
+  addChild(GrayModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(left-19.5,185.5+jacks*2), module, Chord::FLAT_7TH_LIGHT));
+  addChild(GrayModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(left-19.5,185.5+jacks*3), module, Chord::SIX_FOR_7_LIGHT));
+  addChild(GrayModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(left-19.5,185.5+jacks*4), module, Chord::SHARP_5_LIGHT));
+  addChild(GrayModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(right-19.5,185.5), module, Chord::SUS_2_LIGHT));
+  addChild(GrayModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(right-19.5,185.5+jacks*1), module, Chord::SUS_4_LIGHT));
+  addChild(GrayModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(right-19.5,185.5+jacks*2), module, Chord::SIX_FOR_5_LIGHT));
+  addChild(GrayModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(right-19.5,185.5+jacks*3), module, Chord::ONE_FOR_7_LIGHT));
+  addChild(GrayModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(right-19.5,185.5+jacks*4), module, Chord::FLAT_9_LIGHT));
+  addChild(GrayModuleLightWidget::create<ChordLight<OrangeLight>>(Vec(right-19.5,185.5+jacks*5), module, Chord::SHARP_9_LIGHT));
   //
 
   //
@@ -365,20 +366,21 @@ int left = 30;
   addOutput(Port::create<PJ301MOPort>(Vec(70,jacks*1), Port::OUTPUT, module, Chord::OUTPUT_ROOT));
   addOutput(Port::create<PJ301MOPort>(Vec(70,jacks*2), Port::OUTPUT, module, Chord::OUTPUT_THIRD));
   addOutput(Port::create<PJ301MOPort>(Vec(70,jacks*3), Port::OUTPUT, module, Chord::OUTPUT_FIFTH));
-  addOutput(Port::create<PJ301MOPort>(Vec(70,jacks*4), Port::OUTPUT, module, Chord::OUTPUT_SEVENTH));
-
+  addOutput(Port::create<PJ301MOPort>(Vec(70,jacks*4), Port::OUTPUT, module, Chord::OUTPUT_SEVENTH));  
+    
   addOutput(Port::create<PJ301MOPort>(Vec(97,jacks*1 ), Port::OUTPUT, module, Chord::OUTPUT_1));
   addOutput(Port::create<PJ301MOPort>(Vec(97,jacks*2 ), Port::OUTPUT, module, Chord::OUTPUT_2));
   addOutput(Port::create<PJ301MOPort>(Vec(97,jacks*3 ), Port::OUTPUT, module, Chord::OUTPUT_3));
   addOutput(Port::create<PJ301MOPort>(Vec(97,jacks*4 ), Port::OUTPUT, module, Chord::OUTPUT_4));
 
-  addChild(ModuleLightWidget::create<TinyLight<RedLight>>(Vec(97+22,jacks*1),module, Chord::OUT_1_LIGHT));
-  addChild(ModuleLightWidget::create<TinyLight<RedLight>>(Vec(97+22,jacks*2),module, Chord::OUT_1_LIGHT));
-  addChild(ModuleLightWidget::create<TinyLight<RedLight>>(Vec(97+22,jacks*3),module, Chord::OUT_1_LIGHT));
-  addChild(ModuleLightWidget::create<TinyLight<RedLight>>(Vec(97+22,jacks*4),module, Chord::OUT_1_LIGHT));
+  //addChild(GrayModuleLightWidget::create<TinyLight<RedLight>>(Vec(97+22,jacks*1),module, Chord::OUT_1_LIGHT));
+  //addChild(GrayModuleLightWidget::create<TinyLight<RedLight>>(Vec(97+22,jacks*2),module, Chord::OUT_1_LIGHT));
+  //addChild(GrayModuleLightWidget::create<TinyLight<RedLight>>(Vec(97+22,jacks*3),module, Chord::OUT_1_LIGHT));
+  //addChild(GrayModuleLightWidget::create<TinyLight<RedLight>>(Vec(97+22,jacks*4),module, Chord::OUT_1_LIGHT));
 
   addInput(Port::create<PJ301MIPort>(Vec(97,57+jacks*3), Port::INPUT, module, Chord::INPUT));
 
 }
+};
+Model *modelChord = Model::create<Chord, ChordWidget>("dBiz", "Chord", "Chord", UTILITY_TAG);
 
-Model *modelChord = Model::create<Chord, ChordWidget>("dBiz","dBiz Chord","Chord",UTILITY_TAG);
