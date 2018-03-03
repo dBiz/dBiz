@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////
 //  dBiz Utility
-//
+// 
 ///////////////////////////////////////////////////
 
 #include "dBiz.hpp"
@@ -113,21 +113,21 @@ struct Utility : Module {
   float octave_out[3] {};
   float semitone_out[3] {};
   float fine_out[3] {};
-
+  
 
   Utility() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
 
 
   void step() override;
 
-
-
+  
+  
 // Quantization based on JW quantizer module!!!
 
   float closestVoltageInScale(float voltsIn)
   {
-    rootNote = params[ROOT_NOTE_PARAM].value + rescalef(inputs[ROOT_NOTE_INPUT].value, 0,10,0, Utility::NUM_NOTES - 1);
-    curScaleVal = params[SCALE_PARAM].value + rescalef(inputs[SCALE_INPUT].value, 0,10,0, Utility::NUM_SCALES - 1);
+    rootNote = params[ROOT_NOTE_PARAM].value + rescale(inputs[ROOT_NOTE_INPUT].value, 0,10,0, Utility::NUM_NOTES - 1);
+    curScaleVal = params[SCALE_PARAM].value + rescale(inputs[SCALE_INPUT].value, 0,10,0, Utility::NUM_SCALES - 1);
     int *curScaleArr;
     int notesInScale = 0;
     switch (curScaleVal)
@@ -220,7 +220,7 @@ struct Utility : Module {
     }
     return octaveInVolts + rootNote/12.0 + closestVal;
   }
-
+  
 };
 
 
@@ -276,7 +276,7 @@ struct UtilityDisplay : TransparentWidget
     nvgFillColor(vg, nvgRGBA(0xff, 0xff, 0xff, 0xff));
     nvgText(vg, pos.x + 8, pos.y + 23, note.c_str(), NULL);
     nvgText(vg, pos.x + 30, pos.y + 23, scale.c_str(), NULL);
-
+  
   }
 
   string displayRootNote(int value)
@@ -371,10 +371,10 @@ struct UtilityDisplay : TransparentWidget
 
 
 //////////////////////////////////////////////////////////////////
-
-struct UtilityWidget : ModuleWidget{UtilityWidget(Utility *module);};
-
-UtilityWidget::UtilityWidget(Utility *module) : ModuleWidget(module) {
+struct UtilityWidget : ModuleWidget 
+{
+UtilityWidget(Utility *module) : ModuleWidget(module)
+{
 	box.size = Vec(15*8, 380);
 
 	{
@@ -383,7 +383,7 @@ UtilityWidget::UtilityWidget(Utility *module) : ModuleWidget(module) {
     panel->setBackground(SVG::load(assetPlugin(plugin,"res/Utility.svg")));
 		addChild(panel);
     }
-
+    
   {
     UtilityDisplay *display = new UtilityDisplay();
     display->module = module;
@@ -397,14 +397,14 @@ UtilityWidget::UtilityWidget(Utility *module) : ModuleWidget(module) {
   addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
   addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
   addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
-
-   int knob=35;
-
+    
+   int knob=35;  
+  
 
 
 //
 for (int i=0;i<3;i++)
-{
+{ 
     addParam(ParamWidget::create<FlatASnap>(Vec(10+knob*i, 20), module, Utility::OCTAVE_SHIFT+i, -4.5, 4.5, 0.0));
     addParam(ParamWidget::create<FlatASnap>(Vec(10+knob*i, 60), module, Utility::SEMITONE_SHIFT+i, -5.0 ,5.0, 0.0));
     addParam(ParamWidget::create<FlatA>(Vec(10+knob*i, 100), module, Utility::FINE_SHIFT+i, -1, 1, 0.0));
@@ -412,7 +412,7 @@ for (int i=0;i<3;i++)
     addInput(Port::create<PJ301MIPort>(Vec(12.5+knob*i, 100+knob*1.3), Port::INPUT, module, Utility::OCTAVE_INPUT+i));
     addInput(Port::create<PJ301MCPort>(Vec(12.5+knob*i, 130+knob*1.3), Port::INPUT, module, Utility::OCTAVE_CVINPUT+i));
     addInput(Port::create<PJ301MCPort>(Vec(12.5+knob*i, 160+knob*1.3), Port::INPUT, module, Utility::SEMITONE_CVINPUT+i));
-    addInput(Port::create<PJ301MCPort>(Vec(12.5+knob*i, 190+knob*1.3), Port::INPUT, module, Utility::FINE_CVINPUT+i));
+    addInput(Port::create<PJ301MCPort>(Vec(12.5+knob*i, 190+knob*1.3), Port::INPUT, module, Utility::FINE_CVINPUT+i));   
 }
 
   addParam(ParamWidget::create<Trimpot>(Vec(65,304), module, Utility::ROOT_NOTE_PARAM, 0.0, Utility::NUM_NOTES - 1 + 0.1, 0));
@@ -428,5 +428,5 @@ for (int i=0;i<3;i++)
   addParam(ParamWidget::create<CKSSS>(Vec(39,150), module, Utility::LINK_A_PARAM, 0.0, 1.0, 0.0));
   addParam(ParamWidget::create<CKSSS>(Vec(74.5, 150), module, Utility::LINK_B_PARAM, 0.0, 1.0, 0.0));
 }
-
-Model *modelUtility = Model::create<Utility, UtilityWidget>("dBiz","Utility", "Utility",QUANTIZER_TAG);
+};
+Model *modelUtility = Model::create<Utility, UtilityWidget>("dBiz", "Utility", "Utility", UTILITY_TAG);

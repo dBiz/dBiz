@@ -124,7 +124,7 @@ struct VoltageControlledOscillator {
 				sinBuffer[i] = sinf(2.f*M_PI * phase);
 			}
 			if (analog) {
-				triBuffer[i] = 1.25f * interpf(triTable, phase * 2047.f);
+				triBuffer[i] = 1.25f * interpolateLinear(triTable, phase * 2047.f);
 			}
 			else {
 				if (phase < 0.25f)
@@ -135,7 +135,7 @@ struct VoltageControlledOscillator {
 					triBuffer[i] = -4.f + 4.f * phase;
 			}
 			if (analog) {
-				sawBuffer[i] = 1.66f * interpf(sawTable, phase * 2047.f);
+				sawBuffer[i] = 1.66f * interpolateLinear(sawTable, phase * 2047.f);
 			}
 			else {
 				if (phase < 0.5f)
@@ -152,7 +152,7 @@ struct VoltageControlledOscillator {
 
 			// Advance phase
 			phase += deltaPhase / OVERSAMPLE;
-			phase = eucmodf(phase, 1.0);
+			phase = eucmod(phase, 1.0);
 		}
 	}
 
@@ -286,25 +286,25 @@ else {
 	oscillator_b.process(1.0 / engineGetSampleRate(), inputs[SYNC_B_INPUT].value);
 	}
 
-	float wave_a = clamp(params[WAVE_A_PARAM].value + inputs[WAVE_A_INPUT].value, 0.0, 3.0);
+	float wave_a = clamp(params[WAVE_A_PARAM].value + inputs[WAVE_A_INPUT].value, 0.0f, 3.0f);
 	float out_a;
 	if (wave_a < 1.0)
-		out_a = crossf(oscillator_a.sin(), oscillator_a.tri(), wave_a);
+		out_a = crossfade(oscillator_a.sin(), oscillator_a.tri(), wave_a);
 	else if (wave_a < 2.0)
-		out_a = crossf(oscillator_a.tri(), oscillator_a.saw(), wave_a - 1.0);
+		out_a = crossfade(oscillator_a.tri(), oscillator_a.saw(), wave_a - 1.0);
 	else
-		out_a = crossf(oscillator_a.saw(), oscillator_a.sqr(), wave_a - 2.0);
+		out_a = crossfade(oscillator_a.saw(), oscillator_a.sqr(), wave_a - 2.0);
 
-	float wave_b = clamp(params[WAVE_B_PARAM].value + inputs[WAVE_B_INPUT].value, 0.0, 3.0);
+	float wave_b = clamp(params[WAVE_B_PARAM].value + inputs[WAVE_B_INPUT].value, 0.0f, 3.0f);
 	float out_b;
 	if (wave_b < 1.0)
-		out_b = crossf(oscillator_b.sin(), oscillator_b.tri(), wave_b);
+		out_b = crossfade(oscillator_b.sin(), oscillator_b.tri(), wave_b);
 	else if (wave_b < 2.0)
-		out_b = crossf(oscillator_b.tri(), oscillator_b.saw(), wave_b - 1.0);
+		out_b = crossfade(oscillator_b.tri(), oscillator_b.saw(), wave_b - 1.0);
 	else
-		out_b = crossf(oscillator_b.saw(), oscillator_b.sqr(), wave_b - 2.0);
+		out_b = crossfade(oscillator_b.saw(), oscillator_b.sqr(), wave_b - 2.0);
 
-
+	
 
 	if (inputs[CARRIER_INPUT].active && inputs[MODULATOR_INPUT].value == 0.0)
 	{
@@ -321,7 +321,7 @@ else {
 	outputs[RING_OUTPUT].value=5.0*carrier*modulator;
 	outputs[SUM_OUTPUT].value=5.0*(carrier+modulator);
 	}
-	else
+	else 
 	{
 	outputs[RING_OUTPUT].value=5.0*out_a*out_b;
 	outputs[SUM_OUTPUT].value = 2.5*(out_a + out_b);
@@ -331,15 +331,16 @@ else {
 	outputs[OSC_BN_OUTPUT].value = -5.0 * out_b;
 	outputs[OSC_A_OUTPUT].value = 5.0 * out_a;
 	outputs[OSC_B_OUTPUT].value = 5.0 * out_b;
-
-
-
+	
+	
+	
 }
 
 
-struct DVCOWidget : ModuleWidget{DVCOWidget(DVCO *module);};
-
-DVCOWidget::DVCOWidget(DVCO *module) : ModuleWidget(module) {
+struct DVCOWidget : ModuleWidget 
+{
+DVCOWidget(DVCO *module) : ModuleWidget(module)
+{
 	box.size = Vec(15*13, 380);
 
 	{
@@ -349,7 +350,7 @@ DVCOWidget::DVCOWidget(DVCO *module) : ModuleWidget(module) {
 		addChild(panel);
 	}
 
-
+	
 	float mid = (15*13)/2;
 	int jacks = 27;
 	int knobs = 38;
@@ -414,7 +415,7 @@ DVCOWidget::DVCOWidget(DVCO *module) : ModuleWidget(module) {
 
 	addInput(Port::create<PJ301MOrPort>(Vec(mid-jacks-15,245), Port::INPUT, module, DVCO::CARRIER_INPUT));
 	addInput(Port::create<PJ301MOrPort>(Vec(mid+3+10, 245), Port::INPUT, module, DVCO::MODULATOR_INPUT));
-
+	
 //////////////////////////////OUTPUTS////////////////////////////////////////////////////////////////
 
 	addOutput(Port::create<PJ301MOPort>(Vec(border, 225), Port::OUTPUT, module, DVCO::OSC_A_OUTPUT));
@@ -427,8 +428,9 @@ DVCOWidget::DVCOWidget(DVCO *module) : ModuleWidget(module) {
 	addOutput(Port::create<PJ301MOPort>(Vec(mid-14, 255), Port::OUTPUT, module, DVCO::SUM_OUTPUT));
 	addOutput(Port::create<PJ301MOPort>(Vec(mid-14, 225), Port::OUTPUT, module, DVCO::RING_OUTPUT));
 
-
+	
 }
+};
+Model *modelDVCO = Model::create<DVCO, DVCOWidget>("dBiz", "DVCO", "DVCO", UTILITY_TAG);
 
 
-Model *modelDVCO = Model::create<DVCO, DVCOWidget>("dBiz","Dual Oscillator", "Dual Oscillator",OSCILLATOR_TAG);
