@@ -36,7 +36,7 @@ struct dBizBlank : Module
 	}
     void randomize() override
     {
-        panel = round(randomf() * (NUM_PANELS - 1.0f));
+        panel = round(randomUniform() * (NUM_PANELS - 1.0f));
     }
 
     json_t *toJson() override

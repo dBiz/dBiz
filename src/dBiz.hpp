@@ -6,8 +6,7 @@ using namespace rack;
 
 extern Plugin *plugin;
 
-
-//extern Model *modelBlank;
+extern Model *modeldBizBlank;
 extern Model *modelMultiple;
 extern Model *modelContorno;
 extern Model *modelChord;  
