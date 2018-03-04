@@ -11,7 +11,7 @@ void init(rack::Plugin *p)
 	p->slug = TOSTRING(SLUG);
 	p->version = TOSTRING(VERSION);
 
-   // p->addModel(modelBlank);
+    p->addModel(modeldBizBlank);
     p->addModel(modelMultiple);
     p->addModel(modelContorno);
     p->addModel(modelChord);
