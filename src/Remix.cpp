@@ -247,5 +247,5 @@ RemixWidget(Remix *module) : ModuleWidget(module)
 
 }
 };
-Model *modelRemix = Model::create<Remix, RemixWidget>("dBiz", "Remix", "Remix", UTILITY_TAG);
+Model *modelRemix = Model::create<Remix, RemixWidget>("dBiz", "Remix", "Remix", MIXER_TAG);
 
