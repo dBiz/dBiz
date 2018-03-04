@@ -132,5 +132,5 @@ TransposeWidget(Transpose *module) : ModuleWidget(module)
 
 }
 };
-Model *modelTranspose = Model::create<Transpose, TransposeWidget>("dBiz", "Transpose", "Transpose", UTILITY_TAG);
+Model *modelTranspose = Model::create<Transpose, TransposeWidget>("dBiz", "Transpose", "Transpose", QUANTIZER_TAG);
 

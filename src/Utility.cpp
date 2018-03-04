@@ -429,4 +429,4 @@ for (int i=0;i<3;i++)
   addParam(ParamWidget::create<CKSSS>(Vec(74.5, 150), module, Utility::LINK_B_PARAM, 0.0, 1.0, 0.0));
 }
 };
-Model *modelUtility = Model::create<Utility, UtilityWidget>("dBiz", "Utility", "Utility", UTILITY_TAG);
+Model *modelUtility = Model::create<Utility, UtilityWidget>("dBiz", "Utility", "Utility", QUANTIZER_TAG);
