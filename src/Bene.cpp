@@ -592,5 +592,4 @@ BeneWidget(Bene *module) : ModuleWidget(module)
   addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
 }
 };
-Model *modelBene = Model::create<Bene, BeneWidget>("dBiz", "Bene", "Bene", UTILITY_TAG);
-
+Model *modelBene = Model::create<Bene, BeneWidget>("dBiz", "Bene", "Bene", SEQUENCER_TAG);

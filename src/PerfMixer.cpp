@@ -328,5 +328,5 @@ PerfMixerWidget(PerfMixer *module) : ModuleWidget(module)
   addInput(Port::create<PJ301MRPort>(Vec(right_column + 35, 310 ), Port::INPUT, module, PerfMixer::RETURN_2_R_INPUT));
 }
 };
-Model *modelPerfMixer = Model::create<PerfMixer, PerfMixerWidget>("dBiz", "PerfMixer", "PerfMixer", UTILITY_TAG);
+Model *modelPerfMixer = Model::create<PerfMixer, PerfMixerWidget>("dBiz", "PerfMixer", "PerfMixer", MIXER_TAG);
 

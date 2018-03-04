@@ -431,6 +431,5 @@ DVCOWidget(DVCO *module) : ModuleWidget(module)
 	
 }
 };
-Model *modelDVCO = Model::create<DVCO, DVCOWidget>("dBiz", "DVCO", "DVCO", UTILITY_TAG);
-
+Model *modelDVCO = Model::create<DVCO, DVCOWidget>("dBiz", "DVCO", "DVCO", OSCILLATOR_TAG);
 
