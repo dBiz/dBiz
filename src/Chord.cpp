@@ -382,5 +382,5 @@ int left = 30;
 
 }
 };
-Model *modelChord = Model::create<Chord, ChordWidget>("dBiz", "Chord", "Chord", UTILITY_TAG);
+Model *modelChord = Model::create<Chord, ChordWidget>("dBiz", "Chord", "Chord", QUANTIZER_TAG);
 
