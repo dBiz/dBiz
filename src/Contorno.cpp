@@ -187,4 +187,4 @@ for (int i=0;i<4;i++)
 
 }
 };
-Model *modelContorno = Model::create<Contorno, ContornoWidget>("dBiz", "Contorno", "Contorno", UTILITY_TAG);
+Model *modelContorno = Model::create<Contorno, ContornoWidget>("dBiz", "Contorno", "Contorno", ENVELOPE_GENERATOR_TAG);
