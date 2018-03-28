@@ -23,10 +23,13 @@ void init(rack::Plugin *p)
     p->addModel(modelSubMix);
     p->addModel(modelRemix);
     p->addModel(modelPerfMixer);
+    p->addModel(modelVCA4);
     p->addModel(modelVCA530);
+    p->addModel(modelSmiX);
     p->addModel(modelVerbo);
     p->addModel(modelDVCO);
     p->addModel(modelDAOSC);
-
+    p->addModel(modelTROSC);
+    p->addModel(modelDualFilter);
 }
 

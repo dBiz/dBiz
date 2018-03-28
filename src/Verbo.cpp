@@ -319,7 +319,7 @@ VerboWidget(Verbo *module) : ModuleWidget(module)
 	int left=40;
 	for(int i=0; i<8;i++)
 	{
-		addParam(ParamWidget::create<SlidePot>(Vec(left+95+space*i, 110), module, Verbo::HARM_PARAM+i, 0.0, 1.0, 0.0));
+		addParam(ParamWidget::create<LEDSliderBlue>(Vec(left + 92.5 + space * i, 125), module, Verbo::HARM_PARAM + i, 0.0, 1.0, 0.0));
 		addOutput(Port::create<PJ301MPort>(Vec(left+90+space*i, 80), Port::OUTPUT, module, Verbo::HARM_OUTPUT+i));
 		addInput(Port::create<PJ301MPort>(Vec(left+90+space*i, 222), Port::INPUT, module, Verbo::HARM_INPUT+i));
 		addChild(GrayModuleLightWidget::create<MediumLight<BlueLight>>(Vec(left+95+space*i, 250), module, Verbo::HARM_LIGHT+i));
