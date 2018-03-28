@@ -18,10 +18,16 @@ extern Model *modelBenePads;
 extern Model *modelSubMix;
 extern Model *modelRemix; 
 extern Model *modelPerfMixer;
+extern Model *modelSmiX;
+extern Model *modelVCA4;
 extern Model *modelVCA530;
 extern Model *modelVerbo;
 extern Model *modelDVCO; 
 extern Model *modelDAOSC;
+extern Model *modelTROSC;
+extern Model *modelDualFilter;
+
+
 
 ////////////////////
 // Colors
@@ -63,6 +69,29 @@ struct VerboS : SVGKnob
 	}
 };
 
+struct VerboDL : SVGKnob
+{
+	VerboDL()
+	{
+		minAngle = -0.83 * M_PI;
+		maxAngle = 0.83 * M_PI;
+		setSVG(SVG::load(assetPlugin(plugin, "res/component/VerboDL.svg")));
+		box.size = Vec(80, 80);
+	}
+};
+
+struct VerboDS : SVGKnob
+{
+	VerboDS()
+	{
+		minAngle = -0.83 * M_PI;
+		maxAngle = 0.83 * M_PI;
+		setSVG(SVG::load(assetPlugin(plugin, "res/component/VerboDS.svg")));
+		box.size = Vec(35, 35);
+	}
+};
+
+
 struct SmallKnob : SVGKnob
 {
 	SmallKnob()
@@ -72,36 +101,6 @@ struct SmallKnob : SVGKnob
 	}
 };
 
-struct SmallOra : SmallKnob
-{
-	SmallOra()
-	{
-		setSVG(SVG::load(assetPlugin(plugin, "res/component/SmallOra.svg")));
-	}
-};
-
-struct SmallOraSnapKnob : SmallOra
-{
-	SmallOraSnapKnob()
-	{
-		snap = true;
-	};
-};
-
-struct LargeOra : SmallOra
-{
-	LargeOra()
-	{
-		box.size = Vec(45, 45);
-	}
-};
-struct MicroOra : SmallOra
-{
-	MicroOra()
-	{
-		box.size = Vec(25, 25);
-	}
-};
 
 struct SmallBlu : SmallKnob
 {
@@ -259,20 +258,6 @@ struct LDaviesRed : DaviesRed
 	}
 };
 
-struct DaviesYel : DaviesKnob
-{
-	DaviesYel()
-	{
-		setSVG(SVG::load(assetPlugin(plugin, "res/component/DaviesYel.svg")));
-	}
-};
-struct LDaviesYel : DaviesYel
-{
-	LDaviesYel()
-	{
-		box.size = Vec(45, 45);
-	}
-};
 
 struct RoundAzz : DaviesKnob
 {
@@ -294,7 +279,6 @@ struct RoundWhy : DaviesKnob
 {
 	RoundWhy()
 	{
-		box.size = Vec(30, 30);
 		setSVG(SVG::load(assetPlugin(plugin, "res/component/RoundWhy.svg")));
 	}
 };
@@ -311,7 +295,7 @@ struct LRoundWhy : RoundWhy
 {
 	LRoundWhy()
 	{
-		box.size = Vec(45, 45);
+		setSVG(SVG::load(assetPlugin(plugin, "res/component/LRoundWhy.svg")));
 	}
 };
 
@@ -327,7 +311,7 @@ struct LRoundBlu : RoundBlu
 {
 	LRoundBlu()
 	{
-		box.size = Vec(45, 45);
+		setSVG(SVG::load(assetPlugin(plugin, "res/component/LRoundBlu.svg")));
 	}
 };
 
@@ -341,6 +325,7 @@ struct FlatA : DaviesKnob
 };
 struct FlatASnap : FlatA
 {
+
 	FlatASnap()
 	{
 		snap = true;
@@ -534,6 +519,16 @@ struct PJ301MCPort : SVGPort
 ////////////////////////
 //  SWITCHES
 ////////////////////////////////////////////////
+
+struct SilverSwitch : SVGSwitch, ToggleSwitch
+{
+	SilverSwitch()
+	{
+		addFrame(SVG::load(assetPlugin(plugin,"res/component/SilverSwitch_0.svg")));
+		addFrame(SVG::load(assetPlugin(plugin,"res/component/SilverSwitch_1.svg")));
+	}
+};
+
 
 struct CKSSS : SVGSwitch, ToggleSwitch
 {
