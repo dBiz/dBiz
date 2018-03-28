@@ -2,7 +2,9 @@
 
 Here's my collection of modules for VCVRack! 
 Many thx to Michael Hetrick, Strum's Mental and Jeremy Wen for sources and inspiring me!
-Ready for v 0.5 here's what i have:
+Now ready for v 0.6 here's what i have:
+
+![alt text](https://github.com/dBiz/VCVRack_Modules/blob/master/screenshot/0.6.png)
 
 - Quad envelope generator based on rampage,
 - Utility transposer octave/sem/fine with ability to link the inputs,
