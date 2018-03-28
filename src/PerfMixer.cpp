@@ -26,6 +26,8 @@ struct PerfMixer : Module {
   };
   enum InputIds
   {
+    MIX_IN_L_INPUT,
+    MIX_IN_R_INPUT,
     CH_L_INPUT = 8,
     CH_R_INPUT = CH_L_INPUT + 8,
     CH_VOL_INPUT = CH_R_INPUT + 8,
@@ -70,6 +72,9 @@ struct PerfMixer : Module {
   float channel_s2_R[8];
   float left_sum = 0.0;
   float right_sum = 0.0;
+
+  float mix_in_l =0.0f;
+  float mix_in_r = 0.0f;
 
   float send_1_L_sum = 0.0;
   float send_1_R_sum = 0.0;
@@ -122,6 +127,9 @@ void PerfMixer::step()
   right_sum = 0.0;
   VUMeter vuBarsL[8]={};
   VUMeter vuBarsR[8] = {};
+
+  mix_in_l=inputs[MIX_IN_L_INPUT].value;
+  mix_in_r=inputs[MIX_IN_R_INPUT].value;
 
   // mute triggers
 
@@ -195,8 +203,8 @@ void PerfMixer::step()
     float send_2_L_mix = (send_2_L_sum) * params[AUX_S2_PARAM].value;
     float send_2_R_mix = (send_2_R_sum) * params[AUX_S2_PARAM].value;
 
-    outputs[MIX_OUTPUT_L].value = mix_l;
-    outputs[MIX_OUTPUT_R].value = mix_r;
+    outputs[MIX_OUTPUT_L].value = mix_l+mix_in_l;
+    outputs[MIX_OUTPUT_R].value = mix_r+mix_in_r;
 
 
     outputs[SEND_1_L_OUTPUT].value = 3 * send_1_L_mix;
@@ -221,8 +229,8 @@ struct MeterLight : BASE
 {
   MeterLight()
   {
-    this->box.size = Vec(5, 5);
-    this->bgColor = nvgRGBAf(0.0, 0.0, 0.0, 0.0);
+    this->box.size = Vec(4, 4);
+    this->bgColor = nvgRGBAf(0.0, 0.0, 0.0, 0.1);
   }
 };
 
@@ -259,48 +267,50 @@ PerfMixerWidget(PerfMixer *module) : ModuleWidget(module)
   // channel strips
   for (int i = 0 ; i < 8 ; i++)
   {
-      
-          addParam(ParamWidget::create<MicroBlu>(Vec(column_1+column_spacing*i,75 ), module, PerfMixer::AUX_1_PARAM + i, 0.0, 1.0, 0.0));
-          addParam(ParamWidget::create<MicroBlu>(Vec(column_1+column_spacing*i,105 ), module, PerfMixer::AUX_2_PARAM + i, 0.0, 1.0, 0.0));
-          addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * i, 15), Port::INPUT, module, PerfMixer::AUX_1_INPUT + i));
-          addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * i, 40), Port::INPUT, module, PerfMixer::AUX_2_INPUT + i));
 
-          addInput(Port::create<PJ301MIPort>(Vec(lb , top + row_in*i ), Port::INPUT, module, PerfMixer::CH_L_INPUT + i));
-          addInput(Port::create<PJ301MIPort>(Vec(lb + 25, top + row_in*i), Port::INPUT, module, PerfMixer::CH_R_INPUT + i));
+    addInput(Port::create<PJ301MLPort>(Vec(5,7), Port::INPUT, module, PerfMixer::MIX_IN_L_INPUT));
+    addInput(Port::create<PJ301MRPort>(Vec(30,7), Port::INPUT, module, PerfMixer::MIX_IN_R_INPUT));
 
-          addParam(ParamWidget::create<SlidePot2>(Vec(column_1 + column_spacing * i, top_row + row_spacing * 2 - 30 + top), module, PerfMixer::VOL_PARAM + i, 0.0, 1.0, 0.0));
+    addParam(ParamWidget::create<MicroBlu>(Vec(column_1 + column_spacing * i, 75), module, PerfMixer::AUX_1_PARAM + i, 0.0, 1.0, 0.0));
+    addParam(ParamWidget::create<MicroBlu>(Vec(column_1 + column_spacing * i, 105), module, PerfMixer::AUX_2_PARAM + i, 0.0, 1.0, 0.0));
+    addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * i, 15), Port::INPUT, module, PerfMixer::AUX_1_INPUT + i));
+    addInput(Port::create<PJ301MIPort>(Vec(column_1 + column_spacing * i, 40), Port::INPUT, module, PerfMixer::AUX_2_INPUT + i));
 
-          addInput(Port::create<PJ301MCPort>(Vec(column_1 + column_spacing * i - 5, top_row + row_spacing * 6 - 20 + top), Port::INPUT, module, PerfMixer::CH_VOL_INPUT + i));
+    addInput(Port::create<PJ301MIPort>(Vec(lb, top + row_in * i), Port::INPUT, module, PerfMixer::CH_L_INPUT + i));
+    addInput(Port::create<PJ301MIPort>(Vec(lb + 25, top + row_in * i), Port::INPUT, module, PerfMixer::CH_R_INPUT + i));
 
-          addParam(ParamWidget::create<LEDButton>(Vec(column_1 + column_spacing * i, top_row + row_spacing * 7 + top), module, PerfMixer::MUTE_PARAM + i, 0.0, 1.0, 0.0));
-          addChild(GrayModuleLightWidget::create<MuteLight<GreenLight>>(Vec(column_1 + column_spacing * i + 4, top_row + row_spacing * 7 + 4 + top), module, PerfMixer::MUTE_LIGHT + i));
-          addInput(Port::create<PJ301MCPort>(Vec(column_1 + column_spacing * i, top_row + row_spacing * 8 + top), Port::INPUT, module, PerfMixer::CH_MUTE_INPUT + i));
+    addParam(ParamWidget::create<SlidePot2>(Vec(column_1 + column_spacing * i, top_row + row_spacing * 2 - 30 + top), module, PerfMixer::VOL_PARAM + i, 0.0, 1.0, 0.0));
 
-          
-          //addChild(GrayModuleLightWidget::create<MeterLight<RedLight>>(Vec(column_1   +19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top), module, PerfMixer::METER_LIGHT + 0+(11*i)));
-          addChild(ModuleLightWidget::create<MeterLight<RedLight>>(Vec(column_1   +19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top +9), module, PerfMixer::METERL_LIGHT + 1+(11*i)));
-          addChild(ModuleLightWidget::create<MeterLight<RedLight>>(Vec(column_1   +19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top+ 9 * 2), module, PerfMixer::METERL_LIGHT + 2+(11*i)));
-          addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1+19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top+ 9 * 3), module, PerfMixer::METERL_LIGHT + 3+(11*i)));
-          addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1+19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top +9 * 4), module, PerfMixer::METERL_LIGHT + 4 + (11 * i)));
-          addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1+19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top +9 * 5), module, PerfMixer::METERL_LIGHT + 5 + (11 * i)));
-          addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1+19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top +9 * 6), module, PerfMixer::METERL_LIGHT + 6 + (11 * i)));
-          addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1+19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top +9 * 7), module, PerfMixer::METERL_LIGHT + 7 + (11 * i)));
-          addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1+19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top +9 * 8), module, PerfMixer::METERL_LIGHT + 8 + (11 * i)));
-          addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1 +19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top+ 9 * 9), module, PerfMixer::METERL_LIGHT + 9+(11*i)));
-          addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1 +19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top+ 9 * 10), module, PerfMixer::METERL_LIGHT + 10+(11*i)));
-          addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1 +19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top+ 9 * 11), module, PerfMixer::METERL_LIGHT + 11+(11*i)));
+    addInput(Port::create<PJ301MCPort>(Vec(column_1 + column_spacing * i - 5, top_row + row_spacing * 6 - 20 + top), Port::INPUT, module, PerfMixer::CH_VOL_INPUT + i));
 
-          addChild(ModuleLightWidget::create<MeterLight<RedLight>>(Vec(column_1    + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top +9 ), module, PerfMixer::METERR_LIGHT + 1 + (11 * i)));
-          addChild(ModuleLightWidget::create<MeterLight<RedLight>>(Vec(column_1    + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 2), module, PerfMixer::METERR_LIGHT + 2 + (11 * i)));
-          addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 3), module, PerfMixer::METERR_LIGHT + 3 + (11 * i)));
-          addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 4), module, PerfMixer::METERR_LIGHT + 4 + (11 * i)));
-          addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 5), module, PerfMixer::METERR_LIGHT + 5 + (11 * i)));
-          addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 6), module, PerfMixer::METERR_LIGHT + 6 + (11 * i)));
-          addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 7), module, PerfMixer::METERR_LIGHT + 7 + (11 * i)));
-          addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 8), module, PerfMixer::METERR_LIGHT + 8 + (11 * i)));
-          addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1  + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 9), module, PerfMixer::METERR_LIGHT + 9 + (11 * i)));
-          addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1  + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 10), module, PerfMixer::METERR_LIGHT + 10 + (11 * i)));
-          addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1  + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 11), module, PerfMixer::METERR_LIGHT + 11 + (11 * i)));
+    addParam(ParamWidget::create<LEDButton>(Vec(column_1 + column_spacing * i, top_row + row_spacing * 7 + top), module, PerfMixer::MUTE_PARAM + i, 0.0, 1.0, 0.0));
+    addChild(GrayModuleLightWidget::create<MuteLight<GreenLight>>(Vec(column_1 + column_spacing * i + 4, top_row + row_spacing * 7 + 4 + top), module, PerfMixer::MUTE_LIGHT + i));
+    addInput(Port::create<PJ301MCPort>(Vec(column_1 + column_spacing * i, top_row + row_spacing * 8 + top), Port::INPUT, module, PerfMixer::CH_MUTE_INPUT + i));
+
+    //addChild(GrayModuleLightWidget::create<MeterLight<RedLight>>(Vec(column_1   +19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top), module, PerfMixer::METER_LIGHT + 0+(11*i)));
+    addChild(ModuleLightWidget::create<MeterLight<RedLight>>(Vec(column_1 + 19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9), module, PerfMixer::METERL_LIGHT + 1 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<RedLight>>(Vec(column_1 + 19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 2), module, PerfMixer::METERL_LIGHT + 2 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1 + 19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 3), module, PerfMixer::METERL_LIGHT + 3 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1 + 19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 4), module, PerfMixer::METERL_LIGHT + 4 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1 + 19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 5), module, PerfMixer::METERL_LIGHT + 5 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1 + 19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 6), module, PerfMixer::METERL_LIGHT + 6 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1 + 19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 7), module, PerfMixer::METERL_LIGHT + 7 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1 + 19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 8), module, PerfMixer::METERL_LIGHT + 8 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1 + 19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 9), module, PerfMixer::METERL_LIGHT + 9 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1 + 19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 10), module, PerfMixer::METERL_LIGHT + 10 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1 + 19 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 11), module, PerfMixer::METERL_LIGHT + 11 + (11 * i)));
+
+    addChild(ModuleLightWidget::create<MeterLight<RedLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9), module, PerfMixer::METERR_LIGHT + 1 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<RedLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 2), module, PerfMixer::METERR_LIGHT + 2 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 3), module, PerfMixer::METERR_LIGHT + 3 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 4), module, PerfMixer::METERR_LIGHT + 4 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 5), module, PerfMixer::METERR_LIGHT + 5 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 6), module, PerfMixer::METERR_LIGHT + 6 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<BlueLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 7), module, PerfMixer::METERR_LIGHT + 7 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 8), module, PerfMixer::METERR_LIGHT + 8 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 9), module, PerfMixer::METERR_LIGHT + 9 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 10), module, PerfMixer::METERR_LIGHT + 10 + (11 * i)));
+    addChild(ModuleLightWidget::create<MeterLight<GreenLight>>(Vec(column_1 + 24 + column_spacing * i, top_row + row_spacing * 2 - 30 + top + 9 * 11), module, PerfMixer::METERR_LIGHT + 11 + (11 * i)));
   } 
  
 
