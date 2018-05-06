@@ -1,0 +1,12 @@
+{
+  "name": "dBiz",
+  "author": "Giovanni Ghisleni",
+  "license": "BSD-3-Clause",
+  "pluginUrl": "https://github.com/dBiz/dBiz/releases",
+  "authorUrl": "https://github.com/dBiz/",
+  "manualUrl": "https://github.com/dBiz/dBiz/README.md",
+  "sourceUrl": "https://github.com/dBiz/dBiz",
+  "donateUrl": "https://paypal.me/GiovanniGhisleni"
+  "latestVersion": "0.6.0",
+  "status": "available"
+}
