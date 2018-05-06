@@ -146,8 +146,8 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="77.172949"
-     inkscape:cx="13.734146"
+     inkscape:zoom="20.409375"
+     inkscape:cx="15.839806"
      inkscape:cy="2.9252644"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -179,6 +179,11 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(-88.611154,-119.19859)">
+    <path
+       inkscape:connector-curvature="0"
+       id="path7255"
+       d="m 92.788964,127.42922 c -2.235179,0 -4.05281,-1.81762 -4.05281,-4.05282 0,-2.23516 1.817631,-4.05281 4.05281,-4.05281 2.235176,0 4.05281,1.81765 4.05281,4.05281 0,2.2352 -1.817634,4.05282 -4.05281,4.05282"
+       style="fill:#f2f2f2;fill-opacity:1;fill-rule:nonzero;stroke:#ffb340;stroke-width:0.25;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <path
        inkscape:connector-curvature="0"
        id="path7261"
