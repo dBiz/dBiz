@@ -14,8 +14,8 @@
    viewBox="0 0 7.4066014 8.3513613"
    version="1.1"
    id="svg10799"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
-   sodipodi:docname="SilverSwitch_2.svg">
+   sodipodi:docname="SilverSwitch_2.svg"
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
   <defs
      id="defs10793" />
   <sodipodi:namedview
@@ -25,11 +25,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="14.972986"
-     inkscape:cx="-12.308057"
-     inkscape:cy="1.3050348"
+     inkscape:zoom="10.5875"
+     inkscape:cx="-18.414744"
+     inkscape:cy="-9.891269"
      inkscape:document-units="mm"
-     inkscape:current-layer="g3201"
+     inkscape:current-layer="g5870"
      showgrid="false"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -37,11 +37,10 @@
      fit-margin-bottom="0"
      inkscape:window-width="1920"
      inkscape:window-height="1080"
-     inkscape:window-x="88"
-     inkscape:window-y="41"
+     inkscape:window-x="-159"
+     inkscape:window-y="171"
      inkscape:window-maximized="0"
-     units="px"
-     showguides="false" />
+     units="px" />
   <metadata
      id="metadata10796">
     <rdf:RDF>
@@ -50,7 +49,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -80,22 +79,23 @@
          inkscape:connector-curvature="0" />
       <g
          id="g5870"
-         style="fill:#808080;fill-opacity:1;stroke-width:1.565341">
+         style="stroke-width:1.565341">
         <path
            inkscape:connector-curvature="0"
            id="path6631"
-           style="fill:#808080;fill-opacity:1;stroke:#656565;stroke-width:1.565341;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           style="fill:#656565;fill-opacity:1;stroke:#656565;stroke-width:1.565341;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
            d="m 1130.6064,1154.4414 v -3.023 c 2.259,-2.464 6.448,-2.248 7.659,0.144 l -0.038,2.966 z" />
+        <path
+           inkscape:connector-curvature="0"
+           id="path6635"
+           style="fill:#808080;fill-opacity:1;fill-rule:nonzero;stroke:#727272;stroke-width:0.97618115;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="m 1129.6875,1153.2109 c 2.403,-2.906 7.479,-2.26 9.573,0.089 0.736,0.826 2.032,3.75 2.032,8.37 0,4.62 -0.91,8.369 -2.032,8.369 h -9.483 c -1.122,0 -2.032,-3.749 -2.032,-8.369 0,-4.62 0.82,-7.745 1.972,-8.459" />
+        <path
+           inkscape:connector-curvature="0"
+           id="path6643"
+           style="fill:#808080;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.565341"
+           d="m 1134.5156,1159.2344 c 3.783,0 6.851,3.067 6.851,6.851 0,3.784 -3.068,6.85 -6.851,6.85 -3.784,0 -6.851,-3.066 -6.851,-6.85 0,-3.784 3.067,-6.851 6.851,-6.851" />
       </g>
-      <path
-         d="m 1134.2137,1161.5779 c 3.783,0 6.851,-3.067 6.851,-6.851 0,-3.784 -3.068,-6.85 -6.851,-6.85 -3.784,0 -6.851,3.066 -6.851,6.85 0,3.784 3.067,6.851 6.851,6.851"
-         style="opacity:1;vector-effect:none;fill:#808080;fill-opacity:1;fill-rule:nonzero;stroke:#727272;stroke-width:0.97833812;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-         id="path5916-1"
-         inkscape:connector-curvature="0" />
     </g>
   </g>
-  <g
-     inkscape:groupmode="layer"
-     id="layer2"
-     inkscape:label="Layer 2" />
 </svg>
