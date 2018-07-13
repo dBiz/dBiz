@@ -31,5 +31,9 @@ void init(rack::Plugin *p)
     p->addModel(modelDAOSC);
     p->addModel(modelTROSC);
     p->addModel(modelDualFilter);
+    p->addModel(modelSuHa);
+    p->addModel(modelFourSeq);
+    p->addModel(modelDivider);
+    p->addModel(modelUtil2);
 }
 

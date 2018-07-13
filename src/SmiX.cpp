@@ -367,7 +367,7 @@ SmiXWidget(SmiX *module) : ModuleWidget(module)
 
 	addInput(Port::create<PJ301MCPort>(mm2px(Vec(1.003 + 2 * x_offset, 61.915)), Port::INPUT, module, SmiX::EXT_CLOCK_INPUT));
 	addInput(Port::create<PJ301MCPort>(mm2px(Vec(1.003 + 3 * x_offset, 61.915)), Port::INPUT, module, SmiX::MODE_INPUT));
-	addInput(Port::create<PJ301MCPort>(mm2px(Vec(1.003 + 4 * x_offset, 61.915)), Port::INPUT, module, SmiX::DIR_INPUT));
+	addInput(Port::create<PJ301MRPort>(mm2px(Vec(1.003 + 4 * x_offset, 61.915)), Port::INPUT, module, SmiX::DIR_INPUT));
 	addInput(Port::create<PJ301MCPort>(mm2px(Vec(1.003 + 5 * x_offset, 61.915)), Port::INPUT, module, SmiX::RESET_INPUT));
 	
 	for (int i = 0 ; i < 3 ; i++)
