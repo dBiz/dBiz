@@ -41,11 +41,11 @@
      inkscape:window-height="814"
      id="namedview8"
      showgrid="false"
-     inkscape:zoom="20.610335"
-     inkscape:cx="-18.768326"
-     inkscape:cy="15.130003"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:zoom="19.981919"
+     inkscape:cx="-3.0609974"
+     inkscape:cy="10.77842"
+     inkscape:window-x="248"
+     inkscape:window-y="246"
      inkscape:window-maximized="0"
      inkscape:current-layer="moDllzSwitchH_0" />
   <g
@@ -55,21 +55,46 @@
     <g
        id="moDllzSwitchH_0">
       <rect
-         id="hole"
-         x="0"
-         y="0"
-         width="10"
-         height="30"
-         rx="5"
-         style="fill:#cccccc;fill-opacity:1;stroke:#000000;stroke-opacity:1;stroke-width:1.22604433;stroke-miterlimit:4;stroke-dasharray:none" />
-      <rect
-         id="tip"
-         x="1"
-         y="1"
-         width="8"
-         height="10"
-         rx="4"
-         style="fill:#222222;fill-opacity:1" />
+         style="fill:#222222;stroke-width:1.06808424"
+         id="hole-4"
+         x="-30.342781"
+         y="0.51906741"
+         width="30.45113"
+         height="8.9912233"
+         rx="6.3439856"
+         transform="rotate(-90)" />
+      <ellipse
+         style="fill:#cccccc;stroke:#666666;stroke-width:1.03487051"
+         id="led"
+         cx="-6.0899501"
+         cy="4.9928284"
+         rx="5.328948"
+         ry="3.545105"
+         transform="rotate(-90)" />
+      <ellipse
+         style="opacity:0.6;fill:#dddddd;stroke-width:1.03487051"
+         id="hi"
+         cx="-6.0899501"
+         cy="4.9928284"
+         rx="3.1719928"
+         ry="2.1101816"
+         transform="rotate(-90)" />
+      <ellipse
+         style="opacity:0.8;fill:#eeeeee;stroke-width:1.03487051"
+         id="circle5"
+         cx="-7.3587441"
+         cy="4.9928284"
+         rx="1.9031956"
+         ry="1.2661089"
+         transform="rotate(-90)" />
+      <ellipse
+         style="opacity:1;fill:#ffffff;stroke-width:1.03487051"
+         id="circle7"
+         cx="-4.1867523"
+         cy="4.9928284"
+         rx="0.95159781"
+         ry="0.63305444"
+         transform="rotate(-90)" />
     </g>
   </g>
 </svg>
