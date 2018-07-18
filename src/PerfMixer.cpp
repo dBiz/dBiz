@@ -158,11 +158,11 @@ void PerfMixer::step()
           channel_outs_l[i] = ch_l_ins[i] * 2;
           channel_outs_r[i] = ch_r_ins[i] * 2;
 
-          channel_s1_L[i] = ch_l_ins[i] * params[AUX_1_PARAM + i].value * clamp(inputs[AUX_1_INPUT + i].normalize(5.0f)/5.0f,1.0f,1.0f) * clamp(inputs[CH_VOL_INPUT + i].normalize(10.0f) / 10.0f, 0.0f, 1.0f);
-          channel_s2_L[i] = ch_l_ins[i] * params[AUX_2_PARAM + i].value * clamp(inputs[AUX_2_INPUT + i].normalize(5.0f)/5.0f,1.0f,1.0f) * clamp(inputs[CH_VOL_INPUT + i].normalize(10.0f) / 10.0f, 0.0f, 1.0f);
+          channel_s1_L[i] = ch_l_ins[i] * params[AUX_1_PARAM + i].value * clamp(inputs[AUX_1_INPUT + i].normalize(5.0f)/5.0f,0.0f,1.0f) * clamp(inputs[CH_VOL_INPUT + i].normalize(10.0f) / 10.0f, 0.0f, 1.0f);
+          channel_s2_L[i] = ch_l_ins[i] * params[AUX_2_PARAM + i].value * clamp(inputs[AUX_2_INPUT + i].normalize(5.0f)/5.0f,0.0f,1.0f) * clamp(inputs[CH_VOL_INPUT + i].normalize(10.0f) / 10.0f, 0.0f, 1.0f);
 
-          channel_s1_R[i] = ch_r_ins[i] * params[AUX_1_PARAM + i].value * clamp(inputs[AUX_1_INPUT + i].normalize(5.0f)/5.0f,1.0f,1.0f) * clamp(inputs[CH_VOL_INPUT + i].normalize(10.0f) / 10.0f, 0.0f, 1.0f);
-          channel_s2_R[i] = ch_r_ins[i] * params[AUX_2_PARAM + i].value * clamp(inputs[AUX_2_INPUT + i].normalize(5.0f)/5.0f,1.0f,1.0f) * clamp(inputs[CH_VOL_INPUT + i].normalize(10.0f) / 10.0f, 0.0f, 1.0f);
+          channel_s1_R[i] = ch_r_ins[i] * params[AUX_1_PARAM + i].value * clamp(inputs[AUX_1_INPUT + i].normalize(5.0f)/5.0f,0.0f,1.0f) * clamp(inputs[CH_VOL_INPUT + i].normalize(10.0f) / 10.0f, 0.0f, 1.0f);
+          channel_s2_R[i] = ch_r_ins[i] * params[AUX_2_PARAM + i].value * clamp(inputs[AUX_2_INPUT + i].normalize(5.0f)/5.0f,0.0f,1.0f) * clamp(inputs[CH_VOL_INPUT + i].normalize(10.0f) / 10.0f, 0.0f, 1.0f);
 
           vuBarsL[i].dBInterval = 3;
           vuBarsR[i].dBInterval = 3;
