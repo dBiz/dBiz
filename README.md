@@ -49,6 +49,7 @@ They don't need introductions ;)
 VINTAGE SERIE
 
 This mini 4 modules series is based on subharmonicon sequencer,oscillator and clock subdivision. 
+The Utility2 module is a collection of 2 glide generator, 2 ad envelope and 4 button/toggle with value selection.
 
 ![alt text](https://github.com/dBiz/VCVRack_Modules/blob/master/screenshot/VintageSeries.jpg)
 
