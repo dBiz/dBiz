@@ -14,7 +14,7 @@ UTILITY AND QUANTIZER
 - Utility transposer octave/sem/fine with ability to link the inputs,
 - Simple transposer
 
-![alt text](https://github.com/dBiz/VCVRack_Modules/blob/master/screenshot/Utils.jpg)
+![alt text](https://github.com/dBiz/VCVRack_Modules/blob/master/screenshot/Utility.jpg)
 
 VCA AND ROUTERS
 
