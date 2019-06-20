@@ -14,8 +14,8 @@
    viewBox="0 0 27 27"
    version="1.1"
    id="svg16908"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
-   sodipodi:docname="VerboL.svg">
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="VerboDL.svg">
   <defs
      id="defs16902">
     <inkscape:path-effect
@@ -402,11 +402,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.0765516"
-     inkscape:cx="46.79226"
-     inkscape:cy="54.165032"
+     inkscape:zoom="3.5896641"
+     inkscape:cx="-15.429311"
+     inkscape:cy="46.329738"
      inkscape:document-units="px"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      showgrid="true"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -440,35 +440,29 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(-230.09585,-105.75783)"
-     style="display:inline" />
-  <g
-     inkscape:groupmode="layer"
-     id="layer2"
-     inkscape:label="Layer 2"
-     style="display:inline"
-     transform="translate(0,17.474603)">
+     style="display:inline">
     <ellipse
-       style="fill:#323343;fill-opacity:1;stroke:#0f1014;stroke-width:0.94275683;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="display:inline;fill:#323343;fill-opacity:1;stroke:#0f1014;stroke-width:0.94275689;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path821"
-       cx="13.539449"
-       cy="-3.9000092"
+       cx="243.58408"
+       cy="119.36961"
        rx="13.023881"
-       ry="13.066276" />
+       ry="13.066277" />
     <ellipse
-       style="display:inline;fill:#0f1014;fill-opacity:1;stroke:none;stroke-width:0.9913215;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
+       style="display:inline;fill:#0f1014;fill-opacity:1;stroke:none;stroke-width:0.99132156;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
        id="path821-6"
-       cx="13.539449"
-       cy="-3.9000092"
+       cx="243.58408"
+       cy="119.36961"
        rx="6.9151921"
        ry="6.9377022" />
     <path
-       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.13732359px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 13.58638,-16.512425 -0.7115,5.644409 1.447536,-0.02222 z"
+       style="display:inline;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.13732359px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 243.63123,106.75718 -0.7115,5.64441 1.44754,-0.0222 z"
        id="path4693"
        inkscape:connector-curvature="0" />
     <g
        style="display:inline"
-       transform="matrix(1.4120124,0,0,1.4002053,-64.66546,-133.04496)"
+       transform="matrix(1.4120124,0,0,1.4002053,165.37939,-9.7753583)"
        id="layer1-9"
        inkscape:label="Layer 1">
       <path

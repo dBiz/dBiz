@@ -17,7 +17,25 @@
    sodipodi:docname="SlidePot.svg"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
   <defs
-     id="defs1573" />
+     id="defs1573">
+    <linearGradient
+       id="linearGradient1342"
+       x1="-57.089001"
+       x2="-55.999001"
+       y1="128.00999"
+       y2="149.81"
+       gradientTransform="translate(128.49216,-37.144)"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#262626"
+         offset="0"
+         id="stop2" />
+      <stop
+         stop-color="#adadad"
+         offset="1"
+         id="stop4" />
+    </linearGradient>
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -25,11 +43,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="8.0390625"
-     inkscape:cx="-51.67478"
-     inkscape:cy="87.326497"
+     inkscape:zoom="52.101693"
+     inkscape:cx="0.2218005"
+     inkscape:cy="49.826591"
      inkscape:document-units="mm"
-     inkscape:current-layer="g6763"
+     inkscape:current-layer="g37"
      showgrid="false"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -38,8 +56,8 @@
      units="px"
      inkscape:window-width="1600"
      inkscape:window-height="882"
-     inkscape:window-x="0"
-     inkscape:window-y="18"
+     inkscape:window-x="77"
+     inkscape:window-y="77"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata1576">
@@ -64,11 +82,19 @@
       <g
          transform="matrix(0.30380843,0,0,0.85245901,1737.9294,2414.7499)"
          id="g6763">
-        <path
-           inkscape:connector-curvature="0"
-           id="path6765"
-           style="fill:#444444;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.17527163"
-           d="M -0.38812605,0 H 2.424126 c 2.6023001,0 4.7114892,-2.028 4.7114892,-4.529 v -116.729 c 0,-2.502 -2.1091891,-4.529 -4.7114892,-4.529 h -2.81225205 c -2.60230005,0 -4.71148915,2.027 -4.71148915,4.529 V -4.529 c 0,2.501 2.1091891,4.529 4.71148915,4.529" />
+        <g
+           transform="matrix(5.2719728,0,0,-5.7859932,-377.6776,527.08085)"
+           id="g37">
+          <rect
+             x="71.250694"
+             y="91.115997"
+             width="1.7110523"
+             height="21.695999"
+             rx="0.85552615"
+             ry="0.11303883"
+             style="fill:#3d3d3d;fill-opacity:1;stroke-width:1.03818512;paint-order:normal"
+             id="rect9" />
+        </g>
       </g>
     </g>
   </g>
