@@ -5,66 +5,76 @@
 //
 /////////////////////////////////////////////
 
-#include "dBiz.hpp"
-#include "dsp/digital.hpp"
+#include "plugin.hpp"
+
+static float shapeDelta(float delta, float tau, float shape) {
+	float lin = sgn(delta) * 10.f / tau;
+	if (shape < 0.f) {
+		float log = sgn(delta) * 40.f / tau / (std::fabs(delta) + 1.f);
+		return crossfade(lin, log, -shape * 0.95f);
+	}
+	else {
+		float exp = M_E * delta / tau;
+		return crossfade(lin, exp, shape * 0.90f);
+	}
+}
 
 struct Contorno : Module {
 	enum ParamIds {
-		RANGE_PARAM,
-		TRIGG_PARAM=RANGE_PARAM+4,
-		CYCLE_PARAM = TRIGG_PARAM+4,
-		SHAPE_PARAM= CYCLE_PARAM+4,
-		RISE_PARAM = SHAPE_PARAM+4,
-		FALL_PARAM = RISE_PARAM+4,
-		NUM_PARAMS = FALL_PARAM+4
+		ENUMS(RANGE_PARAM, 4),
+		ENUMS(TRIGG_PARAM, 4),
+		ENUMS(CYCLE_PARAM, 4),
+		ENUMS(SHAPE_PARAM, 4),
+		ENUMS(RISE_PARAM, 4),
+		ENUMS(FALL_PARAM, 4), 
+		NUM_PARAMS
 	};
 	enum InputIds {
-		TRIGG_INPUT,
-		CYCLE_INPUT = TRIGG_INPUT+4,
-		RISE_INPUT = CYCLE_INPUT+4,
-		FALL_INPUT = RISE_INPUT+4,
-		IN_INPUT = FALL_INPUT+4,
-		NUM_INPUTS = IN_INPUT+4
+		ENUMS(TRIGG_INPUT, 4),
+		ENUMS(CYCLE_INPUT, 4), 
+		ENUMS(RISE_INPUT, 4), 
+		ENUMS(FALL_INPUT, 4),
+		ENUMS(IN_INPUT, 4),
+		NUM_INPUTS
 	};
 	enum OutputIds {
-		OUT_OUTPUT,
-		NUM_OUTPUTS = OUT_OUTPUT+4
+		ENUMS(OUT_OUTPUT, 4),
+		NUM_OUTPUTS
 	};
 
 	enum LightIds
 	{
-		TRIGG_LIGHT,
-		CYCLE_LIGHT=TRIGG_LIGHT+4,
-		RISE_LIGHT=CYCLE_LIGHT+4,
-		FALL_LIGHT = RISE_LIGHT + 4,
-		NUM_LIGHTS = FALL_LIGHT + 4,
+		ENUMS(TRIGG_LIGHT, 4),
+		ENUMS(CYCLE_LIGHT, 4),
+		ENUMS(RISE_LIGHT, 4),
+		ENUMS(FALL_LIGHT, 4),
+		NUM_LIGHTS
 	};
 
 	float out[4] {};
 	bool gate[4] = {};
 
+	dsp::SchmittTrigger trigger[4];
+	dsp::PulseGenerator endOfCyclePulse[4];
+
+	Contorno() 
+	{
+		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+		
+		for (int i = 0; i < 4; i++)
+		{
+			configParam(RANGE_PARAM + i,  0.0, 2.0, 0.0, "range");
+			configParam(TRIGG_PARAM + i,  0.0, 1.0, 0.0, "trig");
+			configParam(CYCLE_PARAM + i,  0.0, 1.0, 0.0, "Cycle");
+			configParam(SHAPE_PARAM + i,  -1.0, 1.0, 0.0, "Shape");
+			configParam(RISE_PARAM + i,  0.0, 1.0, 0.0, "Raise");
+			configParam(FALL_PARAM + i,  0.0, 1.0, 0.0, "Fall");
+		}
 	
-	SchmittTrigger trigger[4];
-	PulseGenerator endOfCyclePulse[4];
-
-	Contorno() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS,NUM_LIGHTS) {
 	}
-	void step() override;
-};
 
-static float shapeDelta(float delta, float tau, float shape) {
-	float lin = sgn(delta) * 10.0 / tau;
-	if (shape < 0.0) {
-		float log = sgn(delta) * 40.0 / tau / (fabsf(delta) + 1.0);
-		return crossfade(lin, log, -shape * 0.95);
-	}
-	else {
-		float exp = M_E * delta / tau;
-		return crossfade(lin, exp, shape * 0.90);
-	}
-}
-
-void ::Contorno::step() {
+	void process(const ProcessArgs &args) override 
+	{	
 
 	for (int c=0;c<4;c++)
 	{
@@ -96,7 +106,7 @@ void ::Contorno::step() {
 			float riseCv = params[RISE_PARAM + c].value + inputs[RISE_INPUT + c].value / 10.0;
 			riseCv = clamp(riseCv, 0.0, 1.0);
 			float rise = minTime * powf(2.0, riseCv * 10.0);
-			out[c] += shapeDelta(delta, rise, shape) / engineGetSampleRate();
+			out[c] += shapeDelta(delta, rise, shape) * args.sampleTime;
 			rising = (in - out[c] > 1e-3);
 			if (!rising) {
 				gate[c] = false;
@@ -107,7 +117,7 @@ void ::Contorno::step() {
 			float fallCv = params[FALL_PARAM + c].value + inputs[FALL_INPUT + c].value / 10.0;
 			fallCv = clamp(fallCv, 0.0, 1.0);
 			float fall = minTime * powf(2.0, fallCv * 10.0);
-			out[c] += shapeDelta(delta, fall, shape) / engineGetSampleRate();
+			out[c] += shapeDelta(delta, fall, shape) * args.sampleTime;
 			falling = (in - out[c] < -1e-3);
 			if (!falling) {
 				// End of cycle, check if we should turn the gate back on (cycle mode)
@@ -128,63 +138,62 @@ void ::Contorno::step() {
 
 		if (params[CYCLE_PARAM + c].value == 1.0 || inputs[CYCLE_INPUT+c].value>0.0) lights[CYCLE_LIGHT + c].value = 1.0;
 
-		lights[RISE_LIGHT + c].value = (rising ? 1.0 : 0.0);
-		lights[FALL_LIGHT + c].value = (falling ? 1.0 : 0.0);
+		lights[RISE_LIGHT + c].setSmoothBrightness(rising ? 1.0 : 0.0, args.sampleTime);
+		lights[FALL_LIGHT + c].setSmoothBrightness(falling ? 1.0 : 0.0, args.sampleTime);
 		outputs[OUT_OUTPUT + c].value = out[c];
 		}
 		
 }
+};
 
-
-struct ContornoWidget : ModuleWidget 
+template <typename BASE>
+struct CLight : BASE
 {
-ContornoWidget(Contorno *module) : ModuleWidget(module)
-{
-	box.size = Vec(15*17, 380);
-
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-		panel->setBackground(SVG::load(assetPlugin(plugin, "res/Contorno.svg")));
-		addChild(panel);
-	}
-
-	addChild(Widget::create<ScrewBlack>(Vec(15, 0)));
-  	addChild(Widget::create<ScrewBlack>(Vec(box.size.x-30, 0)));
-  	addChild(Widget::create<ScrewBlack>(Vec(15, 365)));
-  	addChild(Widget::create<ScrewBlack>(Vec(box.size.x-30, 365)));
-
-int space = 64;
-
-for (int i=0;i<4;i++)
-{
-
-	addParam(ParamWidget::create<MCKSSS>(Vec(space*i+52, 25), module, Contorno::RANGE_PARAM+i, 0.0, 2.0, 0.0));
-	addParam(ParamWidget::create<LEDB>(Vec(space*i+7, 297), module, Contorno::CYCLE_PARAM+i, 0.0, 1.0, 0.0));
-	addChild(GrayModuleLightWidget::create<BigLight<BlueLight>>(Vec(space * i + 7, 297), module, Contorno::CYCLE_LIGHT+i));
-	addInput(Port::create<PJ301MLPort>(Vec(35+space*i, 294), Port::INPUT, module, ::Contorno::CYCLE_INPUT+i));
-
-	addParam(ParamWidget::create<RoundWhy>(Vec(space*i+12.5, 39), module, ::Contorno::SHAPE_PARAM+i, -1.0, 1.0, 0.0));
-
-	addParam(ParamWidget::create<SlidePot>(Vec(space*i+10, 100), module, ::Contorno::RISE_PARAM+i, 0.0, 1.0, 0.0));
-	addParam(ParamWidget::create<SlidePot>(Vec(space*i+40, 100), module, ::Contorno::FALL_PARAM+i, 0.0, 1.0, 0.0));
-
-	addInput(Port::create<PJ301MCPort>(Vec(space*i+5, 220), Port::INPUT, module, ::Contorno::RISE_INPUT+i));
-	addInput(Port::create<PJ301MCPort>(Vec(space*i+35, 220), Port::INPUT, module, ::Contorno::FALL_INPUT+i));
-
-	addInput(Port::create<PJ301MLPort>(Vec(space*i+35, 255), Port::INPUT, module, ::Contorno::TRIGG_INPUT+i));
-	addParam(ParamWidget::create<BPush>(Vec(space * i + 5, 255), module, ::Contorno::TRIGG_PARAM + i, 0.0, 1.0, 0.0));
-	addInput(Port::create<PJ301MIPort>(Vec(space*i+5, 335), Port::INPUT, module, ::Contorno::IN_INPUT+i));
-	addOutput(Port::create<PJ301MOPort>(Vec(space*i+35, 335), Port::OUTPUT, module, ::Contorno::OUT_OUTPUT+i));
+  CLight()
+  {
+    this->box.size = mm2px(Vec(5, 5));
+  }
+};
 
 
-	addChild(GrayModuleLightWidget::create<SmallLight<RedLight>>(Vec(space*i+15, 212), module, Contorno::RISE_LIGHT+i));
-	addChild(GrayModuleLightWidget::create<SmallLight<RedLight>>(Vec(space*i+45, 212), module, Contorno::FALL_LIGHT+i));
+struct ContornoWidget : ModuleWidget {
+	ContornoWidget(Contorno *module){
+	 setModule(module);
+	 setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Contorno.svg")));
 
-	//addParam(ParamWidget::create<CKD62>(Vec(5+space*i,300 ), module, Contorno::LOOP_PARAM + i, 0.0, 1.0, 0.0));
-    //addChild(GrayModuleLightWidget::create<HugeLight<CyanLight>>(Vec(7+space*i,302), module, Contorno::BUTTON_LIGHTS + i));
-}
+	 addChild(createWidget<ScrewBlack>(Vec(15, 0)));
+	 addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
+	 addChild(createWidget<ScrewBlack>(Vec(15, 365)));
+	 addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 365)));
+
+	 int space = 64;
+
+	 for (int i = 0; i < 4; i++)
+	 {
+
+		 addParam(createParam<MCKSSS>(Vec(space * i + 52, 25), module, Contorno::RANGE_PARAM + i));
+		 addParam(createParam<LEDT>(Vec(space * i + 7, 297), module, Contorno::CYCLE_PARAM + i));
+
+		 addChild(createLight<CLight<BlueLight>>(Vec(space * i + 10, 300), module, Contorno::CYCLE_LIGHT + i));
+		 addInput(createInput<PJ301MLPort>(Vec(35 + space * i, 294), module, ::Contorno::CYCLE_INPUT + i));
+
+		 addParam(createParam<RoundWhy>(Vec(space * i + 12.5, 39), module, ::Contorno::SHAPE_PARAM + i));
+
+		 addParam(createParam<SlidePot>(Vec(space * i + 10, 100), module, ::Contorno::RISE_PARAM + i));
+		 addParam(createParam<SlidePot>(Vec(space * i + 40, 100), module, ::Contorno::FALL_PARAM + i));
+
+		 addInput(createInput<PJ301MCPort>(Vec(space * i + 5, 220), module, ::Contorno::RISE_INPUT + i));
+		 addInput(createInput<PJ301MCPort>(Vec(space * i + 35, 220), module, ::Contorno::FALL_INPUT + i));
+
+		 addInput(createInput<PJ301MLPort>(Vec(space * i + 35, 255), module, ::Contorno::TRIGG_INPUT + i));
+		 addParam(createParam<BPush>(Vec(space * i + 5, 255), module, ::Contorno::TRIGG_PARAM + i));
+		 addInput(createInput<PJ301MCPort>(Vec(space * i + 5, 335), module, ::Contorno::IN_INPUT + i));
+		 addOutput(createOutput<PJ301MOPort>(Vec(space * i + 35, 335), module, ::Contorno::OUT_OUTPUT + i));
+
+		 addChild(createLight<SmallLight<OrangeLight>>(Vec(space * i + 15, 212), module, Contorno::RISE_LIGHT + i));
+		 addChild(createLight<SmallLight<OrangeLight>>(Vec(space * i + 45, 212), module, Contorno::FALL_LIGHT + i));
+		 }
 
 }
 };
-Model *modelContorno = Model::create<Contorno, ContornoWidget>("dBiz", "Contorno", "Contorno", ENVELOPE_GENERATOR_TAG);
+Model *modelContorno = createModel<Contorno, ContornoWidget>("Contorno");

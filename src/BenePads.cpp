@@ -4,14 +4,13 @@
 // 
 ///////////////////////////////////////////////////////////////////
 
-#include "dBiz.hpp"
-#include "dsp/digital.hpp"
+#include "plugin.hpp"
 
 struct BenePads : Module {
     enum ParamIds
     {
-        BUTTON_PARAM,
-        NUM_PARAMS = BUTTON_PARAM + 16
+        ENUMS(BUTTON_PARAM, 16),
+        NUM_PARAMS
     };
     enum InputIds
     {
@@ -25,23 +24,27 @@ struct BenePads : Module {
   };
   enum LightIds
   {
-    PAD_LIGHT,
-    NUM_LIGHTS =PAD_LIGHT+16
+    ENUMS(PAD_LIGHT, 16),
+    NUM_LIGHTS
   };
 
-  SchmittTrigger button_triggers[4][4];
+  dsp::SchmittTrigger button_triggers[4][4];
   
   int x_position = 0;
   int y_position = 0;
     
-	BenePads() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
-	void step() override;
-};
+	BenePads() {
+    config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+    for (int i=0; i<16;i++)
+    {
+      configParam(BUTTON_PARAM + i, 0.0, 1.0, 0.0 ,"Triggers");
+    }
+  } 
 
-void BenePads::step() {
-//int x;
-//int y;
-bool shot = false;
+  void process(const ProcessArgs &args) override 
+  {
+
+    bool shot = false;
  
     for (int i = 0; i < 4; i++)
     {
@@ -69,51 +72,43 @@ bool shot = false;
           outputs[G_OUT].value = 0.0;
         }
       } 
-    }
-    
-}
+    }   
+  }
+};
 
 ////////////////////////////////
 
-struct BenePadsWidget : ModuleWidget 
-{
-BenePadsWidget(BenePads *module) : ModuleWidget(module)
-{
-	box.size = Vec(15*11, 380);
-  
-	{
-    SVGPanel *panel = new SVGPanel();
-    panel->box.size = box.size;
-        panel->setBackground(SVG::load(assetPlugin(plugin,"res/BenePad.svg")));
-    addChild(panel);
-  }
- 
-  int top = 20;
+struct BenePadsWidget : ModuleWidget {
+BenePadsWidget(BenePads *module){
+  setModule(module);
+  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/BenePad.svg")));
+
+   int top = 20;
   int left = 3;
   int column_spacing = 35; 
   int row_spacing = 35;
   int button_offset = 20;
 
-  addOutput(Port::create<PJ301MOrPort>(Vec(130, 10), Port::OUTPUT, module, BenePads::X_OUT));  
-  addOutput(Port::create<PJ301MOrPort>(Vec(130, 40), Port::OUTPUT, module, BenePads::Y_OUT));
-  addOutput(Port::create<PJ301MOrPort>(Vec(130, 70), Port::OUTPUT, module, BenePads::G_OUT));
+  addOutput(createOutput<PJ301MOrPort>(Vec(130, 20), module, BenePads::X_OUT));  
+  addOutput(createOutput<PJ301MOrPort>(Vec(130, 50), module, BenePads::Y_OUT));
+  addOutput(createOutput<PJ301MOrPort>(Vec(130, 80), module, BenePads::G_OUT));
 
       for (int i = 0; i < 4; i++)
   {
     for ( int j = 0 ; j < 4 ; j++)
     {
-     
-      addParam(ParamWidget::create<PB61303>(Vec(button_offset+left+column_spacing * i-10, top + row_spacing * j + 170 ), module, BenePads::BUTTON_PARAM + i + j * 4, 0.0, 1.0, 0.0));
-      addChild(GrayModuleLightWidget::create<BigLight<OrangeLight>>(Vec(button_offset + left + column_spacing * i - 10 + 4.5, top + row_spacing * j + 170 + 4.5), module, BenePads::PAD_LIGHT + i + j * 4));
+
+      addParam(createParam<BPush>(Vec(2+button_offset + left + column_spacing * i - 10,2+ top + row_spacing * j + 170), module, BenePads::BUTTON_PARAM + i + j * 4));
+      addChild(createLight<BigLight<OrangeLight>>(Vec(+button_offset + left + column_spacing * i - 10 + 4.5, top + row_spacing * j + 170 + 4.5), module, BenePads::PAD_LIGHT + i + j * 4));
     }
     
     }  
 	
-  addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-  addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
-  addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-  addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
+  addChild(createWidget<ScrewBlack>(Vec(15, 0)));
+  addChild(createWidget<ScrewBlack>(Vec(box.size.x-30, 0)));
+  addChild(createWidget<ScrewBlack>(Vec(15, 365)));
+  addChild(createWidget<ScrewBlack>(Vec(box.size.x-30, 365)));
 
 }
 };
-Model *modelBenePads = Model::create<BenePads, BenePadsWidget>("dBiz", "BenePads", "BenePads", UTILITY_TAG);
+Model *modelBenePads = createModel<BenePads, BenePadsWidget>("BenePads");

@@ -1,38 +1,32 @@
-///////////////////////////////////////////////////////////////////
-//
-//  dBiz revisited version of Cartesian seq. by Strum 
-// 
-///////////////////////////////////////////////////////////////////
 
-#include "dBiz.hpp"
-#include "dsp/digital.hpp"
+#include "plugin.hpp"
+
 
 struct VCA4 : Module {
     enum ParamIds
     {
-        
-        CV_PARAM,
-        MUTE_PARAM = CV_PARAM+16,
-        NUM_PARAMS = MUTE_PARAM + 16
+        ENUMS(CV_PARAM, 16),
+        ENUMS(MUTE_PARAM, 16),
+        NUM_PARAMS
     };
     enum InputIds
     {
-        CH_INPUT,
-        CV_INPUT=CH_INPUT+4,
-        NUM_INPUTS=CV_INPUT+16
+        ENUMS(CH_INPUT, 4),
+        ENUMS(CV_INPUT, 16),
+        NUM_INPUTS
     };
 	enum OutputIds 
     {
-	    CH_OUTPUT,  
-	    NUM_OUTPUTS=CH_OUTPUT+4
+	    ENUMS(CH_OUTPUT, 4),  
+	    NUM_OUTPUTS
     };
     enum LightIds
     {
-      MUTE_LIGHT,
-      NUM_LIGHTS =MUTE_LIGHT+16
+      ENUMS(MUTE_LIGHT, 16),
+      NUM_LIGHTS
     };
 
-    SchmittTrigger mute_triggers[16];
+    dsp::SchmittTrigger mute_triggers[16];
     bool mute_states[16] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
     float ch_in[4];
@@ -40,10 +34,19 @@ struct VCA4 : Module {
     float cv_val[16];
     
 
-    VCA4() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
-    void step() override;
+    VCA4() {
+        config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        
+        for(int i=0;i<16;i++)
+        {
+            configParam(CV_PARAM,  0.0, 1.0, 0.0,"Ch Cv");
+            configParam(MUTE_PARAM,  0.0, 1.0, 0.0,"Mute Ch");
+        }
+    
+    }
+    
 
-    json_t *toJson() override
+    json_t *dataToJson() override
     {
         json_t *rootJ = json_object();
 
@@ -58,7 +61,7 @@ struct VCA4 : Module {
         return rootJ;
     }
 
-    void fromJson(json_t *rootJ) override
+    void dataFromJson(json_t *rootJ) override
     {
         // mute states
         json_t *mute_statesJ = json_object_get(rootJ, "mutes");
@@ -72,9 +75,8 @@ struct VCA4 : Module {
             }
         }
     }
-};
 
-void VCA4::step() {
+    void process(const ProcessArgs &args) override  {
 
     for (int i = 0; i < 4; i++)
     {
@@ -102,7 +104,12 @@ void VCA4::step() {
                 cv_val[i + j * 4] = 0.0;
             }
             else
-                cv_val[i + j * 4] = params[CV_PARAM + i + j * 4].value*clamp(inputs[CV_INPUT + i+j*4].normalize(10.0f) / 10.0f, 0.0f, 1.0f);
+            {
+                cv_val[i + j * 4] = params[CV_PARAM + i + j * 4].value;
+            }
+                
+                if(inputs[CV_INPUT+i+j*4].isConnected())
+                 cv_val[i+j*4] *= (inputs[CV_INPUT + i+j*4].value / 10.0f);
         }
     }
 
@@ -124,87 +131,59 @@ void VCA4::step() {
      }
 }
 
-
-
-
-
-
-
-
-
-
-    /*for (int i = 0; i < 4; i++)
-    {
-        ch_in[i]=inputs[CH_INPUT+i].value;
-    }
-
-        
-    for (int i = 0; i < 4; i++)
-    {
-        outputs[CH_OUTPUT+i].value=ch_out[i];
-    }
-}*/
+};
 
 ////////////////////////////////
 
-struct VCA4Widget : ModuleWidget 
-{
-VCA4Widget(VCA4 *module) : ModuleWidget(module)
-{
-	box.size = Vec(15*20, 380);
-  
-	{
-    SVGPanel *panel = new SVGPanel();
-    panel->box.size = box.size;
-        panel->setBackground(SVG::load(assetPlugin(plugin,"res/VCA4.svg")));
-    addChild(panel);
-  }
- 
+struct VCA4Widget : ModuleWidget {
+VCA4Widget(VCA4 *module) {
+    setModule(module);
+    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/VCA4.svg")));
+
   int top = 20;
   int left = 2;
   int column_spacing = 35; 
   int row_spacing = 30;
   int button_offset = 20;
 
-  // addOutput(Port::create<PJ301MOrPort>(Vec(130, 10), Port::OUTPUT, module, VCA4::X_OUT));  
-  // addOutput(Port::create<PJ301MOrPort>(Vec(130, 40), Port::OUTPUT, module, VCA4::Y_OUT));
-  // addOutput(Port::create<PJ301MOrPort>(Vec(130, 70), Port::OUTPUT, module, VCA4::G_OUT));
 
 for (int i = 0; i < 4; i++)
   {
     for ( int j = 0 ; j < 4 ; j++)
     {
 
-        addParam(ParamWidget::create<LEDButton>(Vec(button_offset + left + column_spacing * i+140, top + row_spacing * j + 170), module, VCA4::MUTE_PARAM + i + j * 4, 0.0, 1.0, 0.0));
-        addChild(GrayModuleLightWidget::create<BigLight<OrangeLight>>(Vec(button_offset + column_spacing * i+140, top + row_spacing * j + 170 ), module, VCA4::MUTE_LIGHT + i + j * 4));
-
-        addParam(ParamWidget::create<Trimpot>(Vec(10+column_spacing * i, top + row_spacing * j + 170), module, VCA4::CV_PARAM + i + j * 4, 0.0, 1.0, 0.0));
+        addParam(createParam<LEDButton>(Vec(button_offset + left + column_spacing * i+140, top + row_spacing * j + 170), module, VCA4::MUTE_PARAM + i + j * 4));
+        addChild(createLight<BigLight<OrangeLight>>(Vec(button_offset + column_spacing * i+140, top + row_spacing * j + 170 ), module, VCA4::MUTE_LIGHT + i + j * 4));
+        addParam(createParam<Trimpot>(Vec(10+column_spacing * i, top + row_spacing * j + 170), module, VCA4::CV_PARAM + i + j * 4));
     }
-}
+  }
 
-for (int i = 0; i < 4; i++)
-{
-    addInput(Port::create<PJ301MIPort>(Vec(30,24+40*i), Port::INPUT, module, VCA4::CH_INPUT + i));
-}
-for (int i = 0; i < 4; i++)
-{
-    for (int j = 0; j < 4; j++)
+    for (int i = 0; i < 4; i++)
+     {
+        addInput(createInput<PJ301MIPort>(Vec(30,24+40*i),module, VCA4::CH_INPUT + i));
+     }
+    for (int i = 0; i < 4; i++)
     {
-        if (j == 0 || j==2 )
-            addInput(Port::create<PJ301MIPort>(Vec(column_spacing * 1.5 * i + 100, 60 + row_spacing * j), Port::INPUT, module, VCA4::CV_INPUT + i + j * 4));
-        else
-            addInput(Port::create<PJ301MIPort>(Vec(column_spacing * 1.5 * i + 70, 60 + row_spacing * j), Port::INPUT, module, VCA4::CV_INPUT + i + j * 4));
+        for (int j = 0; j < 4; j++)
+        {
+            if (j == 0 || j==2 )
+                addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * i + 100, 60 + row_spacing * j),module, VCA4::CV_INPUT + i + j * 4));
+            else
+                addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * i + 70, 60 + row_spacing * j),module, VCA4::CV_INPUT + i + j * 4));
+        }
     }
-}
 
-for (int i = 0; i < 4; i++)
-{
-    addOutput(Port::create<PJ301MRPort>(Vec(70 + row_spacing *1.9* i,24), Port::OUTPUT, module, VCA4::CH_OUTPUT + i));
-}
-                addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-                addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 0)));
-                addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-                addChild(Widget::create<ScrewSilver>(Vec(box.size.x - 30, 365)));
-            }
-        };
-        Model *modelVCA4 = Model::create<VCA4, VCA4Widget>("dBiz", "VCA4", "VCA4", UTILITY_TAG);
+    for (int i = 0; i < 4; i++)
+    {
+        addOutput(createOutput<PJ301MRPort>(Vec(70 + row_spacing *1.9* i,24), module, VCA4::CH_OUTPUT + i));
+    }
+
+    addChild(createWidget<ScrewBlack>(Vec(15, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(15, 365)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 365)));
+    }
+};
+
+
+ Model *modelVCA4 = createModel<VCA4, VCA4Widget>("VCA4");
