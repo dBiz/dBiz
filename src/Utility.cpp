@@ -3,12 +3,7 @@
 // 
 ///////////////////////////////////////////////////
 
-#include "dBiz.hpp"
-#include <ctime>
-#include <iostream>
-#include <vector>
-#include <random>
-#include <algorithm>
+#include "plugin.hpp"
 
 using namespace std;
 
@@ -20,21 +15,21 @@ struct Utility : Module {
     LINK_B_PARAM,
     ROOT_NOTE_PARAM,
     SCALE_PARAM,
-    OCTAVE_SHIFT,
-    SEMITONE_SHIFT = OCTAVE_SHIFT + 3,
-    FINE_SHIFT = SEMITONE_SHIFT + 3,
-    AMOUNT_PARAM = FINE_SHIFT + 3,
-    NUM_PARAMS = AMOUNT_PARAM + 3
+    ENUMS(OCTAVE_SHIFT, 3),
+    ENUMS(SEMITONE_SHIFT, 3),
+    ENUMS(FINE_SHIFT, 3),
+    ENUMS(AMOUNT_PARAM, 3),
+    NUM_PARAMS
   };
   enum InputIds {
     ROOT_NOTE_INPUT,
     SCALE_INPUT,
-	OCTAVE_INPUT,
-    OCTAVE_CVINPUT=OCTAVE_INPUT+3,
-    SEMITONE_CVINPUT=OCTAVE_CVINPUT+3,
-    FINE_CVINPUT=SEMITONE_CVINPUT+3,
-    AMOUNT_CVINPUT=FINE_CVINPUT+3,
-    NUM_INPUTS=AMOUNT_CVINPUT+3
+	  ENUMS(OCTAVE_INPUT, 3),
+    ENUMS(OCTAVE_CVINPUT, 3),
+    ENUMS(SEMITONE_CVINPUT, 3),
+    ENUMS(FINE_CVINPUT, 3),
+    ENUMS(AMOUNT_CVINPUT, 3),
+    NUM_INPUTS
 	};
 	enum OutputIds {
 	A_OUTPUT,
@@ -44,8 +39,8 @@ struct Utility : Module {
 };
 
     enum LighIds {
-        AMOUNT_LIGHT,
-        NUM_LIGHTS=AMOUNT_LIGHT+3
+        ENUMS(AMOUNT_LIGHT, 3),
+        NUM_LIGHTS
     };
 
 
@@ -115,14 +110,22 @@ struct Utility : Module {
   float fine_out[3] {};
   
 
-  Utility() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+  Utility() 
+  {
+    config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
+     configParam(LINK_A_PARAM,  0.0, 1.0, 0.0,"Link A");
+     configParam(LINK_B_PARAM,  0.0, 1.0, 0.0,"Link B");
+     configParam(ROOT_NOTE_PARAM,  0.0, Utility::NUM_NOTES - 1 + 0.1, 0,"Root Note");
+     configParam(SCALE_PARAM,  0.0, Utility::NUM_SCALES - 1 + 0.1, 0,"Scale");
+    // params[AMOUNT_PARAM,  "");
 
-  void step() override;
-
-  
-  
-// Quantization based on JW quantizer module!!!
+    for(int i=0;i<3;i++){
+     configParam(OCTAVE_SHIFT+i,  -4.5, 4.5, 0.0,"Octave shift");
+     configParam(SEMITONE_SHIFT+i,  -5.0 ,5.0, 0.0,"Semitone shift");
+     configParam(FINE_SHIFT+i,  -1.0, 1.0, 0.0,"Fine tune");
+    }
+  }
 
   float closestVoltageInScale(float voltsIn)
   {
@@ -220,27 +223,23 @@ struct Utility : Module {
     }
     return octaveInVolts + rootNote/12.0 + closestVal;
   }
-  
-};
+
+  void process(const ProcessArgs &args) override 
+  {
 
 
+  if(params[LINK_A_PARAM].value ==1.0 )
+    inputs[OCTAVE_INPUT + 1].value = inputs[OCTAVE_INPUT + 0].value;
 
+  if (params[LINK_B_PARAM].value == 1.0)
+    inputs[OCTAVE_INPUT + 2].value = inputs[OCTAVE_INPUT + 1].value;
 
-/////////////////////////////////////////////////////
-void Utility::step() {
-
-if(params[LINK_A_PARAM].value ==1.0 )
-  inputs[OCTAVE_INPUT + 1].value = inputs[OCTAVE_INPUT + 0].value;
-
-if (params[LINK_B_PARAM].value == 1.0)
-  inputs[OCTAVE_INPUT + 2].value = inputs[OCTAVE_INPUT + 1].value;
-
-for (int i = 0; i < 3; i++)
-{
-  octave_out[i] = inputs[OCTAVE_INPUT + i].value + round(params[OCTAVE_SHIFT + i].value) + round(inputs[OCTAVE_CVINPUT + i].value / 2);
-  semitone_out[i] = octave_out[i] + round(params[SEMITONE_SHIFT + i].value) * (1.0 / 12.0) + round(inputs[SEMITONE_CVINPUT + i].value / 2) * (1.0 / 12.0);
-  fine_out[i] = semitone_out[i] + (params[FINE_SHIFT + i].value) * (1.0 / 12.0) + (inputs[FINE_CVINPUT + i].value / 2) * (1.0 / 2.0);
-    }
+  for (int i = 0; i < 3; i++)
+  {
+    octave_out[i] = inputs[OCTAVE_INPUT + i].value + round(params[OCTAVE_SHIFT + i].value) + round(inputs[OCTAVE_CVINPUT + i].value / 2);
+    semitone_out[i] = octave_out[i] + round(params[SEMITONE_SHIFT + i].value) * (1.0 / 12.0) + round(inputs[SEMITONE_CVINPUT + i].value / 2) * (1.0 / 12.0);
+    fine_out[i] = semitone_out[i] + (params[FINE_SHIFT + i].value) * (1.0 / 12.0) + (inputs[FINE_CVINPUT + i].value / 2) * (1.0 / 2.0);
+  }
 
     float out_a = closestVoltageInScale(fine_out[0]);
     float out_b = closestVoltageInScale(fine_out[1]);
@@ -250,36 +249,36 @@ for (int i = 0; i < 3; i++)
     outputs[B_OUTPUT].value = out_b;
     outputs[C_OUTPUT].value = out_c;
 
-}
+
+  }
+};
 
 
 struct UtilityDisplay : TransparentWidget
 {
   Utility *module;
   int frame = 0;
-  shared_ptr<Font> font;
+  std::shared_ptr<Font> font;
 
-  string note, scale;
+  std::string note, scale;
 
   UtilityDisplay()
   {
-    font = Font::load(assetPlugin(plugin, "res/DejaVuSansMono.ttf"));
+    font = (APP->window->loadFont(asset::plugin(pluginInstance, "res/Rounded_Elegance.ttf")));
   }
 
-  void drawMessage(NVGcontext *vg, Vec pos, string note,string scale)
+  void drawMessage(NVGcontext *vg, Vec pos, std::string note, std::string scale)
   {
     nvgFontSize(vg, 18);
     nvgFontFaceId(vg, font->handle);
     nvgTextLetterSpacing(vg, -2);
-    nvgFillColor(vg, nvgRGBA(75, 199, 75, 0xff));
-    nvgFontSize(vg, 14);
     nvgFillColor(vg, nvgRGBA(0xff, 0xff, 0xff, 0xff));
     nvgText(vg, pos.x + 8, pos.y + 23, note.c_str(), NULL);
     nvgText(vg, pos.x + 30, pos.y + 23, scale.c_str(), NULL);
   
   }
 
-  string displayRootNote(int value)
+  std::string displayRootNote(int value)
   {
     switch (value)
     {
@@ -312,7 +311,7 @@ struct UtilityDisplay : TransparentWidget
     }
   }
 
-  string displayScale(int value)
+  std::string displayScale(int value)
   {
     switch (value)
     {
@@ -373,60 +372,52 @@ struct UtilityDisplay : TransparentWidget
 //////////////////////////////////////////////////////////////////
 struct UtilityWidget : ModuleWidget 
 {
-UtilityWidget(Utility *module) : ModuleWidget(module)
-{
-	box.size = Vec(15*8, 380);
+UtilityWidget(Utility *module){
+  setModule(module);
+  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Utility.svg")));
 
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-    panel->setBackground(SVG::load(assetPlugin(plugin,"res/Utility.svg")));
-		addChild(panel);
+  if (module != NULL)
+    {
+      UtilityDisplay *display = createWidget<UtilityDisplay>(Vec(10, 95));
+      display->module = module;
+      display->box.pos = Vec(10, +240);
+      display->box.size = Vec(250, 60);
+      addChild(display);
     }
-    
-  {
-    UtilityDisplay *display = new UtilityDisplay();
-    display->module = module;
-    display->box.pos = Vec(10, + 240);
-    display->box.size = Vec(250, 60);
-    addChild(display);
-  }
 
-//Screw
-  addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-  addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
-  addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-  addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
-    
-   int knob=35;  
-  
+    //Screw
+    addChild(createWidget<ScrewBlack>(Vec(15, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
+    addChild(createWidget<ScrewBlack>(Vec(15, 365)));
+    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 365)));
 
+    int knob = 35;
 
-//
-for (int i=0;i<3;i++)
-{ 
-    addParam(ParamWidget::create<FlatASnap>(Vec(10+knob*i, 20), module, Utility::OCTAVE_SHIFT+i, -4.5, 4.5, 0.0));
-    addParam(ParamWidget::create<FlatASnap>(Vec(10+knob*i, 60), module, Utility::SEMITONE_SHIFT+i, -5.0 ,5.0, 0.0));
-    addParam(ParamWidget::create<FlatA>(Vec(10+knob*i, 100), module, Utility::FINE_SHIFT+i, -1, 1, 0.0));
+    //
+    for (int i = 0; i < 3; i++)
+    {
+      addParam(createParam<FlatASnap>(Vec(10 + knob * i, 20), module, Utility::OCTAVE_SHIFT + i));
+      addParam(createParam<FlatASnap>(Vec(10 + knob * i, 60), module, Utility::SEMITONE_SHIFT + i));
+      addParam(createParam<FlatA>(Vec(10 + knob * i, 100), module, Utility::FINE_SHIFT + i));
 
-    addInput(Port::create<PJ301MIPort>(Vec(12.5+knob*i, 100+knob*1.3), Port::INPUT, module, Utility::OCTAVE_INPUT+i));
-    addInput(Port::create<PJ301MCPort>(Vec(12.5+knob*i, 130+knob*1.3), Port::INPUT, module, Utility::OCTAVE_CVINPUT+i));
-    addInput(Port::create<PJ301MCPort>(Vec(12.5+knob*i, 160+knob*1.3), Port::INPUT, module, Utility::SEMITONE_CVINPUT+i));
-    addInput(Port::create<PJ301MCPort>(Vec(12.5+knob*i, 190+knob*1.3), Port::INPUT, module, Utility::FINE_CVINPUT+i));   
-}
+      addInput(createInput<PJ301MIPort>(Vec(12.5 + knob * i, 100 + knob * 1.3), module, Utility::OCTAVE_INPUT + i));
+      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * i, 130 + knob * 1.3), module, Utility::OCTAVE_CVINPUT + i));
+      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * i, 160 + knob * 1.3), module, Utility::SEMITONE_CVINPUT + i));
+      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * i, 190 + knob * 1.3), module, Utility::FINE_CVINPUT + i));
+    }
 
-  addParam(ParamWidget::create<Trimpot>(Vec(65,304), module, Utility::ROOT_NOTE_PARAM, 0.0, Utility::NUM_NOTES - 1 + 0.1, 0));
-  addParam(ParamWidget::create<Trimpot>(Vec(90,304), module, Utility::SCALE_PARAM, 0.0, Utility::NUM_SCALES - 1 + 0.1, 0));
+  addParam(createParam<Trimpot>(Vec(65,304), module, Utility::ROOT_NOTE_PARAM));
+  addParam(createParam<Trimpot>(Vec(90,304), module, Utility::SCALE_PARAM));
 
-  addInput(Port::create<PJ301MPort>(Vec(10,300), Port::INPUT, module, Utility::ROOT_NOTE_INPUT));
-  addInput(Port::create<PJ301MPort>(Vec(37,300), Port::INPUT, module, Utility::SCALE_INPUT));
+  addInput(createInput<PJ301MIPort>(Vec(10,300), module, Utility::ROOT_NOTE_INPUT));
+  addInput(createInput<PJ301MIPort>(Vec(37,300), module, Utility::SCALE_INPUT));
 
-  addOutput(Port::create<PJ301MOPort>(Vec(12.5,340), Port::OUTPUT, module, Utility::A_OUTPUT));
-  addOutput(Port::create<PJ301MOPort>(Vec(12.5+knob*1,340), Port::OUTPUT, module, Utility::B_OUTPUT));
-  addOutput(Port::create<PJ301MOPort>(Vec(12.5+knob*2,340), Port::OUTPUT, module, Utility::C_OUTPUT));
+  addOutput(createOutput<PJ301MOPort>(Vec(12.5,335), module, Utility::A_OUTPUT));
+  addOutput(createOutput<PJ301MOPort>(Vec(12.5+knob*1,335), module, Utility::B_OUTPUT));
+  addOutput(createOutput<PJ301MOPort>(Vec(12.5+knob*2,335), module, Utility::C_OUTPUT));
 
-  addParam(ParamWidget::create<CKSSS>(Vec(39,150), module, Utility::LINK_A_PARAM, 0.0, 1.0, 0.0));
-  addParam(ParamWidget::create<CKSSS>(Vec(74.5, 150), module, Utility::LINK_B_PARAM, 0.0, 1.0, 0.0));
+  addParam(createParam<CKSSS>(Vec(39,150), module, Utility::LINK_A_PARAM));
+  addParam(createParam<CKSSS>(Vec(74.5, 150), module, Utility::LINK_B_PARAM));
 }
 };
-Model *modelUtility = Model::create<Utility, UtilityWidget>("dBiz", "Utility", "Utility", QUANTIZER_TAG);
+Model *modelUtility = createModel<Utility, UtilityWidget>("Utility");

@@ -15,7 +15,7 @@
    viewBox="0 0 165 380.00001"
    id="svg14650"
    version="1.1"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="BenePad.svg"
    style="enable-background:new">
   <defs
@@ -233,7 +233,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="4.1683785"
      inkscape:cx="42.089895"
-     inkscape:cy="46.942681"
+     inkscape:cy="344.42047"
      inkscape:document-units="px"
      inkscape:current-layer="layer4"
      showgrid="true"
@@ -241,8 +241,8 @@
      objecttolerance="2"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
-     inkscape:window-x="1912"
-     inkscape:window-y="-8"
+     inkscape:window-x="-8"
+     inkscape:window-y="1072"
      inkscape:window-maximized="1"
      inkscape:snap-grids="false">
     <inkscape:grid
@@ -288,7 +288,7 @@
        width="44.20985"
        height="93.363792"
        x="119.83496"
-       y="4.6820574"
+       y="14.682057"
        ry="9.7790871" />
     <g
        aria-label="x"

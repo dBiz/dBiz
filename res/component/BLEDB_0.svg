@@ -9,13 +9,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="20"
-   height="20"
-   viewBox="0 0 5.2916666 5.2916667"
+   width="35"
+   height="35"
+   viewBox="0 0 9.2604165 9.2604168"
    version="1.1"
    id="svg12484"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="LEDB_0.svg">
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="BLEDB_0.svg">
   <defs
      id="defs12478" />
   <sodipodi:namedview
@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="15.839192"
-     inkscape:cx="-7.1567759"
-     inkscape:cy="6.9469595"
+     inkscape:zoom="11.2"
+     inkscape:cx="0.66255596"
+     inkscape:cy="12.300884"
      inkscape:document-units="px"
      inkscape:current-layer="g12476"
      showgrid="false"
@@ -37,8 +37,8 @@
      fit-margin-bottom="0"
      inkscape:window-width="1651"
      inkscape:window-height="939"
-     inkscape:window-x="112"
-     inkscape:window-y="13"
+     inkscape:window-x="1803"
+     inkscape:window-y="96"
      inkscape:window-maximized="0"
      units="px" />
   <metadata
@@ -57,14 +57,14 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-155.97001,-113.81429)">
+     transform="translate(-155.97001,-109.84553)">
     <g
        id="g12476"
        transform="matrix(0.27270608,0,0,-0.27270608,81.038799,439.90948)"
        style="stroke-width:1.29361904">
       <g
          id="g12468"
-         transform="matrix(0.71296794,0,0,0.71296794,294.13762,1186.0531)"
+         transform="matrix(1.2455719,0,0,1.2455719,308.60634,1193.2858)"
          style="stroke-width:1.29361904">
         <path
            d="m 0,0 c 0,-7.5 -6.083,-13.58 -13.584,-13.58 -7.5,0 -13.582,6.08 -13.582,13.58 0,7.503 6.082,13.582 13.582,13.582 C -6.083,13.582 0,7.503 0,0"
@@ -74,17 +74,17 @@
       </g>
       <circle
          transform="scale(1,-1)"
-         r="8.0402374"
-         cy="-1185.5449"
-         cx="284.45337"
+         r="14.046485"
+         cy="-1192.3982"
+         cx="291.68771"
          id="circle12472"
-         style="opacity:1;vector-effect:none;fill:#676967;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.92230892;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+         style="opacity:1;vector-effect:none;fill:#676967;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.61129558;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
       <circle
-         style="opacity:1;vector-effect:none;fill:#141514;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.92230892;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         style="opacity:1;vector-effect:none;fill:#141514;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.61129558;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
          id="circle12474"
-         cx="284.45337"
-         cy="-1186.0538"
-         r="8.0402374"
+         cx="291.68771"
+         cy="-1193.2871"
+         r="14.046485"
          transform="scale(1,-1)" />
     </g>
   </g>

@@ -3,8 +3,7 @@
 // 
 ///////////////////////////////////////////////////
 
-#include "dBiz.hpp"
-#include "dsp/digital.hpp"
+#include "plugin.hpp"
 
 using namespace std;
 
@@ -15,20 +14,20 @@ struct FourSeq : Module {
         RESET_PARAM,
         STEPA_PARAM,
         STEPB_PARAM,
-        GATEA_PARAM,
-        GATEB_PARAM= GATEA_PARAM+4,
-        SEQA_PARAM = GATEB_PARAM+4,
-        SEQB_PARAM =SEQA_PARAM+4,
-        NUM_PARAMS = SEQB_PARAM+4
+        ENUMS(GATEA_PARAM, 4),
+        ENUMS(GATEB_PARAM, 4),
+        ENUMS(SEQA_PARAM, 4),
+        ENUMS(SEQB_PARAM, 4),
+        NUM_PARAMS
     };
     enum InputIds
     {
         RESET_INPUT,
         CLKA_INPUT,
         CLKB_INPUT,
-        CVA_INPUT,
-        CVB_INPUT = CVA_INPUT +4,
-        NUM_INPUTS = CVB_INPUT +4
+        ENUMS(CVA_INPUT, 4),
+        ENUMS(CVB_INPUT, 4),
+        NUM_INPUTS
     };
 	enum OutputIds
 	{
@@ -42,22 +41,23 @@ struct FourSeq : Module {
 	enum LighIds
 	{
         RESET_LIGHT,
-        SEQA_LIGHT,
-        SEQB_LIGHT = SEQA_LIGHT + 4,
-        GATEA_LIGHT = SEQB_LIGHT+ 4,
-        GATEB_LIGHT = GATEA_LIGHT + 4,
-		NUM_LIGHTS = GATEB_LIGHT + 4
+        ENUMS(SEQA_LIGHT, 4),
+        ENUMS(SEQB_LIGHT, 4),
+        ENUMS(GATEA_LIGHT, 4), 
+        ENUMS(GATEB_LIGHT, 4),
+		NUM_LIGHTS
 	};
 
-    SchmittTrigger clk;
-    SchmittTrigger clkb;
-    SchmittTrigger reset_button;
+    dsp::SchmittTrigger clk;
+    dsp::SchmittTrigger clkb;
+    dsp::SchmittTrigger reset_button;
 
-    PulseGenerator gate1;
-    PulseGenerator gate2;
 
-    SchmittTrigger gate_a[4] = {};
-    SchmittTrigger gate_b[4] = {};
+    dsp::PulseGenerator gate1;
+    dsp::PulseGenerator gate2;
+
+    dsp::SchmittTrigger gate_a[4];
+    dsp::SchmittTrigger gate_b[4];
 
     bool gateState_a[4] = {};
     bool gateState_b[4] = {};
@@ -65,6 +65,9 @@ struct FourSeq : Module {
 
     bool pulse1; 
     bool pulse2; 
+
+    bool running_a = true;    
+    bool running_b = true;
 
     int clk1C = 0;
     int clk2C = 0;
@@ -78,16 +81,40 @@ struct FourSeq : Module {
         RETRIGGER,
         CONTINUOUS
     };
+
     GateMode gateMode = TRIGGER;
 
+    FourSeq()
+    {
+     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+        configParam(RESET_PARAM, 0.0, 1.0, 0.0,"Reset");
+        configParam(STEPA_PARAM, 0.0, 2.0, 0.0,"Step A");
+        configParam(STEPB_PARAM, 0.0, 2.0, 0.0,"Step B");
 
-    FourSeq() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+        for(int i=0; i<4;i++)
+        {
+            configParam(GATEA_PARAM+i, 0.0, 1.0, 0.0,"Gate A");
+            configParam(GATEB_PARAM+i, 0.0, 1.0, 0.0,"Gate B");
+            configParam(SEQA_PARAM+i, -3.0,3.0, 0.0,"Seq A Param"); 
+            configParam(SEQB_PARAM+i, -3.0,3.0, 0.0,"Seq B Param");
+        }
+        onReset();
+    }
+    void onReset() override
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            gateState[i] = true;
+        }
+    }
 
-    void step() override;
-
-    json_t *toJson() override
+    json_t *dataToJson() override
     {
         json_t *rootJ = json_object();
+
+        json_object_set_new(rootJ, "running_a", json_boolean(running_a));
+        json_object_set_new(rootJ, "running_b", json_boolean(running_b));
+
 
         json_t *gatesJ = json_array();
         for (int i = 0; i < 8; i++)
@@ -103,8 +130,20 @@ struct FourSeq : Module {
         return rootJ;
     }
 
-    void fromJson(json_t *rootJ) override
+    void dataFromJson(json_t *rootJ) override
     {
+        json_t *ArunningJ = json_object_get(rootJ, "running_a");
+		if (ArunningJ)
+			running_a = json_is_true(ArunningJ);
+
+        json_t *BrunningJ = json_object_get(rootJ, "running_b");
+		if (BrunningJ)
+			running_b = json_is_true(BrunningJ);
+
+
+
+
+
         json_t *gatesJ = json_object_get(rootJ, "gates");
         if (gatesJ)
         {
@@ -122,18 +161,7 @@ struct FourSeq : Module {
             gateMode = (GateMode)json_integer_value(gateModeJ);
     }
 
-    void reset() override
-    {
-        for (int i = 0; i < 8; i++)
-        {
-            gateState[i] = false;
-        }
-    }
-
-};
-
-    /////////////////////////////////////////////////////
-    void FourSeq::step()
+    void process(const ProcessArgs &args) override 
     {
         if (params[STEPA_PARAM].value == 0)  maxStepA = 3; 
         if (params[STEPA_PARAM].value == 1) { maxStepA = 2; lights[SEQA_LIGHT+3].value = 0.0;} 
@@ -143,73 +171,44 @@ struct FourSeq : Module {
         if (params[STEPB_PARAM].value == 1) {maxStepB = 2; lights[SEQB_LIGHT+3].value = 0.0;} 
         if (params[STEPB_PARAM].value == 2) {maxStepB = 1; lights[SEQB_LIGHT+2].value = 0.0;}
 
+        bool gateAIn = false;
+        bool gateBIn = false;
 
-        if (reset_button.process(params[RESET_PARAM].value+inputs[RESET_INPUT].value))
-        {
-            reset();
-            clk1C=0;
-            lights[SEQA_LIGHT + clk1C].value = 1.0f;
-            clk2C=0;
-            lights[SEQB_LIGHT + clk2C].value = 1.0;
-            lights[RESET_LIGHT].value=1.0;
-        }
-
-        if(lights[RESET_LIGHT].value>0)
-        {
-            lights[RESET_LIGHT].value -= lights[RESET_LIGHT].value / 0.1 / engineGetSampleRate();
-        }
-
-
-        if (inputs[CLKA_INPUT].active)
-        {
-
-            if (clk.process(inputs[CLKA_INPUT].value))
-            {
-                clk1C++;
-                lights[SEQA_LIGHT + clk1C].value = 1.0f;
-                gate1.trigger(1e-3);
-            }
+/////////////////////////////////////////////////////
+        if (inputs[CLKA_INPUT].isConnected()) {
+				// External clock
+				if (clk.process(inputs[CLKA_INPUT].getVoltage())) {
+					clk1C++;
+				}
+				gateAIn = clk.isHigh();
 
             if (clk1C > maxStepA)
             {
                 clk1C = 0;
-                lights[SEQA_LIGHT + clk1C].value = 1.0;
-            }
-            pulse1 = gate1.process(1.0f / engineGetSampleRate());
-
-            if (lights[SEQA_LIGHT + clk1C].value > 0)
-            {
-                lights[SEQA_LIGHT + clk1C].value -= lights[SEQA_LIGHT + clk1C].value / 0.01 / engineGetSampleRate();
             }
 
-
-
-        }
-        else for (int i=0;i<4;i++){ lights[SEQA_LIGHT+i].value=0.0;}
-
-        if (inputs[CLKB_INPUT].active)
-        {
-            if (clkb.process(inputs[CLKB_INPUT].value))
-            {
-                clk2C++;
-                lights[SEQB_LIGHT + clk2C].value = 1.0f;
-                gate2.trigger(1e-3);
-            }
-
+			}
+		if (inputs[CLKB_INPUT].isConnected()) {
+				// External clock
+				if (clkb.process(inputs[CLKB_INPUT].getVoltage())) {
+					clk2C++;
+				}
+				gateBIn = clkb.isHigh();
             if (clk2C > maxStepB)
             {
                 clk2C = 0;
-                lights[SEQB_LIGHT + clk2C].value = 1.0;
             }
+			}	
 
-            pulse2 = gate2.process(1.0f / engineGetSampleRate());
+/////////////////////////////////////////////////////////////////
 
-            if (lights[SEQB_LIGHT + clk2C].value > 0)
-            {
-                lights[SEQB_LIGHT + clk2C].value -= lights[SEQB_LIGHT + clk2C].value / 0.01 / engineGetSampleRate();
-            }
+
+        if (reset_button.process(params[RESET_PARAM].value+inputs[RESET_INPUT].getVoltage()))
+        {
+            clk1C=0;
+            clk2C=0;
         }
-        else for (int i=0;i<4;i++){ lights[SEQB_LIGHT+i].value=0.0;}
+
 
         for (int i = 0; i < 4; i++)
         {
@@ -220,88 +219,104 @@ struct FourSeq : Module {
         if (gateState_a[clk1C])
         {
             outputs[SEQA_OUTPUT].value =clamp(inputs[CVA_INPUT+clk1C].value+params[SEQA_PARAM + clk1C].value,-3.0,3.0);
-            outputs[GATEA_OUTPUT].value = pulse1 ? 10.0f : 0.0f;
+          
         }
         if (gateState_b[clk2C])
         {
             outputs[SEQB_OUTPUT].value =clamp(inputs[CVB_INPUT+clk2C].value+params[SEQB_PARAM + clk2C].value,-3.0,3.0);
-            outputs[GATEB_OUTPUT].value = pulse2 ? 10.0f : 0.0f;
+            
         }
 
-            for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
+        {
+            if (gate_a[i].process(params[GATEA_PARAM + i].value))
             {
-                if (gate_a[i].process(params[GATEA_PARAM + i].value))
-                {
-                    gateState_a[i] = !gateState_a[i];
-                }
-                lights[GATEA_LIGHT + i].value = gateState_a[i] ? 1.0 : 0.0;
-
-                if (gate_b[i].process(params[GATEB_PARAM + i].value))
-                {
-                    gateState_b[i] = !gateState_b[i];
-                }
-                lights[GATEB_LIGHT + i].value = gateState_b[i] ? 1.0 : 0.0;
+                gateState_a[i] = !gateState_a[i];
             }
+            lights[GATEA_LIGHT + i].value = gateState_a[i] ? 1.0 : 0.0;
+            if (gate_b[i].process(params[GATEB_PARAM + i].value))
+            {
+                gateState_b[i] = !gateState_b[i];
+            }
+            lights[GATEB_LIGHT + i].value = gateState_b[i] ? 1.0 : 0.0;
+        }
+
+        lights[RESET_LIGHT].setSmoothBrightness(reset_button.isHigh(), args.sampleTime);
 
 
+    for (int i = 0; i < 4; i++) {
 
-}
-
-struct FourSeqWidget : ModuleWidget 
-{
-   FourSeqWidget(FourSeq *module) : ModuleWidget(module)
-{
-	box.size = Vec(15*8, 380);
-
-	{
-	SVGPanel *panel = new SVGPanel();
-	panel->box.size = box.size;
-    panel->setBackground(SVG::load(assetPlugin(plugin,"res/FourSeq.svg")));
-		   addChild(panel);
-    }
-
-//Screw
-  addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-  addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
-  addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-  addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
+        lights[SEQA_LIGHT+i].setSmoothBrightness((gateAIn && i == clk1C) ? 1.f : 0.0, args.sampleTime);
+        lights[SEQB_LIGHT+i].setSmoothBrightness((gateBIn && i == clk2C) ? 1.f : 0.0, args.sampleTime);
     
-   int knob=35;
-   int jack = 27;
-
-   for (int i = 0; i < 4; i++)
-   {
-       addParam(ParamWidget::create<SDKnob>(Vec(70, 28 + knob * i), module, FourSeq::SEQA_PARAM + i, -3.0,3.0, 0.0));
-       addParam(ParamWidget::create<LEDBezel>(Vec(15, 31 + knob * i), module, FourSeq::GATEA_PARAM + i, 0.0, 1.0, 0.0));
-       addChild(GrayModuleLightWidget::create<BigLight<OrangeLight>>(Vec(16, 32 + knob * i),module , FourSeq::GATEA_LIGHT+i));
+    }
+    outputs[GATEA_OUTPUT].setVoltage((gateAIn && gateState_a[clk1C]) ? 10.f : 0.f);
+    outputs[GATEB_OUTPUT].setVoltage((gateBIn && gateState_b[clk2C]) ? 10.f : 0.f);
 
 
-       addParam(ParamWidget::create<SDKnob>(Vec(70, 172 + knob * i), module, FourSeq::SEQB_PARAM + i, -3.0, 3.0, 0.0));
-       addParam(ParamWidget::create<LEDBezel>(Vec(15, 175 + knob * i), module, FourSeq::GATEB_PARAM + i, 0.0, 1.0, 0.0));
-       addChild(GrayModuleLightWidget::create<BigLight<OrangeLight>>(Vec(16, 176 + knob * i), module, FourSeq::GATEB_LIGHT + i));
 
-       addInput(Port::create<PJ301MVAPort>(Vec(40, 30.5 + knob * i), Port::INPUT, module,  FourSeq::CVA_INPUT + i));
-       addInput(Port::create<PJ301MVAPort>(Vec(40, 173.5 + knob * i), Port::INPUT, module, FourSeq::CVB_INPUT + i));
 
-       addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(105, 38 + knob * i), module, FourSeq::SEQA_LIGHT + i));
-       addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(105, 180 + knob * i), module, FourSeq::SEQB_LIGHT + i));
-   }
-   addInput(Port::create<PJ301MVAPort>(Vec(14, 170 + knob * 4), Port::INPUT, module, FourSeq::CLKA_INPUT));
-   addInput(Port::create<PJ301MVAPort>(Vec(14, 197 + knob * 4), Port::INPUT, module, FourSeq::CLKB_INPUT));
 
-   addOutput(Port::create<PJ301MVAPort>(Vec(14+jack, 170 + knob * 4), Port::OUTPUT, module, FourSeq::SEQA_OUTPUT));
-   addOutput(Port::create<PJ301MVAPort>(Vec(14+jack, 197 + knob *4), Port::OUTPUT, module, FourSeq::SEQB_OUTPUT));
 
-   addOutput(Port::create<PJ301MVAPort>(Vec(14 + jack*2, 170 + knob * 4), Port::OUTPUT, module, FourSeq::GATEA_OUTPUT));
-   addOutput(Port::create<PJ301MVAPort>(Vec(14 + jack*2, 197 + knob * 4), Port::OUTPUT, module, FourSeq::GATEB_OUTPUT));
+    }
+};
 
-   addParam(ParamWidget::create<MCKSSS>(Vec(14 + jack * 3, 172 + knob * 4), module, FourSeq::STEPA_PARAM, 0.0, 2.0, 0.0));
-   addParam(ParamWidget::create<MCKSSS>(Vec(14 + jack * 3, 199 + knob * 4), module, FourSeq::STEPB_PARAM, 0.0, 2.0, 0.0));
+template <typename BASE>
+struct SLight : BASE
+{
+  SLight()
+  {
+    this->box.size = mm2px(Vec(5, 5));
+  }
+};
 
-   addParam(ParamWidget::create<LEDBezel>(Vec(35+jack, 4), module, FourSeq::RESET_PARAM, 0.0, 1.0, 0.0));
-   addChild(GrayModuleLightWidget::create<BigLight<OrangeLight>>(Vec(36+jack,5), module, FourSeq::RESET_LIGHT));
-   addInput(Port::create<PJ301MVAPort>(Vec(35, 4), Port::INPUT, module, FourSeq::RESET_INPUT));
+struct FourSeqWidget : ModuleWidget {
+   FourSeqWidget(FourSeq *module){
+       setModule(module);
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/FourSeq.svg")));
+         
+           //Screw
+           addChild(createWidget<ScrewBlack>(Vec(15, 0)));
+           addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
+           addChild(createWidget<ScrewBlack>(Vec(15, 365)));
+           addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 365)));
+
+           int knob = 35;
+           int jack = 27;
+
+           for (int i = 0; i < 4; i++)
+           {
+               addParam(createParam<SDKnob>(Vec(70, 28 + knob * i), module, FourSeq::SEQA_PARAM + i));
+               addParam(createParam<LEDB>(Vec(15, 31 + knob * i), module, FourSeq::GATEA_PARAM + i));
+               addChild(createLight<SLight<OrangeLight>>(Vec(18, 34 + knob * i), module, FourSeq::GATEA_LIGHT + i));
+
+               addParam(createParam<SDKnob>(Vec(70, 172 + knob * i), module, FourSeq::SEQB_PARAM + i));
+               addParam(createParam<LEDB>(Vec(15, 175 + knob * i), module, FourSeq::GATEB_PARAM + i));
+               addChild(createLight<SLight<OrangeLight>>(Vec(18, 178 + knob * i),module, FourSeq::GATEB_LIGHT + i));
+
+               addInput(createInput<PJ301MVAPort>(Vec(40, 30.5 + knob * i), module, FourSeq::CVA_INPUT + i));
+               addInput(createInput<PJ301MVAPort>(Vec(40, 173.5 + knob * i), module, FourSeq::CVB_INPUT + i));
+
+               addChild(createLight<SmallLight<RedLight>>(Vec(105, 38 + knob * i), module, FourSeq::SEQA_LIGHT + i));
+               addChild(createLight<SmallLight<RedLight>>(Vec(105, 180 + knob * i), module, FourSeq::SEQB_LIGHT + i));
+           }
+           addInput(createInput<PJ301MVAPort>(Vec(14, 170 + knob * 4), module, FourSeq::CLKA_INPUT));
+           addInput(createInput<PJ301MVAPort>(Vec(14, 197 + knob * 4), module, FourSeq::CLKB_INPUT));
+
+           addOutput(createOutput<PJ301MVAPort>(Vec(14 + jack, 170 + knob * 4), module, FourSeq::SEQA_OUTPUT));
+           addOutput(createOutput<PJ301MVAPort>(Vec(14 + jack, 197 + knob * 4), module, FourSeq::SEQB_OUTPUT));
+
+           addOutput(createOutput<PJ301MVAPort>(Vec(14 + jack * 2, 170 + knob * 4), module, FourSeq::GATEA_OUTPUT));
+           addOutput(createOutput<PJ301MVAPort>(Vec(14 + jack * 2, 197 + knob * 4), module, FourSeq::GATEB_OUTPUT));
+
+           addParam(createParam<MCKSSS>(Vec(14 + jack * 3, 172 + knob * 4), module, FourSeq::STEPA_PARAM));
+           addParam(createParam<MCKSSS>(Vec(14 + jack * 3, 199 + knob * 4), module, FourSeq::STEPB_PARAM));
+
+           addParam(createParam<LEDB>(Vec(35 + jack, 4), module, FourSeq::RESET_PARAM));
+           addChild(createLight<SLight<OrangeLight>>(Vec(38 + jack, 7), module, FourSeq::RESET_LIGHT));
+
+           addInput(createInput<PJ301MVAPort>(Vec(35, 4), module, FourSeq::RESET_INPUT));
 }
 };
 
-Model *modelFourSeq = Model::create<FourSeq, FourSeqWidget>("dBiz", "FourSeq", "FourSeq", SEQUENCER_TAG);
+Model *modelFourSeq = createModel<FourSeq, FourSeqWidget>("FourSeq");
