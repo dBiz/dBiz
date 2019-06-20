@@ -3,8 +3,7 @@
 // 
 ///////////////////////////////////////////////////
 
-#include "dBiz.hpp"
-#include "dsp/digital.hpp"
+#include "plugin.hpp"
 
 using namespace std;
 
@@ -12,19 +11,19 @@ using namespace std;
 struct Divider : Module {
   enum ParamIds
   {
-		MODE_PARAM,
-    DIVISION_PARAM=MODE_PARAM+2,
-    DIVISIONB_PARAM = DIVISION_PARAM +4,
-    ON_SWITCH = DIVISIONB_PARAM +4,
-    ON_SWITCHB = ON_SWITCH+4,
-    NUM_PARAMS = ON_SWITCHB+4,
+		ENUMS(MODE_PARAM, 2),
+    ENUMS(DIVISION_PARAM, 4),
+    ENUMS(DIVISIONB_PARAM, 4),
+    ENUMS(ON_SWITCH, 4),
+    ENUMS(ON_SWITCHB, 4),
+    NUM_PARAMS 
   };
   enum InputIds {
     CLOCK_INPUT,
     CLOCKB_INPUT,
-		SUB1_INPUT,
-		SUB2_INPUT=SUB1_INPUT+4,
-    NUM_INPUTS=SUB2_INPUT+4
+		ENUMS(SUB1_INPUT, 4),
+		ENUMS(SUB2_INPUT, 4),
+    NUM_INPUTS
 	};
 	enum OutputIds
 	{
@@ -39,9 +38,9 @@ struct Divider : Module {
 
 	enum LighIds
 	{
-		LIGHT_S1,
-		LIGHT_S2 = LIGHT_S1 + 4,
-		NUM_LIGHTS = LIGHT_S2 + 4
+		ENUMS(LIGHT_S1, 4),
+		ENUMS(LIGHT_S2, 4),
+		NUM_LIGHTS
 	};
 
 
@@ -55,15 +54,25 @@ struct Divider : Module {
 	int clock3bCount = 0;
 	int clock4bCount = 0;
 
-  PulseGenerator clk1;
-  PulseGenerator clk2;
-  PulseGenerator clk3;
-  PulseGenerator clk4;
+	int divider1 = 0;
+	int divider2 = 0;
+	int divider3 = 0;
+	int divider4 = 0;
 
-	PulseGenerator clk1b;
-  PulseGenerator clk2b;
-  PulseGenerator clk3b;
-  PulseGenerator clk4b;
+	int divider1b = 0;
+	int divider2b = 0;
+	int divider3b = 0;
+	int divider4b = 0;
+
+		dsp::PulseGenerator clk1;
+  	dsp::PulseGenerator clk2;
+  	dsp::PulseGenerator clk3;
+  	dsp::PulseGenerator clk4;
+
+  	dsp::PulseGenerator clk1b;
+  	dsp::PulseGenerator clk2b;
+  	dsp::PulseGenerator clk3b;
+  	dsp::PulseGenerator clk4b;
 
 
 	bool pulse1 = false;
@@ -76,58 +85,58 @@ struct Divider : Module {
 	bool pulse3b = false;
 	bool pulse4b = false;
 
-	SchmittTrigger clk;
-	SchmittTrigger clkb;
+	dsp::SchmittTrigger clk;
+	dsp::SchmittTrigger clkb;
 
-  Divider() : Module(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS) {}
+  Divider() {
+	  config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
-  void step() override;
-  
-};
+	  for (int i = 0; i < 4; i++)
+	  {
+		  configParam(DIVISION_PARAM + i,  1, 15, 1.0, "Division");
+		  configParam(ON_SWITCH + i,  0.0, 1.0, 0.0, "On/Off");
 
-int divider1 = 0;
-int divider2 = 0;
-int divider3 = 0;
-int divider4 = 0;
+		  configParam(DIVISIONB_PARAM + i,  1, 15, 1.0, "Division B");
+		  configParam(ON_SWITCHB + i,  0.0, 1.0, 0.0 ,"On/Off B");
+	  }
 
-int divider1b = 0;
-int divider2b = 0;
-int divider3b = 0;
-int divider4b = 0;
- 
-/////////////////////////////////////////////////////
-void Divider::step() {
+	  configParam(MODE_PARAM,  0.0, 1.0, 0.0,"MODE A");
+	  configParam(MODE_PARAM + 1,  0.0, 1.0, 0.0, "MODE B");
+
+	}
 
 
+  void process(const ProcessArgs &args) override 
+ {
 
-divider1 = round(params[DIVISION_PARAM].value   + clamp(inputs[SUB1_INPUT+0].value, -15.0f, 15.0f));
-if (divider1>15) divider1=15; 
-if (divider1<=1) divider1=1;
-divider2 = round(params[DIVISION_PARAM+1].value + clamp(inputs[SUB1_INPUT+1].value, -15.0f, 15.0f));
-if (divider2>15) divider2=15; 
-if (divider2<=1) divider2=1;
-divider3 = round(params[DIVISION_PARAM+2].value + clamp(inputs[SUB1_INPUT+2].value, -15.0f, 15.0f));
-if (divider3>15) divider3=15; 
-if (divider3<=1) divider3=1;
-divider4 = round(params[DIVISION_PARAM+3].value + clamp(inputs[SUB1_INPUT+3].value, -15.0f, 15.0f));
-if (divider4>15) divider4=15; 
-if (divider4<=1) divider4=1;
+		divider1 = round(params[DIVISION_PARAM].value   + clamp(inputs[SUB1_INPUT+0].value, -15.0f, 15.0f));
+		if (divider1>15) divider1=15; 
+		if (divider1<=1) divider1=1;
+		divider2 = round(params[DIVISION_PARAM+1].value + clamp(inputs[SUB1_INPUT+1].value, -15.0f, 15.0f));
+		if (divider2>15) divider2=15; 
+		if (divider2<=1) divider2=1;
+		divider3 = round(params[DIVISION_PARAM+2].value + clamp(inputs[SUB1_INPUT+2].value, -15.0f, 15.0f));
+		if (divider3>15) divider3=15; 
+		if (divider3<=1) divider3=1;
+		divider4 = round(params[DIVISION_PARAM+3].value + clamp(inputs[SUB1_INPUT+3].value, -15.0f, 15.0f));
+		if (divider4>15) divider4=15; 
+		if (divider4<=1) divider4=1;
 
-divider1b = round(params[DIVISIONB_PARAM].value   + clamp(inputs[SUB2_INPUT+0].value, -15.0f, 15.0f));
-if (divider1b>15) divider1b=15; 
-if (divider1b<=1) divider1b=1;
-divider2b = round(params[DIVISIONB_PARAM+1].value + clamp(inputs[SUB2_INPUT+1].value, -15.0f, 15.0f));
-if (divider2b>15) divider2b=15; 
-if (divider2b<=1) divider2b=1;
-divider3b = round(params[DIVISIONB_PARAM+2].value + clamp(inputs[SUB2_INPUT+2].value, -15.0f, 15.0f));
-if (divider3b>15) divider3b=15; 
-if (divider3b<=1) divider3b=1;
-divider4b = round(params[DIVISIONB_PARAM+3].value + clamp(inputs[SUB2_INPUT+3].value, -15.0f, 15.0f));
-if (divider4b>15) divider4b=15; 
-if (divider4b<=1) divider4b=1;
+		divider1b = round(params[DIVISIONB_PARAM].value   + clamp(inputs[SUB2_INPUT+0].value, -15.0f, 15.0f));
+		if (divider1b>15) divider1b=15; 
+		if (divider1b<=1) divider1b=1;
+		divider2b = round(params[DIVISIONB_PARAM+1].value + clamp(inputs[SUB2_INPUT+1].value, -15.0f, 15.0f));
+		if (divider2b>15) divider2b=15; 
+		if (divider2b<=1) divider2b=1;
+		divider3b = round(params[DIVISIONB_PARAM+2].value + clamp(inputs[SUB2_INPUT+2].value, -15.0f, 15.0f));
+		if (divider3b>15) divider3b=15; 
+		if (divider3b<=1) divider3b=1;
+		divider4b = round(params[DIVISIONB_PARAM+3].value + clamp(inputs[SUB2_INPUT+3].value, -15.0f, 15.0f));
+		if (divider4b>15) divider4b=15; 
+		if (divider4b<=1) divider4b=1;
 
 
-if (clk.process(inputs[CLOCK_INPUT].value))
+if (clk.process(inputs[CLOCK_INPUT].getVoltage()))
  {
 		clock1Count++;
 		clock2Count++;		
@@ -135,7 +144,7 @@ if (clk.process(inputs[CLOCK_INPUT].value))
 		clock4Count++;					
  }
 
- if (clkb.process(inputs[CLOCKB_INPUT].value))
+ if (clkb.process(inputs[CLOCKB_INPUT].getVoltage()))
  {
 		clock1bCount++;
 		clock2bCount++;		
@@ -143,16 +152,17 @@ if (clk.process(inputs[CLOCK_INPUT].value))
 		clock4bCount++;					
  }
 
-if (clock1Count == 0) lights[LIGHT_S1+0].value = 1.0f; else lights[LIGHT_S1+0].value = 0.0;
-if (clock2Count == 0) lights[LIGHT_S1+1].value = 1.0f; else lights[LIGHT_S1+1].value = 0.0;
-if (clock3Count == 0) lights[LIGHT_S1+2].value = 1.0f; else lights[LIGHT_S1+2].value = 0.0;
-if (clock4Count == 0) lights[LIGHT_S1+3].value = 1.0f; else lights[LIGHT_S1+3].value = 0.0;
 
-if (clock1bCount == 0) lights[LIGHT_S2+0].value = 1.0f; else lights[LIGHT_S2+0].value = 0.0;
-if (clock2bCount == 0) lights[LIGHT_S2+1].value = 1.0f; else lights[LIGHT_S2+1].value = 0.0;
-if (clock3bCount == 0) lights[LIGHT_S2+2].value = 1.0f; else lights[LIGHT_S2+2].value = 0.0;
-if (clock4bCount == 0) lights[LIGHT_S2+3].value = 1.0f; else lights[LIGHT_S2+3].value = 0.0;
-  
+
+lights[LIGHT_S1+0].setSmoothBrightness(clock1Count == 0? 1.f : 0.0, args.sampleTime);
+lights[LIGHT_S1+1].setSmoothBrightness(clock2Count == 0? 1.f : 0.0, args.sampleTime);
+lights[LIGHT_S1+2].setSmoothBrightness(clock3Count == 0? 1.f : 0.0, args.sampleTime);
+lights[LIGHT_S1+3].setSmoothBrightness(clock4Count == 0? 1.f : 0.0, args.sampleTime);
+
+lights[LIGHT_S2+0].setSmoothBrightness(clock1bCount == 0? 1.f : 0.0, args.sampleTime);
+lights[LIGHT_S2+1].setSmoothBrightness(clock2bCount == 0? 1.f : 0.0, args.sampleTime);
+lights[LIGHT_S2+2].setSmoothBrightness(clock3bCount == 0? 1.f : 0.0, args.sampleTime);
+lights[LIGHT_S2+3].setSmoothBrightness(clock4bCount == 0? 1.f : 0.0, args.sampleTime);
 	
 	/////////////////////////////////////////////////////////////////
 
@@ -224,15 +234,15 @@ if(params[ON_SWITCHB+3].value)
 } 	
 
 //////////////////////////////////////////////////////////////////
-pulse1 = clk1.process(1.0f / engineGetSampleRate());
-pulse2 = clk2.process(1.0f / engineGetSampleRate());
-pulse3 = clk3.process(1.0f / engineGetSampleRate());
-pulse4 = clk4.process(1.0f / engineGetSampleRate());
+pulse1 = clk1.process(1.0f / APP->engine->getSampleTime());
+pulse2 = clk2.process(1.0f / APP->engine->getSampleTime());
+pulse3 = clk3.process(1.0f / APP->engine->getSampleTime());
+pulse4 = clk4.process(1.0f / APP->engine->getSampleTime());
 
-pulse1b = clk1b.process(1.0f / engineGetSampleRate());
-pulse2b = clk2b.process(1.0f / engineGetSampleRate());
-pulse3b = clk3b.process(1.0f / engineGetSampleRate());
-pulse4b = clk4b.process(1.0f / engineGetSampleRate());
+pulse1b = clk1b.process(1.0f / APP->engine->getSampleTime());
+pulse2b = clk2b.process(1.0f / APP->engine->getSampleTime());
+pulse3b = clk3b.process(1.0f / APP->engine->getSampleTime());
+pulse4b = clk4b.process(1.0f / APP->engine->getSampleTime());
 
 //////////////////////////////////////////////////////////////////
 if(params[MODE_PARAM].value)
@@ -246,7 +256,7 @@ else
 bool xora,xorb = false; 
 xora = pulse1==pulse2;
 xorb = pulse3==pulse4;
-// outputs[TRIG_OUTPUT].value =(!pulse1 && (pulse2 ^ pulse3)) || (pulse1 && !(pulse2 || pulse3)) || (!pulse2 && (pulse3 ^ pulse4)) || (pulse2 && !(pulse3 || pulse4))? 10.0f : 0.0f;
+
 outputs[TRIG_OUTPUT].value = xora == xorb ? 0.0f : 10.0f;
 outputs[AB_OUTPUT].value = xora ? 0.0f : 10.0f;
 outputs[CD_OUTPUT].value = xorb ? 0.0f : 10.0f;
@@ -263,31 +273,25 @@ else
 	bool xora2, xorb2 = false;
 	xora2 = pulse1b == pulse2b;
 	xorb2 = pulse3b == pulse4b;
-	//outputs[TRIGB_OUTPUT].value = (!pulse1b && (pulse2b ^ pulse3b)) || (pulse1b && !(pulse2b || pulse3b)) || (!pulse2b && (pulse3b ^ pulse4b)) || (pulse2b && !(pulse3b || pulse4b)) ? 10.0f : 0.0f;
+
 	outputs[TRIGB_OUTPUT].value = xora2 == xorb2 ? 0.0f : 10.0f;
 	outputs[AB2_OUTPUT].value = xora2 ? 0.0f : 10.0f;
 	outputs[CD2_OUTPUT].value = xorb2 ? 0.0f : 10.0f;
 }
 }
 
-struct DividerWidget : ModuleWidget 
-{
-DividerWidget(Divider *module) : ModuleWidget(module)
-{
-	box.size = Vec(15*10, 380);
+};
 
-	{
-		SVGPanel *panel = new SVGPanel();
-		panel->box.size = box.size;
-    panel->setBackground(SVG::load(assetPlugin(plugin,"res/Divider.svg")));
-		addChild(panel);
-    }
+struct DividerWidget : ModuleWidget {
+DividerWidget(Divider *module){
+	setModule(module);
+	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Divider.svg")));
 
 //Screw
-  addChild(Widget::create<ScrewSilver>(Vec(15, 0)));
-  addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 0)));
-  addChild(Widget::create<ScrewSilver>(Vec(15, 365)));
-  addChild(Widget::create<ScrewSilver>(Vec(box.size.x-30, 365)));
+  addChild(createWidget<ScrewBlack>(Vec(15, 0)));
+  addChild(createWidget<ScrewBlack>(Vec(box.size.x-30, 0)));
+  addChild(createWidget<ScrewBlack>(Vec(15, 365)));
+  addChild(createWidget<ScrewBlack>(Vec(box.size.x-30, 365)));
     
    int knob=35;
    int jack = 27;
@@ -296,32 +300,34 @@ DividerWidget(Divider *module) : ModuleWidget(module)
    //
    for (int i = 0; i < 4; i++)
    {
-	   addParam(ParamWidget::create<SDKnob>(Vec(si + 70, 20 + knob * i), module, Divider::DIVISION_PARAM + i, 1, 15, 1.0));
-	   addParam(ParamWidget::create<SilverSwitch>(Vec(si + 10, 20 + knob * i), module, Divider::ON_SWITCH + i, 0.0, 1.0, 0.0));
+	   addParam(createParam<SDKnob>(Vec(si + 70, 20 + knob * i), module, Divider::DIVISION_PARAM + i));
+	   addParam(createParam<SilverSwitch>(Vec(si + 10, 20 + knob * i), module, Divider::ON_SWITCH + i));
 
-	   addParam(ParamWidget::create<SDKnob>(Vec(si + 70, 170 + knob * i), module, Divider::DIVISIONB_PARAM + i, 1, 15, 1.0));
-	   addParam(ParamWidget::create<SilverSwitch>(Vec(si + 10, 170 + knob * i), module, Divider::ON_SWITCHB + i, 0.0, 1.0, 0.0));
+	   addParam(createParam<SDKnob>(Vec(si + 70, 170 + knob * i), module, Divider::DIVISIONB_PARAM + i));
+	   addParam(createParam<SilverSwitch>(Vec(si + 10, 170 + knob * i), module, Divider::ON_SWITCHB + i));
 
-	   addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(si + 105, 30 + knob * i), module, Divider::LIGHT_S1 + i));
-	   addChild(ModuleLightWidget::create<SmallLight<RedLight>>(Vec(si + 105, 180 + knob * i), module, Divider::LIGHT_S2 + i));
+	   addChild(createLight<SmallLight<RedLight>>(Vec(si + 105, 30 + knob * i), module, Divider::LIGHT_S1 + i));
+	   addChild(createLight<SmallLight<RedLight>>(Vec(si + 105, 180 + knob * i), module, Divider::LIGHT_S2 + i));
 
-	   addInput(Port::create<PJ301MVAPort>(Vec(si + 40, 22.5 + knob * i), Port::INPUT, module, Divider::SUB1_INPUT + i));
-	   addInput(Port::create<PJ301MVAPort>(Vec(si + 40, 173.5 + knob * i), Port::INPUT, module, Divider::SUB2_INPUT + i));
+	   addInput(createInput<PJ301MVAPort>(Vec(si + 40, 22.5 + knob * i), module, Divider::SUB1_INPUT + i));
+	   addInput(createInput<PJ301MVAPort>(Vec(si + 40, 173.5 + knob * i), module, Divider::SUB2_INPUT + i));
 }
 
 
-addInput(Port::create<PJ301MVAPort>(Vec(15, 310), Port::INPUT, module, Divider::CLOCK_INPUT));
-addOutput(Port::create<PJ301MVAPort>(Vec(15 + jack * 1, 310), Port::OUTPUT, module, Divider::AB_OUTPUT));
-addOutput(Port::create<PJ301MVAPort>(Vec(15 + jack * 2, 310), Port::OUTPUT, module, Divider::CD_OUTPUT));
-addOutput(Port::create<PJ301MVAPort>(Vec(15 + jack * 3, 310), Port::OUTPUT, module, Divider::TRIG_OUTPUT));
-addParam(ParamWidget::create<MCKSSS>(Vec(15 + jack * 4, 313), module, Divider::MODE_PARAM + 0, 0.0, 1.0, 0.0));
+addInput(createInput<PJ301MVAPort>(Vec(15, 310), module, Divider::CLOCK_INPUT));
+addOutput(createOutput<PJ301MVAPort>(Vec(15 + jack * 1, 310), module, Divider::AB_OUTPUT));
+addOutput(createOutput<PJ301MVAPort>(Vec(15 + jack * 2, 310), module, Divider::CD_OUTPUT));
+addOutput(createOutput<PJ301MVAPort>(Vec(15 + jack * 3, 310), module, Divider::TRIG_OUTPUT));
 
-addInput(Port::create<PJ301MVAPort>(Vec(15, 310 + jack), Port::INPUT, module, Divider::CLOCKB_INPUT));
-addOutput(Port::create<PJ301MVAPort>(Vec(15 + jack * 1, 310 + jack), Port::OUTPUT, module, Divider::AB2_OUTPUT));
-addOutput(Port::create<PJ301MVAPort>(Vec(15 + jack * 2, 310 + jack), Port::OUTPUT, module, Divider::CD2_OUTPUT));
-addOutput(Port::create<PJ301MVAPort>(Vec(15 + jack * 3, 310 + jack), Port::OUTPUT, module, Divider::TRIGB_OUTPUT));
+addParam(createParam<MCKSSS2>(Vec(15 + jack * 4, 313), module, Divider::MODE_PARAM + 0));
 
-addParam(ParamWidget::create<MCKSSS>(Vec(15 + jack * 4, 313 + jack), module, Divider::MODE_PARAM + 1, 0.0, 1.0, 0.0));
+addInput(createInput<PJ301MVAPort>(Vec(15, 310 + jack), module, Divider::CLOCKB_INPUT));
+addOutput(createOutput<PJ301MVAPort>(Vec(15 + jack * 1, 310 + jack), module, Divider::AB2_OUTPUT));
+addOutput(createOutput<PJ301MVAPort>(Vec(15 + jack * 2, 310 + jack), module, Divider::CD2_OUTPUT));
+addOutput(createOutput<PJ301MVAPort>(Vec(15 + jack * 3, 310 + jack), module, Divider::TRIGB_OUTPUT));
+
+addParam(createParam<MCKSSS2>(Vec(15 + jack * 4, 313 + jack), module, Divider::MODE_PARAM + 1));
 }
 };
-Model *modelDivider = Model::create<Divider, DividerWidget>("dBiz", "Divider", "Divider", QUANTIZER_TAG);
+
+Model *modelDivider = createModel<Divider, DividerWidget>("Divider");
