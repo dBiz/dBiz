@@ -1,14 +1,16 @@
 {
-    "slug": "dBiz",
-    "name": "dBiz",
-    "author": "Ghisleni Giovanni",
-    "license": "BSD-3-Clause",
-    "authorEmail": "giovanni.ghisleni@gmail.com",
-    "authorUrl": "https://github.com/dBiz/",
-    "sourceUrl": "https://github.com/dBiz/dBiz",
-	"pluginUrl": https://github.com/dBiz/dBiz/releases
-	"manualUrl": https://github.com/dBiz/dBiz/wiki
-    "version": "1.0.0",
+
+ "slug": "dBiz",
+  "version": "1.0.0",
+  "license": "BSD-3-Clause",
+  "name": "dBiz",
+  "brand": "dBiz",
+  "author": "Giovanni Ghisleni",
+  "authorEmail": "giovanni.ghisleni@gmail.com",
+  "pluginUrl": "https://github.com/dBiz/dBiz/releases",
+  "authorUrl": "https://github.com/dBiz/",
+  "manualUrl": "https://github.com/dBiz/dBiz/wiki",
+  "sourceUrl": "https://github.com/dBiz/dBiz",
  
     "modules": [
 
