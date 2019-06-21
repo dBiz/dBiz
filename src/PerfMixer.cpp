@@ -2,10 +2,11 @@
 #include "plugin.hpp"
 
 ///////////////////////////////////////////////////
+
 struct PerfMixer : Module {
   enum ParamIds
   {
-    MIX_PARAM,
+    MAIN_VOL_PARAM,
     AUX_R1_PARAM,
     AUX_R2_PARAM,
     AUX_S1_PARAM,
@@ -23,9 +24,8 @@ struct PerfMixer : Module {
     MIX_IN_R_INPUT,
     ENUMS(CH_L_INPUT, 8), 
     ENUMS(CH_R_INPUT, 8),
-    ENUMS(CH_VOL_INPUT, 8),
+    ENUMS(CH_VOL_INPUT,8),
     ENUMS(CH_PAN_INPUT, 8),
-   // ENUMS(CH_MUTE_INPUT, 8),
     ENUMS(AUX_1_INPUT, 8),
     ENUMS(AUX_2_INPUT, 8),
     RETURN_1_L_INPUT,
@@ -86,7 +86,7 @@ struct PerfMixer : Module {
   {
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS,NUM_LIGHTS);
 
-    configParam(MIX_PARAM,  0.0, 1.0, 0.5,"Mix Level", "%", 0, 100);
+    configParam(MAIN_VOL_PARAM,  0.0, 1.0, 0.5,"Mix Level", "%", 0, 100);
     configParam(AUX_R1_PARAM,  0.0, 1.0, 0.0,"Aux Return 1", "%", 0, 100);
     configParam(AUX_R2_PARAM,  0.0, 1.0, 0.0,"Aux Return 2", "%", 0, 100);
     configParam(AUX_S1_PARAM,  0.0, 1.0, 0.0,"Auz Send 1", "%", 0, 100); 
@@ -101,10 +101,8 @@ struct PerfMixer : Module {
       configParam(MUTE_PARAM + i,  0.0, 1.0, 0.0,"Mute", "%", 0, 1);
   
     }
-
    lightCounter.setDivision(256);
-
-
+   onReset();
   }
 
 
@@ -200,8 +198,8 @@ void process(const ProcessArgs &args) override {
   if (lightCounter.process()) 
   {
     for(int i=0;i<8;i++){
-      lights[METERL_LIGHT + i * 11 +0].setBrightness(vuBarsL[i].getBrightness(0.f,0.f));
-      lights[METERR_LIGHT + i * 11 +0].setBrightness(vuBarsR[i].getBrightness(0.f,0.f));
+      //lights[METERL_LIGHT + i * 11].setBrightness(vuBarsL[i].getBrightness(0.f,0.f));
+      //lights[METERR_LIGHT + i * 11].setBrightness(vuBarsR[i].getBrightness(0.f,0.f));
 
           for (int l = 1; l < 11; l++)
           {
@@ -229,8 +227,8 @@ void process(const ProcessArgs &args) override {
     float return_2_r = inputs[RETURN_2_R_INPUT].value * params[AUX_R2_PARAM].value;
 
 
-  	float mix_l = (left_sum + return_1_l + return_2_l) * params[MIX_PARAM].value*0.5;
-    float mix_r = (right_sum + return_1_r + return_2_r) * params[MIX_PARAM].value*0.5;
+  	float mix_l = (left_sum + return_1_l + return_2_l) * params[MAIN_VOL_PARAM].value*0.5;
+    float mix_r = (right_sum + return_1_r + return_2_r) * params[MAIN_VOL_PARAM].value*0.5;
       
     
     float send_1_L_mix = (send_1_L_sum) * params[AUX_S1_PARAM].value;
@@ -249,8 +247,14 @@ void process(const ProcessArgs &args) override {
 
     	
   }
+  void onReset() override
+  {
+    for (int i = 0; i < 8; i++)
+    {
+      mute_states[i] = false;
+    }
+  }
 
-  
   json_t *dataToJson() override
   {
     json_t *rootJ = json_object();
@@ -316,7 +320,7 @@ PerfMixerWidget(PerfMixer *module){
   int row_in = 40;
   int column_spacing = 30;
 
-  addParam(createParam<LRoundWhy>(Vec(right_column + 5, 10), module, PerfMixer::MIX_PARAM)); // master volume
+  addParam(createParam<LRoundWhy>(Vec(right_column + 5, 10), module, PerfMixer::MAIN_VOL_PARAM)); // master volume
   addParam(createParam<MicroBlu>(Vec(right_column+7.5, 225 ), module, PerfMixer::AUX_R1_PARAM));
   addParam(createParam<MicroBlu>(Vec(right_column+7.5, 285 ), module, PerfMixer::AUX_R2_PARAM));
   addParam(createParam<MicroBlu>(Vec(right_column+7.5, 102.5 ), module, PerfMixer::AUX_S1_PARAM));
