@@ -6,6 +6,8 @@
     "authorEmail": "giovanni.ghisleni@gmail.com",
     "authorUrl": "https://github.com/dBiz/",
     "sourceUrl": "https://github.com/dBiz/dBiz",
+	"pluginUrl": https://github.com/dBiz/dBiz/releases
+	"manualUrl": https://github.com/dBiz/dBiz/wiki
     "version": "1.0.0",
  
     "modules": [
@@ -13,7 +15,7 @@
         {
             "slug": "Multiple",
             "name": "Multiple",
-            "tags": ["UTIL"]
+            "tags": ["Utility"]
         },
         {
             "slug": "Contorno",
@@ -24,13 +26,13 @@
         {
             "slug": "Transpose",
             "name": "Transpose",
-            "tags": ["UTIL"]
+            "tags": ["Utility"]
         },
 
         {
             "slug": "Utility",
             "name": "Utility",
-            "tags": ["UTIL"]
+            "tags": ["Utility"]
         },
 
         {
