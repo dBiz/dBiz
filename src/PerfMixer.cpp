@@ -57,16 +57,16 @@ struct PerfMixer : Module {
 
   dsp::SchmittTrigger mute_triggers[8];
 
-  bool mute_states[8];
+  bool mute_states[8]= {false};
 
-  float ch_l_ins[8];
-  float ch_r_ins[8];
-  float channel_outs_l[8];
-  float channel_outs_r[8];
-  float channel_s1_L[8];
-  float channel_s1_R[8];
-  float channel_s2_L[8];
-  float channel_s2_R[8];
+  float ch_l_ins[8]={};
+  float ch_r_ins[8]={};
+  float channel_outs_l[8]={};
+  float channel_outs_r[8]={};
+  float channel_s1_L[8]={};
+  float channel_s1_R[8]={};
+  float channel_s2_L[8]={};
+  float channel_s2_R[8]={};
   float left_sum = 0.0;
   float right_sum = 0.0;
 
@@ -102,6 +102,7 @@ struct PerfMixer : Module {
   
     }
    lightCounter.setDivision(256);
+
    onReset();
   }
 
@@ -198,9 +199,7 @@ void process(const ProcessArgs &args) override {
   if (lightCounter.process()) 
   {
     for(int i=0;i<8;i++){
-      //lights[METERL_LIGHT + i * 11].setBrightness(vuBarsL[i].getBrightness(0.f,0.f));
-      //lights[METERR_LIGHT + i * 11].setBrightness(vuBarsR[i].getBrightness(0.f,0.f));
-
+    
           for (int l = 1; l < 11; l++)
           {
             lights[METERL_LIGHT + (i * 11)+l].setBrightness(vuBarsL[i].getBrightness(-3.f * (l + 1), -3.f * l));
