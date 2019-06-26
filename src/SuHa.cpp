@@ -1,61 +1,118 @@
 #include "plugin.hpp"
 
-extern float sawTable[2048];
+using simd::float_4;
 
-template <int OVERSAMPLE, int QUALITY>
+// Accurate only on [0, 1]
+template <typename T>
+T sin2pi_pade_05_7_6(T x)
+{
+	x -= 0.5f;
+	return (T(-6.28319) * x + T(35.353) * simd::pow(x, 3) - T(44.9043) * simd::pow(x, 5) + T(16.0951) * simd::pow(x, 7)) / (1 + T(0.953136) * simd::pow(x, 2) + T(0.430238) * simd::pow(x, 4) + T(0.0981408) * simd::pow(x, 6));
+}
 
+template <typename T>
+T sin2pi_pade_05_5_4(T x)
+{
+	x -= 0.5f;
+	return (T(-6.283185307) * x + T(33.19863968) * simd::pow(x, 3) - T(32.44191367) * simd::pow(x, 5)) / (1 + T(1.296008659) * simd::pow(x, 2) + T(0.7028072946) * simd::pow(x, 4));
+}
+
+template <typename T>
+T expCurve(T x)
+{
+	return (3 + x * (-13 + 5 * x)) / (3 + 2 * x);
+}
+
+template <int OVERSAMPLE, int QUALITY, typename T>
 struct subBank
 {
+	bool analog = false;
+	bool soft = false;
+	bool syncEnabled = false;
+	// For optimizing in serial code
+	int channels = 0;
 
-	float phase = 0.0;
-	float freq;
-	float pitch;
+	T lastSyncValue = 0.f;
+	T phase = 0.f;
+	T freq;
+	T pulseWidth = 0.5f;
+	T syncDirection = 1.f;
 
-	dsp::Decimator<OVERSAMPLE, QUALITY> sawDecimator;
+	dsp::MinBlepGenerator<QUALITY, OVERSAMPLE, T> sawMinBlep;
 
-	// For analog detuning effect
-	float pitchSlew = 0.0f;
-	int pitchSlewIndex = 0;
+	T sawValue = 0.f;
 
-	float sawBuffer[OVERSAMPLE] = {};
-
-	//void setPitch(float pitchKnob, float pitchCv)
-	void setPitch(float pitchKnob, float pitchCv)
+	void setPitch(T pitch)
 	{
-		// Compute frequency
-		pitch = pitchKnob;
-		const float pitchSlewAmount = 3.0f;
-		pitch += pitchSlew * pitchSlewAmount;
-		pitch += pitchCv;
-		// Note C3
-		freq = 261.626f * powf(2.0, pitch / 12.0);
-		// Accumulate the phase
+		freq = dsp::FREQ_C4 * simd::pow(2.f, pitch);
 	}
 
-void process(float deltaTime) {
-			// Adjust pitch slew
-			if (++pitchSlewIndex > 32) {
-				const float pitchSlewTau = 100.0f; // Time constant for leaky integrator in seconds
-				pitchSlew += (random::normal() - pitchSlew / pitchSlewTau) * APP->engine->getSampleTime();
-				pitchSlewIndex = 0;
-			}
+	void process(float deltaTime, T syncValue)
+	{
 		// Advance phase
-		float deltaPhase = clamp(freq * deltaTime, 1e-6, 0.5f);
-
-
-
-		for (int i = 0; i < OVERSAMPLE; i++) {
-			sawBuffer[i] = 1.66f * interpolateLinear(sawTable, phase * 2047.f);
-			// Advance phase
-			phase += deltaPhase / OVERSAMPLE;
-			phase = eucMod(phase, 1.0f);
+		T deltaPhase = simd::clamp(freq * deltaTime, 1e-6f, 0.35f);
+		if (soft)
+		{
+			// Reverse direction
+			deltaPhase *= syncDirection;
 		}
+		else
+		{
+			// Reset back to forward
+			syncDirection = 1.f;
+		}
+		phase += deltaPhase;
+		// Wrap phase
+		phase -= simd::floor(phase);
+
+		
+		// Jump saw when crossing 0.5
+		T halfCrossing = (0.5f - (phase - deltaPhase)) / deltaPhase;
+		int halfMask = simd::movemask((0 < halfCrossing) & (halfCrossing <= 1.f));
+		if (halfMask)
+		{
+			for (int i = 0; i < channels; i++)
+			{
+				if (halfMask & (1 << i))
+				{
+					T mask = simd::movemaskInverse<T>(1 << i);
+					float p = halfCrossing[i] - 1.f;
+					T x = mask & (-2.f * syncDirection);
+					sawMinBlep.insertDiscontinuity(p, x);
+				}
+			}
+		}
+
+		// Saw
+		sawValue = saw(phase);
+		sawValue += sawMinBlep.process();
+
 	}
 
-	float saw() {
-		return sawDecimator.process(sawBuffer);
+	T saw(T phase)
+	{
+		T v;
+		T x = phase + 0.5f;
+		x -= simd::trunc(x);
+		if (analog)
+		{
+			v = -expCurve(x);
+		}
+		else
+		{
+			v = 2 * x - 1;
+		}
+		return v;
+	}
+	T saw()
+	{
+		return sawValue;
+	}
 
-}
+	T light()
+	{
+		return simd::sin(2 * T(M_PI) * phase);
+	}
 };
 
 struct SuHa : Module {
@@ -89,9 +146,9 @@ struct SuHa : Module {
 		NUM_LIGHTS
 	};
 
-	subBank <16,16> VCO[2]={};
-	subBank <16,16> SUB1[2]={};
-	subBank <16,16> SUB2[2]={};
+	subBank <16,16,float_4> VCO[2]={};
+	subBank <16,16,float_4> SUB1[2]={};
+	subBank <16,16,float_4> SUB2[2]={};
 
 
 	SuHa() 
@@ -117,43 +174,49 @@ struct SuHa : Module {
 
 		int s1[2]={};
 		int s2[2] = {};
-		float sum=0.0f;
+		float_4 sum=0.0f;
+
+		float_4 pitch[2];
+		float freq[2];
 
 		for (int i=0;i<2;i++)
-		{
-		s1[i] = round(params[SUB1_PARAM+i].value + clamp(inputs[SUB1_INPUT+i].value, -15.0f, 15.0f));
+		{	
+		
+		freq[i]=params[VCO_PARAM+i].getValue()/12.f;
+		pitch[i]=freq[i];
+		pitch[i]+=inputs[VCO_INPUT + i].getVoltageSimd<float_4>(0);
+
+		
+		s1[i] = round(params[SUB1_PARAM+i].getValue() + clamp(inputs[SUB1_INPUT+i].getVoltage(), -15.0f, 15.0f));
 		if (s1[i]>15) s1[i]=15;
 		if (s1[i]<=1) s1[i]=1;
 
-		s2[i] = round(params[SUB2_PARAM+i].value + clamp(inputs[SUB2_INPUT+i].value, -15.0f, 15.0f));
+		s2[i] = round(params[SUB2_PARAM + i].getValue() + clamp(inputs[SUB2_INPUT + i].getVoltage(), -15.0f, 15.0f));
 		if (s2[i]>15) s2[i]=15;
 		if (s2[i]<=1) s2[i]=1;
 
-
-		VCO[i].setPitch(params[VCO_PARAM+i].value,12*inputs[VCO_INPUT+i].value);
+		VCO[i].setPitch(pitch[i]);
 		SUB1[i].freq=VCO[i].freq/s1[i];
 		SUB2[i].freq=VCO[i].freq/s2[i];
 
-		VCO[i].process(APP->engine->getSampleTime());
-		SUB1[i].process(APP->engine->getSampleTime());
-		SUB2[i].process(APP->engine->getSampleTime());
+		VCO[i].process(args.sampleTime, 0.f);
+		SUB1[i].process(args.sampleTime, 0.f);
+		SUB2[i].process(args.sampleTime, 0.f);
 
-		outputs[VCO_OUTPUT + i].value =  2.0f * VCO[i].saw()*params[VCO_VOL_PARAM+i].value;
-		outputs[SUB1_OUTPUT + i].value = 2.0f * SUB1[i].saw()*params[SUB1_VOL_PARAM+i].value;
-		outputs[SUB2_OUTPUT + i].value = 2.0f * SUB2[i].saw()*params[SUB2_VOL_PARAM+i].value;
-
+		outputs[VCO_OUTPUT + i].setVoltageSimd(2.0f * VCO[i].saw()* params[VCO_VOL_PARAM + i].getValue(),0);
+		outputs[SUB1_OUTPUT + i].setVoltageSimd(2.0f * SUB1[i].saw() * params[SUB1_VOL_PARAM + i].getValue(),0);
+		outputs[SUB2_OUTPUT + i].setVoltageSimd(2.0f * SUB2[i].saw() * params[SUB2_VOL_PARAM + i].getValue(),0);
 		}
 
 		for (int i = 0; i < 2; i++)
 		{
-			sum += clamp(outputs[VCO_OUTPUT + i].value + outputs[SUB1_OUTPUT + i].value + outputs[SUB2_OUTPUT + i].value,-5.0f,5.0f);
+			sum += clamp(outputs[VCO_OUTPUT + i].getVoltage() + outputs[SUB1_OUTPUT + i].getVoltage() + outputs[SUB2_OUTPUT + i].getVoltage(), -5.0f, 5.0f);
 		}
 
 
-		outputs[SUM_OUTPUT].value=sum*params[SUM_VOL_PARAM].value;
+		outputs[SUM_OUTPUT].setVoltageSimd(sum,0);
 
-
-}
+	}
 };
 
 
@@ -182,19 +245,19 @@ struct SuHaWidget : ModuleWidget {
 			addParam(createParam<DKnob>(Vec(Side + 6 + 2 * KS, 87 +i*KS), module, SuHa::SUB2_PARAM +i));
 
 
-			addParam(createParam<Trimpot>(Vec(Side + 15, 25 + i*30), module, SuHa::VCO_VOL_PARAM +i));
-			addParam(createParam<Trimpot>(Vec(Side + 15 + KS, 25 + i*30), module, SuHa::SUB1_VOL_PARAM +i));
-			addParam(createParam<Trimpot>(Vec(Side + 15 + 2 * KS, 25 + i*30), module, SuHa::SUB2_VOL_PARAM +i));
+			addParam(createParam<Trimpot>(Vec(Side + 15, 20 + i*30), module, SuHa::VCO_VOL_PARAM +i));
+			addParam(createParam<Trimpot>(Vec(Side + 15 + KS, 20 + i*30), module, SuHa::SUB1_VOL_PARAM +i));
+			addParam(createParam<Trimpot>(Vec(Side + 15 + 2 * KS, 20 + i*30), module, SuHa::SUB2_VOL_PARAM +i));
 			
 
-			addInput(createInput<PJ301MVAPort>(Vec(Side + 11, 215+i*JS),  module, SuHa::VCO_INPUT +i));
-			addInput(createInput<PJ301MVAPort>(Vec(Side + 11 + KS, 215+i*JS),  module, SuHa::SUB1_INPUT +i));
-			addInput(createInput<PJ301MVAPort>(Vec(Side + 11 + 2 * KS, 215+i*JS),  module, SuHa::SUB2_INPUT +i));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 11, 220+i*JS),  module, SuHa::VCO_INPUT +i));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 11 + KS, 220+i*JS),  module, SuHa::SUB1_INPUT +i));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 11 + 2 * KS, 220+i*JS),  module, SuHa::SUB2_INPUT +i));
 
 
-			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11, 215 + 2 * JS+i*JS),  module, SuHa::VCO_OUTPUT +i));
-			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11 + KS, 215 + 2 * JS+i*JS),  module, SuHa::SUB1_OUTPUT +i));
-			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11 + 2 * KS, 215 + 2 * JS+i*JS),  module, SuHa::SUB2_OUTPUT +i));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11, 220 + 2 * JS+i*JS),  module, SuHa::VCO_OUTPUT +i));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11 + KS, 220 + 2 * JS+i*JS),  module, SuHa::SUB1_OUTPUT +i));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11 + 2 * KS, 220 + 2 * JS+i*JS),  module, SuHa::SUB2_OUTPUT +i));
 
 		}
 
