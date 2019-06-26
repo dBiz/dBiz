@@ -1,188 +1,282 @@
 
 #include "plugin.hpp"
 
-extern float sawTable[2048];
-extern float triTable[2048];
+using simd::float_4;
 
-template <int OVERSAMPLE, int QUALITY>
-struct VoltageControlledOscillator
+// Accurate only on [0, 1]
+template <typename T>
+T sin2pi_pade_05_7_6(T x)
+{
+	x -= 0.5f;
+	return (T(-6.28319) * x + T(35.353) * simd::pow(x, 3) - T(44.9043) * simd::pow(x, 5) + T(16.0951) * simd::pow(x, 7)) / (1 + T(0.953136) * simd::pow(x, 2) + T(0.430238) * simd::pow(x, 4) + T(0.0981408) * simd::pow(x, 6));
+}
+
+template <typename T>
+T sin2pi_pade_05_5_4(T x)
+{
+	x -= 0.5f;
+	return (T(-6.283185307) * x + T(33.19863968) * simd::pow(x, 3) - T(32.44191367) * simd::pow(x, 5)) / (1 + T(1.296008659) * simd::pow(x, 2) + T(0.7028072946) * simd::pow(x, 4));
+}
+
+template <typename T>
+T expCurve(T x)
+{
+	return (3 + x * (-13 + 5 * x)) / (3 + 2 * x);
+}
+
+template <int OVERSAMPLE, int QUALITY, typename T>
+struct Oscillator
 {
 	bool analog = false;
 	bool soft = false;
-	float lastSyncValue = 0.0f;
-	float phase = 0.0f;
-	float freq;
-	float pw = 0.5f;
-	float pitch;
 	bool syncEnabled = false;
-	bool syncDirection = false;
+	// For optimizing in serial code
+	int channels = 0;
 
-	dsp::Decimator<OVERSAMPLE, QUALITY> triDecimator;
-	dsp::Decimator<OVERSAMPLE, QUALITY> sinDecimator;
-	dsp::Decimator<OVERSAMPLE, QUALITY> sawDecimator;
-	dsp::Decimator<OVERSAMPLE, QUALITY> sqrDecimator;
-	dsp::RCFilter sqrFilter;
+	T lastSyncValue = 0.f;
+	T phase = 0.f;
+	T freq;
+	T pulseWidth = 0.5f;
+	T syncDirection = 1.f;
 
-	// For analog detuning effect
-	float pitchSlew = 0.0f;
-	int pitchSlewIndex = 0;
+	dsp::TRCFilter<T> sqrFilter;
 
-	float sinBuffer[OVERSAMPLE] = {};
-	float triBuffer[OVERSAMPLE] = {};
-	float sawBuffer[OVERSAMPLE] = {};
-	float sqrBuffer[OVERSAMPLE] = {};
+	dsp::MinBlepGenerator<QUALITY, OVERSAMPLE, T> sqrMinBlep;
+	dsp::MinBlepGenerator<QUALITY, OVERSAMPLE, T> sawMinBlep;
+	dsp::MinBlepGenerator<QUALITY, OVERSAMPLE, T> triMinBlep;
+	dsp::MinBlepGenerator<QUALITY, OVERSAMPLE, T> sinMinBlep;
 
-	void setPitch(float pitchKnob, float pitchCv)
+	T sqrValue = 0.f;
+	T sawValue = 0.f;
+	T triValue = 0.f;
+	T sinValue = 0.f;
+
+	void setPitch(T pitch)
 	{
-		// Compute frequency
-		pitch = pitchKnob;
-		if (analog)
+		freq = dsp::FREQ_C4 * simd::pow(2.f, pitch);
+	}
+	void setPulseWidth(T pulseWidth)
+	{
+		const float pwMin = 0.01f;
+		this->pulseWidth = simd::clamp(pulseWidth, pwMin, 1.f - pwMin);
+	}
+
+	void process(float deltaTime, T syncValue)
+	{
+		// Advance phase
+		T deltaPhase = simd::clamp(freq * deltaTime, 1e-6f, 0.35f);
+		if (soft)
 		{
-			// Apply pitch slew
-			const float pitchSlewAmount = 3.0f;
-			pitch += pitchSlew * pitchSlewAmount;
+			// Reverse direction
+			deltaPhase *= syncDirection;
 		}
 		else
 		{
-			// Quantize coarse knob if digital mode
-			pitch = std::round(pitch);
+			// Reset back to forward
+			syncDirection = 1.f;
 		}
-		pitch += pitchCv;
-		// Note C4
-		freq = dsp::FREQ_C4 * std::pow(2.f, pitch / 12.f);
-	}
-	void setPulseWidth(float pulseWidth)
-	{
-		const float pwMin = 0.01f;
-		pw = clamp(pulseWidth, pwMin, 1.0f - pwMin);
-	}
+		phase += deltaPhase;
+		// Wrap phase
+		phase -= simd::floor(phase);
 
-	void process(float deltaTime, float syncValue)
-	{
-		if (analog)
+		// Jump sqr when crossing 0, or 1 if backwards
+		T wrapPhase = (syncDirection == -1.f) & 1.f;
+		T wrapCrossing = (wrapPhase - (phase - deltaPhase)) / deltaPhase;
+		int wrapMask = simd::movemask((0 < wrapCrossing) & (wrapCrossing <= 1.f));
+		if (wrapMask)
 		{
-			// Adjust pitch slew
-			if (++pitchSlewIndex > 32)
+			for (int i = 0; i < channels; i++)
 			{
-				const float pitchSlewTau = 100.0f; // Time constant for leaky integrator in seconds
-				pitchSlew += (random::normal() - pitchSlew / pitchSlewTau) * APP->engine->getSampleTime();
-				pitchSlewIndex = 0;
+				if (wrapMask & (1 << i))
+				{
+					T mask = simd::movemaskInverse<T>(1 << i);
+					float p = wrapCrossing[i] - 1.f;
+					T x = mask & (2.f * syncDirection);
+					sqrMinBlep.insertDiscontinuity(p, x);
+				}
 			}
 		}
 
-		// Advance phase
-		float deltaPhase = clamp(freq * deltaTime, 1e-6, 0.5f);
+		// Jump sqr when crossing `pulseWidth`
+		T pulseCrossing = (pulseWidth - (phase - deltaPhase)) / deltaPhase;
+		int pulseMask = simd::movemask((0 < pulseCrossing) & (pulseCrossing <= 1.f));
+		if (pulseMask)
+		{
+			for (int i = 0; i < channels; i++)
+			{
+				if (pulseMask & (1 << i))
+				{
+					T mask = simd::movemaskInverse<T>(1 << i);
+					float p = pulseCrossing[i] - 1.f;
+					T x = mask & (-2.f * syncDirection);
+					sqrMinBlep.insertDiscontinuity(p, x);
+				}
+			}
+		}
+
+		// Jump saw when crossing 0.5
+		T halfCrossing = (0.5f - (phase - deltaPhase)) / deltaPhase;
+		int halfMask = simd::movemask((0 < halfCrossing) & (halfCrossing <= 1.f));
+		if (halfMask)
+		{
+			for (int i = 0; i < channels; i++)
+			{
+				if (halfMask & (1 << i))
+				{
+					T mask = simd::movemaskInverse<T>(1 << i);
+					float p = halfCrossing[i] - 1.f;
+					T x = mask & (-2.f * syncDirection);
+					sawMinBlep.insertDiscontinuity(p, x);
+				}
+			}
+		}
 
 		// Detect sync
-		int syncIndex = -1;		   // Index in the oversample loop where sync occurs [0, OVERSAMPLE)
-		float syncCrossing = 0.0f; // Offset that sync occurs [0.0f, 1.0f)
+		// Might be NAN or outside of [0, 1) range
 		if (syncEnabled)
 		{
-			syncValue -= 0.01f;
-			if (syncValue > 0.0f && lastSyncValue <= 0.0f)
-			{
-				float deltaSync = syncValue - lastSyncValue;
-				syncCrossing = 1.0f - syncValue / deltaSync;
-				syncCrossing *= OVERSAMPLE;
-				syncIndex = (int)syncCrossing;
-				syncCrossing -= syncIndex;
-			}
+			T syncCrossing = -lastSyncValue / (syncValue - lastSyncValue);
 			lastSyncValue = syncValue;
-		}
-
-		if (syncDirection)
-			deltaPhase *= -1.0f;
-
-		sqrFilter.setCutoff(40.0f * deltaTime);
-
-		for (int i = 0; i < OVERSAMPLE; i++)
-		{
-			if (syncIndex == i)
+			T sync = (0.f < syncCrossing) & (syncCrossing <= 1.f);
+			int syncMask = simd::movemask(sync);
+			if (syncMask)
 			{
 				if (soft)
 				{
-					syncDirection = !syncDirection;
-					deltaPhase *= -1.0f;
+					syncDirection = simd::ifelse(sync, -syncDirection, syncDirection);
 				}
 				else
 				{
-					// phase = syncCrossing * deltaPhase / OVERSAMPLE;
-					phase = 0.0f;
+					T newPhase = simd::ifelse(sync, syncCrossing * deltaPhase, phase);
+					// Insert minBLEP for sync
+					for (int i = 0; i < channels; i++)
+					{
+						if (syncMask & (1 << i))
+						{
+							T mask = simd::movemaskInverse<T>(1 << i);
+							float p = syncCrossing[i] - 1.f;
+							T x;
+							x = mask & (sqr(newPhase) - sqr(phase));
+							sqrMinBlep.insertDiscontinuity(p, x);
+							x = mask & (saw(newPhase) - saw(phase));
+							sawMinBlep.insertDiscontinuity(p, x);
+							x = mask & (tri(newPhase) - tri(phase));
+							triMinBlep.insertDiscontinuity(p, x);
+							x = mask & (sin(newPhase) - sin(phase));
+							sinMinBlep.insertDiscontinuity(p, x);
+						}
+					}
+					phase = newPhase;
 				}
 			}
-
-			if (analog)
-			{
-				// Quadratic approximation of sine, slightly richer harmonics
-				if (phase < 0.5f)
-					sinBuffer[i] = 1.f - 16.f * std::pow(phase - 0.25f, 2);
-				else
-					sinBuffer[i] = -1.f + 16.f * std::pow(phase - 0.75f, 2);
-				sinBuffer[i] *= 1.08f;
-			}
-			else
-			{
-				sinBuffer[i] = std::sin(2.f * M_PI * phase);
-			}
-			if (analog)
-			{
-				triBuffer[i] = 1.25f * interpolateLinear(triTable, phase * 2047.f);
-			}
-			else
-			{
-				if (phase < 0.25f)
-					triBuffer[i] = 4.f * phase;
-				else if (phase < 0.75f)
-					triBuffer[i] = 2.f - 4.f * phase;
-				else
-					triBuffer[i] = -4.f + 4.f * phase;
-			}
-			if (analog)
-			{
-				sawBuffer[i] = 1.66f * interpolateLinear(sawTable, phase * 2047.f);
-			}
-			else
-			{
-				if (phase < 0.5f)
-					sawBuffer[i] = 2.f * phase;
-				else
-					sawBuffer[i] = -2.f + 2.f * phase;
-			}
-			sqrBuffer[i] = (phase < pw) ? 1.f : -1.f;
-			if (analog)
-			{
-				// Simply filter here
-				sqrFilter.process(sqrBuffer[i]);
-				sqrBuffer[i] = 0.71f * sqrFilter.highpass();
-			}
-
-			// Advance phase
-			phase += deltaPhase / OVERSAMPLE;
-			phase = eucMod(phase, 1.0f);
 		}
+
+		// Square
+		sqrValue = sqr(phase);
+		sqrValue += sqrMinBlep.process();
+
+		if (analog)
+		{
+			sqrFilter.setCutoffFreq(20.f * deltaTime);
+			sqrFilter.process(sqrValue);
+			sqrValue = sqrFilter.highpass() * 0.95f;
+		}
+
+		// Saw
+		sawValue = saw(phase);
+		sawValue += sawMinBlep.process();
+
+		// Tri
+		triValue = tri(phase);
+		triValue += triMinBlep.process();
+
+		// Sin
+		sinValue = sin(phase);
+		sinValue += sinMinBlep.process();
 	}
 
-	float sin()
+	T sin(T phase)
 	{
-		return sinDecimator.process(sinBuffer);
+		T v;
+		if (analog)
+		{
+			// Quadratic approximation of sine, slightly richer harmonics
+			T halfPhase = (phase < 0.5f);
+			T x = phase - simd::ifelse(halfPhase, 0.25f, 0.75f);
+			v = 1.f - 16.f * simd::pow(x, 2);
+			v *= simd::ifelse(halfPhase, 1.f, -1.f);
+		}
+		else
+		{
+			v = sin2pi_pade_05_5_4(phase);
+			// v = sin2pi_pade_05_7_6(phase);
+			// v = simd::sin(2 * T(M_PI) * phase);
+		}
+		return v;
 	}
-	float tri()
+	T sin()
 	{
-		return triDecimator.process(triBuffer);
+		return sinValue;
 	}
-	float saw()
+
+	T tri(T phase)
 	{
-		return sawDecimator.process(sawBuffer);
+		T v;
+		if (analog)
+		{
+			T x = phase + 0.25f;
+			x -= simd::trunc(x);
+			T halfX = (x < 0.5f);
+			x = 2 * x - simd::ifelse(halfX, 0.f, 1.f);
+			v = expCurve(x) * simd::ifelse(halfX, 1.f, -1.f);
+		}
+		else
+		{
+			v = 1 - 4 * simd::fmin(simd::fabs(phase - 0.25f), simd::fabs(phase - 1.25f));
+		}
+		return v;
 	}
-	float sqr()
+	T tri()
 	{
-		return sqrDecimator.process(sqrBuffer);
+		return triValue;
 	}
-	float light()
+
+	T saw(T phase)
 	{
-		return std::sin(2 * M_PI * phase);
+		T v;
+		T x = phase + 0.5f;
+		x -= simd::trunc(x);
+		if (analog)
+		{
+			v = -expCurve(x);
+		}
+		else
+		{
+			v = 2 * x - 1;
+		}
+		return v;
+	}
+	T saw()
+	{
+		return sawValue;
+	}
+
+	T sqr(T phase)
+	{
+		T v = simd::ifelse(phase < pulseWidth, 1.f, -1.f);
+		return v;
+	}
+	T sqr()
+	{
+		return sqrValue;
+	}
+
+	T light()
+	{
+		return simd::sin(2 * T(M_PI) * phase);
 	}
 };
+
 struct TROSC : Module
 {
 	enum ParamIds
@@ -267,9 +361,9 @@ struct TROSC : Module
 
 	};
 
-	VoltageControlledOscillator<8, 8> a_osc;
-	VoltageControlledOscillator<8, 8> b_osc;
-	VoltageControlledOscillator<8, 8> c_osc;
+	Oscillator<8, 8,float_4> a_osc[4];
+	Oscillator<8, 8,float_4> b_osc[4];
+	Oscillator<8, 8,float_4> c_osc[4];
 
 	TROSC() {
 	
@@ -317,125 +411,166 @@ struct TROSC : Module
 	void process(const ProcessArgs &args) override 
 	{
 
-	float a_pitchCv = 0.0;
-	float b_pitchCv = 0.0;
-	float c_pitchCv = 0.0;
+		float freqParamA = params[FREQ_A_PARAM].getValue() / 12.f;
+		freqParamA += dsp::quadraticBipolar(params[FINE_A_PARAM].getValue()) * 3.f / 12.f;
+		float fmParamA = dsp::quadraticBipolar(params[FM_A_PARAM].getValue());
+		
+		float freqParamB = params[FREQ_B_PARAM].getValue() / 12.f;
+		freqParamB += dsp::quadraticBipolar(params[FINE_B_PARAM].getValue()) * 3.f / 12.f;
+		float fmParamB = dsp::quadraticBipolar(params[FM_B_PARAM].getValue());
+		
+		float freqParamC = params[FREQ_C_PARAM].getValue() / 12.f;
+		freqParamC += dsp::quadraticBipolar(params[FINE_C_PARAM].getValue()) * 3.f / 12.f;
+		float fmParamC = dsp::quadraticBipolar(params[FM_C_PARAM].getValue());
+		
 
-	a_osc.analog = params[MODE_A_PARAM].value > 0.0f;
-	a_osc.soft = params[SYNC_A_PARAM].value <= 0.0f;
+		int channelsA = std::max(inputs[PITCH_A_INPUT].getChannels(), 1);
+		int channelsB = std::max(inputs[PITCH_B_INPUT].getChannels(), 1);
+		int channelsC = std::max(inputs[PITCH_C_INPUT].getChannels(), 1);
 
-	b_osc.analog = params[MODE_B_PARAM].value > 0.0f;
-	b_osc.soft = params[SYNC_B_PARAM].value <= 0.0f;
+		float_4 out_a;
+		float_4 out2_a;
+		float_4 a_out;
+		float_4 mixa;
 
-	c_osc.analog = params[MODE_C_PARAM].value > 0.0f;
-	c_osc.soft = params[SYNC_C_PARAM].value <= 0.0f;
+		float_4 out_b;
+		float_4 out2_b;
+		float_4 b_out;
+		float_4 mixb;
 
-	float a_pitchFine = 3.0f * dsp::quadraticBipolar(params[FINE_A_PARAM].value);
-	a_pitchCv = 12.0f * inputs[PITCH_A_INPUT].value;
+		float_4 out_c;
+		float_4 out2_c;
+		float_4 c_out;
+		float_4 mixc;
 
-	float b_pitchFine = 3.0f * dsp::quadraticBipolar(params[FINE_B_PARAM].value);
-	if(params[LINK_A_PARAM].value==1)
-	b_pitchCv = 12.0f * inputs[PITCH_B_INPUT].value;
-	else
-	b_pitchCv = a_pitchCv ;
+		float_4 linka, linkb,linkc;
 
-	float c_pitchFine = 3.0f * dsp::quadraticBipolar(params[FINE_C_PARAM].value);
-	if (params[LINK_B_PARAM].value == 1)
-	c_pitchCv = 12.0f * inputs[PITCH_C_INPUT].value;
-	else
-	c_pitchCv = b_pitchCv;
+		for (int c = 0; c < channelsA; c += 4)
+		{
+			
+			linka = inputs[PITCH_A_INPUT].getVoltageSimd<float_4>(c);
+			linkb = inputs[PITCH_B_INPUT].getVoltageSimd<float_4>(c);
+			linkc = inputs[PITCH_C_INPUT].getVoltageSimd<float_4>(c);
 
+			if (params[LINK_A_PARAM].getValue() == 0) linkb = linka;
+			if (params[LINK_B_PARAM].getValue() == 0) linkc = linkb;
+		}
 
+			for (int c = 0; c < channelsA; c += 4)
+			{
+				float_4 pitchA;
+				//	auto *oscillator = &a_osc[c / 4];
+				a_osc->channels = std::min(channelsA - c, 4);
+				a_osc->analog = params[MODE_A_PARAM].getValue() > 0.f;
+				a_osc->soft = params[SYNC_A_PARAM].getValue() <= 0.f;
 
-	if (inputs[FM_A_INPUT].isConnected())
-	{
-		a_pitchCv += dsp::quadraticBipolar(params[FM_A_PARAM].value) * 12.0f * inputs[FM_A_INPUT].value;
-	}
-	a_osc.setPitch(params[FREQ_A_PARAM].value, a_pitchFine + a_pitchCv);
-	a_osc.syncEnabled = inputs[SYNC_A_INPUT].isConnected();
+				pitchA = freqParamA;
+				pitchA += linka;
 
-	if (inputs[FM_B_INPUT].isConnected())
-	{
-		b_pitchCv += dsp::quadraticBipolar(params[FM_B_PARAM].value) * 12.0f * inputs[FM_B_INPUT].value;
-	}
-	b_osc.setPitch(params[FREQ_B_PARAM].value, b_pitchFine + b_pitchCv);
-	b_osc.syncEnabled = inputs[SYNC_B_INPUT].isConnected();
+				if (inputs[FM_A_INPUT].isConnected())
+				{
+					pitchA += fmParamA * inputs[FM_A_INPUT].getPolyVoltageSimd<float_4>(c);
+				}
 
-	if (inputs[FM_C_INPUT].isConnected())
-	{
-		c_pitchCv += dsp::quadraticBipolar(params[FM_C_PARAM].value) * 12.0f * inputs[FM_C_INPUT].value;
-	}
-	c_osc.setPitch(params[FREQ_C_PARAM].value, c_pitchFine + c_pitchCv);
-	c_osc.setPulseWidth(params[C_WIDTH_PARAM].value + params[C_WIDTH_PARAM].value * inputs[C_WIDTH_INPUT].value / 10.0f);
-	c_osc.syncEnabled = inputs[SYNC_C_INPUT].isConnected();
+				a_osc->setPitch(pitchA);
 
+				a_osc->syncEnabled = inputs[SYNC_A_INPUT].isConnected();
+				a_osc->process(args.sampleTime, inputs[SYNC_A_INPUT].getPolyVoltageSimd<float_4>(c));
 
+				float wave_a = clamp(params[WAVE_A_MIX].getValue(), 0.0f, 1.0f);
+				float wave2_a = clamp(params[WAVE2_A_MIX].getValue(), 0.0f, 1.0f);
+				float mix_a = clamp(params[WAVE_A_SEL_PARAM].getValue(), 0.f, 1.f);
+				if (inputs[A_WAVE_MIX_INPUT].isConnected())
+					mix_a *= clamp(inputs[A_WAVE_MIX_INPUT].getVoltage() / 10.f, 0.f, 1.f);
 
-	a_osc.process(APP->engine->getSampleTime(), inputs[SYNC_A_INPUT].value);
-	b_osc.process(APP->engine->getSampleTime(), inputs[SYNC_B_INPUT].value);
-	c_osc.process(APP->engine->getSampleTime(), inputs[SYNC_C_INPUT].value);
+				out_a = crossfade(a_osc->sin(), a_osc->tri(), wave_a);
+				out2_a = crossfade(a_osc->saw(), a_osc->sqr(), wave2_a);
+				a_out = crossfade(out_a, out2_a, mix_a);
 
-	// Set output
-	float wave_a = clamp(params[WAVE_A_MIX].value, 0.0f, 1.0f);
-	float wave2_a = clamp(params[WAVE2_A_MIX].value, 0.0f, 1.0f);
-	float mix_a = clamp ( params[WAVE_A_SEL_PARAM].value,0.f,1.f);
-		if(inputs[A_WAVE_MIX_INPUT].isConnected())
-			mix_a *= clamp(inputs[A_WAVE_MIX_INPUT].value / 10.f, 0.f, 1.f);
+				mixa = 5 * (a_out * params[LEVEL_A_PARAM].getValue());
+				if (inputs[A_VOL_IN].isConnected())
+					mixa *= clamp(inputs[A_VOL_IN].getVoltage() / 10.f, -1.0f, 1.0f);
 
-	float wave_b = clamp(params[WAVE_B_MIX].value, 0.0f, 1.0f);
-	float wave2_b = clamp(params[WAVE2_B_MIX].value, 0.0f, 1.0f);
-	float mix_b = clamp(params[WAVE_B_SEL_PARAM].value,0.f,1.f);
-		if(inputs[B_WAVE_MIX_INPUT].isConnected())
-			mix_b *= clamp(inputs[B_WAVE_MIX_INPUT].value / 10.f, 0.f, 1.f);
+				outputs[A_OUTPUT].setVoltageSimd(mixa, c);
+			}
+			for (int c = 0; c < channelsB; c += 4)
+			{
+				float_4 pitchB;
+				//	auto *oscillator = &a_osc[c / 4];
+				b_osc->channels = std::min(channelsB - c, 4);
+				b_osc->analog = params[MODE_B_PARAM].getValue() > 0.f;
+				b_osc->soft = params[SYNC_B_PARAM].getValue() <= 0.f;
 
-	float wave_c = clamp(params[WAVE_C_MIX].value, 0.0f, 1.0f);
-	float mix_c = clamp(params[WAVE_C_SEL_PARAM].value,0.f,1.f);
-		if(inputs[C_WAVE_MIX_INPUT].isConnected())
-			mix_c *= clamp(inputs[C_WAVE_MIX_INPUT].value / 10.f, 0.f, 1.f);
+				pitchB = freqParamB;
+				pitchB += linkb;
 
-	float out_a;
-	float out2_a;
-	float a_out;
+				if (inputs[FM_B_INPUT].isConnected())
+				{
+					pitchB += fmParamB * inputs[FM_B_INPUT].getPolyVoltageSimd<float_4>(c);
+				}
 
-	float out_b;
-	float out2_b;
-	float b_out;
+				b_osc->setPitch(pitchB);
 
-	float out_c;
-	float out2_c;
-	float c_out;
+				b_osc->syncEnabled = inputs[SYNC_B_INPUT].isConnected();
+				b_osc->process(args.sampleTime, inputs[SYNC_B_INPUT].getPolyVoltageSimd<float_4>(c));
 
-	float mixa,mixb,mixc;
+				float wave_b = clamp(params[WAVE_B_MIX].getValue(), 0.0f, 1.0f);
+				float wave2_b = clamp(params[WAVE2_B_MIX].getValue(), 0.0f, 1.0f);
+				float mix_b = clamp(params[WAVE_B_SEL_PARAM].getValue(), 0.f, 1.f);
+				if (inputs[B_WAVE_MIX_INPUT].isConnected())
+					mix_b *= clamp(inputs[A_WAVE_MIX_INPUT].getVoltage() / 10.f, 0.f, 1.f);
 
-	out_a =  crossfade(a_osc.sin(), a_osc.tri(), wave_a);
-	out2_a = crossfade(a_osc.saw(), a_osc.sqr(), wave2_a);
-	a_out =  crossfade(out_a, out2_a, mix_a);
+				out_b = crossfade(b_osc->sin(), b_osc->tri(), wave_b);
+				out2_b = crossfade(b_osc->saw(), b_osc->sqr(), wave2_b);
+				b_out = crossfade(out_b, out2_b, mix_b);
 
-	out_b =  crossfade(b_osc.sin(), b_osc.tri(), wave_b);
-	out2_b = crossfade(b_osc.saw(), b_osc.sqr(), wave2_b);
-	b_out =  crossfade(out_b, out2_b, mix_b);
+				mixb = 5 * (b_out * params[LEVEL_B_PARAM].getValue());
+				if (inputs[B_VOL_IN].isConnected())
+					mixb *= clamp(inputs[B_VOL_IN].getVoltage() / 10.f, -1.0f, 1.0f);
 
-	out_c = crossfade(c_osc.sin(), c_osc.tri(), wave_c);
-	out2_c =c_osc.sqr();
-	c_out = crossfade(out_c, out2_c, mix_c);
+				outputs[B_OUTPUT].setVoltageSimd(mixb, c);
+			}
+			for (int c = 0; c < channelsC; c += 4)
+			{
+				float_4 pitchC;
+				//	auto *oscillator = &a_osc[c / 4];
+				c_osc->channels = std::min(channelsC - c, 4);
+				c_osc->analog = params[MODE_C_PARAM].getValue() > 0.f;
+				c_osc->soft = params[SYNC_C_PARAM].getValue() <= 0.f;
 
-	mixa = 5*(a_out*params[LEVEL_A_PARAM].value);
-	if(inputs[A_VOL_IN].isConnected()) 
-	 mixa*= clamp(inputs[A_VOL_IN].value /10.f , -1.0f, 1.0f);
-	outputs[A_OUTPUT].value = mixa;
+				pitchC = freqParamC;
+				pitchC += linkc;
 
-	mixb = 5*(b_out*params[LEVEL_B_PARAM].value);
-	if(inputs[B_VOL_IN].isConnected()) 
-	 mixb*= clamp(inputs[B_VOL_IN].value /10.f , -1.0f, 1.0f);
-	outputs[B_OUTPUT].value = mixb;
+				if (inputs[FM_C_INPUT].isConnected())
+				{
+					pitchC += fmParamC * inputs[FM_C_INPUT].getPolyVoltageSimd<float_4>(c);
+				}
 
-	mixc = 5*(c_out*params[LEVEL_C_PARAM].value);
-	if(inputs[C_VOL_IN].isConnected()) 
-	 mixc*= clamp(inputs[C_VOL_IN].value /10.f , -1.0f, 1.0f);
-	outputs[C_OUTPUT].value = mixc;
+				c_osc->setPitch(pitchC);
+				c_osc->setPulseWidth(params[C_WIDTH_PARAM].getValue() + params[C_WIDTH_PARAM].getValue() * inputs[C_WIDTH_INPUT].getPolyVoltageSimd<float_4>(c) / 10.f);
 
-	outputs[MIX_OUTPUT].value = clamp((mixa + mixb + mixc)/5,-5.f,5.f);
-}
+				c_osc->syncEnabled = inputs[SYNC_A_INPUT].isConnected();
+				c_osc->process(args.sampleTime, inputs[SYNC_A_INPUT].getPolyVoltageSimd<float_4>(c));
+
+				float wave_c = clamp(params[WAVE_C_MIX].getValue(), 0.0f, 1.0f);
+				float mix_c = clamp(params[WAVE_C_SEL_PARAM].getValue(), 0.f, 1.f);
+				if (inputs[C_WAVE_MIX_INPUT].isConnected())
+					mix_c *= clamp(inputs[C_WAVE_MIX_INPUT].getVoltage() / 10.f, 0.f, 1.f);
+
+				out_c = crossfade(c_osc->sin(), c_osc->tri(), wave_c);
+				out2_c = c_osc->sqr();
+				c_out = crossfade(out_c, out2_c, mix_c);
+
+				mixc = 5 * (c_out * params[LEVEL_C_PARAM].getValue());
+				if (inputs[C_VOL_IN].isConnected())
+					mixc *= clamp(inputs[C_VOL_IN].getVoltage() / 10.f, -1.0f, 1.0f);
+
+				outputs[C_OUTPUT].setVoltageSimd(mixc, c);
+			}
+
+			outputs[MIX_OUTPUT].setVoltageSimd(clamp((mixa + mixb + mixc) / 5, -5.f, 5.f), 0);
+  }
+
 
 };
 
