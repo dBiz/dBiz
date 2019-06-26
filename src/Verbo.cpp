@@ -499,7 +499,7 @@ struct Verbo : Module {
     		float invWidth = 1.0f/(LERP(widthControl, float(stages), invStages+invStages));
 
     		float subStage = 0.0f;
-    		for(int i = 0; i < 8; i++)
+    		for(int i = -1; i < 8; i++)
     		{
     		    inMults[i] = (scanFinal + subStage) * invWidth;
     		    subStage = subStage - invStages;
@@ -533,7 +533,7 @@ struct Verbo : Module {
 
 	if (params[CENTER_PARAM].getValue() < 0)
 	{
-		harm_sum = crossfade(bank[0].sin() * inMults[0], 0.0, params[CENTER_PARAM].getValue() * -1.0);
+		harm_sum = crossfade(0.0, bank[0].sin() * inMults[0], params[CENTER_PARAM].getValue() +1.f);
 		lights[HARM_LIGHT].setSmoothBrightness(math::crossfade(inMults[0], 0.0, params[CENTER_PARAM].getValue() * -1.0), args.sampleTime);
 	}
 
