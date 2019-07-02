@@ -250,16 +250,27 @@ struct SuHaWidget : ModuleWidget {
 			addParam(createParam<Trimpot>(Vec(Side + 15 + 2 * KS, 20 + i*30), module, SuHa::SUB2_VOL_PARAM +i));
 			
 
-			addInput(createInput<PJ301MVAPort>(Vec(Side + 11, 220+i*JS),  module, SuHa::VCO_INPUT +i));
-			addInput(createInput<PJ301MVAPort>(Vec(Side + 11 + KS, 220+i*JS),  module, SuHa::SUB1_INPUT +i));
-			addInput(createInput<PJ301MVAPort>(Vec(Side + 11 + 2 * KS, 220+i*JS),  module, SuHa::SUB2_INPUT +i));
-
-
-			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11, 220 + 2 * JS+i*JS),  module, SuHa::VCO_OUTPUT +i));
-			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11 + KS, 220 + 2 * JS+i*JS),  module, SuHa::SUB1_OUTPUT +i));
-			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11 + 2 * KS, 220 + 2 * JS+i*JS),  module, SuHa::SUB2_OUTPUT +i));
 
 		}
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 11, 220+0*JS),  module, SuHa::VCO_INPUT +0));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 11, 220+1*JS),  module, SuHa::VCO_INPUT +1));
+
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 11 + KS, 220+0*JS),  module, SuHa::SUB1_INPUT +0));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 11 + KS, 220+1*JS),  module, SuHa::SUB1_INPUT +1));
+
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 11 + 2 * KS, 220+0*JS),  module, SuHa::SUB2_INPUT +0));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 11 + 2 * KS, 220+1*JS),  module, SuHa::SUB2_INPUT +1));
+
+
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11, 220 + 2 * JS+0*JS),  module, SuHa::VCO_OUTPUT +0));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11, 220 + 2 * JS+1*JS),  module, SuHa::VCO_OUTPUT +1));
+
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11 + KS, 220 + 2 * JS+0*JS),  module, SuHa::SUB1_OUTPUT +0));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11 + KS, 220 + 2 * JS+1*JS),  module, SuHa::SUB1_OUTPUT +1));
+
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11 + 2 * KS, 220 + 2 * JS+0*JS),  module, SuHa::SUB2_OUTPUT +0));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11 + 2 * KS, 220 + 2 * JS+1*JS),  module, SuHa::SUB2_OUTPUT +1));
+
 
 			addParam(createParam<SDKnob>(Vec(Side + 40, 180), module, SuHa::SUM_VOL_PARAM));
 			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 80, 185),  module, SuHa::SUM_OUTPUT));

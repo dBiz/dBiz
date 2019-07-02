@@ -585,10 +585,26 @@ struct VerboWidget : ModuleWidget {
 	for(int i=0; i<8;i++)
 	{
 		addParam(createParam<SlidePot>(Vec(left+95+space*i, 110), module, Verbo::HARM_PARAM+i));
-		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*i, 80), module, Verbo::HARM_OUTPUT+i));
-		addInput(createInput<PJ301MIPort>(Vec(left+90+space*i, 222),module, Verbo::HARM_INPUT+i));
 		addChild(createLight<SmallLight<OrangeLight>>(Vec(left + 95 + space * i, 250), module, Verbo::HARM_LIGHT + i));
 	}
+		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*0, 80), module, Verbo::HARM_OUTPUT+0));
+		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*1, 80), module, Verbo::HARM_OUTPUT+1));
+		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*2, 80), module, Verbo::HARM_OUTPUT+2));
+		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*3, 80), module, Verbo::HARM_OUTPUT+3));
+		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*4, 80), module, Verbo::HARM_OUTPUT+4));
+		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*5, 80), module, Verbo::HARM_OUTPUT+5));
+		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*6, 80), module, Verbo::HARM_OUTPUT+6));
+		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*7, 80), module, Verbo::HARM_OUTPUT+7));
+
+		addInput(createInput<PJ301MIPort>(Vec(left+90+space*0, 222),module, Verbo::HARM_INPUT+0));
+		addInput(createInput<PJ301MIPort>(Vec(left+90+space*1, 222),module, Verbo::HARM_INPUT+1));
+		addInput(createInput<PJ301MIPort>(Vec(left+90+space*2, 222),module, Verbo::HARM_INPUT+2));
+		addInput(createInput<PJ301MIPort>(Vec(left+90+space*3, 222),module, Verbo::HARM_INPUT+3));
+		addInput(createInput<PJ301MIPort>(Vec(left+90+space*4, 222),module, Verbo::HARM_INPUT+4));
+		addInput(createInput<PJ301MIPort>(Vec(left+90+space*5, 222),module, Verbo::HARM_INPUT+5));
+		addInput(createInput<PJ301MIPort>(Vec(left+90+space*6, 222),module, Verbo::HARM_INPUT+6));
+		addInput(createInput<PJ301MIPort>(Vec(left+90+space*7, 222),module, Verbo::HARM_INPUT+7));
+
 
 	int ks = 60;
 	int vp=20;

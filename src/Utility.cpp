@@ -400,11 +400,24 @@ UtilityWidget(Utility *module){
       addParam(createParam<FlatASnap>(Vec(10 + knob * i, 60), module, Utility::SEMITONE_SHIFT + i));
       addParam(createParam<FlatA>(Vec(10 + knob * i, 100), module, Utility::FINE_SHIFT + i));
 
-      addInput(createInput<PJ301MIPort>(Vec(12.5 + knob * i, 100 + knob * 1.3), module, Utility::OCTAVE_INPUT + i));
-      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * i, 130 + knob * 1.3), module, Utility::OCTAVE_CVINPUT + i));
-      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * i, 160 + knob * 1.3), module, Utility::SEMITONE_CVINPUT + i));
-      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * i, 190 + knob * 1.3), module, Utility::FINE_CVINPUT + i));
     }
+    
+      addInput(createInput<PJ301MIPort>(Vec(12.5 + knob * 0, 100 + knob * 1.3), module, Utility::OCTAVE_INPUT + 0));
+      addInput(createInput<PJ301MIPort>(Vec(12.5 + knob * 1, 100 + knob * 1.3), module, Utility::OCTAVE_INPUT + 1));
+      addInput(createInput<PJ301MIPort>(Vec(12.5 + knob * 2, 100 + knob * 1.3), module, Utility::OCTAVE_INPUT + 2));
+
+      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 0, 130 + knob * 1.3), module, Utility::OCTAVE_CVINPUT + 0));
+      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 1, 130 + knob * 1.3), module, Utility::OCTAVE_CVINPUT + 1));
+      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 2, 130 + knob * 1.3), module, Utility::OCTAVE_CVINPUT + 2));
+
+      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 0, 160 + knob * 1.3), module, Utility::SEMITONE_CVINPUT + 0));
+      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 1, 160 + knob * 1.3), module, Utility::SEMITONE_CVINPUT + 1));
+      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 2, 160 + knob * 1.3), module, Utility::SEMITONE_CVINPUT + 2));
+
+      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 0, 190 + knob * 1.3), module, Utility::FINE_CVINPUT + 0));
+      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 1, 190 + knob * 1.3), module, Utility::FINE_CVINPUT + 1));
+      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 2, 190 + knob * 1.3), module, Utility::FINE_CVINPUT + 2));
+
 
   addParam(createParam<Trimpot>(Vec(65,304), module, Utility::ROOT_NOTE_PARAM));
   addParam(createParam<Trimpot>(Vec(90,304), module, Utility::SCALE_PARAM));

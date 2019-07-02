@@ -309,9 +309,18 @@ DividerWidget(Divider *module){
 	   addChild(createLight<SmallLight<RedLight>>(Vec(si + 105, 30 + knob * i), module, Divider::LIGHT_S1 + i));
 	   addChild(createLight<SmallLight<RedLight>>(Vec(si + 105, 180 + knob * i), module, Divider::LIGHT_S2 + i));
 
-	   addInput(createInput<PJ301MVAPort>(Vec(si + 40, 22.5 + knob * i), module, Divider::SUB1_INPUT + i));
-	   addInput(createInput<PJ301MVAPort>(Vec(si + 40, 173.5 + knob * i), module, Divider::SUB2_INPUT + i));
-}
+	}
+	
+	addInput(createInput<PJ301MVAPort>(Vec(si + 40, 22.5 + knob * 0), module, Divider::SUB1_INPUT + 0));
+	addInput(createInput<PJ301MVAPort>(Vec(si + 40, 22.5 + knob * 1), module, Divider::SUB1_INPUT + 1));
+	addInput(createInput<PJ301MVAPort>(Vec(si + 40, 22.5 + knob * 2), module, Divider::SUB1_INPUT + 2));
+	addInput(createInput<PJ301MVAPort>(Vec(si + 40, 22.5 + knob * 3), module, Divider::SUB1_INPUT + 3));
+
+	addInput(createInput<PJ301MVAPort>(Vec(si + 40, 173.5 + knob * 0), module, Divider::SUB2_INPUT + 0));
+	addInput(createInput<PJ301MVAPort>(Vec(si + 40, 173.5 + knob * 1), module, Divider::SUB2_INPUT + 1));
+	addInput(createInput<PJ301MVAPort>(Vec(si + 40, 173.5 + knob * 2), module, Divider::SUB2_INPUT + 2));
+	addInput(createInput<PJ301MVAPort>(Vec(si + 40, 173.5 + knob * 3), module, Divider::SUB2_INPUT + 3));
+
 
 
 addInput(createInput<PJ301MVAPort>(Vec(15, 310), module, Divider::CLOCK_INPUT));

@@ -286,34 +286,49 @@ struct Util2Widget : ModuleWidget
     for (int i = 0; i < 2; i++)
     {
 	    addParam(createParam<SDKnob>(Vec(30 + knob, 20 + knob * i), module, Util2::GLIDE_PARAM + i));
-
         addParam(createParam<SDKnob>(Vec(40 + knob * i, 158-2*knob), module, Util2::RISE_PARAM + i));
         addParam(createParam<SDKnob>(Vec(40 + knob * i, 158-knob), module, Util2::FALL_PARAM + i));
-
         addParam(createParam<SDKnob>(Vec(40+knob*i, 160), module, Util2::SHAPE_PARAM + i));
-
         addParam(createParam<MCKSSS>(Vec(si +7+ 3* knob * i, 94 + knob * 2.8), module, Util2::RANGE_PARAM + i));
-
-        addInput(createInput<PJ301MVAPort>(Vec(si, 23 + knob * i), module, Util2::IN_INPUT+i));
-        addOutput(createOutput<PJ301MVAPort>(Vec(si + jack, 23 + knob * i), module, Util2::OUT_OUTPUT+i));
-
-        addInput(createInput<PJ301MVAPort>(Vec(si + 3 * knob * i, 94+knob), module, Util2::TRIG_INPUT + i));
-        addOutput(createOutput<PJ301MVAPort>(Vec(si + 3 * knob * i, 94+knob*2), module, Util2::EG_OUTPUT + i));
-
         addParam(createParam<LEDB>(Vec(si+3 + 3*knob * i, 94), module, Util2::EBUTTON_PARAM + i));
         addChild(createLight<ULight<OrangeLight>>(Vec(si + 6 +3*knob * i, 97), module, Util2::EBUTTON_LIGHT + i));
     }
+
+
+        addInput(createInput<PJ301MVAPort>(Vec(si, 23 + knob * 0), module, Util2::IN_INPUT+0));
+        addInput(createInput<PJ301MVAPort>(Vec(si, 23 + knob * 1), module, Util2::IN_INPUT+1));
+
+        addOutput(createOutput<PJ301MVAPort>(Vec(si + jack, 23 + knob * 0), module, Util2::OUT_OUTPUT+0));
+        addOutput(createOutput<PJ301MVAPort>(Vec(si + jack, 23 + knob * 1), module, Util2::OUT_OUTPUT+1));
+
+
+        addInput(createInput<PJ301MVAPort>(Vec(si + 3 * knob * 0, 94+knob), module, Util2::TRIG_INPUT + 0));
+        addInput(createInput<PJ301MVAPort>(Vec(si + 3 * knob * 1, 94+knob), module, Util2::TRIG_INPUT + 1));
+
+        addOutput(createOutput<PJ301MVAPort>(Vec(si + 3 * knob * 0, 94+knob*2), module, Util2::EG_OUTPUT + 0));
+        addOutput(createOutput<PJ301MVAPort>(Vec(si + 3 * knob * 1, 94+knob*2), module, Util2::EG_OUTPUT + 1));
+
+
+
+
     for (int i=0;i<4;i++)
     {
     addParam(createParam<LEDB>(Vec(si+5+knob * i,170+sp), module, Util2::BUTTON_PARAM + i));
     addParam(createParam<SDKnob>(Vec(si +2 + knob * i, 170 + jack+sp), module, Util2::VALUE_PARAM + i));
     addParam(createParam<MCKSSS2>(Vec(si + 10 + knob * i, 175 + jack*4+sp), module, Util2::MODE_PARAM + i));
-
     addChild(createLight<ULight<OrangeLight>>(Vec(si +5+ 3 + knob * i, 173+sp), module, Util2::BUTTON_LIGHT + i));
-    addInput(createInput<PJ301MVAPort>(Vec(si + 3.5 + knob * i, 175 + jack * 2+sp), module, Util2::BUTTON_INPUT + i));
-    addOutput(createOutput<PJ301MVAPort>(Vec(si + 3.5 + knob * i, 175 + jack * 3+sp), module, Util2::BUTTON_OUTPUT + i));
-
     }
+
+    addInput(createInput<PJ301MVAPort>(Vec(si + 3.5 + knob * 0, 175 + jack * 2+sp), module, Util2::BUTTON_INPUT + 0));
+    addInput(createInput<PJ301MVAPort>(Vec(si + 3.5 + knob * 1, 175 + jack * 2+sp), module, Util2::BUTTON_INPUT + 1));
+    addInput(createInput<PJ301MVAPort>(Vec(si + 3.5 + knob * 2, 175 + jack * 2+sp), module, Util2::BUTTON_INPUT + 2));
+    addInput(createInput<PJ301MVAPort>(Vec(si + 3.5 + knob * 3, 175 + jack * 2+sp), module, Util2::BUTTON_INPUT + 3));
+
+    addOutput(createOutput<PJ301MVAPort>(Vec(si + 3.5 + knob * 0, 175 + jack * 3+sp), module, Util2::BUTTON_OUTPUT + 0));
+    addOutput(createOutput<PJ301MVAPort>(Vec(si + 3.5 + knob * 1, 175 + jack * 3+sp), module, Util2::BUTTON_OUTPUT + 1));
+    addOutput(createOutput<PJ301MVAPort>(Vec(si + 3.5 + knob * 2, 175 + jack * 3+sp), module, Util2::BUTTON_OUTPUT + 2));
+    addOutput(createOutput<PJ301MVAPort>(Vec(si + 3.5 + knob * 3, 175 + jack * 3+sp), module, Util2::BUTTON_OUTPUT + 3));
+
 
 }
 };
