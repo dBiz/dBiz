@@ -651,7 +651,7 @@ struct TROSCWidget : ModuleWidget {
 	 addOutput(createOutput<PJ301MOPort>(Vec(255, 20 + 20), module, TROSC::A_OUTPUT));
 	 addOutput(createOutput<PJ301MOPort>(Vec(255, 20 + 150), module, TROSC::B_OUTPUT));
 	 addOutput(createOutput<PJ301MOPort>(Vec(255, 20 + 280), module, TROSC::C_OUTPUT));
-		}
+}
 };
 
 

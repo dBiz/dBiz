@@ -552,9 +552,16 @@ BeneWidget(Bene *module){
       addParam(createParam<Rogan2PWhite>(Vec(left+column_spacing * i, top2 + row_spacing * j + 150 ), module, Bene::KNOB_PARAM + i + j * 4));
       addChild(createLight<BigLight<OrangeLight>>(Vec(left + column_spacing * i + 8, top2 + row_spacing * j + 150 + 8), module, Bene::GRID_LIGHTS + i + j * 4));
     }
-    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * i+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + i));
-    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * i + 155 ), module, Bene::COLUMN_OUT + i));
 	}
+    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 0+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + 0));
+    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 1+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + 1));
+    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 2+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + 2));
+    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 3+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + 3));
+
+    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * 0 + 155 ), module, Bene::COLUMN_OUT + 0));
+    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * 1 + 155 ), module, Bene::COLUMN_OUT + 1));
+    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * 2 + 155 ), module, Bene::COLUMN_OUT + 2));
+    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * 3 + 155 ), module, Bene::COLUMN_OUT + 3));
 
   addParam(createParam<Rogan2PWhite>(Vec(left + column_spacing*3-5, top + 85 + row_spacing), module, Bene::ROOT_NOTE_PARAM));
   addParam(createParam<Rogan2PWhite>(Vec(left + column_spacing*4 , top + 85 + row_spacing), module, Bene::SCALE_PARAM));
