@@ -249,8 +249,6 @@ struct SuHaWidget : ModuleWidget {
 			addParam(createParam<Trimpot>(Vec(Side + 15 + KS, 20 + i*30), module, SuHa::SUB1_VOL_PARAM +i));
 			addParam(createParam<Trimpot>(Vec(Side + 15 + 2 * KS, 20 + i*30), module, SuHa::SUB2_VOL_PARAM +i));
 			
-
-
 		}
 			addInput(createInput<PJ301MVAPort>(Vec(Side + 11, 220+0*JS),  module, SuHa::VCO_INPUT +0));
 			addInput(createInput<PJ301MVAPort>(Vec(Side + 11, 220+1*JS),  module, SuHa::VCO_INPUT +1));

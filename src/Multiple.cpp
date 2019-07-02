@@ -192,11 +192,11 @@ struct MultipleWidget : ModuleWidget {
 
 		////////////////////////////////////////////////////////////////////////////////////////////
 
-		addInput(createInput<PJ301MIPort>(Vec(8, 280), module, Multiple::A1_INPUT));
+		addInput(createInput<PJ301MIPort>(Vec(8, 280), module, Multiple::A_INPUT));
 		addOutput(createOutput<PJ301MOPort>(Vec(8 + 30 * 1, 280), module, Multiple::A11_OUTPUT));
 		addOutput(createOutput<PJ301MOPort>(Vec(8 + 30 * 2, 280), module, Multiple::A12_OUTPUT));
 
-		addInput(createInput<PJ301MIPort>(Vec(8, 320), module, Multiple::B1_INPUT));
+		addInput(createInput<PJ301MIPort>(Vec(8, 320), module, Multiple::B_INPUT));
 		addOutput(createOutput<PJ301MOPort>(Vec(8 + 30 * 1, 320), module, Multiple::B11_OUTPUT));
 		addOutput(createOutput<PJ301MOPort>(Vec(8 + 30 * 2, 320), module, Multiple::B12_OUTPUT));
 
