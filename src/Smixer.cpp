@@ -329,12 +329,20 @@ struct SmixerWidget : ModuleWidget {
 		addParam(createParam<Trimpot>(Vec(12.5 + i * 105, 340), module, Smixer::BUS_VOL + i));
 		}
 
+		addInput(createInput<PJ301MLPort>(Vec(10.5 + 0 * 30, 120), module, Smixer::CH_IN + 0));
+		addInput(createInput<PJ301MLPort>(Vec(10.5 + 1 * 30, 120), module, Smixer::CH_IN + 1));
+		addInput(createInput<PJ301MLPort>(Vec(10.5 + 2 * 30, 120), module, Smixer::CH_IN + 2));
+		addInput(createInput<PJ301MLPort>(Vec(10.5 + 3 * 30, 120), module, Smixer::CH_IN + 3));
+		addInput(createInput<PJ301MLPort>(Vec(10.5 + 4 * 30, 120), module, Smixer::CH_IN + 4));
+		addInput(createInput<PJ301MLPort>(Vec(10.5 + 5 * 30, 120), module, Smixer::CH_IN + 5));
+		addInput(createInput<PJ301MLPort>(Vec(10.5 + 6 * 30, 120), module, Smixer::CH_IN + 6));
+		addInput(createInput<PJ301MLPort>(Vec(10.5 + 7 * 30, 120), module, Smixer::CH_IN + 7));
+
 		for (int i = 0; i < 8; i++)
 		{
 			addParam(createParam<LEDSliderBlue>(Vec(13 + i * 30, 20), module, Smixer::GAIN + i));
             addChild(createLight<MediumLight<BlueLight>>(Vec(18 + i * 30, 105), module, Smixer::SLIGHT + i));
 
-            addInput(createInput<PJ301MLPort>(Vec(10.5 + i * 30, 120), module, Smixer::CH_IN + i));
             addParam(createParam<BPush>(Vec(12.5 + i * 30, 152.5), module, Smixer::BUTTONS + i));
             addChild(createLight<BigLight<BlueLight>>(Vec(15 + i * 30, 155), module, Smixer::BUTTON_LIGHT + i));
             addParam(createParam<MCKSSS>(Vec(20 + i * 30, 185), module, Smixer::OUT_SEL + i));
@@ -342,14 +350,14 @@ struct SmixerWidget : ModuleWidget {
 
 			addInput(createInput<PJ301MCPort>(Vec(10.5 , 220), module, Smixer::CLK_IN));
 			addInput(createInput<PJ301MCPort>(Vec(10.5 + 90, 220), module, Smixer::RESET_IN));
-			//addInput(createInput<PJ301MPort>(Vec(10.5 + 2 * 105, 200), module, Smixer::RND_IN));
+	
 			addParam(createParam<Trimpot>(Vec(40, 222.5), module, Smixer::CLOCK_PARAM));
 
             addParam(createParam<RoundWhySnapKnob>(Vec(60, 280 - up), module, Smixer::SI_PARAM));
-            //addInput(createInput<PJ301MCPort>(Vec(65, 325 - up), module, Smixer::SI_IN));
+   
 
             addParam(createParam<RoundWhySnapKnob>(Vec(160, 280 - up), module, Smixer::NS_PARAM));
-            //addInput(createInput<PJ301MCPort>(Vec(165, 325 - up), module, Smixer::NS_IN));
+    
 
             addParam(createParam<BPush>(Vec(65, 222), module, Smixer::RUN_PARAM));
             addChild(createLight<BigLight<BlueLight>>(Vec(67.5, 224.5), module, Smixer::RUNNING_LIGHT));

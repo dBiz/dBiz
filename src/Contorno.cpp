@@ -175,24 +175,50 @@ struct ContornoWidget : ModuleWidget {
 		 addParam(createParam<LEDT>(Vec(space * i + 7, 297), module, Contorno::CYCLE_PARAM + i));
 
 		 addChild(createLight<CLight<BlueLight>>(Vec(space * i + 10, 300), module, Contorno::CYCLE_LIGHT + i));
-		 addInput(createInput<PJ301MLPort>(Vec(35 + space * i, 294), module, ::Contorno::CYCLE_INPUT + i));
 
 		 addParam(createParam<RoundWhy>(Vec(space * i + 12.5, 39), module, ::Contorno::SHAPE_PARAM + i));
 
 		 addParam(createParam<SlidePot>(Vec(space * i + 10, 100), module, ::Contorno::RISE_PARAM + i));
 		 addParam(createParam<SlidePot>(Vec(space * i + 40, 100), module, ::Contorno::FALL_PARAM + i));
 
-		 addInput(createInput<PJ301MCPort>(Vec(space * i + 5, 220), module, ::Contorno::RISE_INPUT + i));
-		 addInput(createInput<PJ301MCPort>(Vec(space * i + 35, 220), module, ::Contorno::FALL_INPUT + i));
 
-		 addInput(createInput<PJ301MLPort>(Vec(space * i + 35, 255), module, ::Contorno::TRIGG_INPUT + i));
 		 addParam(createParam<BPush>(Vec(space * i + 5, 255), module, ::Contorno::TRIGG_PARAM + i));
-		 addInput(createInput<PJ301MCPort>(Vec(space * i + 5, 335), module, ::Contorno::IN_INPUT + i));
-		 addOutput(createOutput<PJ301MOPort>(Vec(space * i + 35, 335), module, ::Contorno::OUT_OUTPUT + i));
 
 		 addChild(createLight<SmallLight<OrangeLight>>(Vec(space * i + 15, 212), module, Contorno::RISE_LIGHT + i));
 		 addChild(createLight<SmallLight<OrangeLight>>(Vec(space * i + 45, 212), module, Contorno::FALL_LIGHT + i));
-		 }
+	  }
+
+		 addOutput(createOutput<PJ301MOPort>(Vec(space * 0 + 35, 335), module, ::Contorno::OUT_OUTPUT + 0));
+		 addOutput(createOutput<PJ301MOPort>(Vec(space * 1 + 35, 335), module, ::Contorno::OUT_OUTPUT + 1));
+		 addOutput(createOutput<PJ301MOPort>(Vec(space * 2 + 35, 335), module, ::Contorno::OUT_OUTPUT + 2));
+		 addOutput(createOutput<PJ301MOPort>(Vec(space * 3 + 35, 335), module, ::Contorno::OUT_OUTPUT + 3));
+
+		 addInput(createInput<PJ301MLPort>(Vec(35 + space * 0, 294), module, ::Contorno::CYCLE_INPUT + 0));
+		 addInput(createInput<PJ301MLPort>(Vec(35 + space * 1, 294), module, ::Contorno::CYCLE_INPUT + 1));
+		 addInput(createInput<PJ301MLPort>(Vec(35 + space * 2, 294), module, ::Contorno::CYCLE_INPUT + 2));
+		 addInput(createInput<PJ301MLPort>(Vec(35 + space * 3, 294), module, ::Contorno::CYCLE_INPUT + 3));
+
+
+		 addInput(createInput<PJ301MCPort>(Vec(space * 0 + 35, 220), module, ::Contorno::FALL_INPUT + 0));
+		 addInput(createInput<PJ301MCPort>(Vec(space * 1 + 35, 220), module, ::Contorno::FALL_INPUT + 1));
+		 addInput(createInput<PJ301MCPort>(Vec(space * 2 + 35, 220), module, ::Contorno::FALL_INPUT + 2));
+		 addInput(createInput<PJ301MCPort>(Vec(space * 3 + 35, 220), module, ::Contorno::FALL_INPUT + 3));
+
+		 addInput(createInput<PJ301MCPort>(Vec(space * 0 + 5, 220), module, ::Contorno::RISE_INPUT + 0));
+		 addInput(createInput<PJ301MCPort>(Vec(space * 1 + 5, 220), module, ::Contorno::RISE_INPUT + 1));
+		 addInput(createInput<PJ301MCPort>(Vec(space * 2 + 5, 220), module, ::Contorno::RISE_INPUT + 2));
+		 addInput(createInput<PJ301MCPort>(Vec(space * 3 + 5, 220), module, ::Contorno::RISE_INPUT + 3));
+
+		 addInput(createInput<PJ301MLPort>(Vec(space * 0 + 35, 255), module, ::Contorno::TRIGG_INPUT + 0));
+		 addInput(createInput<PJ301MLPort>(Vec(space * 1 + 35, 255), module, ::Contorno::TRIGG_INPUT + 1));
+		 addInput(createInput<PJ301MLPort>(Vec(space * 2 + 35, 255), module, ::Contorno::TRIGG_INPUT + 2));
+		 addInput(createInput<PJ301MLPort>(Vec(space * 3 + 35, 255), module, ::Contorno::TRIGG_INPUT + 3));
+
+		 addInput(createInput<PJ301MCPort>(Vec(space * 0 + 5, 335), module, ::Contorno::IN_INPUT + 0));
+		 addInput(createInput<PJ301MCPort>(Vec(space * 1 + 5, 335), module, ::Contorno::IN_INPUT + 1));
+		 addInput(createInput<PJ301MCPort>(Vec(space * 2 + 5, 335), module, ::Contorno::IN_INPUT + 2));
+		 addInput(createInput<PJ301MCPort>(Vec(space * 3 + 5, 335), module, ::Contorno::IN_INPUT + 3));
+
 
 }
 };

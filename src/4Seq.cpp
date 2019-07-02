@@ -283,12 +283,20 @@ struct FourSeqWidget : ModuleWidget {
                addParam(createParam<LEDB>(Vec(15, 175 + knob * i), module, FourSeq::GATEB_PARAM + i));
                addChild(createLight<SLight<OrangeLight>>(Vec(18, 178 + knob * i),module, FourSeq::GATEB_LIGHT + i));
 
-               addInput(createInput<PJ301MVAPort>(Vec(40, 30.5 + knob * i), module, FourSeq::CVA_INPUT + i));
-               addInput(createInput<PJ301MVAPort>(Vec(40, 173.5 + knob * i), module, FourSeq::CVB_INPUT + i));
-
                addChild(createLight<SmallLight<RedLight>>(Vec(105, 38 + knob * i), module, FourSeq::SEQA_LIGHT + i));
                addChild(createLight<SmallLight<RedLight>>(Vec(105, 180 + knob * i), module, FourSeq::SEQB_LIGHT + i));
            }
+
+           addInput(createInput<PJ301MVAPort>(Vec(40, 30.5), module, FourSeq::CVA_INPUT+0));
+           addInput(createInput<PJ301MVAPort>(Vec(40, 30.5 + knob * 1), module, FourSeq::CVA_INPUT + 1));
+           addInput(createInput<PJ301MVAPort>(Vec(40, 30.5 + knob * 2), module, FourSeq::CVA_INPUT + 2));
+           addInput(createInput<PJ301MVAPort>(Vec(40, 30.5 + knob * 3), module, FourSeq::CVA_INPUT + 3));
+
+           addInput(createInput<PJ301MVAPort>(Vec(40, 173.5), module, FourSeq::CVB_INPUT+0 ));
+           addInput(createInput<PJ301MVAPort>(Vec(40, 173.5 + knob * 1), module, FourSeq::CVB_INPUT + 1));
+           addInput(createInput<PJ301MVAPort>(Vec(40, 173.5 + knob * 2), module, FourSeq::CVB_INPUT + 2));
+           addInput(createInput<PJ301MVAPort>(Vec(40, 173.5 + knob * 3), module, FourSeq::CVB_INPUT + 3));
+
            addInput(createInput<PJ301MVAPort>(Vec(14, 170 + knob * 4), module, FourSeq::CLKA_INPUT));
            addInput(createInput<PJ301MVAPort>(Vec(14, 197 + knob * 4), module, FourSeq::CLKB_INPUT));
 

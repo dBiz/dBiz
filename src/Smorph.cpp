@@ -511,13 +511,20 @@ struct SmorphWidget : ModuleWidget
             addParam(createParam<BLEDB>(Vec(180, 60 + i * seq), module, Smorph::GBUTTON_PARAM + i));
             addChild(createLight<BLight<OrangeLight>>(Vec(183, 63 + i * seq), module, Smorph::STEP_LIGHT + i));
 
-            addInput(createInput<PJ301MOrPort>(Vec(220, 85 + i * seq), module, Smorph::GATE_INPUT+i));
         }
-        for (int i = 0; i < 3; i++)
-        {
+            addInput(createInput<PJ301MOrPort>(Vec(220, 85 + 0 * seq), module, Smorph::GATE_INPUT+0));
+            addInput(createInput<PJ301MOrPort>(Vec(220, 85 + 1 * seq), module, Smorph::GATE_INPUT + 1));
+            addInput(createInput<PJ301MOrPort>(Vec(220, 85 + 2 * seq), module, Smorph::GATE_INPUT + 2));
+            addInput(createInput<PJ301MOrPort>(Vec(220, 85 + 3 * seq), module, Smorph::GATE_INPUT + 3));
 
-            addParam(createParam<Trimpot>(Vec(30+i*gli,290), module, Smorph::GLIDE_PARAM + i));
-            addOutput(createOutput<PJ301MOPort>(Vec(25+low*i, 320), module, Smorph::SEQ_OUTPUT +i));
+            addOutput(createOutput<PJ301MOPort>(Vec(25 + low * 0, 320), module, Smorph::SEQ_OUTPUT + 0));
+            addOutput(createOutput<PJ301MOPort>(Vec(25 + low * 1, 320), module, Smorph::SEQ_OUTPUT + 1));
+            addOutput(createOutput<PJ301MOPort>(Vec(25 + low * 2, 320), module, Smorph::SEQ_OUTPUT + 2));
+
+            for (int i = 0; i < 3; i++)
+            {
+
+                addParam(createParam<Trimpot>(Vec(30 + i * gli, 290), module, Smorph::GLIDE_PARAM + i));
         }
 
         addParam(createParam<VerboDS>(Vec(45,15), module, Smorph::ROOT_NOTE_PARAM));
@@ -526,7 +533,6 @@ struct SmorphWidget : ModuleWidget
         addInput(createInput<PJ301MCPort>(Vec(25 +low*3, 320), module, Smorph::CV_INPUT));
         addInput(createInput<PJ301MCPort>(Vec(25 +low*4, 320), module, Smorph::REV_INPUT));
         addInput(createInput<PJ301MCPort>(Vec(25 + low * 5, 320), module, Smorph::CLK_INPUT));
-       // addInput(createInput<PJ301MIPort>(Vec(45 -low, 320), module, Smorph::TRIGS_INPUT));
         addInput(createInput<PJ301MCPort>(Vec(45 + low*4, 320-low), module, Smorph::RESET_INPUT));
 }
 };

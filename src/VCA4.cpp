@@ -158,30 +158,46 @@ for (int i = 0; i < 4; i++)
     }
   }
 
-    for (int i = 0; i < 4; i++)
-     {
-        addInput(createInput<PJ301MIPort>(Vec(30,24+40*i),module, VCA4::CH_INPUT + i));
-     }
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 4; j++)
-        {
-            if (j == 0 || j==2 )
-                addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * i + 100, 60 + row_spacing * j),module, VCA4::CV_INPUT + i + j * 4));
-            else
-                addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * i + 70, 60 + row_spacing * j),module, VCA4::CV_INPUT + i + j * 4));
-        }
-    }
+  
+        addInput(createInput<PJ301MIPort>(Vec(30,24+40*0),module, VCA4::CH_INPUT + 0));
+        addInput(createInput<PJ301MIPort>(Vec(30, 24 + 40 * 1), module, VCA4::CH_INPUT + 1));
+        addInput(createInput<PJ301MIPort>(Vec(30, 24 + 40 * 2), module, VCA4::CH_INPUT + 2));
+        addInput(createInput<PJ301MIPort>(Vec(30, 24 + 40 * 3), module, VCA4::CH_INPUT + 3));
 
-    for (int i = 0; i < 4; i++)
-    {
-        addOutput(createOutput<PJ301MRPort>(Vec(70 + row_spacing *1.9* i,24), module, VCA4::CH_OUTPUT + i));
-    }
 
-    addChild(createWidget<ScrewBlack>(Vec(15, 0)));
-    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
-    addChild(createWidget<ScrewBlack>(Vec(15, 365)));
-    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 365)));
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 0 + 100, 60 + row_spacing * 0), module, VCA4::CV_INPUT + 0 + 0 * 4));
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 1 + 100, 60 + row_spacing * 0), module, VCA4::CV_INPUT + 1 + 0 * 4));
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 2 + 100, 60 + row_spacing * 0), module, VCA4::CV_INPUT + 2 + 0 * 4));
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 3 + 100, 60 + row_spacing * 0), module, VCA4::CV_INPUT + 3 + 0 * 4));
+
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 0 + 70, 60 + row_spacing * 1), module, VCA4::CV_INPUT + 0 + 1 * 4));
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 1 + 70, 60 + row_spacing * 1), module, VCA4::CV_INPUT + 1 + 1 * 4));
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 2 + 70, 60 + row_spacing * 1), module, VCA4::CV_INPUT + 2 + 1 * 4));
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 3 + 70, 60 + row_spacing * 1), module, VCA4::CV_INPUT + 3 + 1 * 4));
+   
+
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 0 + 100, 60 + row_spacing * 2), module, VCA4::CV_INPUT + 0 + 2 * 4));
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 1 + 100, 60 + row_spacing * 2), module, VCA4::CV_INPUT + 1 + 2 * 4));
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 2 + 100, 60 + row_spacing * 2), module, VCA4::CV_INPUT + 2 + 2 * 4));
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 3 + 100, 60 + row_spacing * 2), module, VCA4::CV_INPUT + 3 + 2 * 4));
+        
+
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 0 + 70, 60 + row_spacing * 3), module, VCA4::CV_INPUT + 0 + 3 * 4));
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 1 + 70, 60 + row_spacing * 3), module, VCA4::CV_INPUT + 1 + 3 * 4));
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 2 + 70, 60 + row_spacing * 3), module, VCA4::CV_INPUT + 2 + 3 * 4));
+        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 3 + 70, 60 + row_spacing * 3), module, VCA4::CV_INPUT + 3 + 3 * 4));
+
+
+
+        addOutput(createOutput<PJ301MRPort>(Vec(70 + row_spacing *1.9* 0,24), module, VCA4::CH_OUTPUT + 0));
+        addOutput(createOutput<PJ301MRPort>(Vec(70 + row_spacing * 1.9 * 1, 24), module, VCA4::CH_OUTPUT + 1));
+        addOutput(createOutput<PJ301MRPort>(Vec(70 + row_spacing * 1.9 * 2, 24), module, VCA4::CH_OUTPUT + 2));
+        addOutput(createOutput<PJ301MRPort>(Vec(70 + row_spacing * 1.9 * 3, 24), module, VCA4::CH_OUTPUT + 3));
+
+        addChild(createWidget<ScrewBlack>(Vec(15, 0)));
+        addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
+        addChild(createWidget<ScrewBlack>(Vec(15, 365)));
+        addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 365)));
     }
 };
 
