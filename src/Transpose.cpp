@@ -68,19 +68,19 @@ struct Transpose : Module {
 
   void process(const ProcessArgs &args) override 
   {
-  octave_1_out = inputs[OCTAVE_SHIFT_1_INPUT].value + round(params[OCTAVE_SHIFT_1].value) + round(inputs[OCTAVE_SHIFT_1_CVINPUT].value/2);
-  octave_2_out = inputs[OCTAVE_SHIFT_2_INPUT].value + round(params[OCTAVE_SHIFT_2].value) + round(inputs[OCTAVE_SHIFT_1_CVINPUT].value/2);
-  semitone_1_out = inputs[SEMITONE_SHIFT_1_INPUT].value + round(params[SEMITONE_SHIFT_1].value)*(1.0/12.0) + round(inputs[SEMITONE_SHIFT_1_CVINPUT].value/2)*(1.0/12.0);
-  semitone_2_out = inputs[SEMITONE_SHIFT_2_INPUT].value + round(params[SEMITONE_SHIFT_2].value)*(1.0/12.0) + round(inputs[SEMITONE_SHIFT_2_CVINPUT].value/2)*(1.0/12.0);
-  fine_1_out = inputs[FINE_SHIFT_1_INPUT].value + (params[FINE_SHIFT_1].value)*(1.0/12.0) + (inputs[FINE_SHIFT_1_CVINPUT].value/2)*(1.0/2.0);
-  fine_2_out = inputs[FINE_SHIFT_2_INPUT].value + (params[FINE_SHIFT_2].value)*(1.0/12.0) + (inputs[FINE_SHIFT_2_CVINPUT].value/2)*(1.0/2.0);
+  octave_1_out = inputs[OCTAVE_SHIFT_1_INPUT].getVoltage() + round(params[OCTAVE_SHIFT_1].getValue()) + round(inputs[OCTAVE_SHIFT_1_CVINPUT].getVoltage()/2);
+  octave_2_out = inputs[OCTAVE_SHIFT_2_INPUT].getVoltage() + round(params[OCTAVE_SHIFT_2].getValue()) + round(inputs[OCTAVE_SHIFT_1_CVINPUT].getVoltage()/2);
+  semitone_1_out = inputs[SEMITONE_SHIFT_1_INPUT].getVoltage() + round(params[SEMITONE_SHIFT_1].getValue())*(1.0/12.0) + round(inputs[SEMITONE_SHIFT_1_CVINPUT].getVoltage()/2)*(1.0/12.0);
+  semitone_2_out = inputs[SEMITONE_SHIFT_2_INPUT].getVoltage() + round(params[SEMITONE_SHIFT_2].getValue())*(1.0/12.0) + round(inputs[SEMITONE_SHIFT_2_CVINPUT].getVoltage()/2)*(1.0/12.0);
+  fine_1_out = inputs[FINE_SHIFT_1_INPUT].getVoltage() + (params[FINE_SHIFT_1].getValue())*(1.0/12.0) + (inputs[FINE_SHIFT_1_CVINPUT].getVoltage()/2)*(1.0/2.0);
+  fine_2_out = inputs[FINE_SHIFT_2_INPUT].getVoltage() + (params[FINE_SHIFT_2].getValue())*(1.0/12.0) + (inputs[FINE_SHIFT_2_CVINPUT].getVoltage()/2)*(1.0/2.0);
 
-  outputs[OCTAVE_SHIFT_1_OUTPUT].value = octave_1_out;
-  outputs[OCTAVE_SHIFT_2_OUTPUT].value = octave_2_out;
-  outputs[SEMITONE_SHIFT_1_OUTPUT].value = semitone_1_out;
-  outputs[SEMITONE_SHIFT_2_OUTPUT].value = semitone_2_out;
-  outputs[FINE_SHIFT_1_OUTPUT].value = fine_1_out;
-  outputs[FINE_SHIFT_2_OUTPUT].value = fine_2_out;
+  outputs[OCTAVE_SHIFT_1_OUTPUT].setVoltage(octave_1_out);
+  outputs[OCTAVE_SHIFT_2_OUTPUT].setVoltage(octave_2_out);
+  outputs[SEMITONE_SHIFT_1_OUTPUT].setVoltage(semitone_1_out);
+  outputs[SEMITONE_SHIFT_2_OUTPUT].setVoltage(semitone_2_out);
+  outputs[FINE_SHIFT_1_OUTPUT].setVoltage(fine_1_out);
+  outputs[FINE_SHIFT_2_OUTPUT].setVoltage(fine_2_out);
 
 }
 };

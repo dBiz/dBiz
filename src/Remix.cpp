@@ -166,13 +166,13 @@ struct Remix : Module {
         inMults[i] = LERP(slopeControl, shaped, inMults[i]);
     }
 
-    outputs[A_OUTPUT].value = 0.0f;
-    outputs[B_OUTPUT].value = 0.0f;
-    outputs[C_OUTPUT].value = 0.0f;
+    outputs[A_OUTPUT].setVoltage(0.0f);
+    outputs[B_OUTPUT].setVoltage(0.0f);
+    outputs[C_OUTPUT].setVoltage(0.0f);
 
     for (int i = 0; i < 6; i++)
     {
-        outputs[i].value = ins[i] * inMults[i];
+        outputs[i].setVoltage(ins[i] * inMults[i]);
 
         lights[CH1_LIGHT + i].setSmoothBrightness(fmaxf(0.0, inMults[i]),APP->engine->getSampleTime());
 

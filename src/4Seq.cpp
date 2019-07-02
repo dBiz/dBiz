@@ -124,8 +124,6 @@ struct FourSeq : Module {
         }
         json_object_set_new(rootJ, "gate", gatesJ);
 
-        json_t *gateModeJ = json_integer((int)gateMode);
-        json_object_set_new(rootJ, "gateMode", gateModeJ);
 
         return rootJ;
     }
@@ -141,9 +139,6 @@ struct FourSeq : Module {
 			running_b = json_is_true(BrunningJ);
 
 
-
-
-
         json_t *gatesJ = json_object_get(rootJ, "gates");
         if (gatesJ)
         {
@@ -155,10 +150,6 @@ struct FourSeq : Module {
             }
         }
 
-        // gateMode
-        json_t *gateModeJ = json_object_get(rootJ, "gateMode");
-        if (gateModeJ)
-            gateMode = (GateMode)json_integer_value(gateModeJ);
     }
 
     void process(const ProcessArgs &args) override 
@@ -203,7 +194,7 @@ struct FourSeq : Module {
 /////////////////////////////////////////////////////////////////
 
 
-        if (reset_button.process(params[RESET_PARAM].value+inputs[RESET_INPUT].getVoltage()))
+        if (reset_button.process(params[RESET_PARAM].getValue()+inputs[RESET_INPUT].getVoltage()))
         {
             clk1C=0;
             clk2C=0;
@@ -218,27 +209,25 @@ struct FourSeq : Module {
 
         if (gateState_a[clk1C])
         {
-            outputs[SEQA_OUTPUT].value =clamp(inputs[CVA_INPUT+clk1C].value+params[SEQA_PARAM + clk1C].value,-3.0,3.0);
-          
+            outputs[SEQA_OUTPUT].setVoltage(clamp(inputs[CVA_INPUT + clk1C].getVoltage() + params[SEQA_PARAM + clk1C].getValue(), -3.0, 3.0));
         }
         if (gateState_b[clk2C])
         {
-            outputs[SEQB_OUTPUT].value =clamp(inputs[CVB_INPUT+clk2C].value+params[SEQB_PARAM + clk2C].value,-3.0,3.0);
-            
+            outputs[SEQB_OUTPUT].setVoltage(clamp(inputs[CVB_INPUT + clk2C].getVoltage() + params[SEQB_PARAM + clk2C].getValue(), -3.0, 3.0));
         }
 
         for (int i = 0; i < 4; i++)
         {
-            if (gate_a[i].process(params[GATEA_PARAM + i].value))
+            if (gate_a[i].process(params[GATEA_PARAM + i].getValue()))
             {
                 gateState_a[i] = !gateState_a[i];
             }
-            lights[GATEA_LIGHT + i].value = gateState_a[i] ? 1.0 : 0.0;
+            lights[GATEA_LIGHT + i].setBrightness(gateState_a[i] ? 1.0 : 0.0);
             if (gate_b[i].process(params[GATEB_PARAM + i].value))
             {
                 gateState_b[i] = !gateState_b[i];
             }
-            lights[GATEB_LIGHT + i].value = gateState_b[i] ? 1.0 : 0.0;
+            lights[GATEB_LIGHT + i].setBrightness(gateState_b[i] ? 1.0 : 0.0);
         }
 
         lights[RESET_LIGHT].setSmoothBrightness(reset_button.isHigh(), args.sampleTime);

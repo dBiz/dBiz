@@ -87,48 +87,48 @@ struct VCA530 : Module {
 void process(const ProcessArgs &args) override 
 {      
 
-    float ch1 = inputs[CH1_INPUT].value * params[CH1_PARAM].value;
-    float ch2 = inputs[CH2_INPUT].value * params[CH2_PARAM].value;
-    float ch3 = inputs[CH3_INPUT].value * params[CH3_PARAM].value;
-    float ch4 = inputs[CH4_INPUT].value * params[CH4_PARAM].value;
-    float ch5 = inputs[CH5_INPUT].value * params[CH5_PARAM].value;
-    float ch6 = inputs[CH6_INPUT].value * params[CH6_PARAM].value;
+    float ch1 = inputs[CH1_INPUT].getVoltage() * params[CH1_PARAM].getValue();
+    float ch2 = inputs[CH2_INPUT].getVoltage() * params[CH2_PARAM].getValue();
+    float ch3 = inputs[CH3_INPUT].getVoltage() * params[CH3_PARAM].getValue();
+    float ch4 = inputs[CH4_INPUT].getVoltage() * params[CH4_PARAM].getValue();
+    float ch5 = inputs[CH5_INPUT].getVoltage() * params[CH5_PARAM].getValue();
+    float ch6 = inputs[CH6_INPUT].getVoltage() * params[CH6_PARAM].getValue();
 
     float sum_ch = (ch1 + ch2 + ch3 + ch4 + ch5 + ch6);
     float sum_mix_l = (ch1 + ch2 + ch3);
     float sum_mix_r = (ch4 + ch5 + ch6);
 
-    float cv1 = sum_mix_l * (clamp(inputs[CH1_CV_INPUT].value / 10.0f, 0.0f, 1.0f)) * (params[CV1_PARAM].value);
-    float cv2 = sum_mix_l * (clamp(inputs[CH2_CV_INPUT].value / 10.0f, 0.0f, 1.0f)) * (params[CV2_PARAM].value);
-    float cv3 = sum_mix_l * (clamp(inputs[CH3_CV_INPUT].value / 10.0f, 0.0f, 1.0f)) * (params[CV3_PARAM].value);
-    float cv4 = sum_mix_r * (clamp(inputs[CH4_CV_INPUT].value / 10.0f, 0.0f, 1.0f)) * (params[CV4_PARAM].value);
-    float cv5 = sum_mix_r * (clamp(inputs[CH5_CV_INPUT].value / 10.0f, 0.0f, 1.0f)) * (params[CV5_PARAM].value);
-    float cv6 = sum_mix_r * (clamp(inputs[CH6_CV_INPUT].value / 10.0f, 0.0f, 1.0f)) * (params[CV6_PARAM].value);
+    float cv1 = sum_mix_l * (clamp(inputs[CH1_CV_INPUT].getVoltage() / 10.0f, 0.0f, 1.0f)) * (params[CV1_PARAM].getValue());
+    float cv2 = sum_mix_l * (clamp(inputs[CH2_CV_INPUT].getVoltage() / 10.0f, 0.0f, 1.0f)) * (params[CV2_PARAM].getValue());
+    float cv3 = sum_mix_l * (clamp(inputs[CH3_CV_INPUT].getVoltage() / 10.0f, 0.0f, 1.0f)) * (params[CV3_PARAM].getValue());
+    float cv4 = sum_mix_r * (clamp(inputs[CH4_CV_INPUT].getVoltage() / 10.0f, 0.0f, 1.0f)) * (params[CV4_PARAM].getValue());
+    float cv5 = sum_mix_r * (clamp(inputs[CH5_CV_INPUT].getVoltage() / 10.0f, 0.0f, 1.0f)) * (params[CV5_PARAM].getValue());
+    float cv6 = sum_mix_r * (clamp(inputs[CH6_CV_INPUT].getVoltage() / 10.0f, 0.0f, 1.0f)) * (params[CV6_PARAM].getValue());
 
-    float sum_l = sum_ch * params[MIX1_PARAM].value;
-    float sum_r = sum_ch * params[MIX2_PARAM].value;
-    float mix_l = sum_mix_l * params[MIX1_PARAM].value;
-    float mix_r = sum_mix_r * params[MIX2_PARAM].value;
+       float sum_l = sum_ch * params[MIX1_PARAM].getValue();
+       float sum_r = sum_ch * params[MIX2_PARAM].getValue();
+    float mix_l = sum_mix_l * params[MIX1_PARAM].getValue();
+    float mix_r = sum_mix_r * params[MIX2_PARAM].getValue();
 
     float sum_cv_l = (cv1 + cv2 + cv3);
     float sum_cv_r = (cv4 + cv5 + cv6);
 
-    outputs[SUM_OUTPUT_R].value = sum_r + sum_cv_r + sum_cv_l;
-    outputs[SUM_OUTPUT_L].value = sum_l + sum_cv_l + sum_cv_r;
-    outputs[MIX_OUTPUT_R].value = mix_r + sum_cv_r;
-    outputs[MIX_OUTPUT_L].value = mix_l + sum_cv_l;
+    outputs[SUM_OUTPUT_R].setVoltage(sum_r + sum_cv_r + sum_cv_l);
+    outputs[SUM_OUTPUT_L].setVoltage(sum_l + sum_cv_l + sum_cv_r);
+    outputs[MIX_OUTPUT_R].setVoltage(mix_r + sum_cv_r);
+    outputs[MIX_OUTPUT_L].setVoltage(mix_l + sum_cv_l);
 
-    lights[MIX1_LIGHTS].value = outputs[MIX_OUTPUT_L].value;
-    lights[MIX2_LIGHTS].value = outputs[MIX_OUTPUT_R].value;
-    if (outputs[MIX_OUTPUT_L].value > 4)
-        lights[CLIP1_LIGHTS].value =1.0;
+    lights[MIX1_LIGHTS].setBrightness(outputs[MIX_OUTPUT_L].getVoltage());
+    lights[MIX2_LIGHTS].setBrightness(outputs[MIX_OUTPUT_R].getVoltage());
+    if (outputs[MIX_OUTPUT_L].getVoltage() > 4)
+        lights[CLIP1_LIGHTS].setBrightness(1.0);
     else
-        lights[CLIP1_LIGHTS].value = 0.0;
+        lights[CLIP1_LIGHTS].setBrightness(0.0);
 
-    if (outputs[MIX_OUTPUT_R].value > 4)
-        lights[CLIP2_LIGHTS].value = 1.0;
+    if (outputs[MIX_OUTPUT_R].getVoltage() > 4)
+        lights[CLIP2_LIGHTS].setBrightness(1.0);
     else
-        lights[CLIP2_LIGHTS].value = 0.0;
+        lights[CLIP2_LIGHTS].setBrightness(0.0);
 }
 
 };

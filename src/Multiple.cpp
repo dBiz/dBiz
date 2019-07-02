@@ -79,13 +79,13 @@ void process(const ProcessArgs &args) override
 	float deltaTime = args.sampleTime;
 	//////////////ATTENUVERTERS//////////////////
 
-	float at1_in = inputs[I1_INPUT].value*params[A1_PARAM].value;
-	float at2_in = inputs[I2_INPUT].value*params[A2_PARAM].value;
-	float at3_in = inputs[I3_INPUT].value*params[A3_PARAM].value;
+	float at1_in = inputs[I1_INPUT].getVoltage()*params[A1_PARAM].getValue();
+	float at2_in = inputs[I2_INPUT].getVoltage()*params[A2_PARAM].getValue();
+	float at3_in = inputs[I3_INPUT].getVoltage()*params[A3_PARAM].getValue();
 
-	outputs[I1_OUTPUT].value = at1_in;
-	outputs[I2_OUTPUT].value = at2_in;
-	outputs[I3_OUTPUT].value = at3_in;
+	outputs[I1_OUTPUT].setVoltage(at1_in);
+	outputs[I2_OUTPUT].setVoltage(at2_in);
+	outputs[I3_OUTPUT].setVoltage(at3_in);
 
 
 	if (at1_in > 0)
@@ -105,18 +105,18 @@ void process(const ProcessArgs &args) override
 
 	//////////////MIXER//////////////////
 
-	float mix1_in = inputs[M1_INPUT].value*std::pow(params[L1_PARAM].value,2.f);
-	float mix2_in = inputs[M2_INPUT].value*std::pow(params[L2_PARAM].value,2.f);
-	float mix3_in = inputs[M3_INPUT].value*std::pow(params[L3_PARAM].value,2.f);
-	float mix4_in = inputs[M4_INPUT].value*std::pow(params[L4_PARAM].value,2.f);
+	float mix1_in = inputs[M1_INPUT].getVoltage()*std::pow(params[L1_PARAM].getValue(),2.f);
+	float mix2_in = inputs[M2_INPUT].getVoltage() * std::pow(params[L2_PARAM].getValue(), 2.f);
+	float mix3_in = inputs[M3_INPUT].getVoltage() * std::pow(params[L3_PARAM].getValue(), 2.f);
+	float mix4_in = inputs[M4_INPUT].getVoltage() * std::pow(params[L4_PARAM].getValue(), 2.f);
 
 	if(outputs[M12_OUTPUT].isConnected()){
-	outputs[M12_OUTPUT].value = mix1_in+mix2_in;
-	outputs[M34_OUTPUT].value = mix3_in+mix4_in;
+	outputs[M12_OUTPUT].setVoltage(mix1_in+mix2_in);
+	outputs[M34_OUTPUT].setVoltage(mix3_in+mix4_in);
 	}
 	else
 	{
-		outputs[M34_OUTPUT].value=mix1_in+mix2_in+mix3_in+mix4_in;
+		outputs[M34_OUTPUT].setVoltage(mix1_in + mix2_in + mix3_in + mix4_in);
 	}
 	
 
@@ -124,25 +124,25 @@ void process(const ProcessArgs &args) override
 
 
 
-	float m1_in = inputs[A_INPUT].value;
-	float m2_in = inputs[B_INPUT].value;
+	float m1_in = inputs[A_INPUT].getVoltage();
+	float m2_in = inputs[B_INPUT].getVoltage();
 
-	float m11_in = inputs[A1_INPUT].value;
-	float m22_in = inputs[B1_INPUT].value;
+	float m11_in = inputs[A1_INPUT].getVoltage();
+	float m22_in = inputs[B1_INPUT].getVoltage();
 
-	outputs[A1_OUTPUT].value = m11_in;
-	outputs[A2_OUTPUT].value = m11_in;
-	outputs[A3_OUTPUT].value = m11_in;
+	outputs[A1_OUTPUT].setVoltage(m11_in);
+	outputs[A2_OUTPUT].setVoltage(m11_in);
+	outputs[A3_OUTPUT].setVoltage(m11_in);
 
-	outputs[B1_OUTPUT].value = m22_in;
-	outputs[B2_OUTPUT].value = m22_in;
-	outputs[B3_OUTPUT].value = m22_in;
+	outputs[B1_OUTPUT].setVoltage(m22_in);
+	outputs[B2_OUTPUT].setVoltage(m22_in);
+	outputs[B3_OUTPUT].setVoltage(m22_in);
 
-	outputs[A11_OUTPUT].value = m1_in;
-	outputs[A12_OUTPUT].value = m1_in;
+	outputs[A11_OUTPUT].setVoltage(m1_in);
+	outputs[A12_OUTPUT].setVoltage(m1_in);
 
-	outputs[B11_OUTPUT].value = m2_in;
-	outputs[B12_OUTPUT].value = m2_in;
+	outputs[B11_OUTPUT].setVoltage(m2_in);
+	outputs[B12_OUTPUT].setVoltage(m2_in);
 }
 };
 
