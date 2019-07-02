@@ -482,14 +482,14 @@ struct Verbo : Module {
     		const float halfStages = stages * 0.5f;
     		const float remainInvStages = 1.0f - invStages;
 
-    		float widthControl = params[WIDTH_PARAM].value + inputs[WIDTH_INPUT].value*params[WIDTH_CV_PARAM].value;
+    		float widthControl = params[WIDTH_PARAM].getValue() + inputs[WIDTH_INPUT].getVoltage()*params[WIDTH_CV_PARAM].getValue();
     		widthControl = clamp(widthControl, 0.0f, 5.0f) * 0.2f;
     		widthControl = widthControl * widthControl * widthTable[stages];
 
-    		float CenterControl = params[CENTER_PARAM].value + inputs[CENTER_INPUT].value*params[CENTER_CV_PARAM].value;
+    		float CenterControl = params[CENTER_PARAM].getValue() + inputs[CENTER_INPUT].getVoltage()*params[CENTER_CV_PARAM].getValue();
     		CenterControl = clamp(CenterControl, 0.0f, 5.0f) * 0.2f;
 
-    		float slopeControl = params[SLOPE_PARAM].value + inputs[SLOPE_INPUT].value;
+    		float slopeControl = params[SLOPE_PARAM].getValue() + inputs[SLOPE_INPUT].getVoltage();
     		slopeControl = clamp(slopeControl, 0.0f, 5.0f) * 0.2f;
 
     		float scanFactor1 = LERP(widthControl, halfStages, invStages);

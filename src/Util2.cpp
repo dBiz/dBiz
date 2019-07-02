@@ -106,7 +106,7 @@ void process(const ProcessArgs &args) override
 
     for (int c = 0; c < 2; c++)
     {
-        float in = inputs[IN_INPUT + c].value;
+        float in = inputs[IN_INPUT + c].getVoltage();
         float shape = 0.0;
         float delta = in - out[c];
 
@@ -116,7 +116,7 @@ void process(const ProcessArgs &args) override
         if (delta > 0)
         {
             // Rise
-            float riseCv = params[GLIDE_PARAM + c].value;
+            float riseCv = params[GLIDE_PARAM + c].getValue();
             float rise = 1e-1 * powf(2.0, riseCv * 10.0);
             out[c] += shapeDelta(delta, rise, shape) * args.sampleTime;
             rising = (in - out[c] > 1e-3);
@@ -128,7 +128,7 @@ void process(const ProcessArgs &args) override
         else if (delta < 0)
         {
             // Fall
-            float fallCv = params[GLIDE_PARAM + c].value;
+            float fallCv = params[GLIDE_PARAM + c].getValue();
             float fall = 1e-1 * powf(2.0, fallCv * 10.0);
             out[c] += shapeDelta(delta, fall, shape) * args.sampleTime;
             falling = (in - out[c] < -1e-3);
@@ -143,15 +143,15 @@ void process(const ProcessArgs &args) override
             out[c] = in;
         }
 
-        outputs[OUT_OUTPUT + c].value = out[c];
+        outputs[OUT_OUTPUT + c].setVoltage(out[c]);
     }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     for (int c = 0; c < 2; c++)
     {
-       float in = 0.0f; //inputs[IN_INPUT + c].value;
-       if (trigger[c].process(params[EBUTTON_PARAM + c].value * 10 + inputs [TRIG_INPUT + c].getVoltage()))
+       float in = 0.0f; 
+       if (trigger[c].process(params[EBUTTON_PARAM + c].getValue() * 10 + inputs [TRIG_INPUT + c].getVoltage()))
        {
            gateEg[c] = true;
            gateLi[c] = true;
@@ -167,11 +167,11 @@ void process(const ProcessArgs &args) override
        }
 
        
-       float shape = params[SHAPE_PARAM + c].value;
+       float shape = params[SHAPE_PARAM + c].getValue();
        float delta = in - outg[c];
 
        float minTime;
-       switch ((int)params[RANGE_PARAM + c].value)
+       switch ((int)params[RANGE_PARAM + c].getValue())
        {
        case 0: minTime = 1e-1; break;
        case 1: minTime = 1e-2; break;
@@ -184,7 +184,7 @@ void process(const ProcessArgs &args) override
         if (delta > 0)
         {
             // Rise
-            float riseCv = params[RISE_PARAM + c].value;
+            float riseCv = params[RISE_PARAM + c].getValue();
             float rise = minTime * powf(2.0, riseCv * 10.0);
             outg[c] += shapeDelta(delta, rise, shape) * args.sampleTime;
             rising = (in - outg[c] > 1e-3);
@@ -196,7 +196,7 @@ void process(const ProcessArgs &args) override
         else if (delta < 0)
         {
             // Fall
-            float fallCv = params[FALL_PARAM + c].value;
+            float fallCv = params[FALL_PARAM + c].getValue();
             float fall = minTime * powf(2.0, fallCv * 10.0);
             outg[c] += shapeDelta(delta, fall, shape) * args.sampleTime;
             falling = (in - outg[c] < -1e-3);
@@ -211,16 +211,16 @@ void process(const ProcessArgs &args) override
             outg[c] = in;
         }
 
-        outputs[EG_OUTPUT + c].value = outg[c];
+        outputs[EG_OUTPUT + c].setVoltage(outg[c]);
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
     for (int i=0;i<4;i++)
     {
-        if(params[MODE_PARAM+i].value==0)
+        if(params[MODE_PARAM+i].getValue()==0)
         {
-            if (btrigger[i].process(params[BUTTON_PARAM+i].value*10+inputs[BUTTON_INPUT+i].getVoltage()))
+            if (btrigger[i].process(params[BUTTON_PARAM+i].getValue()*10+inputs[BUTTON_INPUT+i].getVoltage()))
             {
                 buttonPulse[i].trigger(1e-3);
                 gateState[i] = true;
@@ -231,12 +231,12 @@ void process(const ProcessArgs &args) override
 
             pulse[i] = buttonPulse[i].process(1.0f / APP->engine->getSampleTime());
 
-            outputs[BUTTON_OUTPUT + i].value = pulse[i] ? 10.0f : 0.0f;
+            outputs[BUTTON_OUTPUT + i].setVoltage(pulse[i] ? 10.0f : 0.0f);
         }
 
-        if (params[MODE_PARAM + i].value == 1)
+        if (params[MODE_PARAM + i].getValue() == 1)
         {
-            if (btrigger[i].process(params[BUTTON_PARAM + i].value * 10.0 + inputs[BUTTON_INPUT + i].getVoltage()))
+            if (btrigger[i].process(params[BUTTON_PARAM + i].getValue() * 10.0 + inputs[BUTTON_INPUT + i].getVoltage()))
             {
                 gateState[i] = !gateState[i];
             }
@@ -244,11 +244,11 @@ void process(const ProcessArgs &args) override
 
             if (gateState[i])
             {
-                outputs[BUTTON_OUTPUT + i].value = params[VALUE_PARAM + i].value;
+                outputs[BUTTON_OUTPUT + i].setVoltage(params[VALUE_PARAM + i].getValue());
             }
             else
             {
-                outputs[BUTTON_OUTPUT + i].value = 0.0;
+                outputs[BUTTON_OUTPUT + i].setVoltage(0.0);
             }
         }    
     }

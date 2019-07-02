@@ -129,8 +129,8 @@ struct Utility : Module {
 
   float closestVoltageInScale(float voltsIn)
   {
-    rootNote = params[ROOT_NOTE_PARAM].value + rescale(inputs[ROOT_NOTE_INPUT].value, 0,10,0, Utility::NUM_NOTES - 1);
-    curScaleVal = params[SCALE_PARAM].value + rescale(inputs[SCALE_INPUT].value, 0,10,0, Utility::NUM_SCALES - 1);
+    rootNote = params[ROOT_NOTE_PARAM].getValue() + rescale(inputs[ROOT_NOTE_INPUT].getVoltage(), 0,10,0, Utility::NUM_NOTES - 1);
+    curScaleVal = params[SCALE_PARAM].getValue() + rescale(inputs[SCALE_INPUT].getVoltage(), 0,10,0, Utility::NUM_SCALES - 1);
     int *curScaleArr;
     int notesInScale = 0;
     switch (curScaleVal)
@@ -228,26 +228,26 @@ struct Utility : Module {
   {
 
 
-  if(params[LINK_A_PARAM].value ==1.0 )
-    inputs[OCTAVE_INPUT + 1].value = inputs[OCTAVE_INPUT + 0].value;
+  if(params[LINK_A_PARAM].getValue() ==1.0 )
+    inputs[OCTAVE_INPUT + 1].setVoltage(inputs[OCTAVE_INPUT + 0].getVoltage());
 
-  if (params[LINK_B_PARAM].value == 1.0)
-    inputs[OCTAVE_INPUT + 2].value = inputs[OCTAVE_INPUT + 1].value;
+  if (params[LINK_B_PARAM].getValue() == 1.0)
+    inputs[OCTAVE_INPUT + 2].setVoltage(inputs[OCTAVE_INPUT + 1].getVoltage());
 
   for (int i = 0; i < 3; i++)
   {
-    octave_out[i] = inputs[OCTAVE_INPUT + i].value + round(params[OCTAVE_SHIFT + i].value) + round(inputs[OCTAVE_CVINPUT + i].value / 2);
-    semitone_out[i] = octave_out[i] + round(params[SEMITONE_SHIFT + i].value) * (1.0 / 12.0) + round(inputs[SEMITONE_CVINPUT + i].value / 2) * (1.0 / 12.0);
-    fine_out[i] = semitone_out[i] + (params[FINE_SHIFT + i].value) * (1.0 / 12.0) + (inputs[FINE_CVINPUT + i].value / 2) * (1.0 / 2.0);
+    octave_out[i] = inputs[OCTAVE_INPUT + i].getVoltage() + round(params[OCTAVE_SHIFT + i].getValue()) + round(inputs[OCTAVE_CVINPUT + i].getVoltage() / 2);
+    semitone_out[i] = octave_out[i] + round(params[SEMITONE_SHIFT + i].getValue()) * (1.0 / 12.0) + round(inputs[SEMITONE_CVINPUT + i].getVoltage() / 2) * (1.0 / 12.0);
+    fine_out[i] = semitone_out[i] + (params[FINE_SHIFT + i].getValue()) * (1.0 / 12.0) + (inputs[FINE_CVINPUT + i].getVoltage() / 2) * (1.0 / 2.0);
   }
 
     float out_a = closestVoltageInScale(fine_out[0]);
     float out_b = closestVoltageInScale(fine_out[1]);
     float out_c = closestVoltageInScale(fine_out[2]);
 
-    outputs[A_OUTPUT].value = out_a;
-    outputs[B_OUTPUT].value = out_b;
-    outputs[C_OUTPUT].value = out_c;
+    outputs[A_OUTPUT].setVoltage(out_a);
+    outputs[B_OUTPUT].setVoltage(out_b);
+    outputs[C_OUTPUT].setVoltage(out_c);
 
 
   }

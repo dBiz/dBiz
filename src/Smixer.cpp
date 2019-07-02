@@ -146,8 +146,8 @@ struct Smixer : Module {
 	{
 		int max = 8;
 
-		int start= std::round(params[SI_PARAM].value);
-		int step = std::round(params[NS_PARAM].value)+1;
+		int start= std::round(params[SI_PARAM].getValue());
+		int step = std::round(params[NS_PARAM].getValue())+1;
 		phase = 0.f;
 
 		this->index = index;
@@ -175,7 +175,7 @@ void process(const ProcessArgs &args) override {
 
 
 
-		if (runningTrigger.process(params[RUN_PARAM].value))
+		if (runningTrigger.process(params[RUN_PARAM].getValue()))
 		{
 			running = !running;
 		}
@@ -199,7 +199,7 @@ void process(const ProcessArgs &args) override {
 			else
 			{
 				// Internal clock
-				float clockTime = std::pow(2.0f, params[CLOCK_PARAM].value + inputs[CLK_IN].value);
+				float clockTime = std::pow(2.0f, params[CLOCK_PARAM].getValue() + inputs[CLK_IN].getVoltage());
 				phase += clockTime * APP->engine->getSampleTime();
 				if (phase >= 1.0f)
 				{
@@ -214,25 +214,25 @@ void process(const ProcessArgs &args) override {
 		}
 
 
-		if (modeTrigger.process(params[MODE_PARAM].value))
+		if (modeTrigger.process(params[MODE_PARAM].getValue()))
 		 {
 			 mode++;
 			 if (mode > 2)
 				 mode = 0;
 			 for (int i = 0; i < 3; i++)
 			 {
-				 lights[MODE_LIGHT + i].value = 0.0;
+				 lights[MODE_LIGHT + i].setBrightness(0.0);
 			 }
 		 }
 
-		 lights[MODE_LIGHT + mode].value = 1.0;
+		 lights[MODE_LIGHT + mode].setBrightness(1.0);
 	 
 		
 	
 
 		for (int i = 0; i < 8; i++)
 		{
-			ChIn[i]=inputs[CH_IN+i].value*params[GAIN+i].value;
+			ChIn[i]=inputs[CH_IN+i].getVoltage()*params[GAIN+i].getValue();
 
 			if (muteTrigger[i].process(params[BUTTONS + i].getValue()))
 			{
@@ -251,28 +251,28 @@ void process(const ProcessArgs &args) override {
 
 
 
-			  if (i < std::round(params[SI_PARAM].value) || i > std::round(params[NS_PARAM].value))
+			  if (i < std::round(params[SI_PARAM].getValue()) || i > std::round(params[NS_PARAM].getValue()))
 			  {
-			  	if (params[OUT_SEL + i].value == 0)
+			  	if (params[OUT_SEL + i].getValue() == 0)
 			  		outA += ChIn[i];
-			  	if (params[OUT_SEL + i].value == 1)
+			  	if (params[OUT_SEL + i].getValue() == 1)
 			  		outB += ChIn[i];
-			  	if (params[OUT_SEL + i].value == 2)
+			  	if (params[OUT_SEL + i].getValue() == 2)
 			  		outC += ChIn[i];
 			  	lights[SLIGHT + i].setSmoothBrightness(ChIn[i],APP->engine->getSampleTime());
 			  }
 
 
 			  //////////////////////////////////////
-			  if (params[OUT_SEL + i].value == 0)
+			  if (params[OUT_SEL + i].getValue() == 0)
 			  {
 			  	outA += ChIn[i] * clamp(lights[SLIGHT + i].value * 10, 0.0, 1.0);
 			  }
-			  if (params[OUT_SEL + i].value == 1)
+			  if (params[OUT_SEL + i].getValue() == 1)
 			  {
 			  	outB += ChIn[i] * clamp(lights[SLIGHT + i].value * 10, 0.0, 1.0);
 			  }
-			  if (params[OUT_SEL + i].value == 2)
+			  if (params[OUT_SEL + i].getValue() == 2)
 			  {
 			  	outC += ChIn[i] * clamp(lights[SLIGHT + i].value * 10, 0.0, 1.0);
 			  }
@@ -280,32 +280,32 @@ void process(const ProcessArgs &args) override {
 
 			else
 			{
-				if (params[OUT_SEL + i].value == 0)
+				if (params[OUT_SEL + i].getValue() == 0)
 					outA += ChIn[i];
-				if (params[OUT_SEL + i].value == 1)
+				if (params[OUT_SEL + i].getValue() == 1)
 					outB += ChIn[i];
-				if (params[OUT_SEL + i].value == 2)
+				if (params[OUT_SEL + i].getValue() == 2)
 					outC += ChIn[i];
 			}
 		}
 
-		if (resetTrigger.process(params[RESET_PARAM].value + inputs[RESET_IN].getVoltage()))
+		if (resetTrigger.process(params[RESET_PARAM].getValue() + inputs[RESET_IN].getVoltage()))
 		{	
 			if(mode==0)
-			setIndex(std::round(params[SI_PARAM].value));
+			setIndex(std::round(params[SI_PARAM].getValue()));
 			if(mode ==1)
-			setIndex(std::round(params[NS_PARAM].value));
+			setIndex(std::round(params[NS_PARAM].getValue()));
 			if(mode==2)
 			setIndex(std::round(rand() % 7));
 
 		}
 
-		lights[RUNNING_LIGHT].value = (running);
+		lights[RUNNING_LIGHT].setBrightness(running);
 		lights[RESET_LIGHT].setSmoothBrightness(resetTrigger.isHigh(),APP->engine->getSampleTime());
 
-		outputs[CH_OUT].value = outA * params[BUS_VOL].value;
-		outputs[CH_OUT + 1].value = outB * params[BUS_VOL + 1].value;
-		outputs[CH_OUT + 2].value = outC * params[BUS_VOL + 2].value;
+		    outputs[CH_OUT].setVoltage(outA * params[BUS_VOL].getValue());
+		outputs[CH_OUT + 1].setVoltage(outB * params[BUS_VOL + 1].getValue());
+		outputs[CH_OUT + 2].setVoltage(outC * params[BUS_VOL + 2].getValue());
 	}
 
 

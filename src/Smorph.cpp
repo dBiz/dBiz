@@ -153,8 +153,8 @@ struct Smorph : Module {
 ////////////////////////////////////////////////////////////////////////////////////
  float closestVoltageInScale(float voltsIn)
    {
-    rootNote = params[ROOT_NOTE_PARAM].value;
-    curScaleVal =params[SCALE_PARAM].value;
+    rootNote = params[ROOT_NOTE_PARAM].getValue();
+    curScaleVal =params[SCALE_PARAM].getValue();
     int *curScaleArr;
     int notesInScale = 0;
     switch (curScaleVal)
@@ -258,7 +258,7 @@ struct Smorph : Module {
         {
             if (clk.process(inputs[CLK_INPUT].getVoltage()))
             {
-                if (inputs[REV_INPUT].value > 0)
+                if (inputs[REV_INPUT].getVoltage() > 0)
                 {
                     index--;
                 }
@@ -274,25 +274,25 @@ struct Smorph : Module {
 
         if (inputs[CV_INPUT].isConnected())
         {
-            index = round(math::rescale(inputs[CV_INPUT].value,-5.0,5.0, 0.0, 3.0f));
+            index = round(math::rescale(inputs[CV_INPUT].getVoltage(),-5.0,5.0, 0.0, 3.0f));
         }
 
         for (int i = 0; i < 4; i++)
         {
-            if(params[RANGE_PARAM].value==0)
+            if(params[RANGE_PARAM].getValue()==0)
             {
-                seq_a[i] = params[SEQA_PARAM + i].value;
-                seq_b[i] = params[SEQB_PARAM + i].value;
-                seq_c[i] = params[SEQC_PARAM + i].value;
+                seq_a[i] = params[SEQA_PARAM + i].getValue();
+                seq_b[i] = params[SEQB_PARAM + i].getValue();
+                seq_c[i] = params[SEQC_PARAM + i].getValue();
             }
             else
             {
-                seq_a[i] = params[SEQA_PARAM + i].value/2.0;
-                seq_b[i] = params[SEQB_PARAM + i].value/2.0;
-                seq_c[i] = params[SEQC_PARAM + i].value/2.0;
+                seq_a[i] = params[SEQA_PARAM + i].getValue()/2.0;
+                seq_b[i] = params[SEQB_PARAM + i].getValue()/2.0;
+                seq_c[i] = params[SEQC_PARAM + i].getValue()/2.0;
             }
 
-            if (trigger[i].process(params[GBUTTON_PARAM + i].value * 10 + inputs[GATE_INPUT + i].getVoltage()))
+            if (trigger[i].process(params[GBUTTON_PARAM + i].getValue() * 10 + inputs[GATE_INPUT + i].getVoltage()))
             {
                 index = i;
             }
@@ -319,7 +319,7 @@ struct Smorph : Module {
             if (delta > 0)
             {
                 // Rise
-                float riseCv = params[GLIDE_PARAM + g].value;
+                float riseCv = params[GLIDE_PARAM + g].getValue();
                 float rise = 1e-1 * std::pow(2.0, riseCv * 10.0);
                 outs[g] += DeltaT(delta, rise) * args.sampleTime;
                 rising = (in - outs[g] > 1e-3);
@@ -327,7 +327,7 @@ struct Smorph : Module {
             else if (delta < 0)
             {
                 // Fall
-                float fallCv = params[GLIDE_PARAM + g].value;
+                float fallCv = params[GLIDE_PARAM + g].getValue();
                 float fall = 1e-1 * std::pow(2.0, fallCv * 10.0);
                 outs[g] += DeltaT(delta, fall) * args.sampleTime;
                 falling = (in - outs[g] < -1e-3);
@@ -338,7 +338,7 @@ struct Smorph : Module {
                 outs[g] = in;
             }
 
-            outputs[SEQ_OUTPUT + g].value =outs[g];
+            outputs[SEQ_OUTPUT + g].setVoltage(outs[g]);
         }
 
     }

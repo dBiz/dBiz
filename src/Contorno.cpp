@@ -79,20 +79,20 @@ struct Contorno : Module {
 	for (int c=0;c<4;c++)
 	{
 	
-	float in = inputs[IN_INPUT + c].value;
-		if (trigger[c].process(params[TRIGG_PARAM + c].value * 10.0 + inputs[TRIGG_INPUT + c].value)) {
+	float in = inputs[IN_INPUT + c].getVoltage();
+		if (trigger[c].process(params[TRIGG_PARAM + c].getValue() * 10.0 + inputs[TRIGG_INPUT + c].getVoltage())) {
 			gate[c] = true;
 		}
 		if (gate[c]) {
 			in = 10.0;
 		}
 
-		float shape = params[SHAPE_PARAM + c].value;
+		float shape = params[SHAPE_PARAM + c].getValue();
 		float delta = in - out[c];
 
 		// Integrator
 		float minTime;
-		switch ((int) params[RANGE_PARAM + c].value) {
+		switch ((int) params[RANGE_PARAM + c].getValue()) {
 			case 0: minTime = 1e-2; break;
 			case 1: minTime = 1e-3; break;
 			default: minTime = 1e-1; break;
@@ -103,7 +103,7 @@ struct Contorno : Module {
 
 		if (delta > 0) {
 			// Rise
-			float riseCv = params[RISE_PARAM + c].value + inputs[RISE_INPUT + c].value / 10.0;
+			float riseCv = params[RISE_PARAM + c].getValue() + inputs[RISE_INPUT + c].getVoltage() / 10.0;
 			riseCv = clamp(riseCv, 0.0, 1.0);
 			float rise = minTime * powf(2.0, riseCv * 10.0);
 			out[c] += shapeDelta(delta, rise, shape) * args.sampleTime;
@@ -114,7 +114,7 @@ struct Contorno : Module {
 		}
 		else if (delta < 0) {
 			// Fall
-			float fallCv = params[FALL_PARAM + c].value + inputs[FALL_INPUT + c].value / 10.0;
+			float fallCv = params[FALL_PARAM + c].getValue() + inputs[FALL_INPUT + c].getVoltage() / 10.0;
 			fallCv = clamp(fallCv, 0.0, 1.0);
 			float fall = minTime * powf(2.0, fallCv * 10.0);
 			out[c] += shapeDelta(delta, fall, shape) * args.sampleTime;
@@ -122,25 +122,25 @@ struct Contorno : Module {
 			if (!falling) {
 				// End of cycle, check if we should turn the gate back on (cycle mode)
 				endOfCyclePulse[c].trigger(1e-3);
-				if (params[CYCLE_PARAM + c].value * 10.0 + inputs[CYCLE_INPUT + c].value >= 4.0) {
+				if (params[CYCLE_PARAM + c].getValue() * 10.0 + inputs[CYCLE_INPUT + c].getVoltage() >= 4.0) {
 					gate[c] = true;
 				}
 			}
 		}
 		else {
 			gate[c] = false;
-			lights[CYCLE_LIGHT+c].value = 0.0;
+			lights[CYCLE_LIGHT+c].setBrightness(0.0);
 		}
 
 		if (!rising && !falling) {
 			out[c] = in;
 		}
 
-		if (params[CYCLE_PARAM + c].value == 1.0 || inputs[CYCLE_INPUT+c].value>0.0) lights[CYCLE_LIGHT + c].value = 1.0;
+		if (params[CYCLE_PARAM + c].getValue() == 1.0 || inputs[CYCLE_INPUT+c].getVoltage()>0.0) lights[CYCLE_LIGHT + c].setBrightness(1.0);
 
 		lights[RISE_LIGHT + c].setSmoothBrightness(rising ? 1.0 : 0.0, args.sampleTime);
 		lights[FALL_LIGHT + c].setSmoothBrightness(falling ? 1.0 : 0.0, args.sampleTime);
-		outputs[OUT_OUTPUT + c].value = out[c];
+		outputs[OUT_OUTPUT + c].setVoltage(out[c]);
 		}
 		
 }

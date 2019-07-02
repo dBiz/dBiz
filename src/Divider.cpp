@@ -109,29 +109,29 @@ struct Divider : Module {
   void process(const ProcessArgs &args) override 
  {
 
-		divider1 = round(params[DIVISION_PARAM].value   + clamp(inputs[SUB1_INPUT+0].value, -15.0f, 15.0f));
+		divider1 = round(params[DIVISION_PARAM].getValue()   + clamp(inputs[SUB1_INPUT+0].getVoltage(), -15.0f, 15.0f));
 		if (divider1>15) divider1=15; 
 		if (divider1<=1) divider1=1;
-		divider2 = round(params[DIVISION_PARAM+1].value + clamp(inputs[SUB1_INPUT+1].value, -15.0f, 15.0f));
+		divider2 = round(params[DIVISION_PARAM+1].getValue() + clamp(inputs[SUB1_INPUT+1].getVoltage(), -15.0f, 15.0f));
 		if (divider2>15) divider2=15; 
 		if (divider2<=1) divider2=1;
-		divider3 = round(params[DIVISION_PARAM+2].value + clamp(inputs[SUB1_INPUT+2].value, -15.0f, 15.0f));
+		divider3 = round(params[DIVISION_PARAM+2].getValue() + clamp(inputs[SUB1_INPUT+2].getVoltage(), -15.0f, 15.0f));
 		if (divider3>15) divider3=15; 
 		if (divider3<=1) divider3=1;
-		divider4 = round(params[DIVISION_PARAM+3].value + clamp(inputs[SUB1_INPUT+3].value, -15.0f, 15.0f));
+		divider4 = round(params[DIVISION_PARAM+3].getValue() + clamp(inputs[SUB1_INPUT+3].getVoltage(), -15.0f, 15.0f));
 		if (divider4>15) divider4=15; 
 		if (divider4<=1) divider4=1;
 
-		divider1b = round(params[DIVISIONB_PARAM].value   + clamp(inputs[SUB2_INPUT+0].value, -15.0f, 15.0f));
+		divider1b = round(params[DIVISIONB_PARAM].getValue()   + clamp(inputs[SUB2_INPUT+0].getVoltage(), -15.0f, 15.0f));
 		if (divider1b>15) divider1b=15; 
 		if (divider1b<=1) divider1b=1;
-		divider2b = round(params[DIVISIONB_PARAM+1].value + clamp(inputs[SUB2_INPUT+1].value, -15.0f, 15.0f));
+		divider2b = round(params[DIVISIONB_PARAM+1].getValue() + clamp(inputs[SUB2_INPUT+1].getVoltage(), -15.0f, 15.0f));
 		if (divider2b>15) divider2b=15; 
 		if (divider2b<=1) divider2b=1;
-		divider3b = round(params[DIVISIONB_PARAM+2].value + clamp(inputs[SUB2_INPUT+2].value, -15.0f, 15.0f));
+		divider3b = round(params[DIVISIONB_PARAM+2].getValue() + clamp(inputs[SUB2_INPUT+2].getVoltage(), -15.0f, 15.0f));
 		if (divider3b>15) divider3b=15; 
 		if (divider3b<=1) divider3b=1;
-		divider4b = round(params[DIVISIONB_PARAM+3].value + clamp(inputs[SUB2_INPUT+3].value, -15.0f, 15.0f));
+		divider4b = round(params[DIVISIONB_PARAM+3].getValue() + clamp(inputs[SUB2_INPUT+3].getVoltage(), -15.0f, 15.0f));
 		if (divider4b>15) divider4b=15; 
 		if (divider4b<=1) divider4b=1;
 
@@ -166,7 +166,7 @@ lights[LIGHT_S2+3].setSmoothBrightness(clock4bCount == 0? 1.f : 0.0, args.sample
 	
 	/////////////////////////////////////////////////////////////////
 
-if(params[ON_SWITCH+0].value)
+if(params[ON_SWITCH+0].getValue())
 {
 	if (clock1Count >= divider1)
 	{
@@ -174,7 +174,7 @@ if(params[ON_SWITCH+0].value)
 	  clk1.trigger(1e-3);  
 	}
 }
-if(params[ON_SWITCH+1].value)
+if(params[ON_SWITCH+1].getValue())
 {
 	if (clock2Count >= divider2)
 	{
@@ -182,7 +182,7 @@ if(params[ON_SWITCH+1].value)
 	  clk2.trigger(1e-3);
   }
 }
-if(params[ON_SWITCH+2].value)
+if(params[ON_SWITCH+2].getValue())
 {
 	if (clock3Count >= divider3)
 	{
@@ -190,7 +190,7 @@ if(params[ON_SWITCH+2].value)
 	  clk3.trigger(1e-3);
   }
 }
-if(params[ON_SWITCH+3].value)
+if(params[ON_SWITCH+3].getValue())
 {
 	if (clock4Count >= divider4)
 	{
@@ -200,7 +200,7 @@ if(params[ON_SWITCH+3].value)
 } 	
 
 
-if(params[ON_SWITCHB+0].value)
+if(params[ON_SWITCHB+0].getValue())
 {
 	if (clock1bCount >= divider1b)
 	{
@@ -208,7 +208,7 @@ if(params[ON_SWITCHB+0].value)
 	  clk1b.trigger(1e-3);  
 	}
 }
-if(params[ON_SWITCHB+1].value)
+if(params[ON_SWITCHB+1].getValue())
 {
 	if (clock2bCount >= divider2b)
 	{
@@ -216,7 +216,7 @@ if(params[ON_SWITCHB+1].value)
 	  clk2b.trigger(1e-3);
   }
 }
-if(params[ON_SWITCHB+2].value)
+if(params[ON_SWITCHB+2].getValue())
 {
 	if (clock3bCount >= divider3b)
 	{
@@ -224,7 +224,7 @@ if(params[ON_SWITCHB+2].value)
 	  clk3b.trigger(1e-3);
   }
 }
-if(params[ON_SWITCHB+3].value)
+if(params[ON_SWITCHB+3].getValue())
 {
 	if (clock4bCount >= divider4b)
 	{
@@ -245,11 +245,11 @@ pulse3b = clk3b.process(1.0f / APP->engine->getSampleTime());
 pulse4b = clk4b.process(1.0f / APP->engine->getSampleTime());
 
 //////////////////////////////////////////////////////////////////
-if(params[MODE_PARAM].value)
+if(params[MODE_PARAM].getValue())
 {
-outputs[TRIG_OUTPUT].value =(((pulse1||pulse2)||pulse3)||pulse4)? 10.0f : 0.0f;
-outputs[AB_OUTPUT].value = (pulse1 || pulse2) ? 10.0f : 0.0f;
-outputs[CD_OUTPUT].value = (pulse3 || pulse4) ? 10.0f : 0.0f;
+outputs[TRIG_OUTPUT].setVoltage((((pulse1||pulse2)||pulse3)||pulse4)? 10.0f : 0.0f);
+outputs[AB_OUTPUT].setVoltage((pulse1 || pulse2) ? 10.0f : 0.0f);
+outputs[CD_OUTPUT].setVoltage((pulse3 || pulse4) ? 10.0f : 0.0f);
 }
 else
 {
@@ -257,16 +257,16 @@ bool xora,xorb = false;
 xora = pulse1==pulse2;
 xorb = pulse3==pulse4;
 
-outputs[TRIG_OUTPUT].value = xora == xorb ? 0.0f : 10.0f;
-outputs[AB_OUTPUT].value = xora ? 0.0f : 10.0f;
-outputs[CD_OUTPUT].value = xorb ? 0.0f : 10.0f;
+outputs[TRIG_OUTPUT].setVoltage(xora == xorb ? 0.0f : 10.0f);
+  outputs[AB_OUTPUT].setVoltage(xora ? 0.0f : 10.0f);
+  outputs[CD_OUTPUT].setVoltage(xorb ? 0.0f : 10.0f);
 }
 
-if(params[MODE_PARAM+1].value)
+if(params[MODE_PARAM+1].getValue())
 {
-outputs[TRIGB_OUTPUT].value =(((pulse1b||pulse2b)||pulse3b)||pulse4b)? 10.0f : 0.0f;
-outputs[AB2_OUTPUT].value = (pulse1b || pulse2b) ? 10.0f : 0.0f;
-outputs[CD2_OUTPUT].value = (pulse3b || pulse4b) ? 10.0f : 0.0f;
+outputs[TRIGB_OUTPUT].setVoltage((((pulse1b||pulse2b)||pulse3b)||pulse4b)? 10.0f : 0.0f);
+  outputs[AB2_OUTPUT].setVoltage((pulse1b || pulse2b) ? 10.0f : 0.0f);
+  outputs[CD2_OUTPUT].setVoltage((pulse3b || pulse4b) ? 10.0f : 0.0f);
 }
 else
 {
@@ -274,9 +274,9 @@ else
 	xora2 = pulse1b == pulse2b;
 	xorb2 = pulse3b == pulse4b;
 
-	outputs[TRIGB_OUTPUT].value = xora2 == xorb2 ? 0.0f : 10.0f;
-	outputs[AB2_OUTPUT].value = xora2 ? 0.0f : 10.0f;
-	outputs[CD2_OUTPUT].value = xorb2 ? 0.0f : 10.0f;
+	outputs[TRIGB_OUTPUT].setVoltage(xora2 == xorb2 ? 0.0f : 10.0f);
+	  outputs[AB2_OUTPUT].setVoltage(xora2 ? 0.0f : 10.0f);
+	  outputs[CD2_OUTPUT].setVoltage(xorb2 ? 0.0f : 10.0f);
 }
 }
 
