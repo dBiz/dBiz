@@ -109,21 +109,21 @@ struct Chord : Module {
 	void process(const ProcessArgs &args) override 
   {
 
-  float in = inputs[INPUT].value;  
+  float in = inputs[INPUT].getVoltage();  
   int octave = round(in);
   
-  float offset_raw = (params[OFFSET_PARAM].value) * 12 - 6 + (inputs[OFFSET_CV_INPUT].value*params[OFFSET_AMT_PARAM].value) / 1.5;
+  float offset_raw = (params[OFFSET_PARAM].getValue()) * 12 - 6 + (inputs[OFFSET_CV_INPUT].getVoltage()*params[OFFSET_AMT_PARAM].getValue()) / 1.5;
   float pitch_offset = round(offset_raw) / 12;
   
   float root = in - 1.0*octave + pitch_offset;
   float root_or_2nd = root;
   
-  float inversion_raw = (params[INVERSION_PARAM].value) * 4 - 1 + ((inputs[INVERSION_CV_INPUT].value*params[INVERSION_AMT_PARAM].value) / 3);
+  float inversion_raw = (params[INVERSION_PARAM].getValue()) * 4 - 1 + ((inputs[INVERSION_CV_INPUT].getVoltage()*params[INVERSION_AMT_PARAM].getValue()) / 3);
   int inversion = round(inversion_raw);
   if (inversion > 2) inversion = 2;
   if (inversion < -1) inversion = -1;
   
-  float voicing_raw = (params[VOICING_PARAM].value) * 5 - 2 + ((inputs[VOICING_CV_INPUT].value*params[VOICING_AMT_PARAM].value) / 3);
+  float voicing_raw = (params[VOICING_PARAM].getValue()) * 5 - 2 + ((inputs[VOICING_CV_INPUT].getVoltage()*params[VOICING_AMT_PARAM].getValue()) / 3);
   int voicing = round(voicing_raw);
   if (voicing > 2) voicing = 2;
   if (voicing < -2) voicing = -2;
@@ -138,89 +138,89 @@ struct Chord : Module {
   int fifth = 7;
   int seventh = 11;
     
-  if (inputs[FLAT_3RD_INPUT].value+params[FLAT_3RD_PARAM].value > 0.0)
+  if (inputs[FLAT_3RD_INPUT].getVoltage()+params[FLAT_3RD_PARAM].getValue() > 0.0)
   {
      third = 3;
-     lights[FLAT_3RD_LIGHT].value=1.0;
+     lights[FLAT_3RD_LIGHT].setBrightness(1.0f);
   }
-  else lights[FLAT_3RD_LIGHT].value=0.0;
+  else lights[FLAT_3RD_LIGHT].setBrightness(0.0);
 
-  if (inputs[FLAT_5TH_INPUT].value+params[FLAT_5TH_PARAM].value > 0.0)
+  if (inputs[FLAT_5TH_INPUT].getVoltage()+params[FLAT_5TH_PARAM].getValue() > 0.0)
   {
      fifth = 6;
-     lights[FLAT_5TH_LIGHT].value=1.0;
+     lights[FLAT_5TH_LIGHT].setBrightness(1.0);
   }
-  else lights[FLAT_5TH_LIGHT].value=0.0;
+  else lights[FLAT_5TH_LIGHT].setBrightness(0.0);
 
-  if (inputs[SHARP_5_INPUT].value+params[SHARP_5_PARAM].value > 0.0)
+  if (inputs[SHARP_5_INPUT].getVoltage()+params[SHARP_5_PARAM].getValue() > 0.0)
   {
      fifth = 8;
-     lights[SHARP_5_LIGHT].value=1.0;
+     lights[SHARP_5_LIGHT].setBrightness(1.0);
   }
-  else lights[SHARP_5_LIGHT].value=0.0;
+  else lights[SHARP_5_LIGHT].setBrightness(0.0);
   
 
-  if (inputs[FLAT_7TH_INPUT].value+params[FLAT_7TH_PARAM].value > 0.0)
+  if (inputs[FLAT_7TH_INPUT].getVoltage()+params[FLAT_7TH_PARAM].getValue() > 0.0)
   {
      seventh = 10;
-     lights[FLAT_7TH_LIGHT].value=1.0;
+     lights[FLAT_7TH_LIGHT].setBrightness(1.0);
   }
-  else lights[FLAT_7TH_LIGHT].value=0.0;
+  else lights[FLAT_7TH_LIGHT].setBrightness(0.0);
 
-  if (inputs[SUS_2_INPUT].value+params[SUS_2_PARAM].value > 0.0)
+  if (inputs[SUS_2_INPUT].getVoltage()+params[SUS_2_PARAM].getValue() > 0.0)
   {
      root_or_2nd = root + (2 * (1.0/12.0));
-     lights[SUS_2_LIGHT].value=1.0;
+     lights[SUS_2_LIGHT].setBrightness(1.0);
   }
-  else lights[SUS_2_LIGHT].value=0.0;
+  else lights[SUS_2_LIGHT].setBrightness(0.0);
 
-  if (inputs[SUS_4_INPUT].value+params[SUS_4_PARAM].value > 0.0)
+  if (inputs[SUS_4_INPUT].getVoltage()+params[SUS_4_PARAM].getValue() > 0.0)
   {
      third = 5;
-     lights[SUS_4_LIGHT].value=1.0;
+     lights[SUS_4_LIGHT].setBrightness(1.0);
   }
-  else lights[SUS_4_LIGHT].value=0.0;
+  else lights[SUS_4_LIGHT].setBrightness(0.0);
 
-  if (inputs[SIX_FOR_5_INPUT].value+params[SIX_FOR_5_PARAM].value > 0.0)
+  if (inputs[SIX_FOR_5_INPUT].getVoltage()+params[SIX_FOR_5_PARAM].getValue() > 0.0)
   {
      fifth = 9;
-     lights[SIX_FOR_5_LIGHT].value=1.0;
+     lights[SIX_FOR_5_LIGHT].setBrightness(1.0);
   }
-  else lights[SIX_FOR_5_LIGHT].value=0.0;
+  else lights[SIX_FOR_5_LIGHT].setBrightness(0.0);
 
-  if (inputs[SIX_FOR_7_INPUT].value+params[SIX_FOR_7_PARAM].value > 0.0)
+  if (inputs[SIX_FOR_7_INPUT].getVoltage()+params[SIX_FOR_7_PARAM].getValue() > 0.0)
   {
      seventh = 9;
-     lights[SIX_FOR_7_LIGHT].value=1.0;
+     lights[SIX_FOR_7_LIGHT].setBrightness(1.0);
   }
-  else lights[SIX_FOR_7_LIGHT].value=0.0;
+  else lights[SIX_FOR_7_LIGHT].setBrightness(0.0);
 
   
-  if (inputs[FLAT_9_INPUT].value+params[FLAT_9_PARAM].value > 0.0)
+  if (inputs[FLAT_9_INPUT].getVoltage()+params[FLAT_9_PARAM].getValue() > 0.0)
   {
      root_or_2nd = root + 1.0/12.0;
-     lights[FLAT_9_LIGHT].value=1.0;
+     lights[FLAT_9_LIGHT].setBrightness(1.0);
   }
-  else lights[FLAT_9_LIGHT].value=0.0;
+  else lights[FLAT_9_LIGHT].setBrightness(0.0);
 
-  if (inputs[SHARP_9_INPUT].value+params[SHARP_9_PARAM].value > 0.0)
+  if (inputs[SHARP_9_INPUT].getVoltage()+params[SHARP_9_PARAM].getValue() > 0.0)
   {
      root_or_2nd = root + (3 * (1.0/12.0));
-     lights[SHARP_9_LIGHT].value=1.0;
+     lights[SHARP_9_LIGHT].setBrightness(1.0);
   }
-  else lights[SHARP_9_LIGHT].value=0.0;
+  else lights[SHARP_9_LIGHT].setBrightness(0.0);
 
-  if (inputs[ONE_FOR_7_INPUT].value+params[ONE_FOR_7_PARAM].value > 0.0)
+  if (inputs[ONE_FOR_7_INPUT].getVoltage()+params[ONE_FOR_7_PARAM].getValue() > 0.0)
   {
      seventh = 12;
-     lights[ONE_FOR_7_LIGHT].value=1.0;
+     lights[ONE_FOR_7_LIGHT].setBrightness(1.0);
   }
-  else lights[ONE_FOR_7_LIGHT].value=0.0;
+  else lights[ONE_FOR_7_LIGHT].setBrightness(0.0);
 
-  outputs[OUTPUT_ROOT].value = root;
-  outputs[OUTPUT_THIRD].value = root + third * (1.0/12.0);
-  outputs[OUTPUT_FIFTH].value = root + fifth * (1.0/12.0);
-  outputs[OUTPUT_SEVENTH].value = root + seventh * (1.0/12.0);
+     outputs[OUTPUT_ROOT].setVoltage(root);
+    outputs[OUTPUT_THIRD].setVoltage(root + third * (1.0/12.0));
+    outputs[OUTPUT_FIFTH].setVoltage(root + fifth * (1.0/12.0));
+  outputs[OUTPUT_SEVENTH].setVoltage(root + seventh * (1.0/12.0));
   
   
   
@@ -267,10 +267,10 @@ struct Chord : Module {
   }
   
   
-  outputs[OUTPUT_1].value = voice_1;
-  outputs[OUTPUT_2].value = voice_2;
-  outputs[OUTPUT_3].value = voice_3;
-  outputs[OUTPUT_4].value = voice_4; 
+  outputs[OUTPUT_1].setVoltage(voice_1);
+  outputs[OUTPUT_2].setVoltage(voice_2);
+  outputs[OUTPUT_3].setVoltage(voice_3);
+  outputs[OUTPUT_4].setVoltage(voice_4);
 }
 };
 

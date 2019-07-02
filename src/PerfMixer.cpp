@@ -139,22 +139,21 @@ void process(const ProcessArgs &args) override {
 
     for (int i = 0 ; i < 8 ; i++)
     {
-      pan_cv[i] = inputs[CH_PAN_INPUT + i].value / 5;
-      pan_pos[i] = pan_cv[i] + params[PAN_PARAM + i].value;
+      pan_cv[i] = inputs[CH_PAN_INPUT + i].getVoltage() / 5;
+      pan_pos[i] = pan_cv[i] + params[PAN_PARAM + i].getValue();
       if (pan_pos[i] < 0)
         pan_pos[i] = 0;
       if (pan_pos[i] > 1)
         pan_pos[i] = 1;
 
-      lights[PAN_L_LIGHT+i].value=1-pan_pos[i];
-      lights[PAN_R_LIGHT+i].value=pan_pos[i];
+      lights[PAN_L_LIGHT+i].setBrightness(1-pan_pos[i]);
+      lights[PAN_R_LIGHT+i].setBrightness(pan_pos[i]);
 
-      ch_l_ins[i] = (inputs[CH_L_INPUT + i].getVoltage() * std::pow(params[VOL_PARAM + i].value,2.f));
+      ch_l_ins[i] = (inputs[CH_L_INPUT + i].getVoltage() * std::pow(params[VOL_PARAM + i].getValue(),2.f));
       if(inputs[CH_VOL_INPUT+i].isConnected()) 
        ch_l_ins[i] *= (inputs[CH_VOL_INPUT + i].getVoltage() / 10.0f);
 
-
-      ch_r_ins[i] = (inputs[CH_R_INPUT + i].getVoltage() * std::pow(params[VOL_PARAM + i].value,2.f));
+      ch_r_ins[i] = (inputs[CH_R_INPUT + i].getVoltage() * std::pow(params[VOL_PARAM + i].getValue(), 2.f));
       if(inputs[CH_VOL_INPUT+i].isConnected()) 
        ch_r_ins[i]*= (inputs[CH_VOL_INPUT + i].getVoltage() / 10.0f);
 
@@ -176,21 +175,21 @@ void process(const ProcessArgs &args) override {
           }
           
 
-          channel_s1_L[i] = (channel_outs_l[i] * params[AUX_1_PARAM + i].value);
+          channel_s1_L[i] = (channel_outs_l[i] * params[AUX_1_PARAM + i].getValue());
           if(inputs[AUX_1_INPUT].isConnected()) 
-          channel_s1_L[i] *= (inputs[AUX_1_INPUT + i].value /10.f);
+          channel_s1_L[i] *= (inputs[AUX_1_INPUT + i].getVoltage() /10.f);
 
-          channel_s2_L[i] = (channel_outs_l[i] * params[AUX_2_PARAM + i].value);
+          channel_s2_L[i] = (channel_outs_l[i] * params[AUX_2_PARAM + i].getValue());
           if(inputs[AUX_2_INPUT].isConnected()) 
-          channel_s2_L[i] *= (inputs[AUX_2_INPUT + i].value /10.f);
+          channel_s2_L[i] *= (inputs[AUX_2_INPUT + i].getVoltage() /10.f);
 
-          channel_s1_R[i] = (channel_outs_r[i] * params[AUX_1_PARAM + i].value);
+          channel_s1_R[i] = (channel_outs_r[i] * params[AUX_1_PARAM + i].getValue());
           if(inputs[AUX_1_INPUT].isConnected()) 
-          channel_s1_R[i] *= (inputs[AUX_1_INPUT + i].value /10.f);
+          channel_s1_R[i] *= (inputs[AUX_1_INPUT + i].getVoltage() /10.f);
 
-          channel_s2_R[i] = (channel_outs_r[i] * params[AUX_2_PARAM + i].value);
+          channel_s2_R[i] = (channel_outs_r[i] * params[AUX_2_PARAM + i].getValue());
           if(inputs[AUX_2_INPUT].isConnected()) 
-          channel_s2_R[i] *= (inputs[AUX_2_INPUT + i].value /10.f);
+          channel_s2_R[i] *= (inputs[AUX_2_INPUT + i].getVoltage() /10.f);
 
 
           vuBarsL[i].process(args.sampleTime,channel_outs_l[i] / 10.0);
@@ -220,29 +219,29 @@ void process(const ProcessArgs &args) override {
 
     // get returns
  
-    float return_1_l = inputs[RETURN_1_L_INPUT].value * params[AUX_R1_PARAM].value;
-    float return_1_r = inputs[RETURN_1_R_INPUT].value * params[AUX_R1_PARAM].value;
-    float return_2_l = inputs[RETURN_2_L_INPUT].value * params[AUX_R2_PARAM].value;
-    float return_2_r = inputs[RETURN_2_R_INPUT].value * params[AUX_R2_PARAM].value;
+    float return_1_l = inputs[RETURN_1_L_INPUT].getVoltage() * params[AUX_R1_PARAM].getValue();
+    float return_1_r = inputs[RETURN_1_R_INPUT].getVoltage() * params[AUX_R1_PARAM].getValue();
+    float return_2_l = inputs[RETURN_2_L_INPUT].getVoltage() * params[AUX_R2_PARAM].getValue();
+    float return_2_r = inputs[RETURN_2_R_INPUT].getVoltage() * params[AUX_R2_PARAM].getValue();
 
 
-  	float mix_l = (left_sum + return_1_l + return_2_l) * params[MAIN_VOL_PARAM].value*0.5;
-    float mix_r = (right_sum + return_1_r + return_2_r) * params[MAIN_VOL_PARAM].value*0.5;
+  	float mix_l = (left_sum + return_1_l + return_2_l)  * params[MAIN_VOL_PARAM].getValue()*0.5;
+    float mix_r = (right_sum + return_1_r + return_2_r) * params[MAIN_VOL_PARAM].getValue()*0.5;
       
     
-    float send_1_L_mix = (send_1_L_sum) * params[AUX_S1_PARAM].value;
-    float send_1_R_mix = (send_1_R_sum) * params[AUX_S1_PARAM].value;
-    float send_2_L_mix = (send_2_L_sum) * params[AUX_S2_PARAM].value;
-    float send_2_R_mix = (send_2_R_sum) * params[AUX_S2_PARAM].value;
+    float send_1_L_mix = (send_1_L_sum) * params[AUX_S1_PARAM].getValue();
+    float send_1_R_mix = (send_1_R_sum) * params[AUX_S1_PARAM].getValue();
+    float send_2_L_mix = (send_2_L_sum) * params[AUX_S2_PARAM].getValue();
+    float send_2_R_mix = (send_2_R_sum) * params[AUX_S2_PARAM].getValue();
 
-    outputs[MIX_OUTPUT_L].value = mix_l+mix_in_l;
-    outputs[MIX_OUTPUT_R].value = mix_r+mix_in_r;
+    outputs[MIX_OUTPUT_L].setVoltage(mix_l+mix_in_l);
+    outputs[MIX_OUTPUT_R].setVoltage(mix_r+mix_in_r);
 
 
-    outputs[SEND_1_L_OUTPUT].value = 3 * send_1_L_mix;
-    outputs[SEND_1_R_OUTPUT].value = 3 * send_1_R_mix;
-    outputs[SEND_2_L_OUTPUT].value = 3 * send_2_L_mix;
-    outputs[SEND_2_R_OUTPUT].value = 3 * send_2_R_mix;
+    outputs[SEND_1_L_OUTPUT].setVoltage(3 * send_1_L_mix);
+    outputs[SEND_1_R_OUTPUT].setVoltage(3 * send_1_R_mix);
+    outputs[SEND_2_L_OUTPUT].setVoltage(3 * send_2_L_mix);
+    outputs[SEND_2_R_OUTPUT].setVoltage(3 * send_2_R_mix);
 
     	
   }

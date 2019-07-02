@@ -82,17 +82,17 @@ struct VCA4 : Module {
     {
         for (int j = 0; j < 4; j++)
         {
-            if (mute_triggers[i + j * 4].process(params[MUTE_PARAM + i + j * 4].value))
+            if (mute_triggers[i + j * 4].process(params[MUTE_PARAM + i + j * 4].getValue()))
             {
                 mute_states[i + j * 4] = !mute_states[+i + j * 4];
             }
-            lights[MUTE_LIGHT + i + j * 4].value = mute_states[i + j * 4] ? 1.0 : 0.0;
+            lights[MUTE_LIGHT + i + j * 4].setBrightness(mute_states[i + j * 4] ? 1.0 : 0.0);
         }
     }
 
     for (int i = 0; i < 4; i++)
     {
-        ch_in[i] = inputs[CH_INPUT + i].value;
+        ch_in[i] = inputs[CH_INPUT + i].getVoltage();
     }
 
     for (int i = 0; i < 4; i++)
@@ -105,29 +105,29 @@ struct VCA4 : Module {
             }
             else
             {
-                cv_val[i + j * 4] = params[CV_PARAM + i + j * 4].value;
+                cv_val[i + j * 4] = params[CV_PARAM + i + j * 4].getValue();
             }
                 
                 if(inputs[CV_INPUT+i+j*4].isConnected())
-                 cv_val[i+j*4] *= (inputs[CV_INPUT + i+j*4].value / 10.0f);
+                 cv_val[i+j*4] *= (inputs[CV_INPUT + i+j*4].getVoltage() / 10.0f);
         }
     }
 
     for (int i = 0; i < 4; i++)
     {
-        outputs[CH_OUTPUT + i ].value =0.4* (ch_in[0]*cv_val[i] + ch_in[0]*cv_val[i] + ch_in[0]*cv_val[i] + ch_in[0]*cv_val[i]);
+        outputs[CH_OUTPUT + i ].setVoltage(0.4* (ch_in[0]*cv_val[i] + ch_in[0]*cv_val[i] + ch_in[0]*cv_val[i] + ch_in[0]*cv_val[i]));
     }
     for (int i = 0; i < 4; i++)
     {
-        outputs[CH_OUTPUT + i ].value +=0.4* (ch_in[1] * cv_val[i+4] + ch_in[1] * cv_val[i+4] + ch_in[1] * cv_val[i+4] + ch_in[1] * cv_val[i+4]);
+        outputs[CH_OUTPUT + i ].setVoltage(0.4* (ch_in[1] * cv_val[i+4] + ch_in[1] * cv_val[i+4] + ch_in[1] * cv_val[i+4] + ch_in[1] * cv_val[i+4]));
     }
      for (int i = 0; i < 4; i++)
      {
-         outputs[CH_OUTPUT + i].value +=0.4* (ch_in[2] * cv_val[i + 8] + ch_in[2] * cv_val[i + 8] + ch_in[2] * cv_val[i + 8] + ch_in[2] * cv_val[i + 8]);
+         outputs[CH_OUTPUT + i].setVoltage(0.4* (ch_in[2] * cv_val[i + 8] + ch_in[2] * cv_val[i + 8] + ch_in[2] * cv_val[i + 8] + ch_in[2] * cv_val[i + 8]));
      }
      for (int i = 0; i < 4; i++)
      {
-         outputs[CH_OUTPUT + i].value +=0.4* (ch_in[3] * cv_val[i+12] + ch_in[3] * cv_val[i+12] + ch_in[3] * cv_val[i+12] + ch_in[3] * cv_val[i+12]);
+         outputs[CH_OUTPUT + i].setVoltage(0.4* (ch_in[3] * cv_val[i+12] + ch_in[3] * cv_val[i+12] + ch_in[3] * cv_val[i+12] + ch_in[3] * cv_val[i+12]));
      }
 }
 
