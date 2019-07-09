@@ -61,8 +61,7 @@ struct FourSeq : Module {
 
     bool gateState_a[4] = {};
     bool gateState_b[4] = {};
-    bool gateState[8] = {};
-
+ 
     bool pulse1; 
     bool pulse2; 
 
@@ -93,18 +92,19 @@ struct FourSeq : Module {
 
         for(int i=0; i<4;i++)
         {
-            configParam(GATEA_PARAM+i, 0.0, 1.0, 0.0,"Gate A");
-            configParam(GATEB_PARAM+i, 0.0, 1.0, 0.0,"Gate B");
-            configParam(SEQA_PARAM+i, -3.0,3.0, 0.0,"Seq A Param"); 
-            configParam(SEQB_PARAM+i, -3.0,3.0, 0.0,"Seq B Param");
+            configParam(GATEA_PARAM + i, 0.0, 1.0, 0.0, string::f("Step A %d gate", i + 1));
+            configParam(GATEB_PARAM + i, 0.0, 1.0, 0.0, string::f("Step B %d gate", i + 1));
+            configParam(SEQA_PARAM+i, -3.0,3.0, 0.0,string::f("StepA %d param", i + 1)); 
+            configParam(SEQB_PARAM+i, -3.0,3.0, 0.0,string::f("StepB %d param", i + 1));
         }
         onReset();
     }
     void onReset() override
     {
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < 4; i++)
         {
-            gateState[i] = true;
+            gateState_a[i] = false;
+            gateState_b[i] = false;
         }
     }
 
@@ -112,44 +112,48 @@ struct FourSeq : Module {
     {
         json_t *rootJ = json_object();
 
-        json_object_set_new(rootJ, "running_a", json_boolean(running_a));
-        json_object_set_new(rootJ, "running_b", json_boolean(running_b));
 
-
-        json_t *gatesJ = json_array();
-        for (int i = 0; i < 8; i++)
+        json_t *gatesAJ = json_array();
+        for (int i = 0; i < 4; i++)
         {
-            json_t *gateJ = json_integer((int)gateState[i]);
-            json_array_append_new(gatesJ, gateJ);
+            json_array_insert_new(gatesAJ, i, json_integer((int)gateState_a[i]));
         }
-        json_object_set_new(rootJ, "gate", gatesJ);
+        json_object_set_new(rootJ, "gatesA", gatesAJ);
 
+        json_t *gatesBJ = json_array();
+        for (int i = 0; i < 4; i++)
+        {
+            json_array_insert_new(gatesBJ, i, json_integer((int)gateState_b[i]));
+        }
+        json_object_set_new(rootJ, "gatesB", gatesBJ);
 
         return rootJ;
     }
 
     void dataFromJson(json_t *rootJ) override
     {
-        json_t *ArunningJ = json_object_get(rootJ, "running_a");
-		if (ArunningJ)
-			running_a = json_is_true(ArunningJ);
 
-        json_t *BrunningJ = json_object_get(rootJ, "running_b");
-		if (BrunningJ)
-			running_b = json_is_true(BrunningJ);
-
-
-        json_t *gatesJ = json_object_get(rootJ, "gates");
-        if (gatesJ)
+        json_t *gatesAJ = json_object_get(rootJ, "gatesA");
+        if (gatesAJ)
         {
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 4; i++)
             {
-                json_t *gateJ = json_array_get(gatesJ, i);
+                json_t *gateJ = json_array_get(gatesAJ, i);
                 if (gateJ)
-                    gateState[i] = !!json_integer_value(gateJ);
+                    gateState_a[i] = !!json_integer_value(gateJ);
             }
         }
 
+        json_t *gatesBJ = json_object_get(rootJ, "gatesB");
+        if (gatesBJ)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                json_t *gateJ = json_array_get(gatesBJ, i);
+                if (gateJ)
+                    gateState_b[i] = !!json_integer_value(gateJ);
+            }
+        }
     }
 
     void process(const ProcessArgs &args) override 
@@ -166,6 +170,7 @@ struct FourSeq : Module {
         bool gateBIn = false;
 
 /////////////////////////////////////////////////////
+
         if (inputs[CLKA_INPUT].isConnected()) {
 				// External clock
 				if (clk.process(inputs[CLKA_INPUT].getVoltage())) {
@@ -198,13 +203,6 @@ struct FourSeq : Module {
         {
             clk1C=0;
             clk2C=0;
-        }
-
-
-        for (int i = 0; i < 4; i++)
-        {
-            gateState[i] = gateState_a[i];
-            gateState[4 + i] = gateState_b[i];
         }
 
         if (gateState_a[clk1C])
@@ -241,11 +239,6 @@ struct FourSeq : Module {
     }
     outputs[GATEA_OUTPUT].setVoltage((gateAIn && gateState_a[clk1C]) ? 10.f : 0.f);
     outputs[GATEB_OUTPUT].setVoltage((gateBIn && gateState_b[clk2C]) ? 10.f : 0.f);
-
-
-
-
-
 
     }
 };
