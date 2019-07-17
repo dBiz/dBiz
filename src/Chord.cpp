@@ -87,7 +87,7 @@ struct Chord : Module {
 	Chord() {
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
-    configParam(OFFSET_PARAM, 0.0, 1.0, 0.0,"Offset");
+    configParam(OFFSET_PARAM, 0.0, 1.0, 0.5,"Offset");
     configParam(INVERSION_PARAM, 0.0, 1.0, 0.0,"Inversion");
     configParam(VOICING_PARAM, 0.0, 1.0, 0.0,"Voicing");
     configParam(OFFSET_AMT_PARAM, 0.0, 1.0, 0.5,"Offset Amt");
