@@ -15,7 +15,7 @@
    viewBox="0 0 165 380.00001"
    id="svg14650"
    version="1.1"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="BenePad.svg"
    style="enable-background:new">
   <defs
@@ -231,9 +231,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.1683785"
-     inkscape:cx="42.089895"
-     inkscape:cy="344.42047"
+     inkscape:zoom="2.0841893"
+     inkscape:cx="-83.116465"
+     inkscape:cy="186.48963"
      inkscape:document-units="px"
      inkscape:current-layer="layer4"
      showgrid="true"
@@ -242,7 +242,7 @@
      inkscape:window-width="1920"
      inkscape:window-height="1017"
      inkscape:window-x="-8"
-     inkscape:window-y="1072"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:snap-grids="false">
     <inkscape:grid
@@ -270,12 +270,12 @@
      inkscape:label="Layer 4"
      style="display:inline">
     <path
-       style="opacity:1;fill:#05668d;fill-opacity:1;fill-rule:nonzero;stroke:#171717;stroke-width:1.73473907;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
+       style="opacity:1;fill:#242834;fill-opacity:1;fill-rule:nonzero;stroke:#171717;stroke-width:1.73473907;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
        d="M 3.7845781,0.4999924 H 161.82987 c 2.23515,0 4.03457,3.7371856 4.03457,8.3793406 V 372.12065 c 0,4.64216 -1.79942,8.37934 -4.03457,8.37934 H 3.7845781 C 1.5494218,380.49999 -0.25,376.76281 -0.25,372.12065 V 8.879333 c 0,-4.642155 1.7994218,-8.3793406 4.0345781,-8.3793406 z"
        id="rect1449"
        inkscape:connector-curvature="0" />
     <rect
-       style="display:inline;opacity:1;fill:#3d6d98;fill-opacity:1;fill-rule:nonzero;stroke:#171717;stroke-width:1.39403284;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
+       style="display:inline;opacity:1;fill:#e7e7e7;fill-opacity:1;fill-rule:nonzero;stroke:#171717;stroke-width:1.39403284;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
        id="rect1461"
        width="144.27138"
        height="144.99046"
@@ -283,7 +283,7 @@
        y="183.75526"
        ry="6.230382" />
     <rect
-       style="opacity:1;fill:#3d6d98;fill-opacity:1;fill-rule:nonzero;stroke:#171717;stroke-width:0.96679461;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
+       style="opacity:1;fill:#e7e7e7;fill-opacity:1;fill-rule:nonzero;stroke:#171717;stroke-width:0.96679461;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
        id="rect1464"
        width="44.20985"
        height="93.363792"
@@ -292,34 +292,34 @@
        ry="9.7790871" />
     <g
        aria-label="x"
-       style="font-style:normal;font-weight:normal;font-size:16px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none"
+       style="font-style:normal;font-weight:normal;font-size:16px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#242834;fill-opacity:1;stroke:none"
        id="text890"
        transform="translate(-32.75,-2)">
       <path
          d="m 160.47887,29.314793 -1.25782,4.953125 1.52344,5.414062 h -3.07031 q -0.45313,-2.046875 -0.6875,-3.523437 -0.3125,1.84375 -0.67969,3.523437 h -2.64062 l 1.35937,-5.414062 -1.35937,-4.953125 h 2.64062 q 0.63281,3.171875 0.67969,3.601562 0.45312,-2.648437 0.6875,-3.601562 z"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Impact;-inkscape-font-specification:Impact;fill:#ffffff"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Impact;-inkscape-font-specification:Impact;fill:#242834;fill-opacity:1"
          id="path913"
          inkscape:connector-curvature="0" />
     </g>
     <g
        aria-label="y "
-       style="font-style:normal;font-weight:normal;font-size:16px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#ffffff;fill-opacity:1;stroke:none;enable-background:new"
+       style="font-style:normal;font-weight:normal;font-size:16px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#242834;fill-opacity:1;stroke:none;enable-background:new"
        id="text890-1"
        transform="translate(-33,-1.75)">
       <path
          d="m 162.09207,58.374916 -0.90625,7.5 q -0.21094,1.78125 -0.35937,2.429688 -0.14063,0.648437 -0.47657,1.070312 -0.33593,0.421875 -0.9375,0.617188 -0.59375,0.203125 -1.90625,0.203125 h -1.91406 v -1.65625 q 0.73438,0 0.94531,-0.07031 0.21094,-0.07813 0.21094,-0.335937 0,-0.125 -0.19531,-1.085938 l -1.72656,-8.671875 h 2.86718 l 1.03125,6.992188 0.5,-6.992188 z"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Impact;-inkscape-font-specification:Impact;fill:#ffffff"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Impact;-inkscape-font-specification:Impact;fill:#242834;fill-opacity:1"
          id="path910"
          inkscape:connector-curvature="0" />
     </g>
     <g
        aria-label="g"
-       style="font-style:normal;font-weight:normal;font-size:16px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       style="font-style:normal;font-weight:normal;font-size:16px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#242834;fill-opacity:1;stroke:none"
        id="text905"
        transform="translate(-33,0.5)">
       <path
          d="m 162.73437,80.632812 v 7.984375 q 0,1.617188 -0.0781,2.09375 -0.0703,0.46875 -0.52344,0.992188 -0.45312,0.53125 -1.26562,0.804687 -0.80469,0.28125 -2.03125,0.28125 -1.50782,0 -2.42188,-0.515625 -0.91406,-0.507812 -0.94531,-2.007812 h 3.0625 q 0,0.6875 0.5,0.6875 0.35937,0 0.47656,-0.210938 0.11719,-0.210937 0.11719,-0.882812 v -0.78125 q -0.40625,0.367187 -0.85938,0.554687 -0.44531,0.1875 -0.9375,0.1875 -0.85156,0 -1.40625,-0.34375 -0.54687,-0.34375 -0.75,-0.898437 -0.20312,-0.5625 -0.20312,-1.59375 V 83.21875 q 0,-1.476563 0.53125,-2.125 0.53125,-0.648438 1.61719,-0.648438 0.59375,0 1.07812,0.242188 0.49219,0.242187 0.875,0.726562 l 0.22656,-0.78125 z m -3.16406,2.75 q 0,-0.710937 -0.0859,-0.90625 -0.0781,-0.195312 -0.35937,-0.195312 -0.27344,0 -0.39063,0.226562 -0.10937,0.21875 -0.10937,0.875 v 3.484375 q 0,0.695313 0.0859,0.90625 0.0859,0.203125 0.35937,0.203125 0.3125,0 0.40625,-0.25 0.0937,-0.25 0.0937,-1.132812 z"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Impact;-inkscape-font-specification:Impact;fill:#ffffff;fill-opacity:1"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Impact;-inkscape-font-specification:Impact;fill:#242834;fill-opacity:1"
          id="path907"
          inkscape:connector-curvature="0" />
     </g>
