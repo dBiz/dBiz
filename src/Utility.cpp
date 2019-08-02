@@ -397,8 +397,8 @@ UtilityWidget(Utility *module){
     for (int i = 0; i < 3; i++)
     {
       addParam(createParam<FlatASnap>(Vec(10 + knob * i, 20), module, Utility::OCTAVE_SHIFT + i));
-      addParam(createParam<FlatASnap>(Vec(10 + knob * i, 60), module, Utility::SEMITONE_SHIFT + i));
-      addParam(createParam<FlatA>(Vec(10 + knob * i, 100), module, Utility::FINE_SHIFT + i));
+      addParam(createParam<FlatGSnap>(Vec(10 + knob * i, 60), module, Utility::SEMITONE_SHIFT + i));
+      addParam(createParam<FlatR>(Vec(10 + knob * i, 100), module, Utility::FINE_SHIFT + i));
 
     }
     

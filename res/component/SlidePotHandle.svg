@@ -23,7 +23,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -157,12 +157,12 @@
      id="namedview12"
      showgrid="true"
      inkscape:zoom="18.577743"
-     inkscape:cx="8.2257633"
+     inkscape:cx="-1.6247336"
      inkscape:cy="6.3263584"
-     inkscape:window-x="795"
-     inkscape:window-y="145"
+     inkscape:window-x="501"
+     inkscape:window-y="160"
      inkscape:window-maximized="0"
-     inkscape:current-layer="g10">
+     inkscape:current-layer="layer2">
     <inkscape:grid
        type="xygrid"
        id="grid4538" />
@@ -173,10 +173,10 @@
      inkscape:label="Layer 1">
     <g
        transform="matrix(0.18026267,0,0,0.31152957,-0.01256682,-4.0423066)"
-       style="fill:#05668d;fill-opacity:1;stroke:#033e55;stroke-opacity:1;filter:url(#filter1_d)"
+       style="fill:#05668d;fill-opacity:1;stroke:#8188a0;stroke-opacity:1;filter:url(#filter1_d)"
        id="g10">
       <rect
-         style="fill:#05668d;fill-opacity:1;stroke:#033e55;stroke-width:1.02906597;stroke-opacity:1"
+         style="fill:#05668d;fill-opacity:1;stroke:#8188a0;stroke-width:1.02906597;stroke-opacity:1"
          x="1.8110715"
          y="13.796538"
          width="13.12059"
@@ -185,7 +185,7 @@
          ry="1.3174961"
          rx="2.1232941" />
       <rect
-         style="fill:#05668d;fill-opacity:1;stroke:#033e55;stroke-width:0.51453298;stroke-opacity:1"
+         style="fill:#242834;fill-opacity:1;stroke:#8188a0;stroke-width:0.51453298;stroke-opacity:1"
          x="2.0683379"
          y="14.053805"
          width="12.863324"
@@ -194,7 +194,7 @@
          ry="1.0822289" />
     </g>
     <rect
-       style="fill:#033e55;fill-opacity:1;stroke:none;stroke-width:0.2438629;stroke-opacity:1"
+       style="fill:#7f879f;fill-opacity:1;stroke:none;stroke-width:0.2438629;stroke-opacity:1"
        x="1.0559103"
        y="2.1792297"
        width="0.9275108"

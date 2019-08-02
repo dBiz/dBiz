@@ -16,7 +16,7 @@
    version="1.1"
    id="svg15246"
    sodipodi:docname="PJ301MB.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <defs
      id="defs15240">
     <linearGradient
@@ -260,9 +260,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="28.675519"
-     inkscape:cx="8.4603405"
-     inkscape:cy="4.7995733"
+     inkscape:zoom="40.553308"
+     inkscape:cx="19.602763"
+     inkscape:cy="7.5487723"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="false"
@@ -317,8 +317,8 @@
      inkscape:label="Layer 2"
      style="display:inline">
     <path
-       style="fill:#9abdc0;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.20562929;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 3.4414137,6.7712558 c -1.8384724,0 -3.33350686,-1.4950263 -3.33350686,-3.3335143 0,-1.8384634 1.49503446,-3.33349787 3.33350686,-3.33349787 1.8384698,0 3.3335118,1.49503447 3.3335118,3.33349787 0,1.838488 -1.495042,3.3335143 -3.3335118,3.3335143"
+       style="fill:#9abdc0;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.13229166;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 3.4414138,6.6045805 c -1.7465488,0 -3.16683149,-1.420275 -3.16683149,-3.1668386 0,-1.7465402 1.42028269,-3.16682297 3.16683149,-3.16682297 1.7465463,0 3.1668362,1.42028277 3.1668362,3.16682297 0,1.7465636 -1.4202899,3.1668386 -3.1668362,3.1668386"
        id="path7255-4"
        inkscape:connector-curvature="0" />
     <path
@@ -331,5 +331,10 @@
        d="m 4.9217141,3.4377415 c 0,0.8172377 -0.6630767,1.4803227 -1.4803004,1.4803227 -0.8172261,0 -1.4803029,-0.663085 -1.4803029,-1.4803227 0,-0.817213 0.6630768,-1.4802651 1.4803029,-1.4802651 0.8172237,0 1.4803004,0.6630521 1.4803004,1.4802651"
        id="path7265-4"
        inkscape:connector-curvature="0" />
+    <path
+       inkscape:connector-curvature="0"
+       id="Curves"
+       d="m 1.2179297,2.8757034 c -0.046778,0.183515 -0.071755,0.37592 -0.071755,0.57404 0,0.19812 0.024977,0.390525 0.071755,0.5740399 H 0.34078299 c -0.034078,-0.1862666 -0.051858,-0.3780366 -0.051858,-0.5740399 0,-0.1960034 0.01778,-0.3877734 0.051858,-0.57404 z m 5.3691365,0 c 0.034078,0.1862666 0.051858,0.3780366 0.051858,0.57404 0,0.1960033 -0.01778,0.3877733 -0.051858,0.5740399 H 5.7099196 c 0.046778,-0.1835149 0.071755,-0.3759199 0.071755,-0.5740399 0,-0.19812 -0.024977,-0.390525 -0.071755,-0.57404 z"
+       style="clip-rule:evenodd;fill:#1a1a1a;fill-rule:evenodd;stroke:#262626;stroke-width:0.04868333px;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5" />
   </g>
 </svg>

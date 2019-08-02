@@ -214,10 +214,10 @@ struct ContornoWidget : ModuleWidget {
 		 addInput(createInput<PJ301MLPort>(Vec(space * 2 + 35, 255), module, ::Contorno::TRIGG_INPUT + 2));
 		 addInput(createInput<PJ301MLPort>(Vec(space * 3 + 35, 255), module, ::Contorno::TRIGG_INPUT + 3));
 
-		 addInput(createInput<PJ301MCPort>(Vec(space * 0 + 5, 335), module, ::Contorno::IN_INPUT + 0));
-		 addInput(createInput<PJ301MCPort>(Vec(space * 1 + 5, 335), module, ::Contorno::IN_INPUT + 1));
-		 addInput(createInput<PJ301MCPort>(Vec(space * 2 + 5, 335), module, ::Contorno::IN_INPUT + 2));
-		 addInput(createInput<PJ301MCPort>(Vec(space * 3 + 5, 335), module, ::Contorno::IN_INPUT + 3));
+		 addInput(createInput<PJ301MIPort>(Vec(space * 0 + 5, 335), module, ::Contorno::IN_INPUT + 0));
+		 addInput(createInput<PJ301MIPort>(Vec(space * 1 + 5, 335), module, ::Contorno::IN_INPUT + 1));
+		 addInput(createInput<PJ301MIPort>(Vec(space * 2 + 5, 335), module, ::Contorno::IN_INPUT + 2));
+		 addInput(createInput<PJ301MIPort>(Vec(space * 3 + 5, 335), module, ::Contorno::IN_INPUT + 3));
 
 
 }

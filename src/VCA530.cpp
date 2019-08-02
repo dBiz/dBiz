@@ -146,8 +146,8 @@ VCA530Widget(VCA530 *module) {
     int med = 180;
     int up = -15;
 
-    addParam(createParam<SDKnob>(Vec(52, med + up), module, VCA530::MIX1_PARAM));
-    addParam(createParam<SDKnob>(Vec(129, med + up), module, VCA530::MIX2_PARAM));
+    addParam(createParam<FlatA>(Vec(52, med + up), module, VCA530::MIX1_PARAM));
+    addParam(createParam<FlatA>(Vec(129, med + up), module, VCA530::MIX2_PARAM));
 
     // channel strips
 

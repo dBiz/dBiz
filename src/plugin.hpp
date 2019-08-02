@@ -14,6 +14,7 @@ extern Plugin *pluginInstance;
 
 extern Model *modelMultiple;
 extern Model *modelContorno;
+extern Model *modelContornoMK2;
 extern Model *modelTranspose;
 extern Model *modelUtility;
 extern Model *modelChord;  
@@ -33,6 +34,8 @@ extern Model *modelFourSeq;
 extern Model *modelDivider;
 extern Model *modelUtil2;
 extern Model *modelSmorph;
+extern Model *modelSPan;
+extern Model *modelQuePasa;
 
 ////////////////////
 // Colors
@@ -74,6 +77,15 @@ struct SDKnob : app::SVGKnob
 		maxAngle = 0.83 * M_PI;
 		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/component/SDKnob.svg")));
 		box.size = Vec(30, 30);
+	}
+};
+
+struct SDKnobSnap : SDKnob
+{
+
+	SDKnobSnap()
+	{
+		snap = true;
 	}
 };
 
@@ -273,20 +285,22 @@ struct FlatR : DaviesKnob
 		box.size = Vec(30, 30);
 	}
 };
-struct FlatS : DaviesKnob
-{
-	FlatS()
-	{
-		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/component/FlatS.svg")));
-		box.size = Vec(30, 30);
-	}
-};
+
 struct FlatG : DaviesKnob
 {
 	FlatG()
 	{
 		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/component/FlatG.svg")));
 		box.size = Vec(30, 30);
+	}
+};
+
+struct FlatGSnap : FlatG
+{
+
+	FlatGSnap()
+	{
+		snap = true;
 	}
 };
 
@@ -323,6 +337,19 @@ struct SlidePot2 : app::SvgSlider
 	}
 };
 
+struct SlidePotR : app::SvgSlider
+{
+	SlidePotR()
+	{
+		math::Vec margin = math::Vec(3.5, 3.5);
+		maxHandlePos = math::Vec(-1, -2).plus(margin);
+		minHandlePos = math::Vec(-1, 87).plus(margin);
+		setBackgroundSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/component/SlidePot.svg")));
+		setHandleSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/component/SlidePotHandleR.svg")));
+		background->box.pos = margin;
+		box.size = background->box.size.plus(margin.mult(2));
+	}
+};
 
 ////////////////////
 // Lights
@@ -353,13 +380,7 @@ struct PurpleLight : GrayModuleLightWidget
 	}
 };
 
-struct WhiteLight : GrayModuleLightWidget
-{
-	WhiteLight()
-	{
-		addBaseColor(WHITE);
-	}
-};
+
 
 
 template <typename BASE>
@@ -537,5 +558,14 @@ struct BPush : app::SVGSwitch
 		momentary = true;
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance,"res/component/BPush_0.svg")));
 		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance,"res/component/BPush_1.svg")));
+	}
+};
+struct BPushR : app::SVGSwitch
+{
+	BPushR()
+	{
+		momentary = true;
+		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/component/BPushR_0.svg")));
+		addFrame(APP->window->loadSvg(asset::plugin(pluginInstance, "res/component/BPushR_1.svg")));
 	}
 };
