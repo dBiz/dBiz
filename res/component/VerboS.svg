@@ -14,7 +14,7 @@
    viewBox="0 0 12 12"
    version="1.1"
    id="svg16908"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="VerboS.svg">
   <defs
      id="defs16902">
@@ -403,7 +403,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="4.8921647"
-     inkscape:cx="-26.810171"
+     inkscape:cx="-64.216925"
      inkscape:cy="35.168381"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -412,10 +412,10 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:window-width="1507"
-     inkscape:window-height="882"
-     inkscape:window-x="0"
-     inkscape:window-y="18"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:snap-grids="false"
      showguides="false">
@@ -431,7 +431,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -442,7 +442,7 @@
      transform="translate(-230.09585,-120.75783)"
      style="display:inline">
     <ellipse
-       style="display:inline;fill:#a5be00;fill-opacity:1;stroke:none;stroke-width:0.85700721;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
+       style="display:inline;fill:#606a8a;fill-opacity:1;stroke:none;stroke-width:0.85700721;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
        id="path821-6"
        cx="236.15317"
        cy="126.75461"
@@ -470,7 +470,7 @@
          id="path47006" />
     </g>
     <path
-       style="display:inline;fill:#a5be00;fill-opacity:0;stroke:#3f4800;stroke-width:0.52462262;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="display:inline;fill:#606a8a;fill-opacity:1;stroke:#606a8a;stroke-width:0.52462262;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 236.21256,126.75687 v -4.94481"
        id="path4695"
        inkscape:connector-curvature="0" />

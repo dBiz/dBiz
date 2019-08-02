@@ -120,6 +120,7 @@ struct SuHa : Module {
 	{
 		SUM_VOL_PARAM,
 		ENUMS(VCO_PARAM, 2),
+		ENUMS(VCO_OCT_PARAM, 2),
 		ENUMS(SUB1_PARAM, 2),
 		ENUMS(SUB2_PARAM, 2),
 		ENUMS(VCO_VOL_PARAM, 2),
@@ -160,6 +161,7 @@ struct SuHa : Module {
 		for(int i=0;i<2;i++)
 		{
 			configParam(VCO_PARAM+i,  -54.0, 54.0, 0.0,"Freq");
+			configParam(VCO_OCT_PARAM + i, -3.0, 2.0, 0.0, "Octave Select");
 			configParam(SUB1_PARAM+i,  1.0, 15.0, 1.0,"Sub1");
 			configParam(SUB2_PARAM+i,  1.0, 15.0, 1.0,"Sub2"); 
 			configParam(VCO_VOL_PARAM+i,  0.0, 1.0, 0.0,"Main Vol");
@@ -178,12 +180,14 @@ struct SuHa : Module {
 
 		float_4 pitch[2];
 		float freq[2];
+		float octave[2];
 
 		for (int i=0;i<2;i++)
 		{	
 		
+		octave[i]=round(params[VCO_OCT_PARAM+i].getValue());
 		freq[i]=params[VCO_PARAM+i].getValue()/12.f;
-		pitch[i]=freq[i];
+		pitch[i]=freq[i]+octave[i];
 		pitch[i]+=inputs[VCO_INPUT + i].getVoltageSimd<float_4>(0);
 
 		
@@ -225,8 +229,8 @@ struct SuHaWidget : ModuleWidget {
 		setModule(module);
 		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/SuHa.svg")));
 
-		int KS=50;
-		int JS = 37;
+		int KS=44;
+		int JS = 32;
 		float Side=7.5;
 
 		addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
@@ -240,38 +244,39 @@ struct SuHaWidget : ModuleWidget {
 		for (int i = 0; i < 2; i++)
 		{
 
-			addParam(createParam<DKnob>(Vec(Side + 6, 87 + i * KS), module, SuHa::VCO_PARAM + i));
-			addParam(createParam<DKnob>(Vec(Side + 6 + KS, 87 +i*KS), module, SuHa::SUB1_PARAM +i));
-			addParam(createParam<DKnob>(Vec(Side + 6 + 2 * KS, 87 +i*KS), module, SuHa::SUB2_PARAM +i));
+			addParam(createParam<DKnob>(Vec(Side + 25, 47 + i * 100), module, SuHa::VCO_PARAM + i));
+			addParam(createParam<SDKnobSnap>(Vec(Side + 5, 82 + i * 100), module, SuHa::VCO_OCT_PARAM + i));
+			addParam(createParam<DKnob>(Vec(Side + 25 + 40, 47 +i*100), module, SuHa::SUB1_PARAM +i));
+			addParam(createParam<DKnob>(Vec(Side + 25 + 2 * 40, 47 +i*100), module, SuHa::SUB2_PARAM +i));
 
 
-			addParam(createParam<Trimpot>(Vec(Side + 15, 20 + i*30), module, SuHa::VCO_VOL_PARAM +i));
-			addParam(createParam<Trimpot>(Vec(Side + 15 + KS, 20 + i*30), module, SuHa::SUB1_VOL_PARAM +i));
-			addParam(createParam<Trimpot>(Vec(Side + 15 + 2 * KS, 20 + i*30), module, SuHa::SUB2_VOL_PARAM +i));
+			addParam(createParam<Trimpot>(Vec(Side + 38, 20 + i*34*3), module, SuHa::VCO_VOL_PARAM +i));
+			addParam(createParam<Trimpot>(Vec(Side + 38 + 40, 20 + i*34*3), module, SuHa::SUB1_VOL_PARAM +i));
+			addParam(createParam<Trimpot>(Vec(Side + 38 + 2 * 40, 20 + i*34*3), module, SuHa::SUB2_VOL_PARAM +i));
 			
 		}
-			addInput(createInput<PJ301MVAPort>(Vec(Side + 11, 220+0*JS),  module, SuHa::VCO_INPUT +0));
-			addInput(createInput<PJ301MVAPort>(Vec(Side + 11, 220+1*JS),  module, SuHa::VCO_INPUT +1));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 17, 240+0*JS),  module, SuHa::VCO_INPUT +0));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 17, 240+1*JS),  module, SuHa::VCO_INPUT +1));
 
-			addInput(createInput<PJ301MVAPort>(Vec(Side + 11 + KS, 220+0*JS),  module, SuHa::SUB1_INPUT +0));
-			addInput(createInput<PJ301MVAPort>(Vec(Side + 11 + KS, 220+1*JS),  module, SuHa::SUB1_INPUT +1));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 17 + KS, 240+0*JS),  module, SuHa::SUB1_INPUT +0));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 17 + KS, 240+1*JS),  module, SuHa::SUB1_INPUT +1));
 
-			addInput(createInput<PJ301MVAPort>(Vec(Side + 11 + 2 * KS, 220+0*JS),  module, SuHa::SUB2_INPUT +0));
-			addInput(createInput<PJ301MVAPort>(Vec(Side + 11 + 2 * KS, 220+1*JS),  module, SuHa::SUB2_INPUT +1));
-
-
-			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11, 220 + 2 * JS+0*JS),  module, SuHa::VCO_OUTPUT +0));
-			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11, 220 + 2 * JS+1*JS),  module, SuHa::VCO_OUTPUT +1));
-
-			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11 + KS, 220 + 2 * JS+0*JS),  module, SuHa::SUB1_OUTPUT +0));
-			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11 + KS, 220 + 2 * JS+1*JS),  module, SuHa::SUB1_OUTPUT +1));
-
-			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11 + 2 * KS, 220 + 2 * JS+0*JS),  module, SuHa::SUB2_OUTPUT +0));
-			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 11 + 2 * KS, 220 + 2 * JS+1*JS),  module, SuHa::SUB2_OUTPUT +1));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 17 + 2 * KS, 240+0*JS),  module, SuHa::SUB2_INPUT +0));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 17 + 2 * KS, 240+1*JS),  module, SuHa::SUB2_INPUT +1));
 
 
-			addParam(createParam<SDKnob>(Vec(Side + 40, 180), module, SuHa::SUM_VOL_PARAM));
-			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 80, 185),  module, SuHa::SUM_OUTPUT));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 17, 240 + 2 * JS+0*JS),  module, SuHa::VCO_OUTPUT +0));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 17, 240 + 2 * JS+1*JS),  module, SuHa::VCO_OUTPUT +1));
+
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 17 + KS, 240 + 2 * JS+0*JS),  module, SuHa::SUB1_OUTPUT +0));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 17 + KS, 240 + 2 * JS+1*JS),  module, SuHa::SUB1_OUTPUT +1));
+
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 17 + 2 * KS, 240 + 2 * JS+0*JS),  module, SuHa::SUB2_OUTPUT +0));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 17 + 2 * KS, 240 + 2 * JS+1*JS),  module, SuHa::SUB2_OUTPUT +1));
+
+
+			addParam(createParam<SDKnob>(Vec(Side + 90, 202), module, SuHa::SUM_VOL_PARAM));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 60, 205),  module, SuHa::SUM_OUTPUT));
 
 		
 			//////////////////////////////////////////////////////////////////////////////////////////////////////

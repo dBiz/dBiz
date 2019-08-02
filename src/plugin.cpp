@@ -9,6 +9,7 @@ void init(rack::Plugin *p)
 
   p->addModel(modelMultiple);
   p->addModel(modelContorno);
+  p->addModel(modelContornoMK2);
   p->addModel(modelTranspose);
   p->addModel(modelUtility);
   p->addModel(modelChord);
@@ -28,5 +29,7 @@ void init(rack::Plugin *p)
   p->addModel(modelDivider);
   p->addModel(modelUtil2);
   p->addModel(modelSmorph);
+  p->addModel(modelSPan);
+  p->addModel(modelQuePasa);
 }
 

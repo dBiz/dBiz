@@ -13,7 +13,7 @@
    viewBox="0 0 7.9389231 5.292175"
    id="svg10"
    sodipodi:docname="SlidePotHandle2.svg"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <metadata
      id="metadata16">
     <rdf:RDF>
@@ -42,12 +42,12 @@
      id="namedview12"
      showgrid="true"
      inkscape:zoom="14.041012"
-     inkscape:cx="16.545611"
+     inkscape:cx="3.5123624"
      inkscape:cy="3.321596"
      inkscape:window-x="501"
      inkscape:window-y="58"
      inkscape:window-maximized="0"
-     inkscape:current-layer="layer2">
+     inkscape:current-layer="layer3">
     <inkscape:grid
        type="xygrid"
        id="grid4512" />
@@ -86,7 +86,7 @@
      style="display:inline"
      transform="translate(0,0.19318015)">
     <rect
-       style="display:inline;opacity:1;fill:#333333;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.9242934;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
+       style="display:inline;opacity:1;fill:#e7e7e7;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.9242934;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
        id="rect4514-4"
        width="5.1964631"
        height="5.1023555"
@@ -100,7 +100,7 @@
      inkscape:label="Layer 3"
      transform="translate(0,0.19318015)">
     <rect
-       style="display:inline;opacity:1;fill:#4d4d4d;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.39580977;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
+       style="display:inline;opacity:1;fill:#454c62;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.39580977;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
        id="rect4514"
        width="5.1964645"
        height="0.93567306"
@@ -108,12 +108,12 @@
        y="2.0464959"
        ry="0" />
     <path
-       style="display:inline;fill:none;stroke:#ffffff;stroke-width:0.25251672;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="display:inline;fill:#242834;stroke:#242834;stroke-width:0.25251672;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
        d="M 1.3685435,2.5109647 H 6.6157693"
        id="path4516"
        inkscape:connector-curvature="0" />
     <rect
-       style="display:inline;opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.13684921;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
+       style="display:inline;opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#242834;stroke-width:0.13684921;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers stroke fill"
        id="rect4514-3"
        width="5.1964645"
        height="5.102356"

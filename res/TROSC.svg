@@ -15,7 +15,7 @@
    viewBox="0 0 87.312503 100.54167"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="TROSC.svg">
   <defs
      id="defs2">
@@ -48,10 +48,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.7553939"
-     inkscape:cx="179.07143"
+     inkscape:cx="-29.428782"
      inkscape:cy="199.45435"
      inkscape:document-units="px"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      showgrid="true"
      units="px"
      inkscape:snap-bbox="true"
@@ -89,7 +89,7 @@
      transform="translate(0,-196.45832)"
      style="display:inline">
     <path
-       style="opacity:1;vector-effect:none;fill:#edf2f4;fill-opacity:1;fill-rule:evenodd;stroke:#2b2d42;stroke-width:0.26458335;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       style="opacity:1;vector-effect:none;fill:#e7e7e7;fill-opacity:1;fill-rule:evenodd;stroke:#2b2d42;stroke-width:0.26458335;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
        d="M 0,196.45831 H 87.312503 V 296.99999 H 0 Z"
        id="rect817"
        inkscape:connector-curvature="0" />

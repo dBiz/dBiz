@@ -15,7 +15,7 @@
    viewBox="0 0 150 380.00001"
    id="svg14650"
    version="1.1"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="Divider.svg"
    style="enable-background:new"
    enable-background="new">
@@ -3222,17 +3222,17 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.6564045"
-     inkscape:cx="-0.11492831"
+     inkscape:cx="-25.471054"
      inkscape:cy="249.2155"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      showgrid="true"
      units="px"
      objecttolerance="2"
-     inkscape:window-width="1107"
-     inkscape:window-height="960"
-     inkscape:window-x="2272"
-     inkscape:window-y="62"
+     inkscape:window-width="1344"
+     inkscape:window-height="805"
+     inkscape:window-x="2102"
+     inkscape:window-y="48"
      inkscape:window-maximized="0"
      inkscape:snap-grids="false"
      inkscape:snap-to-guides="false"
@@ -3253,7 +3253,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -3289,7 +3289,7 @@
          id="path1006" />
     </g>
     <rect
-       style="display:inline;opacity:1;fill:#424242;fill-opacity:1;stroke:#000000;stroke-width:1.75724471;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke markers fill"
+       style="display:inline;opacity:1;fill:#242834;fill-opacity:1;stroke:#000000;stroke-width:1.75724471;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke markers fill"
        id="rect844"
        width="151.25497"
        height="380.00726"

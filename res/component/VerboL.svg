@@ -14,7 +14,7 @@
    viewBox="0 0 27 27"
    version="1.1"
    id="svg16908"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="VerboL.svg">
   <defs
      id="defs16902">
@@ -402,9 +402,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.773787"
-     inkscape:cx="68.042271"
-     inkscape:cy="49.52383"
+     inkscape:zoom="3.3755772"
+     inkscape:cx="-4.6680144"
+     inkscape:cy="49.224766"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -431,7 +431,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -442,14 +442,14 @@
      transform="translate(-230.09585,-105.75783)"
      style="display:inline">
     <ellipse
-       style="display:inline;fill:#05668d;fill-opacity:1;stroke:#04435e;stroke-width:0.94275689;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="display:inline;fill:#242834;fill-opacity:1;stroke:#5a6481;stroke-width:0.6781271;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path821"
        cx="243.61929"
        cy="119.3201"
        rx="13.023881"
        ry="13.066277" />
     <ellipse
-       style="display:inline;fill:#03394d;fill-opacity:1;stroke:none;stroke-width:0.99132156;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
+       style="display:inline;fill:#5a6481;fill-opacity:1;stroke:none;stroke-width:0.99132156;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
        id="path821-6"
        cx="243.61929"
        cy="119.3201"
