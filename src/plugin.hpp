@@ -380,6 +380,14 @@ struct PurpleLight : GrayModuleLightWidget
 	}
 };
 
+struct WhitheLight : GrayModuleLightWidget
+{
+	WhitheLight()
+	{
+		addBaseColor(WHITE);
+	}
+};
+
 
 
 
