@@ -92,10 +92,10 @@ struct FourSeq : Module {
 
         for(int i=0; i<4;i++)
         {
-            configParam(GATEA_PARAM + i, 0.0, 1.0, 0.0, string::f("Step A %d gate", i + 1));
-            configParam(GATEB_PARAM + i, 0.0, 1.0, 0.0, string::f("Step B %d gate", i + 1));
-            configParam(SEQA_PARAM+i, -3.0,3.0, 0.0,string::f("StepA %d param", i + 1)); 
-            configParam(SEQB_PARAM+i, -3.0,3.0, 0.0,string::f("StepB %d param", i + 1));
+            configParam(GATEA_PARAM + i, 0.0, 1.0, 0.0, ("Seq A gate"));
+            configParam(GATEB_PARAM + i, 0.0, 1.0, 0.0, ("Seq B gate"));
+            configParam(SEQA_PARAM+i, -3.0,3.0, 0.0,("SeqA  param")); 
+            configParam(SEQB_PARAM+i, -3.0,3.0, 0.0,("SeqB  param"));
         }
         onReset();
     }
