@@ -113,22 +113,19 @@ struct VCA4 : Module {
         }
     }
 
+
     for (int i = 0; i < 4; i++)
     {
-        outputs[CH_OUTPUT + i ].setVoltage(0.4* (ch_in[0]*cv_val[i] + ch_in[0]*cv_val[i] + ch_in[0]*cv_val[i] + ch_in[0]*cv_val[i]));
+        ch_out[i] = 0.4 * (ch_in[0] * cv_val[i] + ch_in[1] * cv_val[i+4] + ch_in[2] * cv_val[i+8] + ch_in[3] * cv_val[i+12]);
     }
+
+
+
     for (int i = 0; i < 4; i++)
     {
-        outputs[CH_OUTPUT + i ].setVoltage(0.4* (ch_in[1] * cv_val[i+4] + ch_in[1] * cv_val[i+4] + ch_in[1] * cv_val[i+4] + ch_in[1] * cv_val[i+4]));
+        outputs[CH_OUTPUT + i ].setVoltage(ch_out[i]);
     }
-     for (int i = 0; i < 4; i++)
-     {
-         outputs[CH_OUTPUT + i].setVoltage(0.4* (ch_in[2] * cv_val[i + 8] + ch_in[2] * cv_val[i + 8] + ch_in[2] * cv_val[i + 8] + ch_in[2] * cv_val[i + 8]));
-     }
-     for (int i = 0; i < 4; i++)
-     {
-         outputs[CH_OUTPUT + i].setVoltage(0.4* (ch_in[3] * cv_val[i+12] + ch_in[3] * cv_val[i+12] + ch_in[3] * cv_val[i+12] + ch_in[3] * cv_val[i+12]));
-     }
+
 }
 
 };
