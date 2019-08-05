@@ -238,12 +238,12 @@ struct Utility : Module {
   {
     octave_out[i] = inputs[OCTAVE_INPUT + i].getVoltage() + round(params[OCTAVE_SHIFT + i].getValue()) + round(inputs[OCTAVE_CVINPUT + i].getVoltage() / 2);
     semitone_out[i] = octave_out[i] + round(params[SEMITONE_SHIFT + i].getValue()) * (1.0 / 12.0) + round(inputs[SEMITONE_CVINPUT + i].getVoltage() / 2) * (1.0 / 12.0);
-    fine_out[i] = semitone_out[i] + (params[FINE_SHIFT + i].getValue()) * (1.0 / 12.0) + (inputs[FINE_CVINPUT + i].getVoltage() / 2) * (1.0 / 2.0);
+    fine_out[i] = (params[FINE_SHIFT + i].getValue()) * (1.0 / 12.0) + (inputs[FINE_CVINPUT + i].getVoltage() / 2) * (1.0 / 2.0);
   }
 
-    float out_a = closestVoltageInScale(fine_out[0]);
-    float out_b = closestVoltageInScale(fine_out[1]);
-    float out_c = closestVoltageInScale(fine_out[2]);
+    float out_a = closestVoltageInScale(semitone_out[0])+fine_out[0];
+    float out_b = closestVoltageInScale(semitone_out[1])+fine_out[1];
+    float out_c = closestVoltageInScale(semitone_out[2])+fine_out[2];
 
     outputs[A_OUTPUT].setVoltage(out_a);
     outputs[B_OUTPUT].setVoltage(out_b);
