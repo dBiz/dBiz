@@ -14,7 +14,7 @@
    viewBox="0 0 13 13"
    version="1.1"
    id="svg16908"
-   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="RoundWhy.svg">
   <defs
      id="defs16902">
@@ -34,9 +34,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="13.960771"
-     inkscape:cx="20.495358"
-     inkscape:cy="31.580855"
+     inkscape:zoom="8.3871364"
+     inkscape:cx="11.777663"
+     inkscape:cy="20.789404"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="true"
@@ -46,7 +46,7 @@
      fit-margin-bottom="0"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
-     inkscape:window-x="1912"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:snap-grids="false"
@@ -63,7 +63,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -100,23 +100,23 @@
      style="display:inline"
      transform="translate(0,3.4746026)">
     <ellipse
-       style="fill:#ffffff;fill-opacity:1;stroke:#393939;stroke-width:0.38141748;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#eeeeee;fill-opacity:1;stroke:#393939;stroke-width:0.40310964;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="path821"
        cx="6.4896064"
        cy="3.0180178"
-       rx="5.2533059"
-       ry="5.3003936" />
+       rx="5.5520744"
+       ry="5.60184" />
     <path
        inkscape:connector-curvature="0"
        id="path6453"
-       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.43062973"
-       d="m 6.7101261,-2.1371552 c -0.070352,-0.013011 -0.1417864,-0.019949 -0.2157461,-0.019949 -0.07432,0 -0.1457548,0.00694 -0.2157461,0.019949 v 5.2495354 h 0.4314922 z" />
+       style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2.36525846;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 6.7815381,-2.4038213 c -0.093639,-0.013672 -0.1887177,-0.020962 -0.2871581,-0.020962 -0.09892,0 -0.1939996,0.00729 -0.2871581,0.020962 v 5.5162015 h 0.5743162 z" />
     <ellipse
-       style="display:inline;fill:#000000;fill-opacity:0;stroke:#393939;stroke-width:0.59981042;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
+       style="display:inline;fill:#000000;fill-opacity:0;stroke:#393939;stroke-width:0.61986989;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke markers fill"
        id="path821-6"
        cx="6.4896064"
        cy="3.0180178"
-       rx="5.637085"
-       ry="5.7031245" />
+       rx="5.8256063"
+       ry="5.8938541" />
   </g>
 </svg>
