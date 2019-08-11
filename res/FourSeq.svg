@@ -7,7 +7,6 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="120"
@@ -15,7 +14,7 @@
    viewBox="0 0 120 380.00001"
    id="svg14650"
    version="1.1"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="FourSeq.svg"
    style="enable-background:new"
    enable-background="new">
@@ -3177,32 +3176,6 @@
          in2="BackgroundImage"
          id="feBlend30217" />
     </filter>
-    <linearGradient
-       gradientTransform="matrix(2.6468635,0,0,3.7795274,2.4674632,-743.32777)"
-       inkscape:collect="always"
-       xlink:href="#linearGradient5716-0"
-       id="linearGradient5718"
-       x1="90.385551"
-       y1="467.63098"
-       x2="15.875001"
-       y2="217.62498"
-       gradientUnits="userSpaceOnUse" />
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient5716-0">
-      <stop
-         style="stop-color:#0d0d0d;stop-opacity:1"
-         offset="0"
-         id="stop5712" />
-      <stop
-         id="stop5733"
-         offset="0.5"
-         style="stop-color:#080808;stop-opacity:0.49803922;" />
-      <stop
-         style="stop-color:#040404;stop-opacity:0"
-         offset="1"
-         id="stop5714" />
-    </linearGradient>
     <filter
        inkscape:collect="always"
        style="color-interpolation-filters:sRGB"
@@ -3222,18 +3195,18 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4448114"
-     inkscape:cx="145.46087"
+     inkscape:cx="16.032212"
      inkscape:cy="156.85887"
      inkscape:document-units="px"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer7"
      showgrid="true"
      units="px"
      objecttolerance="2"
-     inkscape:window-width="1458"
-     inkscape:window-height="847"
-     inkscape:window-x="313"
-     inkscape:window-y="29"
-     inkscape:window-maximized="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
      inkscape:snap-grids="false"
      inkscape:snap-to-guides="false"
      showguides="true"
@@ -3319,7 +3292,7 @@
      inkscape:label="Layer 10"
      style="display:inline;opacity:1;filter:url(#filter6123)">
     <path
-       style="opacity:1;vector-effect:none;fill:url(#linearGradient5718);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.98476148;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;enable-background:new"
+       style="opacity:1;vector-effect:none;fill:#1b1b1e;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.98476148;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal;enable-background:new"
        d="M 7.3696702,-0.80816969 H 112.41707 V 379.19186 H 7.3696702 Z"
        id="rect817-9"
        inkscape:connector-curvature="0" />

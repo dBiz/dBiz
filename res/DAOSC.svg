@@ -30,19 +30,19 @@
    guidetolerance="10"
    inkscape:pageopacity="0"
    inkscape:pageshadow="2"
-   inkscape:window-width="1132"
-   inkscape:window-height="776"
+   inkscape:window-width="1920"
+   inkscape:window-height="1017"
    id="namedview4942"
    showgrid="true"
    showguides="false"
    inkscape:guide-bbox="true"
    inkscape:zoom="1.5816862"
-   inkscape:cx="63.144035"
+   inkscape:cx="-55.08422"
    inkscape:cy="170.64792"
-   inkscape:window-x="124"
-   inkscape:window-y="51"
-   inkscape:window-maximized="0"
-   inkscape:current-layer="Layer-5"><inkscape:grid
+   inkscape:window-x="-8"
+   inkscape:window-y="-8"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="layer1"><inkscape:grid
      type="xygrid"
      id="grid4948" /><sodipodi:guide
      position="98,255"
@@ -61,9 +61,8 @@
    inkscape:groupmode="layer"
    id="layer1"
    inkscape:label="Layer 1"
-   style="display:inline"
-   sodipodi:insensitive="true"><g
-     style="clip-rule:evenodd;fill:#242834;fill-opacity:1;fill-rule:evenodd;stroke-linecap:square"
+   style="display:inline"><g
+     style="clip-rule:evenodd;fill:#1b1b1e;fill-opacity:1;fill-rule:evenodd;stroke-linecap:square"
      id="rect817"
      transform="matrix(1,0,0,1.00454,0.11999512,-746.60124)">
             <rect
@@ -71,7 +70,7 @@
    y="743.22699"
    width="195.071"
    height="380"
-   style="fill:#242834;fill-opacity:1"
+   style="fill:#1b1b1e;fill-opacity:1"
    id="rect4733" />
         </g></g><g
    inkscape:groupmode="layer"
