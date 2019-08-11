@@ -723,13 +723,13 @@
    inkscape:window-height="842"
    id="namedview10597"
    showgrid="false"
-   inkscape:zoom="2.5916469"
-   inkscape:cx="65.526401"
-   inkscape:cy="108.99185"
+   inkscape:zoom="1.2958235"
+   inkscape:cx="-34.503673"
+   inkscape:cy="89.825458"
    inkscape:window-x="737"
    inkscape:window-y="64"
    inkscape:window-maximized="0"
-   inkscape:current-layer="layer2"
+   inkscape:current-layer="layer1"
    units="px" />
     
     
@@ -738,7 +738,7 @@
    id="layer1"
    inkscape:label="Layer 1"
    style="display:inline"><g
-     style="clip-rule:evenodd;fill-rule:evenodd;stroke-linejoin:round;fill:#242834;fill-opacity:1"
+     style="clip-rule:evenodd;fill:#1b1b1e;fill-opacity:1;fill-rule:evenodd;stroke-linejoin:round"
      id="Layer-4"
      serif:id="Layer 4">
         <rect
@@ -747,7 +747,7 @@
    y="-0.098999999"
    width="120.099"
    height="380.198"
-   style="fill:#242834;fill-opacity:1;stroke:#000000;stroke-width:1.57000005px" />
+   style="fill:#1b1b1e;fill-opacity:1;stroke:#000000;stroke-width:1.57000005px" />
         
     </g></g><g
    inkscape:groupmode="layer"
