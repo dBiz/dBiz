@@ -69,7 +69,7 @@ struct Transpose : Module {
   void process(const ProcessArgs &args) override 
   {
   octave_1_out = inputs[OCTAVE_SHIFT_1_INPUT].getVoltage() + round(params[OCTAVE_SHIFT_1].getValue()) + round(inputs[OCTAVE_SHIFT_1_CVINPUT].getVoltage()/2);
-  octave_2_out = inputs[OCTAVE_SHIFT_2_INPUT].getVoltage() + round(params[OCTAVE_SHIFT_2].getValue()) + round(inputs[OCTAVE_SHIFT_1_CVINPUT].getVoltage()/2);
+  octave_2_out = inputs[OCTAVE_SHIFT_2_INPUT].getVoltage() + round(params[OCTAVE_SHIFT_2].getValue()) + round(inputs[OCTAVE_SHIFT_2_CVINPUT].getVoltage()/2);
   semitone_1_out = inputs[SEMITONE_SHIFT_1_INPUT].getVoltage() + round(params[SEMITONE_SHIFT_1].getValue())*(1.0/12.0) + round(inputs[SEMITONE_SHIFT_1_CVINPUT].getVoltage()/2)*(1.0/12.0);
   semitone_2_out = inputs[SEMITONE_SHIFT_2_INPUT].getVoltage() + round(params[SEMITONE_SHIFT_2].getValue())*(1.0/12.0) + round(inputs[SEMITONE_SHIFT_2_CVINPUT].getVoltage()/2)*(1.0/12.0);
   fine_1_out = inputs[FINE_SHIFT_1_INPUT].getVoltage() + (params[FINE_SHIFT_1].getValue())*(1.0/12.0) + (inputs[FINE_SHIFT_1_CVINPUT].getVoltage()/2)*(1.0/2.0);
