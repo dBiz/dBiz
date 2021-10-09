@@ -1,3 +1,22 @@
+////////////////////////////////////////////////////////////////////////////
+// <Channel scanner>
+// Copyright (C) <2019>  <Giovanni Ghisleni>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+/////////////////////////////////////////////////////////////////////////////
+
 #include "plugin.hpp"
 
 
@@ -56,12 +75,7 @@ struct Remix : Module {
     };
     enum LightIds
     {
-        CH1_LIGHT,
-        CH2_LIGHT,
-        CH3_LIGHT,
-        CH4_LIGHT,
-        CH5_LIGHT,
-        CH6_LIGHT,
+        ENUMS(CH_LIGHT, 8),
 
         NUM_LIGHTS
     };
@@ -70,6 +84,8 @@ struct Remix : Module {
     float outs[6] = {};
     float inMults[6] = {};
     float widthTable[7] = {0.0, 0.285, 0.285, 0.2608, 0.23523, 0.2125, 0.193};
+
+    int panelTheme;
 
     Remix(){
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -87,8 +103,26 @@ struct Remix : Module {
         configParam(CH4_LEVEL_PARAM,  0.0, 1.0, 0.0,"Ch 4 Level");
         configParam(CH5_LEVEL_PARAM,  0.0, 1.0, 0.0,"Ch 5 Level");
         configParam(CH6_LEVEL_PARAM,  0.0, 1.0, 0.0,"Ch 6 Level");
+        onReset();
+
+    		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 
     }
+
+      json_t *dataToJson() override {
+        json_t *rootJ = json_object();
+
+        // panelTheme
+        json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+        return rootJ;
+        }
+        void dataFromJson(json_t *rootJ) override {
+          // panelTheme
+          json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+          if (panelThemeJ)
+            panelTheme = json_integer_value(panelThemeJ);
+        }
+
 
     int clampInt(const int _in, const int min = 0, const int max = 5)
     {
@@ -110,7 +144,7 @@ struct Remix : Module {
         return ((_amountOfA * _inA) + ((1.0f - _amountOfA) * _inB));
     }
 
-    void process(const ProcessArgs &args) override 
+    void process(const ProcessArgs &args) override
    {
 
     float allInValue = 0.0f;
@@ -141,7 +175,7 @@ struct Remix : Module {
 
     float slopeControl = params[SLOPE_PARAM].getValue() + inputs[SLOPE_INPUT].getVoltage();
     slopeControl = clamp(slopeControl, 0.0f, 5.0f) * 0.2f;
-    
+
 
     float scanFactor1 = LERP(widthControl, halfStages, invStages);
     float scanFactor2 = LERP(widthControl, halfStages + remainInvStages, 1.0f);
@@ -174,7 +208,7 @@ struct Remix : Module {
     {
         outputs[i].setVoltage(ins[i] * inMults[i]);
 
-        lights[CH1_LIGHT + i].setSmoothBrightness(fmaxf(0.0, inMults[i]),APP->engine->getSampleTime());
+        lights[CH_LIGHT + i].setSmoothBrightness(fmaxf(0.0, inMults[i]),APP->engine->getSampleTime());
 
         outputs[B_OUTPUT].value = outputs[B_OUTPUT].value + outputs[i].value;
 
@@ -196,18 +230,69 @@ struct Remix : Module {
 
 
 struct RemixWidget : ModuleWidget {
+
+
+  SvgPanel* darkPanel;
+  struct PanelThemeItem : MenuItem {
+    Remix *module;
+    int theme;
+    void onAction(const event::Action &e) override {
+      module->panelTheme = theme;
+    }
+    void step() override {
+      rightText = (module->panelTheme == theme) ? "✔" : "";
+    }
+  };
+  void appendContextMenu(Menu *menu) override {
+    MenuLabel *spacerLabel = new MenuLabel();
+    menu->addChild(spacerLabel);
+
+    Remix *module = dynamic_cast<Remix*>(this->module);
+    assert(module);
+
+    MenuLabel *themeLabel = new MenuLabel();
+    themeLabel->text = "Panel Theme";
+    menu->addChild(themeLabel);
+
+    PanelThemeItem *lightItem = new PanelThemeItem();
+    lightItem->text = lightPanelID;
+    lightItem->module = module;
+    lightItem->theme = 0;
+    menu->addChild(lightItem);
+
+    PanelThemeItem *darkItem = new PanelThemeItem();
+    darkItem->text = darkPanelID;
+    darkItem->module = module;
+    darkItem->theme = 1;
+    menu->addChild(darkItem);
+
+    menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+  }
 RemixWidget(Remix *module) {
     setModule(module);
-	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Remix.svg")));
-	
-
-    int knob = 32;
+	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/Remix2.svg")));
+  if (module) {
+    darkPanel = new SvgPanel();
+    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Remix2.svg")));
+    darkPanel->visible = false;
+    addChild(darkPanel);
+  }
+    int knob = 30;
     int jack = 27;
-    int board =20;
-    int light = 15;
-    float mid = (14*15)/2;
-    float midy= 190; 
-    int space = 15;
+
+    
+    float mid = (15*12)/2;
+    float midy= 190;
+    int space = 9;
+
+    ////////////////////////////////////////////
+    SegmentDisplay* segmentDisplay = createWidget<SegmentDisplay>(Vec(mid-50, 180));
+    segmentDisplay->box.size = Vec(100, 20);
+    segmentDisplay->setLights<BlueLight>(module, Remix::CH_LIGHT,6);
+    addChild(segmentDisplay);
+
+
+    ////////////////////////////////////////////
 
 	addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
 	addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -215,62 +300,63 @@ RemixWidget(Remix *module) {
 	addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
 
-	addParam(createParam<RoundRed>(Vec(board, midy+10), module, Remix::SCAN_PARAM));
-    addParam(createParam<RoundWhy>(Vec(board, midy+10+knob+10), module, Remix::CV_SCAN_PARAM));
+	  addParam(createParam<FlatR>(Vec(10, midy+20), module, Remix::SCAN_PARAM));
+    addParam(createParam<FlatA>(Vec(10, midy+10+knob+20), module, Remix::CV_SCAN_PARAM));
 
-    addParam(createParam<RoundRed>(Vec(mid-15, midy+10), module, Remix::WIDTH_PARAM));
-    addParam(createParam<RoundWhy>(Vec(mid-15, midy+10+knob+10), module, Remix::CV_WIDTH_PARAM));
+    addParam(createParam<FlatR>(Vec(mid-15, midy+20), module, Remix::WIDTH_PARAM));
+    addParam(createParam<FlatA>(Vec(mid-15, midy+10+knob+20), module, Remix::CV_WIDTH_PARAM));
 
-    addParam(createParam<Trimpot>(Vec(mid - 20, 322.5), module, Remix::SLOPE_PARAM));
-    addInput(createInput<PJ301MCPort>(Vec(mid +10 , 320),  module, Remix::SLOPE_INPUT));
+    addParam(createParam<Trim>(Vec(mid - 25, 322.5), module, Remix::SLOPE_PARAM));
+    addInput(createInput<PJ301MCPort>(Vec(mid + 5 , 320),  module, Remix::SLOPE_INPUT));
 
-    addParam(createParam<RoundRed>(Vec(box.size.x - board - 32.5, midy+10), module, Remix::LEVEL_PARAM));
-    addParam(createParam<RoundWhy>(Vec(box.size.x - board - 32.5, midy+10+knob+10), module, Remix::CV_LEVEL_PARAM));
+    addParam(createParam<FlatR>(Vec(box.size.x - 40 , midy+20), module, Remix::LEVEL_PARAM));
+    addParam(createParam<FlatA>(Vec(box.size.x - 40 , midy+10+knob+20), module, Remix::CV_LEVEL_PARAM));
 
-    addOutput(createOutput<PJ301MOPort>(Vec(board + 7.5, 20), module, Remix::A_OUTPUT));
-    addInput(createInput<PJ301MCPort>(Vec(board+7.5, 320),  module, Remix::SCAN_INPUT));
+      addOutput(createOutput<PJ301MOPort>(Vec(15 , 20), module, Remix::A_OUTPUT));
+      addInput(createInput<PJ301MCPort>(Vec(15, 320),  module, Remix::SCAN_INPUT));
 
-    addOutput(createOutput<PJ301MOPort>(Vec(mid-15 + 5.5, 20), module, Remix::B_OUTPUT));
-    addInput(createInput<PJ301MCPort>(Vec(mid-15+ 7.5, 290),  module, Remix::WIDTH_INPUT));
+      addOutput(createOutput<PJ301MOPort>(Vec(mid-12 , 20), module, Remix::B_OUTPUT));
+      addInput(createInput<PJ301MCPort>(Vec(mid-12, 290),  module, Remix::WIDTH_INPUT));
 
-    addOutput(createOutput<PJ301MOPort>(Vec(box.size.x-knob-board + 7.5, 20), module, Remix::C_OUTPUT));
-    addInput(createInput<PJ301MCPort>(Vec(box.size.x-knob-board + 7.5, 320),  module, Remix::LEVEL_INPUT));
+      addOutput(createOutput<PJ301MOPort>(Vec(box.size.x-40, 20), module, Remix::C_OUTPUT));
+      addInput(createInput<PJ301MCPort>(Vec(box.size.x-40, 320),  module, Remix::LEVEL_INPUT));
+
+            addInput(createInput<PJ301MIPort>(Vec(space + 0 * jack,60),  module, Remix::CH1_INPUT));
+            addParam(createParam<Trim>(Vec(15 + 0 * jack,115),module,Remix::CH1_LEVEL_PARAM));
+            addInput(createInput<PJ301MCPort>(Vec(space  + jack * 0, 140), module, Remix::CH1_CV));
+
+            addInput(createInput<PJ301MIPort>(Vec(space + 1 * jack,60),  module, Remix::CH2_INPUT));
+            addParam(createParam<Trim>(Vec(15 + 1 * jack, 115), module, Remix::CH2_LEVEL_PARAM));
+            addInput(createInput<PJ301MCPort>(Vec(space  + jack * 1, 140), module, Remix::CH2_CV));
+
+            addInput(createInput<PJ301MIPort>(Vec(space + 2 * jack,60),  module, Remix::CH3_INPUT));
+            addParam(createParam<Trim>(Vec(15 + 2 * jack, 115), module, Remix::CH3_LEVEL_PARAM));
+            addInput(createInput<PJ301MCPort>(Vec(space  + jack * 2, 140), module, Remix::CH3_CV));
 
 
-            addInput(createInput<PJ301MIPort>(Vec(space +5+ jack*0, 70),  module, Remix::CH1_INPUT));
-            addParam(createParam<Trimpot>(Vec(space +10+ jack*0,125),module,Remix::CH1_LEVEL_PARAM));
-            addInput(createInput<PJ301MCPort>(Vec(space + 5 + jack * 0, 150), module, Remix::CH1_CV));
-            addChild(createLight<MediumLight<BlueLight>>(Vec(board + 30 + light * 0, midy), module, Remix::CH1_LIGHT));
+            addInput(createInput<PJ301MIPort>(Vec(space + 3 * jack,60),  module, Remix::CH4_INPUT));
+            addParam(createParam<Trim>(Vec(15 + 3 * jack,115),module,Remix::CH4_LEVEL_PARAM));
+            addInput(createInput<PJ301MCPort>(Vec(space + jack * 3, 140), module, Remix::CH4_CV));
 
-            addInput(createInput<PJ301MIPort>(Vec(space + 5 + jack * 1, 70),  module, Remix::CH2_INPUT));
-            addParam(createParam<Trimpot>(Vec(space + 10 + jack * 1, 125), module, Remix::CH2_LEVEL_PARAM));
-            addInput(createInput<PJ301MCPort>(Vec(space + 5 + jack * 1, 150), module, Remix::CH2_CV));
-            addChild(createLight<MediumLight<BlueLight>>(Vec(board + 30 + light * 1, midy), module, Remix::CH2_LIGHT));
+            addInput(createInput<PJ301MIPort>(Vec(space + 4 * jack,60),  module, Remix::CH5_INPUT));
+            addParam(createParam<Trim>(Vec(15 + 4 * jack, 115), module, Remix::CH5_LEVEL_PARAM));
+            addInput(createInput<PJ301MCPort>(Vec(space + jack * 4, 140), module, Remix::CH5_CV));
 
-            addInput(createInput<PJ301MIPort>(Vec(space + 5 + jack * 2, 70),  module, Remix::CH3_INPUT));
-            addParam(createParam<Trimpot>(Vec(space + 10 + jack * 2, 125), module, Remix::CH3_LEVEL_PARAM));
-            addInput(createInput<PJ301MCPort>(Vec(space + 5 + jack * 2, 150), module, Remix::CH3_CV));
-            addChild(createLight<MediumLight<BlueLight>>(Vec(board + 30 + light * 2, midy), module, Remix::CH3_LIGHT));
-
-            
-            addInput(createInput<PJ301MIPort>(Vec(space +10+ jack*3+7.5, 70),  module, Remix::CH4_INPUT));
-            addParam(createParam<Trimpot>(Vec(space +15+ jack*3+7,125),module,Remix::CH4_LEVEL_PARAM));
-            addInput(createInput<PJ301MCPort>(Vec(space + 19 + jack * 3, 150), module, Remix::CH4_CV));
-            addChild(createLight<MediumLight<BlueLight>>(Vec(board + 60 + light * 3, midy), module, Remix::CH4_LIGHT));
-
-            addInput(createInput<PJ301MIPort>(Vec(space + 10 + jack * 4 + 7.5, 70),  module, Remix::CH5_INPUT));
-            addParam(createParam<Trimpot>(Vec(space + 15 + jack * 4 + 7, 125), module, Remix::CH5_LEVEL_PARAM));
-            addInput(createInput<PJ301MCPort>(Vec(space + 19 + jack * 4, 150), module, Remix::CH5_CV));
-            addChild(createLight<MediumLight<BlueLight>>(Vec(board + 60 + light * 4, midy), module, Remix::CH5_LIGHT));
-
-            addInput(createInput<PJ301MIPort>(Vec(space + 10 + jack * 5 + 7.5, 70),  module, Remix::CH6_INPUT));
-            addParam(createParam<Trimpot>(Vec(space + 15 + jack * 5 + 7, 125), module, Remix::CH6_LEVEL_PARAM));
-            addInput(createInput<PJ301MCPort>(Vec(space + 19 + jack * 5, 150), module, Remix::CH6_CV));
-            addChild(createLight<MediumLight<BlueLight>>(Vec(board + 60 + light * 5, midy), module, Remix::CH6_LIGHT));
+            addInput(createInput<PJ301MIPort>(Vec(space + 5 * jack,60),  module, Remix::CH6_INPUT));
+            addParam(createParam<Trim>(Vec(15 + 5 * jack, 115), module, Remix::CH6_LEVEL_PARAM));
+            addInput(createInput<PJ301MCPort>(Vec(space + jack * 5, 140), module, Remix::CH6_CV));
 
             // addChild(createLight<MediumLight<BlueLight>>(Vec(41, 59), module, Remix::CH_LIGHT));
 
 }
+
+void step() override {
+  if (module) {
+    Widget* panel = getPanel();
+    panel->visible = ((((Remix*)module)->panelTheme) == 0);
+    darkPanel->visible  = ((((Remix*)module)->panelTheme) == 1);
+  }
+  Widget::step();
+}
 };
 Model *modelRemix = createModel<Remix, RemixWidget>("Remix");
-

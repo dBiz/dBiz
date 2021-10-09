@@ -1,7 +1,21 @@
-///////////////////////////////////////////////////
-//  dBiz Divider
-// 
-///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+// <Divider - Simple clock divider>
+// Copyright (C) <2019>  <Giovanni Ghisleni>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+/////////////////////////////////////////////////////////////////////////////
 
 #include "plugin.hpp"
 
@@ -16,7 +30,7 @@ struct Divider : Module {
     ENUMS(DIVISIONB_PARAM, 4),
     ENUMS(ON_SWITCH, 4),
     ENUMS(ON_SWITCHB, 4),
-    NUM_PARAMS 
+    NUM_PARAMS
   };
   enum InputIds {
     CLOCK_INPUT,
@@ -64,7 +78,7 @@ struct Divider : Module {
 	int divider3b = 0;
 	int divider4b = 0;
 
-		dsp::PulseGenerator clk1;
+	dsp::PulseGenerator clk1;
   	dsp::PulseGenerator clk2;
   	dsp::PulseGenerator clk3;
   	dsp::PulseGenerator clk4;
@@ -85,6 +99,8 @@ struct Divider : Module {
 	bool pulse3b = false;
 	bool pulse4b = false;
 
+  int panelTheme;
+
 	dsp::SchmittTrigger clk;
 	dsp::SchmittTrigger clkb;
 
@@ -102,54 +118,71 @@ struct Divider : Module {
 
 	  configParam(MODE_PARAM,  0.0, 1.0, 0.0,"MODE A");
 	  configParam(MODE_PARAM + 1,  0.0, 1.0, 0.0, "MODE B");
+    onReset();
+
+		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 
 	}
 
+    json_t *dataToJson() override {
+      json_t *rootJ = json_object();
 
-  void process(const ProcessArgs &args) override 
+      // panelTheme
+      json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+      return rootJ;
+      }
+      void dataFromJson(json_t *rootJ) override {
+        // panelTheme
+        json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+        if (panelThemeJ)
+          panelTheme = json_integer_value(panelThemeJ);
+      }
+
+
+  void process(const ProcessArgs &args) override
  {
 
 		divider1 = round(params[DIVISION_PARAM].getValue()   + clamp(inputs[SUB1_INPUT+0].getVoltage(), -15.0f, 15.0f));
-		if (divider1>15) divider1=15; 
+		if (divider1>15) divider1=15;
 		if (divider1<=1) divider1=1;
 		divider2 = round(params[DIVISION_PARAM+1].getValue() + clamp(inputs[SUB1_INPUT+1].getVoltage(), -15.0f, 15.0f));
-		if (divider2>15) divider2=15; 
+		if (divider2>15) divider2=15;
 		if (divider2<=1) divider2=1;
 		divider3 = round(params[DIVISION_PARAM+2].getValue() + clamp(inputs[SUB1_INPUT+2].getVoltage(), -15.0f, 15.0f));
-		if (divider3>15) divider3=15; 
+		if (divider3>15) divider3=15;
 		if (divider3<=1) divider3=1;
 		divider4 = round(params[DIVISION_PARAM+3].getValue() + clamp(inputs[SUB1_INPUT+3].getVoltage(), -15.0f, 15.0f));
-		if (divider4>15) divider4=15; 
+		if (divider4>15) divider4=15;
 		if (divider4<=1) divider4=1;
 
 		divider1b = round(params[DIVISIONB_PARAM].getValue()   + clamp(inputs[SUB2_INPUT+0].getVoltage(), -15.0f, 15.0f));
-		if (divider1b>15) divider1b=15; 
+		if (divider1b>15) divider1b=15;
 		if (divider1b<=1) divider1b=1;
 		divider2b = round(params[DIVISIONB_PARAM+1].getValue() + clamp(inputs[SUB2_INPUT+1].getVoltage(), -15.0f, 15.0f));
-		if (divider2b>15) divider2b=15; 
+		if (divider2b>15) divider2b=15;
 		if (divider2b<=1) divider2b=1;
 		divider3b = round(params[DIVISIONB_PARAM+2].getValue() + clamp(inputs[SUB2_INPUT+2].getVoltage(), -15.0f, 15.0f));
-		if (divider3b>15) divider3b=15; 
+		if (divider3b>15) divider3b=15;
 		if (divider3b<=1) divider3b=1;
 		divider4b = round(params[DIVISIONB_PARAM+3].getValue() + clamp(inputs[SUB2_INPUT+3].getVoltage(), -15.0f, 15.0f));
-		if (divider4b>15) divider4b=15; 
+		if (divider4b>15) divider4b=15;
 		if (divider4b<=1) divider4b=1;
 
 
 if (clk.process(inputs[CLOCK_INPUT].getVoltage()))
  {
 		clock1Count++;
-		clock2Count++;		
-		clock3Count++;		
-		clock4Count++;					
+		clock2Count++;
+		clock3Count++;
+		clock4Count++;
  }
 
  if (clkb.process(inputs[CLOCKB_INPUT].getVoltage()))
  {
 		clock1bCount++;
-		clock2bCount++;		
-		clock3bCount++;		
-		clock4bCount++;					
+		clock2bCount++;
+		clock3bCount++;
+		clock4bCount++;
  }
 
 
@@ -163,22 +196,22 @@ lights[LIGHT_S2+0].setSmoothBrightness(clock1bCount == 0? 1.f : 0.0, args.sample
 lights[LIGHT_S2+1].setSmoothBrightness(clock2bCount == 0? 1.f : 0.0, args.sampleTime);
 lights[LIGHT_S2+2].setSmoothBrightness(clock3bCount == 0? 1.f : 0.0, args.sampleTime);
 lights[LIGHT_S2+3].setSmoothBrightness(clock4bCount == 0? 1.f : 0.0, args.sampleTime);
-	
+
 	/////////////////////////////////////////////////////////////////
 
 if(params[ON_SWITCH+0].getValue())
 {
 	if (clock1Count >= divider1)
 	{
-		clock1Count = 0;		
-	  clk1.trigger(1e-3);  
+		clock1Count = 0;
+	  clk1.trigger(1e-3);
 	}
 }
 if(params[ON_SWITCH+1].getValue())
 {
 	if (clock2Count >= divider2)
 	{
-		clock2Count = 0;		
+		clock2Count = 0;
 	  clk2.trigger(1e-3);
   }
 }
@@ -186,7 +219,7 @@ if(params[ON_SWITCH+2].getValue())
 {
 	if (clock3Count >= divider3)
 	{
-		clock3Count = 0;		
+		clock3Count = 0;
 	  clk3.trigger(1e-3);
   }
 }
@@ -194,25 +227,25 @@ if(params[ON_SWITCH+3].getValue())
 {
 	if (clock4Count >= divider4)
 	{
-		clock4Count = 0;		
+		clock4Count = 0;
 	  clk4.trigger(1e-3);
   }
-} 	
+}
 
 
 if(params[ON_SWITCHB+0].getValue())
 {
 	if (clock1bCount >= divider1b)
 	{
-		clock1bCount = 0;		
-	  clk1b.trigger(1e-3);  
+		clock1bCount = 0;
+	  clk1b.trigger(1e-3);
 	}
 }
 if(params[ON_SWITCHB+1].getValue())
 {
 	if (clock2bCount >= divider2b)
 	{
-		clock2bCount = 0;		
+		clock2bCount = 0;
 	  clk2b.trigger(1e-3);
   }
 }
@@ -220,7 +253,7 @@ if(params[ON_SWITCHB+2].getValue())
 {
 	if (clock3bCount >= divider3b)
 	{
-		clock3bCount = 0;		
+		clock3bCount = 0;
 	  clk3b.trigger(1e-3);
   }
 }
@@ -228,10 +261,10 @@ if(params[ON_SWITCHB+3].getValue())
 {
 	if (clock4bCount >= divider4b)
 	{
-		clock4bCount = 0;		
+		clock4bCount = 0;
 	  clk4b.trigger(1e-3);
   }
-} 	
+}
 
 //////////////////////////////////////////////////////////////////
 pulse1 = clk1.process(1.0f / APP->engine->getSampleTime());
@@ -253,7 +286,7 @@ outputs[CD_OUTPUT].setVoltage((pulse3 || pulse4) ? 10.0f : 0.0f);
 }
 else
 {
-bool xora,xorb = false; 
+bool xora,xorb = false;
 xora = pulse1==pulse2;
 xorb = pulse3==pulse4;
 
@@ -283,34 +316,79 @@ else
 };
 
 struct DividerWidget : ModuleWidget {
+
+
+  SvgPanel* darkPanel;
+  struct PanelThemeItem : MenuItem {
+    Divider *module;
+    int theme;
+    void onAction(const event::Action &e) override {
+      module->panelTheme = theme;
+    }
+    void step() override {
+      rightText = (module->panelTheme == theme) ? "✔" : "";
+    }
+  };
+  void appendContextMenu(Menu *menu) override {
+    MenuLabel *spacerLabel = new MenuLabel();
+    menu->addChild(spacerLabel);
+
+    Divider *module = dynamic_cast<Divider*>(this->module);
+    assert(module);
+
+    MenuLabel *themeLabel = new MenuLabel();
+    themeLabel->text = "Panel Theme";
+    menu->addChild(themeLabel);
+
+    PanelThemeItem *lightItem = new PanelThemeItem();
+    lightItem->text = lightPanelID;
+    lightItem->module = module;
+    lightItem->theme = 0;
+    menu->addChild(lightItem);
+
+    PanelThemeItem *darkItem = new PanelThemeItem();
+    darkItem->text = darkPanelID;
+    darkItem->module = module;
+    darkItem->theme = 1;
+    menu->addChild(darkItem);
+
+    menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+  }
+
 DividerWidget(Divider *module){
 	setModule(module);
-	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Divider.svg")));
+	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/Divider.svg")));
+  if (module) {
+    darkPanel = new SvgPanel();
+    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Divider.svg")));
+    darkPanel->visible = false;
+    addChild(darkPanel);
+  }
 
 //Screw
   addChild(createWidget<ScrewBlack>(Vec(15, 0)));
   addChild(createWidget<ScrewBlack>(Vec(box.size.x-30, 0)));
   addChild(createWidget<ScrewBlack>(Vec(15, 365)));
   addChild(createWidget<ScrewBlack>(Vec(box.size.x-30, 365)));
-    
+
    int knob=35;
    int jack = 27;
-   int si = 15;   
+   int si = 15;
 
    //
    for (int i = 0; i < 4; i++)
    {
-	   addParam(createParam<SDKnob>(Vec(si + 70, 20 + knob * i), module, Divider::DIVISION_PARAM + i));
+	   addParam(createParam<SDKnobSnap>(Vec(si + 70, 20 + knob * i), module, Divider::DIVISION_PARAM + i));
 	   addParam(createParam<SilverSwitch>(Vec(si + 10, 20 + knob * i), module, Divider::ON_SWITCH + i));
 
-	   addParam(createParam<SDKnob>(Vec(si + 70, 170 + knob * i), module, Divider::DIVISIONB_PARAM + i));
+	   addParam(createParam<SDKnobSnap>(Vec(si + 70, 170 + knob * i), module, Divider::DIVISIONB_PARAM + i));
 	   addParam(createParam<SilverSwitch>(Vec(si + 10, 170 + knob * i), module, Divider::ON_SWITCHB + i));
 
 	   addChild(createLight<SmallLight<RedLight>>(Vec(si + 105, 30 + knob * i), module, Divider::LIGHT_S1 + i));
 	   addChild(createLight<SmallLight<RedLight>>(Vec(si + 105, 180 + knob * i), module, Divider::LIGHT_S2 + i));
 
 	}
-	
+
 	addInput(createInput<PJ301MVAPort>(Vec(si + 40, 22.5 + knob * 0), module, Divider::SUB1_INPUT + 0));
 	addInput(createInput<PJ301MVAPort>(Vec(si + 40, 22.5 + knob * 1), module, Divider::SUB1_INPUT + 1));
 	addInput(createInput<PJ301MVAPort>(Vec(si + 40, 22.5 + knob * 2), module, Divider::SUB1_INPUT + 2));
@@ -336,6 +414,14 @@ addOutput(createOutput<PJ301MVAPort>(Vec(15 + jack * 2, 310 + jack), module, Div
 addOutput(createOutput<PJ301MVAPort>(Vec(15 + jack * 3, 310 + jack), module, Divider::TRIGB_OUTPUT));
 
 addParam(createParam<MCKSSS2>(Vec(15 + jack * 4, 313 + jack), module, Divider::MODE_PARAM + 1));
+}
+void step() override {
+  if (module) {
+	Widget* panel = getPanel();
+    panel->visible = ((((Divider*)module)->panelTheme) == 0);
+    darkPanel->visible  = ((((Divider*)module)->panelTheme) == 1);
+  }
+  Widget::step();
 }
 };
 

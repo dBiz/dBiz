@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="100%"
+   height="100%"
+   viewBox="0 0 35 35"
+   version="1.1"
+   xml:space="preserve"
+   style="fill-rule:evenodd;clip-rule:evenodd;stroke-miterlimit:10;"
+   id="svg884"
+   sodipodi:docname="VerboS-bg.svg"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"><metadata
+   id="metadata890">
+  <rdf:RDF>
+    <cc:Work
+   rdf:about="">
+      <dc:format>image/svg+xml</dc:format>
+
+      <dc:type
+   rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+
+    <dc:title /></cc:Work>
+
+  </rdf:RDF>
+
+</metadata>
+
+<defs
+   id="defs888"><linearGradient
+     id="SVGID_1_"
+     gradientUnits="userSpaceOnUse"
+     x1="714.70374"
+     y1="-3999.3999"
+     x2="746.10217"
+     y2="-3999.3999"
+     gradientTransform="matrix(0,1.1174657,-1.1174657,0,-4451.4887,-798.61968)"><stop
+       offset="0"
+       style="stop-color:#F2EEF0"
+       id="stop3" /><stop
+       offset="1"
+       style="stop-color:#000000"
+       id="stop5" /></linearGradient><linearGradient
+     id="SVGID_1_-0"
+     gradientUnits="userSpaceOnUse"
+     x1="714.70374"
+     y1="-3999.3999"
+     x2="746.10217"
+     y2="-3999.3999"
+     gradientTransform="matrix(0,1.1052103,-1.1052103,0,-4402.5308,-789.77539)"><stop
+       offset="0"
+       style="stop-color:#F2EEF0"
+       id="stop3-5" /><stop
+       offset="1"
+       style="stop-color:#e93900;stop-opacity:1"
+       id="stop5-0" /></linearGradient></defs>
+
+<sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   inkscape:document-rotation="0"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1416"
+   inkscape:window-height="1041"
+   id="namedview886"
+   showgrid="false"
+   inkscape:zoom="5.7515881"
+   inkscape:cx="33.636016"
+   inkscape:cy="27.584499"
+   inkscape:window-x="391"
+   inkscape:window-y="0"
+   inkscape:window-maximized="0"
+   inkscape:current-layer="svg884" />
+
+
+    
+
+
+    <g
+   id="Layer1">
+    </g>
+
+
+    
+
+
+
+<circle
+   fill="url(#SVGID_1_)"
+   cx="17.647301"
+   cy="17.473434"
+   id="circle8"
+   style="fill:url(#SVGID_1_-0);stroke-width:1.105;stroke-miterlimit:4;stroke-dasharray:none"
+   r="17.350918" /></svg>
