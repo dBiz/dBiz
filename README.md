@@ -1,3 +1,3 @@
 # dBiz_Modules
 
-V1 port of dBiz modules ... manuals soon!
+V2 port of dBiz modules ... 
