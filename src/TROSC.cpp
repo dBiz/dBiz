@@ -1,4 +1,21 @@
-
+////////////////////////////////////////////////////////////////////////////
+// <Triple Oscillator>
+// Copyright (C) <2019>  <Giovanni Ghisleni>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+/////////////////////////////////////////////////////////////////////////////
 #include "plugin.hpp"
 
 using simd::float_4;
@@ -365,8 +382,10 @@ struct TROSC : Module
 	Oscillator<8, 8,float_4> b_osc[4];
 	Oscillator<8, 8,float_4> c_osc[4];
 
+	int panelTheme;
+
 	TROSC() {
-	
+
 	config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
 	configParam(FREQ_A_PARAM,  -54.f, 54.f, 0.f, "Osc1 Frequency", "Hz", std::pow(2, 1 / 12.f), dsp::FREQ_C4);
@@ -406,23 +425,41 @@ struct TROSC : Module
 
 	configParam(LINK_A_PARAM,  0.f, 1.f, 0.f, "Link A Param");
 	configParam(LINK_B_PARAM,  0.f, 1.f, 0.f, "Link B Param");
+	onReset();
+
+	panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
-	
-	void process(const ProcessArgs &args) override 
+
+	  json_t *dataToJson() override {
+	    json_t *rootJ = json_object();
+
+	    // panelTheme
+	    json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+	    return rootJ;
+	    }
+	    void dataFromJson(json_t *rootJ) override {
+	      // panelTheme
+	      json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+	      if (panelThemeJ)
+	        panelTheme = json_integer_value(panelThemeJ);
+	    }
+
+
+	void process(const ProcessArgs &args) override
 	{
 
 		float freqParamA = params[FREQ_A_PARAM].getValue() / 12.f;
 		freqParamA += dsp::quadraticBipolar(params[FINE_A_PARAM].getValue()) * 3.f / 12.f;
 		float fmParamA = dsp::quadraticBipolar(params[FM_A_PARAM].getValue());
-		
+
 		float freqParamB = params[FREQ_B_PARAM].getValue() / 12.f;
 		freqParamB += dsp::quadraticBipolar(params[FINE_B_PARAM].getValue()) * 3.f / 12.f;
 		float fmParamB = dsp::quadraticBipolar(params[FM_B_PARAM].getValue());
-		
+
 		float freqParamC = params[FREQ_C_PARAM].getValue() / 12.f;
 		freqParamC += dsp::quadraticBipolar(params[FINE_C_PARAM].getValue()) * 3.f / 12.f;
 		float fmParamC = dsp::quadraticBipolar(params[FM_C_PARAM].getValue());
-		
+
 
 		int channelsA = std::max(inputs[PITCH_A_INPUT].getChannels(), 1);
 		int channelsB = std::max(inputs[PITCH_B_INPUT].getChannels(), 1);
@@ -447,7 +484,7 @@ struct TROSC : Module
 
 		for (int c = 0; c < channelsA; c += 4)
 		{
-			
+
 			linka = inputs[PITCH_A_INPUT].getVoltageSimd<float_4>(c);
 			linkb = inputs[PITCH_B_INPUT].getVoltageSimd<float_4>(c);
 			linkc = inputs[PITCH_C_INPUT].getVoltageSimd<float_4>(c);
@@ -575,9 +612,53 @@ struct TROSC : Module
 };
 
 struct TROSCWidget : ModuleWidget {
+
+
+	SvgPanel* darkPanel;
+	struct PanelThemeItem : MenuItem {
+	  TROSC *module;
+	  int theme;
+	  void onAction(const event::Action &e) override {
+	    module->panelTheme = theme;
+	  }
+	  void step() override {
+	    rightText = (module->panelTheme == theme) ? "✔" : "";
+	  }
+	};
+	void appendContextMenu(Menu *menu) override {
+	  MenuLabel *spacerLabel = new MenuLabel();
+	  menu->addChild(spacerLabel);
+
+	  TROSC *module = dynamic_cast<TROSC*>(this->module);
+	  assert(module);
+
+	  MenuLabel *themeLabel = new MenuLabel();
+	  themeLabel->text = "Panel Theme";
+	  menu->addChild(themeLabel);
+
+	  PanelThemeItem *lightItem = new PanelThemeItem();
+	  lightItem->text = lightPanelID;
+	  lightItem->module = module;
+	  lightItem->theme = 0;
+	  menu->addChild(lightItem);
+
+	  PanelThemeItem *darkItem = new PanelThemeItem();
+	  darkItem->text = darkPanelID;
+	  darkItem->module = module;
+	  darkItem->theme = 1;
+	  menu->addChild(darkItem);
+
+	  menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+	}
 	TROSCWidget(TROSC *module){
 	 setModule(module);
-	 setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/TROSC.svg")));
+	 setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/TROSC.svg")));
+	 if (module) {
+     darkPanel = new SvgPanel();
+     darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/TROSC.svg")));
+     darkPanel->visible = false;
+     addChild(darkPanel);
+   }
 
 	 addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
 	 addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -617,9 +698,9 @@ struct TROSCWidget : ModuleWidget {
 	 addParam(createParam<LEDSliderGreen>(Vec(20 + space, 280), module, TROSC::WAVE_C_MIX));
 	 addParam(createParam<VerboDS>(Vec(40 + space, 290), module, TROSC::C_WIDTH_PARAM));
 
-	 addParam(createParam<Trimpot>(Vec(73 + space, 20 - 10), module, TROSC::WAVE_A_SEL_PARAM));
-	 addParam(createParam<Trimpot>(Vec(73 + space, 150 - 10), module, TROSC::WAVE_B_SEL_PARAM));
-	 addParam(createParam<Trimpot>(Vec(73 + space, 280 - 10), module, TROSC::WAVE_C_SEL_PARAM));
+	 addParam(createParam<Trim>(Vec(73 + space, 20 - 10), module, TROSC::WAVE_A_SEL_PARAM));
+	 addParam(createParam<Trim>(Vec(73 + space, 150 - 10), module, TROSC::WAVE_B_SEL_PARAM));
+	 addParam(createParam<Trim>(Vec(73 + space, 280 - 10), module, TROSC::WAVE_C_SEL_PARAM));
 
 	 addInput(createInput<PJ301MCPort>(Vec(100 + space, 20 - 13), module, TROSC::A_WAVE_MIX_INPUT));
 	 addInput(createInput<PJ301MCPort>(Vec(100 + space, 150 - 13), module, TROSC::B_WAVE_MIX_INPUT));
@@ -651,6 +732,14 @@ struct TROSCWidget : ModuleWidget {
 	 addOutput(createOutput<PJ301MOPort>(Vec(255, 20 + 20), module, TROSC::A_OUTPUT));
 	 addOutput(createOutput<PJ301MOPort>(Vec(255, 20 + 150), module, TROSC::B_OUTPUT));
 	 addOutput(createOutput<PJ301MOPort>(Vec(255, 20 + 280), module, TROSC::C_OUTPUT));
+}
+void step() override {
+  if (module) {
+	Widget* panel = getPanel();
+    panel->visible = ((((TROSC*)module)->panelTheme) == 0);
+    darkPanel->visible  = ((((TROSC*)module)->panelTheme) == 1);
+  }
+  Widget::step();
 }
 };
 

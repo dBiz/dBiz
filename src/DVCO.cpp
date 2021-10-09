@@ -1,10 +1,21 @@
-////////////////////////////////////////////////
-///
-// 		Dual digital oscillator MK2
-// 		based on Fundamental OSC by Andrew Belt
-//			still some fix to do;)
+////////////////////////////////////////////////////////////////////////////
+// <Dual Digital Oscillator>
+// Copyright (C) <2019>  <Giovanni Ghisleni>
 //
-//////////////////////////////////////
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+/////////////////////////////////////////////////////////////////////////////
 
 #include "plugin.hpp"
 
@@ -302,6 +313,8 @@ struct DVCO : Module {
 	Ocillator<8, 8, float_4> oscillator_a[4];
 	Ocillator<8, 8, float_4> oscillator_b[4];
 
+	int panelTheme;
+
 	DVCO() {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
@@ -323,9 +336,26 @@ struct DVCO : Module {
 		configParam(PWM_B_PARAM,  0.0, 1.0, 0.0,"Osc2 Pulse width modulation", "%", 0.f, 100.f);
 		configParam(WAVE_A_PARAM,  0.0, 3.0, 1.5,"Wave1 Sel");
 		configParam(WAVE_B_PARAM,  0.0, 3.0, 1.5,"Wave2 Sel");
+		onReset();
+
+		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
 
-	void process(const ProcessArgs &args) override 
+	  json_t *dataToJson() override {
+	    json_t *rootJ = json_object();
+
+	    // panelTheme
+	    json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+	    return rootJ;
+	    }
+	    void dataFromJson(json_t *rootJ) override {
+	      // panelTheme
+	      json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+	      if (panelThemeJ)
+	        panelTheme = json_integer_value(panelThemeJ);
+	    }
+
+	void process(const ProcessArgs &args) override
  	{
 
 		//////////////////////////////////////////////////////////////////////////
@@ -351,7 +381,7 @@ struct DVCO : Module {
 		float_4 va=0.f;
 		float_4 vb=0.f;
 		float_4 sum=0.f;
-	
+
 
 		for (int c = 0; c < channelsA; c += 4)
 		{
@@ -364,7 +394,7 @@ struct DVCO : Module {
 
 			pitchA = freqParamA;
 			pitchA += inputs[PITCH_A_INPUT].getVoltageSimd<float_4>(c);
-			
+
 			if (inputs[FM_A_INPUT].isConnected()) {
 				pitchA += fmParamA * inputs[FM_A_INPUT].getPolyVoltageSimd<float_4>(c);
 			}
@@ -391,9 +421,9 @@ struct DVCO : Module {
 			// }
 				sum+=va;
 		}
-			
-			
-		for (int c = 0; c < channelsB; c += 4) 
+
+
+		for (int c = 0; c < channelsB; c += 4)
 		{
 		//	auto *oscillator = &oscillator_b[c / 4];
 			oscillator_b->channels = std::min(channelsB - c, 4);
@@ -402,21 +432,21 @@ struct DVCO : Module {
 
 			float_4 pitchB = freqParamB;
 			pitchB += inputs[PITCH_B_INPUT].getVoltageSimd<float_4>(c);
-			
+
 			if (inputs[FM_B_INPUT].isConnected()) {
 				pitchB += fmParamB * inputs[FM_B_INPUT].getPolyVoltageSimd<float_4>(c);
 			}
 			if (inputs[FM2_B_INPUT].isConnected()) {
 				pitchB += fmParamB2 * inputs[FM2_B_INPUT].getPolyVoltageSimd<float_4>(c);
 			}
-			
+
 			oscillator_b->setPitch(pitchB);
 			oscillator_b->setPulseWidth(params[PW_B_PARAM].getValue() + params[PWM_B_PARAM].getValue() * inputs[PW_B_INPUT].getPolyVoltageSimd<float_4>(c) / 10.f);
 
 			oscillator_b->syncEnabled = inputs[SYNC_B_INPUT].isConnected();
 			oscillator_b->process(args.sampleTime, outputs[OSC_A_OUTPUT].getPolyVoltageSimd<float_4>(c));
-	
-		 	// if (outputs[OSC_B_OUTPUT].isConnected()||outputs[OSC_BN_OUTPUT].isConnected()||outputs[SUM_OUTPUT].isConnected()) 
+
+		 	// if (outputs[OSC_B_OUTPUT].isConnected()||outputs[OSC_BN_OUTPUT].isConnected()||outputs[SUM_OUTPUT].isConnected())
 			//  {
 				float_4 waveB = simd::clamp(waveParamB + inputs[WAVE_B_INPUT].getPolyVoltageSimd<float_4>(c) / 10.f * 3.f, 0.f, 3.f);
 				vb += oscillator_b->sin() * simd::fmax(0.f, 1.f - simd::fabs(waveB - 0.f));
@@ -437,17 +467,17 @@ struct DVCO : Module {
 		outputs[OSC_AN_OUTPUT].setChannels(channelsA);
 		outputs[OSC_BN_OUTPUT].setChannels(channelsB);
 
-		for (int c = 0; c < channelsB+channelsA; c += 8) 
+		for (int c = 0; c < channelsB+channelsA; c += 8)
 		{
 			if(outputs[SUM_OUTPUT].isConnected())
 			outputs[SUM_OUTPUT].setVoltageSimd(2.5f * sum, c);
 
 			if(outputs[RING_OUTPUT].isConnected())
-			{	
+			{
 				if(inputs[CARRIER_INPUT].isConnected()) va=inputs[CARRIER_INPUT].getPolyVoltageSimd<float_4>(c)/10.f;
 				if(inputs[MODULATOR_INPUT].isConnected()) vb=inputs[MODULATOR_INPUT].getPolyVoltageSimd<float_4>(c)/10.f;
 
-				outputs[RING_OUTPUT].setVoltageSimd(5*va*vb,c); 
+				outputs[RING_OUTPUT].setVoltageSimd(5*va*vb,c);
 			}
 		}
 		outputs[SUM_OUTPUT].setChannels(channelsA+channelsB);
@@ -458,12 +488,57 @@ struct DVCO : Module {
 };
 
 
-struct DVCOWidget : ModuleWidget 
+struct DVCOWidget : ModuleWidget
 {
-DVCOWidget(DVCO *module)  
+
+
+	SvgPanel* darkPanel;
+	struct PanelThemeItem : MenuItem {
+	  DVCO *module;
+	  int theme;
+	  void onAction(const event::Action &e) override {
+	    module->panelTheme = theme;
+	  }
+	  void step() override {
+	    rightText = (module->panelTheme == theme) ? "✔" : "";
+	  }
+	};
+	void appendContextMenu(Menu *menu) override {
+	  MenuLabel *spacerLabel = new MenuLabel();
+	  menu->addChild(spacerLabel);
+
+	  DVCO *module = dynamic_cast<DVCO*>(this->module);
+	  assert(module);
+
+	  MenuLabel *themeLabel = new MenuLabel();
+	  themeLabel->text = "Panel Theme";
+	  menu->addChild(themeLabel);
+
+	  PanelThemeItem *lightItem = new PanelThemeItem();
+	  lightItem->text = lightPanelID;
+	  lightItem->module = module;
+	  lightItem->theme = 0;
+	  menu->addChild(lightItem);
+
+	  PanelThemeItem *darkItem = new PanelThemeItem();
+	  darkItem->text = darkPanelID;
+	  darkItem->module = module;
+	  darkItem->theme = 1;
+	  menu->addChild(darkItem);
+
+	  menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+	}
+
+DVCOWidget(DVCO *module)
 {
 	setModule(module);
-	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/DVCO.svg")));
+	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/DVCO.svg")));
+	if (module) {
+    darkPanel = new SvgPanel();
+    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DVCO.svg")));
+    darkPanel->visible = false;
+    addChild(darkPanel);
+  }
 
 	float mid = (15*13)/2;
 	int jacks = 27;
@@ -479,7 +554,7 @@ DVCOWidget(DVCO *module)
 
 
 ///////////////////////////////////////port//////////////////////////////////////////////////
-	
+
 	addParam(createParam<MCKSSS2>(Vec(border, 260), module, DVCO::MODE_A_PARAM));
 	addParam(createParam<MCKSSS2>(Vec(border+jacks, 260), module, DVCO::SYNC_A_PARAM));
 	addParam(createParam<MCKSSS2>(Vec(box.size.x - 26, 260), module, DVCO::MODE_B_PARAM));
@@ -526,7 +601,7 @@ DVCOWidget(DVCO *module)
 
 	addInput(createInput<PJ301MOrPort>(Vec(mid-jacks-11,245),module, DVCO::CARRIER_INPUT));
 	addInput(createInput<PJ301MOrPort>(Vec(mid+10, 245),module, DVCO::MODULATOR_INPUT));
-	
+
 //////////////////////////////OUTPUTS////////////////////////////////////////////////////////////////
 
 	addOutput(createOutput<PJ301MOPort>(Vec(border-4, 225), module, DVCO::OSC_A_OUTPUT));
@@ -536,8 +611,15 @@ DVCOWidget(DVCO *module)
 	addOutput(createOutput<PJ301MOPort>(Vec(mid-14, 255), module, DVCO::SUM_OUTPUT));
 	addOutput(createOutput<PJ301MOPort>(Vec(mid-14, 225), module, DVCO::RING_OUTPUT));
 
-	
+
+}
+void step() override {
+  if (module) {
+	Widget* panel = getPanel();
+    panel->visible = ((((DVCO*)module)->panelTheme) == 0);
+    darkPanel->visible  = ((((DVCO*)module)->panelTheme) == 1);
+  }
+  Widget::step();
 }
 };
 Model *modelDVCO = createModel<DVCO, DVCOWidget>("DVCO");
-

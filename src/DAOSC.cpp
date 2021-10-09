@@ -1,3 +1,22 @@
+////////////////////////////////////////////////////////////////////////////
+// <Dual Analog Oscillator>
+// Copyright (C) <2019>  <Giovanni Ghisleni>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+/////////////////////////////////////////////////////////////////////////////
+
 #include "plugin.hpp"
 
 
@@ -159,9 +178,11 @@ struct DAOSC : Module {
 	sineOsc <8, 8, float_4> b_harmonic[10] = {};
 	sineOsc <8, 8, float_4> b_harmonicq[10] = {};
 
+	int panelTheme;
+
 	DAOSC(){
 	config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_sinS);
-	
+
 	 configParam(A_PITCH_PARAM,  -54.f, 54.f, 0.f, "Osc1 Frequency", " Hz", dsp::FREQ_SEMITONE, dsp::FREQ_C4);
      configParam(A_FINE_PARAM,  -1.f, 1.f, 0.f, "Osc1 Fine frequency");
      configParam(A_FOLD_PARAM,  0.0, 5.0, 0.0,"Fold");
@@ -179,10 +200,27 @@ struct DAOSC : Module {
      configParam(B_SQUARE_PARAM,  0.0, 1.0, 0.0,"Square Harmonic");
      configParam(B_FM_PARAM,  0.0, 1.0, 0.0,"Fm amount");
 	  configParam(B_FM2_PARAM,  0.0, 1.0, 0.0,"Fm2 amount");
-	
+		onReset();
+
+		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+
 	}
 
-	void process(const ProcessArgs &args) override 
+	  json_t *dataToJson() override {
+	    json_t *rootJ = json_object();
+
+	    // panelTheme
+	    json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+	    return rootJ;
+	    }
+	    void dataFromJson(json_t *rootJ) override {
+	      // panelTheme
+	      json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+	      if (panelThemeJ)
+	        panelTheme = json_integer_value(panelThemeJ);
+	    }
+
+	void process(const ProcessArgs &args) override
 	{
 
 	float_4 va=0.f;
@@ -220,7 +258,7 @@ struct DAOSC : Module {
 
 			pitchA = freqParamA;
 			pitchA += inputs[A_PITCH_INPUT].getVoltageSimd<float_4>(c);
-			
+
 			if (inputs[A_FM_INPUT].isConnected()) {
 				pitchA += fmParamA * inputs[A_FM_INPUT].getPolyVoltageSimd<float_4>(c);
 			}
@@ -230,10 +268,10 @@ struct DAOSC : Module {
 			}
 
 			osc_a->setPitch(pitchA);
-			osc_a->process(args.sampleTime, 0.f);		
+			osc_a->process(args.sampleTime, 0.f);
 			va+=osc_a->sin();
 	}
-		
+
 	for (int c = 0; c < channelsB; c += 4)
 	{
 			//	auto *oscillator = &oscillator_a[c / 4];
@@ -244,7 +282,7 @@ struct DAOSC : Module {
 
 			pitchB = freqParamB;
 			pitchB += inputs[B_PITCH_INPUT].getVoltageSimd<float_4>(c);
-			
+
 			if (inputs[B_FM_INPUT].isConnected()) {
 				pitchB += fmParamB * inputs[B_FM_INPUT].getPolyVoltageSimd<float_4>(c);
 			}
@@ -254,38 +292,38 @@ struct DAOSC : Module {
 			}
 
 			osc_b->setPitch(pitchB);
-			osc_b->process(args.sampleTime, 0.f);		
+			osc_b->process(args.sampleTime, 0.f);
 			vb+=osc_b->sin();
 	}
-		
- 
+
+
 
 	for (int i =0; i < 10; i++)
-	{ 
-		 
+	{
+
 		a_harmonic[i].freq=(((i+1)*2) * osc_a->freq);
 		a_harmonic[i].process(args.sampleTime, 0.f);
 
 		vaE+=(a_harmonic[i].sin()/(i+2))*params[A_SAW_PARAM].getValue();
 		if(inputs[A_SAW_INPUT].isConnected())
-			vaE *=clamp(inputs[A_SAW_INPUT].getVoltage()/10.f,-1.f,1.f);	
+			vaE *=clamp(inputs[A_SAW_INPUT].getVoltage()/10.f,-1.f,1.f);
 
 		a_harmonicq[i].freq=((((i+1)*2)+1) * osc_a->freq);
-		a_harmonicq[i].process(args.sampleTime, 0.f);	
+		a_harmonicq[i].process(args.sampleTime, 0.f);
 
 		vaO+=(a_harmonicq[i].sin()/(i+2))*params[A_SQUARE_PARAM].getValue();
 		if(inputs[A_SQUARE_INPUT].isConnected())
 			vaO *= clamp(inputs[A_SQUARE_INPUT].getVoltage() / 10.f, -1.f, 1.f);
 
 		b_harmonic[i].freq=(((i+1)*2) * osc_b->freq);
-		b_harmonic[i].process(args.sampleTime, 0.f);	
+		b_harmonic[i].process(args.sampleTime, 0.f);
 
 		vbE+=(b_harmonic[i].sin()/(i+2))*params[B_SAW_PARAM].getValue();
 		if(inputs[B_SAW_INPUT].isConnected())
 			vbE *= clamp(inputs[B_SAW_INPUT].getVoltage() / 10.f, -1.f, 1.f);
 
 		b_harmonicq[i].freq=((((i+1)*2)+1) * osc_b->freq);
-		b_harmonicq[i].process(args.sampleTime, 0.f);	
+		b_harmonicq[i].process(args.sampleTime, 0.f);
 
 		vbO+=(b_harmonicq[i].sin()/(i+2))*params[B_SQUARE_PARAM].getValue();
 		if(inputs[B_SQUARE_INPUT].isConnected())
@@ -299,7 +337,7 @@ struct DAOSC : Module {
 		float_4 sumDB;
 		float_4 sumDA;
 		float_4 a_outputf;
-		float_4 b_outputf; 
+		float_4 b_outputf;
 
 	/////////////////////////////////////////////////////////////////////////////
 
@@ -379,9 +417,54 @@ struct DAOSC : Module {
 };
 
 struct DAOSCWidget : ModuleWidget{
+
+
+	SvgPanel* darkPanel;
+	struct PanelThemeItem : MenuItem {
+	  DAOSC *module;
+	  int theme;
+	  void onAction(const event::Action &e) override {
+	    module->panelTheme = theme;
+	  }
+	  void step() override {
+	    rightText = (module->panelTheme == theme) ? "✔" : "";
+	  }
+	};
+	void appendContextMenu(Menu *menu) override {
+	  MenuLabel *spacerLabel = new MenuLabel();
+	  menu->addChild(spacerLabel);
+
+	  DAOSC *module = dynamic_cast<DAOSC*>(this->module);
+	  assert(module);
+
+	  MenuLabel *themeLabel = new MenuLabel();
+	  themeLabel->text = "Panel Theme";
+	  menu->addChild(themeLabel);
+
+	  PanelThemeItem *lightItem = new PanelThemeItem();
+	  lightItem->text = lightPanelID;
+	  lightItem->module = module;
+	  lightItem->theme = 0;
+	  menu->addChild(lightItem);
+
+	  PanelThemeItem *darkItem = new PanelThemeItem();
+	  darkItem->text = darkPanelID;
+	  darkItem->module = module;
+	  darkItem->theme = 1;
+	  menu->addChild(darkItem);
+
+	  menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+	}
+
 DAOSCWidget(DAOSC *module) {
 setModule(module);
-setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/DAOSC.svg")));
+setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/DAOSC.svg")));
+if (module) {
+	darkPanel = new SvgPanel();
+	darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DAOSC.svg")));
+	darkPanel->visible = false;
+	addChild(darkPanel);
+}
 
 int knob=42;
 int jack=30;
@@ -439,6 +522,14 @@ addInput(createInput<PJ301MCPort>(Vec(box.size.x-mid+10+jack*2, 230+down), modul
 addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid+10, 230+down), module, DAOSC::B_OUTPUT));
 
 addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid-12.5, 265+down), module, DAOSC::SUM_OUTPUT));
+}
+void step() override {
+  if (module) {
+	Widget* panel = getPanel();
+    panel->visible = ((((DAOSC*)module)->panelTheme) == 0);
+    darkPanel->visible  = ((((DAOSC*)module)->panelTheme) == 1);
+  }
+  Widget::step();
 }
 };
 Model *modelDAOSC = createModel<DAOSC, DAOSCWidget>("DAOSC");

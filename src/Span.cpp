@@ -1,7 +1,21 @@
-///////////////////////////////////////////////////
-//  dBiz SPan
-// 
-///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+// <Panner ;)>
+// Copyright (C) <2019>  <Giovanni Ghisleni>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+/////////////////////////////////////////////////////////////////////////////
 
 #include "plugin.hpp"
 
@@ -54,6 +68,8 @@ struct SPan : Module {
     float a2_in = 0.0f;
     float b2_in = 0.0f;
 
+    int panelTheme;
+
     SPan()
     {
       config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -63,9 +79,27 @@ struct SPan : Module {
       configParam(PAN_A_PARAM, 0.0, 1.0, 0.5, "Pan A");
       configParam(PAN_B_PARAM, 0.0, 1.0, 0.5, "Pan B");
       configParam(AUX_LEVEL_PARAM, 0.0, 1.0, 0.0, "Aux Level");
+      onReset();
+
+  		panelTheme = (loadDarkAsDefault() ? 1 : 0);
   }
 
-  void process(const ProcessArgs &args) override 
+    json_t *dataToJson() override {
+      json_t *rootJ = json_object();
+
+      // panelTheme
+      json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+      return rootJ;
+      }
+      void dataFromJson(json_t *rootJ) override {
+        // panelTheme
+        json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+        if (panelThemeJ)
+          panelTheme = json_integer_value(panelThemeJ);
+      }
+
+
+  void process(const ProcessArgs &args) override
   {
     aux_in_l=inputs[AUX_L_INPUT].getVoltage()*(params[AUX_LEVEL_PARAM].getValue()+inputs[AUX_LEVEL_INPUT].getVoltage()/5.f);
     aux_in_r=inputs[AUX_R_INPUT].getVoltage()*(params[AUX_LEVEL_PARAM].getValue()+inputs[AUX_LEVEL_INPUT].getVoltage()/5.f);
@@ -126,11 +160,55 @@ struct SPan : Module {
 };
 
 //////////////////////////////////////////////////////////////////
-struct SPanWidget : ModuleWidget 
+struct SPanWidget : ModuleWidget
 {
+
+
+  SvgPanel* darkPanel;
+  struct PanelThemeItem : MenuItem {
+    SPan *module;
+    int theme;
+    void onAction(const event::Action &e) override {
+      module->panelTheme = theme;
+    }
+    void step() override {
+      rightText = (module->panelTheme == theme) ? "✔" : "";
+    }
+  };
+  void appendContextMenu(Menu *menu) override {
+    MenuLabel *spacerLabel = new MenuLabel();
+    menu->addChild(spacerLabel);
+
+    SPan *module = dynamic_cast<SPan*>(this->module);
+    assert(module);
+
+    MenuLabel *themeLabel = new MenuLabel();
+    themeLabel->text = "Panel Theme";
+    menu->addChild(themeLabel);
+
+    PanelThemeItem *lightItem = new PanelThemeItem();
+    lightItem->text = lightPanelID;
+    lightItem->module = module;
+    lightItem->theme = 0;
+    menu->addChild(lightItem);
+
+    PanelThemeItem *darkItem = new PanelThemeItem();
+    darkItem->text = darkPanelID;
+    darkItem->module = module;
+    darkItem->theme = 1;
+    menu->addChild(darkItem);
+
+    menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+  }
 SPanWidget(SPan *module){
   setModule(module);
-  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/SPan.svg")));
+  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/SPan.svg")));
+  if (module) {
+    darkPanel = new SvgPanel();
+    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/SPan.svg")));
+    darkPanel->visible = false;
+    addChild(darkPanel);
+  }
 
   int knob = 40;
   int jack=30;
@@ -169,6 +247,14 @@ SPanWidget(SPan *module){
 
     addOutput(createOutput<PJ301MOPort>(Vec(2+(jack*3),300), module, SPan::L_OUTPUT));
     addOutput(createOutput<PJ301MOPort>(Vec(2+(jack*3),330), module, SPan::R_OUTPUT));
+}
+void step() override {
+  if (module) {
+    Widget* panel = getPanel();
+    panel->visible = ((((SPan*)module)->panelTheme) == 0);
+    darkPanel->visible  = ((((SPan*)module)->panelTheme) == 1);
+  }
+  Widget::step();
 }
 };
 Model *modelSPan = createModel<SPan, SPanWidget>("SPan");

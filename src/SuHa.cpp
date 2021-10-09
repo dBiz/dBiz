@@ -1,3 +1,22 @@
+////////////////////////////////////////////////////////////////////////////
+// <Sub harmonic OSC>
+// Copyright (C) <2019>  <Giovanni Ghisleni>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+/////////////////////////////////////////////////////////////////////////////
+
 #include "plugin.hpp"
 
 using simd::float_4;
@@ -65,7 +84,7 @@ struct subBank
 		// Wrap phase
 		phase -= simd::floor(phase);
 
-		
+
 		// Jump saw when crossing 0.5
 		T halfCrossing = (0.5f - (phase - deltaPhase)) / deltaPhase;
 		int halfMask = simd::movemask((0 < halfCrossing) & (halfCrossing <= 1.f));
@@ -141,7 +160,7 @@ struct SuHa : Module {
 		ENUMS(VCO_OUTPUT, 2),
 		ENUMS(SUB1_OUTPUT, 2),
 		ENUMS(SUB2_OUTPUT, 2),
-		NUM_OUTPUTS 
+		NUM_OUTPUTS
 	};
 	enum LightIds {
 		NUM_LIGHTS
@@ -151,8 +170,10 @@ struct SuHa : Module {
 	subBank <16,16,float_4> SUB1[2]={};
 	subBank <16,16,float_4> SUB2[2]={};
 
+	int panelTheme;
 
-	SuHa() 
+
+	SuHa()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
@@ -163,15 +184,30 @@ struct SuHa : Module {
 			configParam(VCO_PARAM+i,  -54.0, 54.0, 0.0,"Freq");
 			configParam(VCO_OCT_PARAM + i, -3.0, 2.0, 0.0, "Octave Select");
 			configParam(SUB1_PARAM+i,  1.0, 15.0, 1.0,"Sub1");
-			configParam(SUB2_PARAM+i,  1.0, 15.0, 1.0,"Sub2"); 
+			configParam(SUB2_PARAM+i,  1.0, 15.0, 1.0,"Sub2");
 			configParam(VCO_VOL_PARAM+i,  0.0, 1.0, 0.0,"Main Vol");
 			configParam(SUB1_VOL_PARAM+i,  0.0, 1.0, 0.0,"Sub 1 Vol");
 			configParam(SUB2_VOL_PARAM+i,  0.0, 1.0, 0.0,"Sub 2 Vol");
+			onReset();
+
+			panelTheme = (loadDarkAsDefault() ? 1 : 0);
+		}
+	}
+	json_t *dataToJson() override {
+		json_t *rootJ = json_object();
+
+		// panelTheme
+		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+		return rootJ;
+		}
+		void dataFromJson(json_t *rootJ) override {
+			// panelTheme
+			json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+			if (panelThemeJ)
+				panelTheme = json_integer_value(panelThemeJ);
 		}
 
-	}
-
-	void process(const ProcessArgs &args) override 
+	void process(const ProcessArgs &args) override
    {
 
 		int s1[2]={};
@@ -183,14 +219,14 @@ struct SuHa : Module {
 		float octave[2];
 
 		for (int i=0;i<2;i++)
-		{	
-		
+		{
+
 		octave[i]=round(params[VCO_OCT_PARAM+i].getValue());
 		freq[i]=params[VCO_PARAM+i].getValue()/12.f;
 		pitch[i]=freq[i]+octave[i];
 		pitch[i]+=inputs[VCO_INPUT + i].getVoltageSimd<float_4>(0);
 
-		
+
 		s1[i] = round(params[SUB1_PARAM+i].getValue() + clamp(inputs[SUB1_INPUT+i].getVoltage(), -15.0f, 15.0f));
 		if (s1[i]>15) s1[i]=15;
 		if (s1[i]<=1) s1[i]=1;
@@ -218,16 +254,60 @@ struct SuHa : Module {
 		}
 
 
-		outputs[SUM_OUTPUT].setVoltageSimd(sum,0);
+		outputs[SUM_OUTPUT].setVoltageSimd(sum*params[SUM_VOL_PARAM].getValue(),0);
 
 	}
 };
 
 
 struct SuHaWidget : ModuleWidget {
+
+
+	SvgPanel* darkPanel;
+	struct PanelThemeItem : MenuItem {
+	  SuHa *module;
+	  int theme;
+	  void onAction(const event::Action &e) override {
+	    module->panelTheme = theme;
+	  }
+	  void step() override {
+	    rightText = (module->panelTheme == theme) ? "✔" : "";
+	  }
+	};
+	void appendContextMenu(Menu *menu) override {
+	  MenuLabel *spacerLabel = new MenuLabel();
+	  menu->addChild(spacerLabel);
+
+	  SuHa *module = dynamic_cast<SuHa*>(this->module);
+	  assert(module);
+
+	  MenuLabel *themeLabel = new MenuLabel();
+	  themeLabel->text = "Panel Theme";
+	  menu->addChild(themeLabel);
+
+	  PanelThemeItem *lightItem = new PanelThemeItem();
+	  lightItem->text = lightPanelID;
+	  lightItem->module = module;
+	  lightItem->theme = 0;
+	  menu->addChild(lightItem);
+
+	  PanelThemeItem *darkItem = new PanelThemeItem();
+	  darkItem->text = darkPanelID;
+	  darkItem->module = module;
+	  darkItem->theme = 1;
+	  menu->addChild(darkItem);
+
+	  menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+	}
 	SuHaWidget(SuHa *module){
 		setModule(module);
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/SuHa.svg")));
+		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/SuHa.svg")));
+		if (module) {
+	    darkPanel = new SvgPanel();
+	    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/SuHa.svg")));
+	    darkPanel->visible = false;
+	    addChild(darkPanel);
+	  }
 
 		int KS=44;
 		int JS = 32;
@@ -250,10 +330,10 @@ struct SuHaWidget : ModuleWidget {
 			addParam(createParam<DKnob>(Vec(Side + 25 + 2 * 40, 47 +i*100), module, SuHa::SUB2_PARAM +i));
 
 
-			addParam(createParam<Trimpot>(Vec(Side + 38, 20 + i*34*3), module, SuHa::VCO_VOL_PARAM +i));
-			addParam(createParam<Trimpot>(Vec(Side + 38 + 40, 20 + i*34*3), module, SuHa::SUB1_VOL_PARAM +i));
-			addParam(createParam<Trimpot>(Vec(Side + 38 + 2 * 40, 20 + i*34*3), module, SuHa::SUB2_VOL_PARAM +i));
-			
+			addParam(createParam<Trim>(Vec(Side + 38, 20 + i*34*3), module, SuHa::VCO_VOL_PARAM +i));
+			addParam(createParam<Trim>(Vec(Side + 38 + 40, 20 + i*34*3), module, SuHa::SUB1_VOL_PARAM +i));
+			addParam(createParam<Trim>(Vec(Side + 38 + 2 * 40, 20 + i*34*3), module, SuHa::SUB2_VOL_PARAM +i));
+
 		}
 			addInput(createInput<PJ301MVAPort>(Vec(Side + 17, 240+0*JS),  module, SuHa::VCO_INPUT +0));
 			addInput(createInput<PJ301MVAPort>(Vec(Side + 17, 240+1*JS),  module, SuHa::VCO_INPUT +1));
@@ -278,8 +358,16 @@ struct SuHaWidget : ModuleWidget {
 			addParam(createParam<SDKnob>(Vec(Side + 90, 202), module, SuHa::SUM_VOL_PARAM));
 			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 60, 205),  module, SuHa::SUM_OUTPUT));
 
-		
+
 			//////////////////////////////////////////////////////////////////////////////////////////////////////
+	}
+	void step() override {
+	  if (module) {
+		Widget* panel = getPanel();
+	    panel->visible = ((((SuHa*)module)->panelTheme) == 0);
+	    darkPanel->visible  = ((((SuHa*)module)->panelTheme) == 1);
+	  }
+	  Widget::step();
 	}
 };
 
