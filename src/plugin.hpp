@@ -196,6 +196,18 @@ struct VerboL : VerboLarge
 	}
 };
 
+struct VerboDL : VerboLarge
+{
+	VerboDL()
+	{
+		minAngle = -0.83 * M_PI;
+		maxAngle = 0.83 * M_PI;
+
+		setSvg(Svg::load(asset::plugin(pluginInstance,"res/component/VerboL.svg")));
+		bg->setSvg(Svg::load(asset::plugin(pluginInstance,"res/component/VerboDL.svg")));
+	}
+};
+
 struct VerboSmall : app::SVGKnob
 {
 	widget::SvgWidget* bg;
@@ -263,18 +275,6 @@ struct VerboXS : app::SVGKnob
 		setSvg(Svg::load(asset::plugin(pluginInstance,"res/component/VerboXS.svg")));
 		bg->setSvg(Svg::load(asset::plugin(pluginInstance,"res/component/VerboXS-bg.svg")));
 		fg->setSvg(Svg::load(asset::plugin(pluginInstance,"res/component/VerboXS-cap.svg")));
-	}
-};
-
-struct VerboDL : app::SVGKnob
-{
-	VerboDL()
-	{
-		minAngle = -0.83 * M_PI;
-		maxAngle = 0.83 * M_PI;
-
-		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/component/VerboDL.svg")));
-		box.size = Vec(80, 80);
 	}
 };
 

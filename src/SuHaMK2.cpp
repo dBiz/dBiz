@@ -431,28 +431,28 @@ struct SuHaMK2Widget : ModuleWidget {
 			addParam(createParam<Trim>(Vec(Side + 40 + 2 * 40, 35 + i*90), module, SuHaMK2::SUB2_VOL_PARAM +i));
  
 		} 
-			addInput(createInput<PJ301MCPort>(Vec(Side + 17, 240+0*JS),  module, SuHaMK2::VCO_INPUT +0));
-			addInput(createInput<PJ301MCPort>(Vec(Side + 17, 240+1*JS),  module, SuHaMK2::VCO_INPUT +1));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 17, 240+0*JS),  module, SuHaMK2::VCO_INPUT +0));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 17, 240+1*JS),  module, SuHaMK2::VCO_INPUT +1));
 
-			addInput(createInput<PJ301MCPort>(Vec(Side + 17 + KS, 240+0*JS),  module, SuHaMK2::SUB1_INPUT +0));
-			addInput(createInput<PJ301MCPort>(Vec(Side + 17 + KS, 240+1*JS),  module, SuHaMK2::SUB1_INPUT +1));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 17 + KS, 240+0*JS),  module, SuHaMK2::SUB1_INPUT +0));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 17 + KS, 240+1*JS),  module, SuHaMK2::SUB1_INPUT +1));
  
-			addInput(createInput<PJ301MCPort>(Vec(Side + 17 + 2 * KS, 240+0*JS),  module, SuHaMK2::SUB2_INPUT +0));
-			addInput(createInput<PJ301MCPort>(Vec(Side + 17 + 2 * KS, 240+1*JS),  module, SuHaMK2::SUB2_INPUT +1));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 17 + 2 * KS, 240+0*JS),  module, SuHaMK2::SUB2_INPUT +0));
+			addInput(createInput<PJ301MVAPort>(Vec(Side + 17 + 2 * KS, 240+1*JS),  module, SuHaMK2::SUB2_INPUT +1));
 
  
-			addOutput(createOutput<PJ301MOPort>(Vec(Side + 17, 240 + 2 * JS+0*JS),  module, SuHaMK2::VCO_OUTPUT +0));
-			addOutput(createOutput<PJ301MOPort>(Vec(Side + 17, 240 + 2 * JS+1*JS),  module, SuHaMK2::VCO_OUTPUT +1));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 17, 240 + 2 * JS+0*JS),  module, SuHaMK2::VCO_OUTPUT +0));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 17, 240 + 2 * JS+1*JS),  module, SuHaMK2::VCO_OUTPUT +1));
  
-			addOutput(createOutput<PJ301MOPort>(Vec(Side + 17 + KS, 240 + 2 * JS+0*JS),  module, SuHaMK2::SUB1_OUTPUT +0));
-			addOutput(createOutput<PJ301MOPort>(Vec(Side + 17 + KS, 240 + 2 * JS+1*JS),  module, SuHaMK2::SUB1_OUTPUT +1));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 17 + KS, 240 + 2 * JS+0*JS),  module, SuHaMK2::SUB1_OUTPUT +0));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 17 + KS, 240 + 2 * JS+1*JS),  module, SuHaMK2::SUB1_OUTPUT +1));
  
-			addOutput(createOutput<PJ301MOPort>(Vec(Side + 17 + 2 * KS, 240 + 2 * JS+0*JS),  module, SuHaMK2::SUB2_OUTPUT +0));
-			addOutput(createOutput<PJ301MOPort>(Vec(Side + 17 + 2 * KS, 240 + 2 * JS+1*JS),  module, SuHaMK2::SUB2_OUTPUT +1));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 17 + 2 * KS, 240 + 2 * JS+0*JS),  module, SuHaMK2::SUB2_OUTPUT +0));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 17 + 2 * KS, 240 + 2 * JS+1*JS),  module, SuHaMK2::SUB2_OUTPUT +1));
  
  
 			addParam(createParam<SDKnob>(Vec(Side + 90, 202), module, SuHaMK2::SUM_VOL_PARAM));
-			addOutput(createOutput<PJ301MOrPort>(Vec(Side + 30, 205),  module, SuHaMK2::SUM_OUTPUT));
+			addOutput(createOutput<PJ301MVAPort>(Vec(Side + 30, 205),  module, SuHaMK2::SUM_OUTPUT));
 
 
 			//////////////////////////////////////////////////////////////////////////////////////////////////////
