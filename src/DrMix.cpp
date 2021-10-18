@@ -75,7 +75,7 @@ struct DrMix : Module {
     {
     configParam(CH_PARAM + i,  0.0, M_SQRT2, 1.0, "Ch level", " dB", -10, 40);
     configParam(CH_PAN_PARAM + i,  0.0, 1.0, 0.5,"Ch Pan", "%", 0, 100);
-    configParam(MUTE_PARAM + i,  0.0, 1.0, 0.0,"Ch Mute","%", 0, 1);
+    configButton(MUTE_PARAM + i);
 
     }
 
@@ -131,7 +131,7 @@ json_t *dataToJson() override {
     out_L=0.0f;
     out_R=0.0f;
 
-for  (int i = 0 ; i < 6; i++)
+    for  (int i = 0 ; i < 6; i++)
       {
 
         if (mute_triggers[i].process(params[MUTE_PARAM + i].getValue()))
@@ -146,62 +146,58 @@ for  (int i = 0 ; i < 6; i++)
     for(int i=0;i<6;i++)
     {
       
-        pan_pos[i] = params[CH_PAN_PARAM+i].getValue();      
-        ch_in[i] = (inputs[CH_IN+i].getVoltage() * std::pow(params[CH_PARAM+i].getValue(),2.f));
-        outL[i] = ch_in[i] * (1 - pan_pos[i]);
-        outR[i] = ch_in[i] * pan_pos[i];
-      
+      pan_pos[i] = params[CH_PAN_PARAM+i].getValue();      
+      ch_in[i] = (inputs[CH_IN+i].getVoltage() * std::pow(params[CH_PARAM+i].getValue(),2.f));
+      outL[i] = ch_in[i] * (1 - pan_pos[i]);
+      outR[i] = ch_in[i] * pan_pos[i];
       vuBars[i].process(args.sampleTime, ch_in[i] / 5.0);
     
       if (mute_states[i] )
-      {
-        ch_in[i]=0.0f;
-        outL[i] = 0.0f;
-        outR[i] = 0.0f;
-      }
+        {
+          ch_in[i]=0.0f;
+          outL[i] = 0.0f;
+          outR[i] = 0.0f;
+        }
 
-  if (lightCounter.process())
-    {
-      for(int i=0;i<6;i++){
-
-          for (int l =0; l < 6; l++)
+      if (lightCounter.process())
+        {
+          for(int i=0;i<6;i++)
           {
-            lights[METER_LIGHT + (i * 6)+l].setBrightness(vuBars[i].getBrightness(-3.f * (l + 1), -3.f * l));
+            for (int l =0; l < 6; l++)
+            {
+              lights[METER_LIGHT + (i * 6)+l].setBrightness(vuBars[i].getBrightness(-3.f * (l + 1), -3.f * l));
+            }
           }
         }
-    }
-  
       out_L+=outL[i];
       out_R+=outR[i];
-  
-
+    }
+    
 
 ////////////////////////////////////////////////////////////////////////////
-
+/*
       if(rightExpander.module && rightExpander.module->model == modelDrMixExt)
       {
-	     float *messagestoExpander =  (float*)rightExpander.module->leftExpander.producerMessage;
-       float *messagesfromExpander = (float*)rightExpander.consumerMessage;
-       
+	      float *messagestoExpander =  (float*)rightExpander.module->leftExpander.producerMessage;
+        float *messagesfromExpander = (float*)rightExpander.consumerMessage;      
         messagestoExpander[i]=outL[i]; 
-        messagestoExpander[6+i]=outR[i];
-    
+        messagestoExpander[i+6]=outR[i];
+      
         out_L+=messagesfromExpander[0];
         out_L+=messagesfromExpander[2];
         out_R+=messagesfromExpander[1];
         out_R+=messagesfromExpander[3];
-    
+
+        
         rightExpander.module->leftExpander.messageFlipRequested = true;
       }
-//////////////////////////////////////////////////////////////////////////
     }
+    */
+//////////////////////////////////////////////////////////////////////////
+    
 
      outputs[L_OUTPUT].setVoltage((out_L/2.0f)* std::pow(params[OUT_PARAM].getValue(),2.f));
-     outputs[R_OUTPUT].setVoltage((out_R/2.0f)* std::pow(params[OUT_PARAM].getValue(),2.f));   
- 
- 
-
- 
+     outputs[R_OUTPUT].setVoltage((out_R/2.0f)* std::pow(params[OUT_PARAM].getValue(),2.f));  
   }
 
 

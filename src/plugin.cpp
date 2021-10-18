@@ -17,7 +17,7 @@ void init(rack::Plugin *p)
   p->addModel(modelBenePads);
   p->addModel(modelPerfMixer);
   p->addModel(modelDrMix);
-  p->addModel(modelDrMixExt);
+ // p->addModel(modelDrMixExt);
   p->addModel(modelVCA4);
   p->addModel(modelVCA530);
   p->addModel(modelRemix);

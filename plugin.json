@@ -76,12 +76,6 @@
         },
 
         {
-            "slug": "DrMixExt",
-            "name": "DrMixExt",
-            "tags": ["Mixer", "VCA"]
-        },
-
-        {
             "slug": "Remix",
             "name": "Remix",
             "tags": ["Mixer", "VCA"]
