@@ -23,7 +23,7 @@ extern Model *modelBene;
 extern Model *modelBenePads;
 extern Model *modelPerfMixer;
 extern Model *modelDrMix;
-extern Model *modelDrMixExt;
+// extern Model *modelDrMixExt;
 extern Model *modelRemix;
 extern Model *modelSmixer;
 extern Model *modelVCA4;
