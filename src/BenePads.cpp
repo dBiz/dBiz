@@ -56,7 +56,7 @@ struct BenePads : Module {
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
     for (int i=0; i<16;i++)
     {
-      configParam(BUTTON_PARAM + i, 0.0, 1.0, 0.0 ,"Triggers");
+      configButton(BUTTON_PARAM + i,"Triggers");
     }
 
     leftExpander.producerMessage = producerMessage;
@@ -196,9 +196,7 @@ BenePadsWidget(BenePads *module){
     {
       for ( int j = 0 ; j < 4 ; j++)
       {
-
-        addParam(createParam<BPush>(Vec(2+button_offset + left + column_spacing * i - 10,2+ top + row_spacing * j + 170), module, BenePads::BUTTON_PARAM + i + j * 4));
-        addChild(createLight<BigLight<OrangeLight>>(Vec(+button_offset + left + column_spacing * i - 10 + 4.5, top + row_spacing * j + 170 + 4.5), module, BenePads::PAD_LIGHT + i + j * 4));
+        addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(2+button_offset + left + column_spacing * i - 10,2+ top + row_spacing * j + 170),module,BenePads::BUTTON_PARAM + i + j * 4, BenePads::PAD_LIGHT + i + j * 4));
       }
 
     }

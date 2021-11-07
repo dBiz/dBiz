@@ -765,9 +765,11 @@ BeneWidget(Bene *module){
     for ( int j = 0 ; j < 4 ; j++)
     {
       addParam(createParam<VerboDS>(Vec(left+column_spacing * i +1 , top2 + row_spacing * j + 150 ), module, Bene::KNOB_PARAM + i + j * 4));
-      addParam(createParam<LEDButton>(Vec(left + column_spacing * i + 8, top2 + row_spacing * j + 150 + 8), module, Bene::GRID_PARAM + i + j * 4));
-      addChild(createLight<HugeLight<OrangeLight>>(Vec(left + column_spacing * i + 6.5, top2 + row_spacing * j + 150 + 5.5), module, Bene::GRID_LIGHTS + i + j * 4));
-    }
+
+
+      
+      addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(left + column_spacing * i + 8, top2 + row_spacing * j + 150 + 6), module, Bene::GRID_PARAM + i + j * 4,Bene::GRID_LIGHTS + i + j * 4));
+     }
 	}
     addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 0+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + 0));
     addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 1+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + 1));

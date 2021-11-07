@@ -119,7 +119,7 @@ struct PerfMixer : Module {
       configParam(PAN_PARAM + i,  0.0, 1.0, 0.5,"Ch Pan", "%", 0, 100);
       configParam(AUX_1_PARAM + i,  0.0, 1.0, 0.0,"Send 1 Level", "%", 0, 100);
       configParam(AUX_2_PARAM + i,  0.0, 1.0, 0.0,"Send 2 Level", "%", 0, 100);
-      configParam(MUTE_PARAM + i,  0.0, 1.0, 0.0,"Mute", "%", 0, 1);
+      configButton(MUTE_PARAM + i,"Mute ch");
 
     }
    lightCounter.setDivision(256);
@@ -156,7 +156,6 @@ void process(const ProcessArgs &args) override {
 
         if (mute_triggers[i].process(params[MUTE_PARAM + i].getValue()+inputs[CH_MUTE_INPUT+i].getVoltage()))
           {
-           // mute_states[i] ^= true;
            mute_states[i] = !mute_states[i];
           }
 
@@ -319,14 +318,6 @@ void process(const ProcessArgs &args) override {
       panelTheme = json_integer_value(panelThemeJ);
   }
 
-};
-template <typename BASE>
-struct MuteLight : BASE
-{
-  MuteLight()
-  {
-    this->box.size = Vec(17.0, 17.0);
-  }
 };
 
 template <typename BASE>
@@ -494,8 +485,8 @@ PerfMixerWidget(PerfMixer *module){
 
       ////////////////////////////////////////////////////////
 
-      addParam(createParam<LEDB>(Vec(column_1 + column_spacing * i + 3, top_row + row_spacing * 7 + 10.5 + top -4 ), module, PerfMixer::MUTE_PARAM + i));
-      addChild(createLight<MuteLight<BlueLight>>(Vec(column_1 + column_spacing * i + 4.5, top_row + row_spacing * 7 + 12 + top -4 ), module, PerfMixer::MUTE_LIGHT + i));
+      addParam(createLightParam<LEDLightBezel<BlueLight>>(Vec(column_1 + column_spacing * i + 3, top_row + row_spacing * 7 + 10.5 + top -4 ), module, PerfMixer::MUTE_PARAM + i,PerfMixer::MUTE_LIGHT + i));
+
 
       addChild(createLight<MeterLight<PurpleLight>>(Vec(column_1 + 19 + column_spacing * i - 5, top_row + row_spacing * 2 - 27 + top + 7.5), module, PerfMixer::METERL_LIGHT + (11 * i)));
       addChild(createLight<MeterLight<PurpleLight>>(Vec(column_1 + 19 + column_spacing * i - 5, top_row + row_spacing * 2 - 27 + top + 7.5 * 2), module, PerfMixer::METERL_LIGHT + 1 + (11 * i)));

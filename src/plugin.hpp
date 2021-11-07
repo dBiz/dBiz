@@ -23,7 +23,7 @@ extern Model *modelBene;
 extern Model *modelBenePads;
 extern Model *modelPerfMixer;
 extern Model *modelDrMix;
-// extern Model *modelDrMixExt;
+extern Model *modelPerfMixer4;
 extern Model *modelRemix;
 extern Model *modelSmixer;
 extern Model *modelVCA4;
@@ -407,12 +407,14 @@ struct LRoundWhy : RoundWhy
 		bg->setSvg(Svg::load(asset::plugin(pluginInstance,"res/component/LRoundWhite-bg.svg")));
 	}
 };
-struct HRoundWhy : RoundWhy
+struct HRoundWhy : SmallKnob
 {
 	HRoundWhy()
 	{
 
-		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/component/HRoundWhy.svg")));
+		setSvg(Svg::load(asset::plugin(pluginInstance, "res/component/HRoundWhite.svg")));
+		bg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/component/HRoundWhite-bg.svg")));
+		fg->setSvg(Svg::load(asset::plugin(pluginInstance, "res/component/HRoundWhite-fg.svg")));
 	}
 };
 
@@ -585,6 +587,8 @@ struct BigLight : BASE
 {
 	BigLight()
 	{
+		this->borderColor = color::BLACK_TRANSPARENT;
+		this->bgColor = color::BLACK_TRANSPARENT;
 		this->box.size = Vec(20, 20);
 	}
 };
@@ -594,6 +598,8 @@ struct HugeLight : BASE
 {
 	HugeLight()
 	{
+		this->borderColor = color::BLACK_TRANSPARENT;
+		this->bgColor = color::BLACK_TRANSPARENT;
 		this->box.size = Vec(24, 24);
 	}
 };

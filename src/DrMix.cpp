@@ -65,73 +65,66 @@ struct DrMix : Module {
 
     int panelTheme;
 
-    float consumerMessage[4] = {};// this module must read from here
-	  float producerMessage[12] = {};// mother will write into here
 
   DrMix() 
   {
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
     for(int i=0;i<6;i++)
     {
-    configParam(CH_PARAM + i,  0.0, M_SQRT2, 1.0, "Ch level", " dB", -10, 40);
-    configParam(CH_PAN_PARAM + i,  0.0, 1.0, 0.5,"Ch Pan", "%", 0, 100);
-    configButton(MUTE_PARAM + i);
-
+		configParam(CH_PARAM + i,  0.0, M_SQRT2, 1.0, "Ch level", " dB", -10, 40);
+		configParam(CH_PAN_PARAM + i,  0.0, 1.0, 0.5,"Ch Pan", "%", 0, 100);
+		configButton(MUTE_PARAM + i);
     }
-
+	
     configParam(OUT_PARAM,  0.0, M_SQRT2, 1.0, "Out Level", "%", 0, 100);
     
     lightCounter.setDivision(256);
 
-    rightExpander.producerMessage = producerMessage;
-		rightExpander.consumerMessage = consumerMessage;
-
     onReset();
-
     panelTheme = (loadDarkAsDefault() ? 1 : 0);
   }
 
-json_t *dataToJson() override {
-	    json_t *rootJ = json_object();
+	json_t *dataToJson() override 
+	{
+	  json_t *rootJ = json_object();
       // mutes 
       json_t *mute_statesJ = json_array();
-    for (int i = 0; i < 6; i++)
-    {
-      json_t *mute_stateJ = json_boolean(mute_states[i]);
-      json_array_append_new(mute_statesJ, mute_stateJ);
-    }
-    json_object_set_new(rootJ, "mutes", mute_statesJ);
-
-
+		for (int i = 0; i < 6; i++)
+		{
+			json_t *mute_stateJ = json_boolean(mute_states[i]);
+			json_array_append_new(mute_statesJ, mute_stateJ);
+		}
+		json_object_set_new(rootJ, "mutes", mute_statesJ);
 	    // panelTheme
 	    json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
 	    return rootJ;
-	    }
+	}
 
-	    void dataFromJson(json_t *rootJ) override {
+	void dataFromJson(json_t *rootJ) override 
+	{
         // mute states
-    json_t *mute_statesJ = json_object_get(rootJ, "mutes");
-    if (mute_statesJ)
-    {
-      for (int i = 0; i < 6; i++)
-      {
-        json_t *mute_stateJ = json_array_get(mute_statesJ, i);
-        if (mute_stateJ)
-          mute_states[i] = json_boolean_value(mute_stateJ);
-      }
-    }
+		json_t *mute_statesJ = json_object_get(rootJ, "mutes");
+		if (mute_statesJ)
+		{
+			for (int i = 0; i < 6; i++)
+			{
+				json_t *mute_stateJ = json_array_get(mute_statesJ, i);
+				if (mute_stateJ)
+				mute_states[i] = json_boolean_value(mute_stateJ);
+			}
+		}
 	      // panelTheme
 	      json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
 	      if (panelThemeJ)
 	        panelTheme = json_integer_value(panelThemeJ);
-	    }
+	}
 
   void process(const ProcessArgs &args) override 
   {
     out_L=0.0f;
     out_R=0.0f;
 
-    for  (int i = 0 ; i < 6; i++)
+	for  (int i = 0 ; i < 6; i++)
       {
 
         if (mute_triggers[i].process(params[MUTE_PARAM + i].getValue()))
@@ -146,62 +139,42 @@ json_t *dataToJson() override {
     for(int i=0;i<6;i++)
     {
       
-      pan_pos[i] = params[CH_PAN_PARAM+i].getValue();      
-      ch_in[i] = (inputs[CH_IN+i].getVoltage() * std::pow(params[CH_PARAM+i].getValue(),2.f));
-      outL[i] = ch_in[i] * (1 - pan_pos[i]);
-      outR[i] = ch_in[i] * pan_pos[i];
-      vuBars[i].process(args.sampleTime, ch_in[i] / 5.0);
-    
-      if (mute_states[i] )
-        {
-          ch_in[i]=0.0f;
-          outL[i] = 0.0f;
-          outR[i] = 0.0f;
-        }
-
-      if (lightCounter.process())
-        {
-          for(int i=0;i<6;i++)
-          {
-            for (int l =0; l < 6; l++)
-            {
-              lights[METER_LIGHT + (i * 6)+l].setBrightness(vuBars[i].getBrightness(-3.f * (l + 1), -3.f * l));
-            }
-          }
-        }
-      out_L+=outL[i];
-      out_R+=outR[i];
-    }
-    
-
-////////////////////////////////////////////////////////////////////////////
-/*
-      if(rightExpander.module && rightExpander.module->model == modelDrMixExt)
-      {
-	      float *messagestoExpander =  (float*)rightExpander.module->leftExpander.producerMessage;
-        float *messagesfromExpander = (float*)rightExpander.consumerMessage;      
-        messagestoExpander[i]=outL[i]; 
-        messagestoExpander[i+6]=outR[i];
+        pan_pos[i] = params[CH_PAN_PARAM+i].getValue();      
+        ch_in[i] = (inputs[CH_IN+i].getVoltage() * std::pow(params[CH_PARAM+i].getValue(),2.f));
+        outL[i] = ch_in[i] * (1 - pan_pos[i]);
+        outR[i] = ch_in[i] * pan_pos[i];
       
-        out_L+=messagesfromExpander[0];
-        out_L+=messagesfromExpander[2];
-        out_R+=messagesfromExpander[1];
-        out_R+=messagesfromExpander[3];
-
-        
-        rightExpander.module->leftExpander.messageFlipRequested = true;
-      }
-    }
-    */
-//////////////////////////////////////////////////////////////////////////
+		vuBars[i].process(args.sampleTime, ch_in[i] / 5.0);
     
+		if (mute_states[i] )
+		{
+			ch_in[i]=0.0f;
+			outL[i] = 0.0f;
+			outR[i] = 0.0f;
+		}
+
+		if (lightCounter.process())
+		{
+			for(int i=0;i<6;i++)
+			{
+
+				for (int l =0; l < 6; l++)
+				{
+					lights[METER_LIGHT + (i * 6)+l].setBrightness(vuBars[i].getBrightness(-3.f * (l + 1), -3.f * l));
+				}
+			}
+		}
+  
+		out_L+=outL[i];
+		out_R+=outR[i];
+
+    }
 
      outputs[L_OUTPUT].setVoltage((out_L/2.0f)* std::pow(params[OUT_PARAM].getValue(),2.f));
-     outputs[R_OUTPUT].setVoltage((out_R/2.0f)* std::pow(params[OUT_PARAM].getValue(),2.f));  
+     outputs[R_OUTPUT].setVoltage((out_R/2.0f)* std::pow(params[OUT_PARAM].getValue(),2.f));   
   }
-
-
 };
+
 template <typename BASE>
 struct MeterLight : BASE
 {

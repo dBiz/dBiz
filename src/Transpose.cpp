@@ -174,9 +174,9 @@ TransposeWidget(Transpose *module){
 
    addParam(createParam<FlatASnap>(Vec(2, 15), module, Transpose::OCTAVE_SHIFT_1));
    addParam(createParam<FlatASnap>(Vec(2, 75), module, Transpose::OCTAVE_SHIFT_2));
-   addParam(createParam<FlatGSnap>(Vec(2, 135), module, Transpose::SEMITONE_SHIFT_1));
-   addParam(createParam<FlatGSnap>(Vec(2, 195), module, Transpose::SEMITONE_SHIFT_2));
-   addParam(createParam<FlatR>(Vec(2, 255), module, Transpose::FINE_SHIFT_1));
+   addParam(createParam<FlatASnap>(Vec(2, 135), module, Transpose::SEMITONE_SHIFT_1));
+   addParam(createParam<FlatASnap>(Vec(2, 195), module, Transpose::SEMITONE_SHIFT_2));
+   addParam(createParam<FlatA>(Vec(2, 255), module, Transpose::FINE_SHIFT_1));
    //addParam(createParam<FlatR>(Vec(2, 315), module, Transpose::FINE_SHIFT_2));
 
    addInput(createInput<PJ301MIPort>(Vec(3, 2 + 45),  module, Transpose::OCTAVE_SHIFT_1_INPUT));

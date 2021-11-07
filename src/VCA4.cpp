@@ -59,7 +59,7 @@ struct VCA4 : Module {
         for(int i=0;i<16;i++)
         {
             configParam(CV_PARAM,  0.0, 1.0, 0.0,"Ch Cv");
-            configParam(MUTE_PARAM,  0.0, 1.0, 0.0,"Mute Ch");
+            configButton(MUTE_PARAM,"Mute Ch");
         }
         onReset();
 
@@ -230,8 +230,9 @@ for (int i = 0; i < 4; i++)
     for ( int j = 0 ; j < 4 ; j++)
     {
 
-        addParam(createParam<LEDB>(Vec(button_offset + left + column_spacing * i+138, top + row_spacing * j + 170), module, VCA4::MUTE_PARAM + i + j * 4));
-        addChild(createLight<MixLight<OrangeLight>>(Vec(button_offset + column_spacing * i+141, top + row_spacing * j + 171 ), module, VCA4::MUTE_LIGHT + i + j * 4));
+
+        addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(button_offset + left + column_spacing * i+138, top + row_spacing * j + 170), module, VCA4::MUTE_PARAM + i + j * 4, VCA4::MUTE_LIGHT + i + j * 4));
+        
         addParam(createParam<Trim>(Vec(10+column_spacing * i, top + row_spacing * j + 170), module, VCA4::CV_PARAM + i + j * 4));
     }
   }

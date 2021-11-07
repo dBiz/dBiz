@@ -326,15 +326,6 @@ int panelTheme;
 }
 };
 
-template <typename BASE>
-struct ChordLight : BASE
-{
-  ChordLight()
-  {
-    this->box.size = mm2px(Vec(5, 5));
-  }
-};
-//////////////////////////////////////////////////////////////////
 struct ChordWidget : ModuleWidget
 {
 
@@ -409,9 +400,9 @@ int space = 40;
 
 
 
-  addParam(createParam<FlatG>(Vec(off + 30 ,space*1-15), module, Chord::OFFSET_PARAM));
+  addParam(createParam<FlatA>(Vec(off + 30 ,space*1-15), module, Chord::OFFSET_PARAM));
   addParam(createParam<FlatA>(Vec(off + 30 ,space*2-15), module, Chord::INVERSION_PARAM));
-  addParam(createParam<FlatR>(Vec(off + 30 ,space*3-15), module, Chord::VOICING_PARAM));
+  addParam(createParam<FlatA>(Vec(off + 30 ,space*3-15), module, Chord::VOICING_PARAM));
 
 //
 
@@ -434,31 +425,18 @@ int left = 30;
 //
 
 
-  addParam(createParam<LEDB>(Vec(-22 + left, 3+ 180), module, Chord::FLAT_3RD_PARAM));
-  addParam(createParam<LEDB>(Vec(-22 + left, 3+ 180+jacks*1), module, Chord::FLAT_5TH_PARAM));
-  addParam(createParam<LEDB>(Vec(-22 + left, 3+ 180+jacks*2), module, Chord::FLAT_7TH_PARAM));
-  addParam(createParam<LEDB>(Vec(-22 + left, 3+ 180+jacks*3), module, Chord::SIX_FOR_7_PARAM));
-  addParam(createParam<LEDB>(Vec(-22 + left, 3+ 180+jacks*4), module, Chord::SHARP_5_PARAM));
-  addParam(createParam<LEDB>(Vec(-22 + right,3+  180), module, Chord::SUS_2_PARAM));
-  addParam(createParam<LEDB>(Vec(-22 + right,3+  180+jacks*1), module, Chord::SUS_4_PARAM));
-  addParam(createParam<LEDB>(Vec(-22 + right,3+  180+jacks*2), module, Chord::SIX_FOR_5_PARAM));
-  addParam(createParam<LEDB>(Vec(-22 + right,3+  180+jacks*3), module, Chord::ONE_FOR_7_PARAM));
-  addParam(createParam<LEDB>(Vec(-22 + right,3+  180+jacks*4), module, Chord::FLAT_9_PARAM));
-  addParam(createParam<LEDB>(Vec(-22 + right,3+  180+jacks*5), module, Chord::SHARP_9_PARAM));
+  addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(-22 + left, 3+ 180), module, Chord::FLAT_3RD_PARAM, Chord::FLAT_3RD_LIGHT));
+  addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(-22 + left, 3+ 180+jacks*1), module, Chord::FLAT_5TH_PARAM, Chord::FLAT_5TH_LIGHT));
+  addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(-22 + left, 3+ 180+jacks*2), module, Chord::FLAT_7TH_PARAM, Chord::FLAT_7TH_LIGHT));
+  addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(-22 + left, 3+ 180+jacks*3), module, Chord::SIX_FOR_7_PARAM, Chord::SIX_FOR_7_LIGHT));
+  addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(-22 + left, 3+ 180+jacks*4), module, Chord::SHARP_5_PARAM, Chord::SHARP_5_LIGHT));
+  addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(-22 + right,3+  180), module, Chord::SUS_2_PARAM, Chord::SUS_2_LIGHT));
+  addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(-22 + right,3+  180+jacks*1), module, Chord::SUS_4_PARAM, Chord::SUS_4_LIGHT));
+  addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(-22 + right,3+  180+jacks*2), module, Chord::SIX_FOR_5_PARAM, Chord::SIX_FOR_5_LIGHT));
+  addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(-22 + right,3+  180+jacks*3), module, Chord::ONE_FOR_7_PARAM, Chord::ONE_FOR_7_LIGHT));
+  addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(-22 + right,3+  180+jacks*4), module, Chord::FLAT_9_PARAM, Chord::FLAT_9_LIGHT));
+  addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(-22 + right,3+  180+jacks*5), module, Chord::SHARP_9_PARAM, Chord::SHARP_9_LIGHT));
 
-  //
-
-  addChild(createLight<ChordLight<OrangeLight>>(Vec(left-19.5,185.5), module, Chord::FLAT_3RD_LIGHT));
-  addChild(createLight<ChordLight<OrangeLight>>(Vec(left-19.5,185.5+jacks*1), module, Chord::FLAT_5TH_LIGHT));
-  addChild(createLight<ChordLight<OrangeLight>>(Vec(left-19.5,185.5+jacks*2), module, Chord::FLAT_7TH_LIGHT));
-  addChild(createLight<ChordLight<OrangeLight>>(Vec(left-19.5,185.5+jacks*3), module, Chord::SIX_FOR_7_LIGHT));
-  addChild(createLight<ChordLight<OrangeLight>>(Vec(left-19.5,185.5+jacks*4), module, Chord::SHARP_5_LIGHT));
-  addChild(createLight<ChordLight<OrangeLight>>(Vec(right-19.5,185.5), module, Chord::SUS_2_LIGHT));
-  addChild(createLight<ChordLight<OrangeLight>>(Vec(right-19.5,185.5+jacks*1), module, Chord::SUS_4_LIGHT));
-  addChild(createLight<ChordLight<OrangeLight>>(Vec(right-19.5,185.5+jacks*2), module, Chord::SIX_FOR_5_LIGHT));
-  addChild(createLight<ChordLight<OrangeLight>>(Vec(right-19.5,185.5+jacks*3), module, Chord::ONE_FOR_7_LIGHT));
-  addChild(createLight<ChordLight<OrangeLight>>(Vec(right-19.5,185.5+jacks*4), module, Chord::FLAT_9_LIGHT));
-  addChild(createLight<ChordLight<OrangeLight>>(Vec(right-19.5,185.5+jacks*5), module, Chord::SHARP_9_LIGHT));
   //
 
   //

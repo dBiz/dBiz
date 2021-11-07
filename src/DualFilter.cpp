@@ -164,8 +164,8 @@ void process(const ProcessArgs &args) override {
  //float out2BP;
 
 
-	float cutoff = std::pow(2.0f,rescale(clamp(params[CUTOFF_PARAM].getValue() + ((params[CMOD_PARAM2].getValue())*0.1f*inputs[CUTOFF_INPUT2].getVoltage()+(params[CMOD_PARAM].getValue())*0.1f*inputs[CUTOFF_INPUT].getVoltage()) *0.2f ,0.0f,1.0f),0.0f,1.0f,4.5f,14.0f));
-	float cutoff2 = std::pow(2.0f,rescale(clamp(params[CUTOFF2_PARAM].getValue() + ((params[CMOD2_PARAM2].getValue())*0.1f*inputs[CUTOFF2_INPUT2].getVoltage() +(params[CMOD2_PARAM].getValue())*0.1f*inputs[CUTOFF2_INPUT].getVoltage()) *0.2f ,0.0f,1.0f),0.0f,1.0f,4.5f,14.0f));
+	float cutoff = std::pow(2.0f,rescale(clamp(params[CUTOFF_PARAM].getValue() + ((params[CMOD_PARAM2].getValue())*inputs[CUTOFF_INPUT2].getVoltage()+(params[CMOD_PARAM].getValue())*inputs[CUTOFF_INPUT].getVoltage()) *0.2f ,0.0f,1.0f),0.0f,1.0f,4.5f,14.0f));
+	float cutoff2 = std::pow(2.0f,rescale(clamp(params[CUTOFF2_PARAM].getValue() + ((params[CMOD2_PARAM2].getValue())*inputs[CUTOFF2_INPUT2].getVoltage() +(params[CMOD2_PARAM].getValue())*inputs[CUTOFF2_INPUT].getVoltage()) *0.2f ,0.0f,1.0f),0.0f,1.0f,4.5f,14.0f));
 
 	float q = 10.0f * clamp(params[Q_PARAM].getValue() + inputs[Q_INPUT].getVoltage() *0.2f, 0.1f, 1.0f);
 	float q2 = 10.0f * clamp(params[Q2_PARAM].getValue() + inputs[Q2_INPUT].getVoltage() *0.2f, 0.1f, 1.0f);

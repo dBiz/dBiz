@@ -28,7 +28,7 @@
    rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
 
 
-    <dc:title></dc:title></cc:Work>
+    <dc:title /></cc:Work>
 
 
   </rdf:RDF>
@@ -50,7 +50,7 @@
        style="stop-color:#F2EEF0"
        id="stop3-5" /><stop
        offset="1"
-       style="stop-color:#e93900;stop-opacity:1"
+       style="stop-color:#11505a;stop-opacity:1"
        id="stop5-0" /></linearGradient></defs>
 
 
@@ -64,7 +64,7 @@
    guidetolerance="10"
    inkscape:pageopacity="0"
    inkscape:pageshadow="2"
-   inkscape:window-width="1416"
+   inkscape:window-width="1417"
    inkscape:window-height="1041"
    id="namedview886"
    showgrid="false"
@@ -72,7 +72,7 @@
    inkscape:cx="14.140369"
    inkscape:cy="22.131451"
    inkscape:window-x="277"
-   inkscape:window-y="280"
+   inkscape:window-y="826"
    inkscape:window-maximized="0"
    inkscape:current-layer="path10768" />
 

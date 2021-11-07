@@ -133,6 +133,7 @@ struct BigSmorph : Module {
 
     dsp::SchmittTrigger trigger[8];
     dsp::SchmittTrigger clk;
+    dsp::SchmittTrigger resetTrigger;
 
     BigSmorph()
 	{
@@ -307,6 +308,15 @@ struct BigSmorph : Module {
             }
             }
 
+            if (inputs[RESET_INPUT].isConnected())
+            {
+             if(resetTrigger.process(inputs[RESET_INPUT].getVoltage()))
+             {
+                  index=0;
+             }
+            }
+
+
             if (inputs[CV_INPUT].isConnected())
             {
             index = round(math::rescale(inputs[CV_INPUT].getVoltage(),-5.0,5.0, 0.0, 7.0f));
@@ -385,17 +395,6 @@ struct BigSmorph : Module {
 
     }
 };
-
-/////////////////////////////////////////////////////////////////////////////////////////
-template <typename BASE>
-struct BSLight : BASE
-{
-  BSLight()
-  {
-    this->box.size = mm2px(Vec(5, 5));
-  }
-};
-/////////////////////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////// Display --- Based on DTROY by Bidoo
 
@@ -594,8 +593,10 @@ struct BigSmorphWidget : ModuleWidget
             addParam(createParam<MicroBlu>(Vec(40, 50 + i * seq), module, BigSmorph::SEQB_PARAM + i));
             addParam(createParam<MicroBlu>(Vec(70, 50 + i * seq), module, BigSmorph::SEQC_PARAM + i));
 
-            addParam(createParam<LEDB>(Vec(103, 51.5 + i * seq), module, BigSmorph::GBUTTON_PARAM + i));
-            addChild(createLight<BSLight<OrangeLight>>(Vec(106, 54.5 + i * seq), module, BigSmorph::STEP_LIGHT + i));
+
+        
+              addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(103, 51 + i * seq), module, BigSmorph::GBUTTON_PARAM + i, BigSmorph::STEP_LIGHT + i));
+         
 
         }
             addInput(createInput<PJ301MOrPort>(Vec(130, 47 + 0 * seq), module, BigSmorph::GATE_INPUT + 0));

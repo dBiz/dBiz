@@ -61,20 +61,20 @@ struct DrMixExt : Module {
     float out_b_R;
 
     float consumerMessage[12] = {};// this module must read from here
-	  float producerMessage[4] = {};// mother will write into here
+	float producerMessage[12] = {};// mother will write into here
 
   DrMixExt() 
   {
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
     for(int i=0;i<6;i++)
-    {
-    configParam(CHSEND_A_PARAM + i,  0.0,1.0, 0.0, "Send A");
-    configParam(CHSEND_B_PARAM + i,  0.0, 1.0, 0.0,"Send B");
+	{
+		configParam(CHSEND_A_PARAM + i,  0.0,1.0, 0.0, "Send A");
+		configParam(CHSEND_B_PARAM + i,  0.0, 1.0, 0.0,"Send B");
     }
-    configParam(SEND_A_PARAM,  0.0, 1.0, 0.0, "Send A Out Level");
-    configParam(SEND_B_PARAM,  0.0, 1.0, 0.0, "Send B Out Level");
-    configParam(RETURN_A_PARAM,  0.0, 1.0, 0.0, "Return A Out Level");
-    configParam(RETURN_B_PARAM,  0.0, 1.0, 0.0, "Return B Out Level");
+	configParam(SEND_A_PARAM,  0.0, 1.0, 0.0, "Send A Out Level");
+	configParam(SEND_B_PARAM,  0.0, 1.0, 0.0, "Send B Out Level");
+	configParam(RETURN_A_PARAM,  0.0, 1.0, 0.0, "Return A Out Level");
+	configParam(RETURN_B_PARAM,  0.0, 1.0, 0.0, "Return B Out Level");
 
 
     leftExpander.producerMessage = producerMessage;
@@ -90,14 +90,14 @@ struct DrMixExt : Module {
 
     if(leftExpander.module && leftExpander.module->model == modelDrMix) 
     {
-	   float *messagesFromMother = (float*)leftExpander.consumerMessage;
+	 float *messagesFromMother = (float*)leftExpander.consumerMessage;
      float *messagestoMother =  (float*)leftExpander.module->rightExpander.producerMessage;
    
     for (int i=0;i<6;i++)
     {
-        ch_in_L[i]=messagesFromMother[i]/10.f; 
-        ch_in_R[i]=messagesFromMother[6+i]/10.f;
-
+		ch_in_L[i]=messagesFromMother[i]/10.f; 	
+		ch_in_R[i]=messagesFromMother[i+6]/10.f;
+	
         chs_AL_in[i]=ch_in_L[i]*params[CHSEND_A_PARAM+i].getValue();
         chs_AR_in[i]=ch_in_R[i]*params[CHSEND_A_PARAM+i].getValue();
 
