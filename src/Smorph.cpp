@@ -133,6 +133,7 @@ struct Smorph : Module {
 
     dsp::SchmittTrigger trigger[4];
     dsp::SchmittTrigger clk;
+    dsp::SchmittTrigger resetTrigger;
 
     Smorph()
 	{
@@ -147,7 +148,7 @@ struct Smorph : Module {
             configParam(SEQA_PARAM + i, -5.0, 5.0, 0.0, "Seq A Range");
             configParam(SEQB_PARAM + i, -5.0, 5.0, 0.0, "Seq B Range");
             configParam(SEQC_PARAM + i, -5.0, 5.0, 0.0, "Seq C Range");
-            configParam(GBUTTON_PARAM + i, 0.0, 1.0, 0.0, "Seq Button");
+            configButton(GBUTTON_PARAM + i,"Seq Button");
 
 
         }
@@ -307,6 +308,14 @@ struct Smorph : Module {
             }
             }
 
+            if (inputs[RESET_INPUT].isConnected())
+            {
+             if(resetTrigger.process(inputs[RESET_INPUT].getVoltage()))
+             {
+                  index=0;
+             }
+            }
+
             if (inputs[CV_INPUT].isConnected())
             {
             index = round(math::rescale(inputs[CV_INPUT].getVoltage(),-5.0,5.0, 0.0, 3.0f));
@@ -392,7 +401,9 @@ struct BLight : BASE
 {
     BLight()
     {
-        this->box.size = mm2px(Vec(10, 10));
+        this->borderColor = color::BLACK_TRANSPARENT;
+		this->bgColor = color::BLACK_TRANSPARENT;
+        this->box.size = mm2px(Vec(10,10));
     }
 };
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -594,6 +605,8 @@ struct SmorphWidget : ModuleWidget
             addParam(createParam<VerboS>(Vec(70, 60 + i * seq), module, Smorph::SEQB_PARAM + i));
             addParam(createParam<VerboS>(Vec(120, 60 + i * seq), module, Smorph::SEQC_PARAM + i));
 
+
+            
             addParam(createParam<BLEDB>(Vec(180, 60 + i * seq), module, Smorph::GBUTTON_PARAM + i));
             addChild(createLight<BLight<OrangeLight>>(Vec(183, 63 + i * seq), module, Smorph::STEP_LIGHT + i));
 

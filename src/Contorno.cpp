@@ -19,6 +19,10 @@
 
 #include "plugin.hpp"
 
+inline float ifelse(bool cond, float a, float b) {
+	return cond ? a : b;
+}
+
 static float shapeDelta(float delta, float tau, float shape) {
 	float lin = sgn(delta) * 10.f / tau;
 	if (shape < 0.f) {
@@ -64,11 +68,13 @@ struct Contorno : Module {
 	};
 
 	float out[4] {};
-	bool gate[4] = {};
+	float gate[4] = {};
 
 	int panelTheme;
 
 	dsp::SchmittTrigger trigger[4];
+	dsp::SchmittTrigger cycle[4];
+	bool cycleState[4];
 	dsp::PulseGenerator endOfCyclePulse[4];
 
 	Contorno()
@@ -77,14 +83,15 @@ struct Contorno : Module {
 
 		for (int i = 0; i < 4; i++)
 		{
-			configParam(RANGE_PARAM + i,  0.0, 2.0, 0.0, "range");
-			configParam(TRIGG_PARAM + i,  0.0, 1.0, 0.0, "trig");
-			configParam(CYCLE_PARAM + i,  0.0, 1.0, 0.0, "Cycle");
+			configSwitch(RANGE_PARAM +i , 0.0, 2.0, 0.0, "Ch range", {"Medium", "Fast", "Slow"});
+			configButton(TRIGG_PARAM + i ,"trig");
+			configSwitch(CYCLE_PARAM +i , 0.0, 1.0, 0.0, "Ch cycle", {"Off", "On"});
 			configParam(SHAPE_PARAM + i,  -1.0, 1.0, 0.0, "Shape");
 			configParam(RISE_PARAM + i,  0.0, 1.0, 0.0, "Raise");
 			configParam(FALL_PARAM + i,  0.0, 1.0, 0.0, "Fall");
 		}
-		onReset();
+
+		//onReset();
 
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 
@@ -92,6 +99,14 @@ struct Contorno : Module {
 
 	  json_t *dataToJson() override {
 	    json_t *rootJ = json_object();
+		// mute states
+    	json_t *cycle_statesJ = json_array();
+    	for (int i = 0; i < 4; i++)
+    	{
+    	  json_t *cycle_stateJ = json_boolean(cycleState[i]);
+    	  json_array_append_new(cycle_statesJ, cycle_stateJ);
+    	}
+    	json_object_set_new(rootJ, "mutes", cycle_statesJ);
 
 	    // panelTheme
 	    json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
@@ -109,12 +124,19 @@ struct Contorno : Module {
 
 	for (int c=0;c<4;c++)
 	{
+		if(cycle[c].process(params[CYCLE_PARAM+c].getValue()+inputs[CYCLE_INPUT+c].getVoltage()))
+		{
+			cycleState[c]=!cycleState[c];
+			lights[CYCLE_LIGHT+c].setBrightness(cycleState[c] ? 1.0 : 0.0);
+		}
+		
 
-	float in = inputs[IN_INPUT + c].getVoltage();
+		float in = inputs[IN_INPUT + c].getVoltage();
+
 		if (trigger[c].process(params[TRIGG_PARAM + c].getValue() * 10.0 + inputs[TRIGG_INPUT + c].getVoltage()/2.0)) {
 			gate[c] = true;
 		}
-		if (gate[c]) {
+				if (gate[c]) {
 			in = 10.0;
 		}
 
@@ -152,22 +174,21 @@ struct Contorno : Module {
 			falling = (in - out[c] < -1e-3);
 			if (!falling) {
 				// End of cycle, check if we should turn the gate back on (cycle mode)
-				endOfCyclePulse[c].trigger(1e-3);
-				if (params[CYCLE_PARAM + c].getValue() * 10.0 + inputs[CYCLE_INPUT + c].getVoltage() >= 4.0) {
+				if (cycleState[c]) {
 					gate[c] = true;
 				}
 			}
 		}
 		else {
 			gate[c] = false;
-			lights[CYCLE_LIGHT+c].setBrightness(0.0);
+			//lights[CYCLE_LIGHT+c].setBrightness(0.0);
 		}
 
 		if (!rising && !falling) {
 			out[c] = in;
 		}
 
-		if (params[CYCLE_PARAM + c].getValue() == 1.0 || inputs[CYCLE_INPUT+c].getVoltage()>0.0) lights[CYCLE_LIGHT + c].setBrightness(1.0);
+		//if (params[CYCLE_PARAM + c].getValue() == 1.0 || inputs[CYCLE_INPUT+c].getVoltage()>0.0) lights[CYCLE_LIGHT + c].setBrightness(1.0);
 
 		lights[RISE_LIGHT + c].setSmoothBrightness(rising ? 1.0 : 0.0, args.sampleTime);
 		lights[FALL_LIGHT + c].setSmoothBrightness(falling ? 1.0 : 0.0, args.sampleTime);
@@ -176,16 +197,6 @@ struct Contorno : Module {
 
 }
 };
-
-template <typename BASE>
-struct CLight : BASE
-{
-  CLight()
-  {
-    this->box.size = mm2px(Vec(5, 5));
-  }
-};
-
 
 struct ContornoWidget : ModuleWidget {
 
@@ -248,8 +259,10 @@ struct ContornoWidget : ModuleWidget {
 	 {
 
 		 addParam(createParam<MCKSSS>(Vec(space * i + 52, 25), module, Contorno::RANGE_PARAM + i));
-		 addParam(createParam<LEDB2>(Vec(space * i + 7, 297), module, Contorno::CYCLE_PARAM + i));
-		 addChild(createLight<CLight<BlueLight>>(Vec(space * i + 10, 300), module, Contorno::CYCLE_LIGHT + i));
+
+
+		 addParam(createLightParam<LEDLightBezel<BlueLight>>(Vec(space * i + 7, 297), module, Contorno::CYCLE_PARAM + i,Contorno::CYCLE_LIGHT + i));
+	
 
 		 addParam(createParam<RoundWhy>(Vec(space * i + 12.5, 39), module, ::Contorno::SHAPE_PARAM + i));
 

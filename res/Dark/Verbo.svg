@@ -464,21 +464,21 @@
      inkscape:snap-to-guides="false"
      inkscape:snap-grids="false"
      inkscape:window-maximized="0"
-     inkscape:window-y="16"
-     inkscape:window-x="275"
+     inkscape:window-y="624"
+     inkscape:window-x="2982"
      inkscape:window-height="1041"
-     inkscape:window-width="1416"
+     inkscape:window-width="2013"
      inkscape:snap-bbox-edge-midpoints="true"
      inkscape:bbox-nodes="true"
      inkscape:snap-page="false"
      inkscape:snap-bbox="true"
      units="px"
      showgrid="true"
-     inkscape:current-layer="layer4"
+     inkscape:current-layer="layer5"
      inkscape:document-units="px"
-     inkscape:cy="288.50292"
-     inkscape:cx="221.20778"
-     inkscape:zoom="1.5155348"
+     inkscape:cy="182.49745"
+     inkscape:cx="148.32902"
+     inkscape:zoom="2.1432899"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
      borderopacity="1.0"
@@ -515,7 +515,7 @@
        inkscape:connector-curvature="0"
        id="rect817"
        d="M 0,196.45831 H 99.21875 V 296.99999 H 0 Z"
-       style="opacity:1;vector-effect:none;fill:#e7e7e7;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.99218768;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
+       style="opacity:1;vector-effect:none;fill:#dabe8d;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.99218768;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
   </g>
   <g
      style="display:inline"
@@ -920,7 +920,7 @@
        height="6.6473613"
        width="15.989535"
        id="rect4611"
-       style="fill:#e7e7e7;fill-opacity:1;stroke:none;stroke-width:0.43599999;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0.436, 20.92799974;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke markers fill" />
+       style="fill:#dabe8d;fill-opacity:1;stroke:none;stroke-width:0.43599999;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0.436, 20.92799974000000063;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke markers fill" />
     <path
        inkscape:connector-curvature="0"
        id="path4723"
@@ -1569,28 +1569,28 @@
     </g>
     <g
        id="text1299-8-5"
-       style="font-style:normal;font-weight:normal;font-size:1.52403235px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#05668d;fill-opacity:1;stroke:none;stroke-width:0.03810081"
+       style="font-style:normal;font-weight:normal;font-size:1.52403235px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;display:inline;fill:#1e1e1e;fill-opacity:1;stroke:none;stroke-width:0.03810081"
        transform="scale(1.0678078,0.93649813)"
        aria-label="FINE">
       <path
          inkscape:connector-curvature="0"
          id="path1488"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Franklin Gothic Medium Cond';-inkscape-font-specification:'Franklin Gothic Medium Cond';fill:#05668d;fill-opacity:1;stroke:none;stroke-width:0.03810081"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Franklin Gothic Medium Cond';-inkscape-font-specification:'Franklin Gothic Medium Cond';fill:#1e1e1e;fill-opacity:1;stroke:none;stroke-width:0.03810081"
          d="m 25.485598,44.194062 h 0.56407 v 0.134692 h -0.395891 v 0.303616 h 0.317011 v 0.134692 h -0.317011 v 0.442773 h -0.168179 z" />
       <path
          inkscape:connector-curvature="0"
          id="path1490"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Franklin Gothic Medium Cond';-inkscape-font-specification:'Franklin Gothic Medium Cond';fill:#05668d;fill-opacity:1;stroke:none;stroke-width:0.03810081"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Franklin Gothic Medium Cond';-inkscape-font-specification:'Franklin Gothic Medium Cond';fill:#1e1e1e;fill-opacity:1;stroke:none;stroke-width:0.03810081"
          d="m 26.134502,44.194062 h 0.168179 v 1.015773 h -0.168179 z" />
       <path
          inkscape:connector-curvature="0"
          id="path1492"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Franklin Gothic Medium Cond';-inkscape-font-specification:'Franklin Gothic Medium Cond';fill:#05668d;fill-opacity:1;stroke:none;stroke-width:0.03810081"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Franklin Gothic Medium Cond';-inkscape-font-specification:'Franklin Gothic Medium Cond';fill:#1e1e1e;fill-opacity:1;stroke:none;stroke-width:0.03810081"
          d="m 26.492441,44.194062 h 0.197946 l 0.334126,0.732249 v -0.732249 h 0.140646 v 1.015773 h -0.157017 l -0.375055,-0.813363 v 0.813363 h -0.140646 z" />
       <path
          inkscape:connector-curvature="0"
          id="path1494"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Franklin Gothic Medium Cond';-inkscape-font-specification:'Franklin Gothic Medium Cond';fill:#05668d;fill-opacity:1;stroke:none;stroke-width:0.03810081"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Franklin Gothic Medium Cond';-inkscape-font-specification:'Franklin Gothic Medium Cond';fill:#1e1e1e;fill-opacity:1;stroke:none;stroke-width:0.03810081"
          d="m 27.354918,44.194062 h 0.581931 v 0.134692 h -0.413751 v 0.290221 h 0.324452 v 0.135436 h -0.324452 v 0.317755 h 0.420448 v 0.137669 h -0.588628 z" />
     </g>
     <g

@@ -268,15 +268,6 @@ struct FourSeq : Module {
     }
 };
 
-template <typename BASE>
-struct SLight : BASE
-{
-  SLight()
-  {
-    this->box.size = mm2px(Vec(5, 5));
-  }
-};
-
 struct FourSeqWidget : ModuleWidget {
   SvgPanel* darkPanel;
   struct PanelThemeItem : MenuItem {
@@ -335,12 +326,14 @@ struct FourSeqWidget : ModuleWidget {
            for (int i = 0; i < 4; i++)
            {
                addParam(createParam<SDKnob>(Vec(70, 28 + knob * i), module, FourSeq::SEQA_PARAM + i));
-               addParam(createParam<LEDB>(Vec(15, 31 + knob * i), module, FourSeq::GATEA_PARAM + i));
-               addChild(createLight<SLight<OrangeLight>>(Vec(18, 34 + knob * i), module, FourSeq::GATEA_LIGHT + i));
 
+                
+               addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(15, 31 + knob * i), module, FourSeq::GATEA_PARAM + i,FourSeq::GATEA_LIGHT + i));
+             
                addParam(createParam<SDKnob>(Vec(70, 172 + knob * i), module, FourSeq::SEQB_PARAM + i));
-               addParam(createParam<LEDB>(Vec(15, 175 + knob * i), module, FourSeq::GATEB_PARAM + i));
-               addChild(createLight<SLight<OrangeLight>>(Vec(18, 178 + knob * i),module, FourSeq::GATEB_LIGHT + i));
+
+               addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(15, 175 + knob * i), module, FourSeq::GATEB_PARAM + i,FourSeq::GATEB_LIGHT + i));
+    
 
                addChild(createLight<SmallLight<RedLight>>(Vec(105, 38 + knob * i), module, FourSeq::SEQA_LIGHT + i));
                addChild(createLight<SmallLight<RedLight>>(Vec(105, 180 + knob * i), module, FourSeq::SEQB_LIGHT + i));
@@ -368,8 +361,7 @@ struct FourSeqWidget : ModuleWidget {
            addParam(createParam<MCKSSS>(Vec(14 + jack * 3, 172 + knob * 4), module, FourSeq::STEPA_PARAM));
            addParam(createParam<MCKSSS>(Vec(14 + jack * 3, 199 + knob * 4), module, FourSeq::STEPB_PARAM));
 
-           addParam(createParam<LEDB>(Vec(35 + jack, 4), module, FourSeq::RESET_PARAM));
-           addChild(createLight<SLight<OrangeLight>>(Vec(38 + jack, 7), module, FourSeq::RESET_LIGHT));
+           addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(35 + jack, 4), module, FourSeq::RESET_PARAM, FourSeq::RESET_LIGHT));
 
            addInput(createInput<PJ301MVAPort>(Vec(35, 4), module, FourSeq::RESET_INPUT));
 }

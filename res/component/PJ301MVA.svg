@@ -23,11 +23,11 @@
        inkscape:collect="always"
        id="linearGradient13416">
       <stop
-         style="stop-color:#515151;stop-opacity:1"
+         style="stop-color:#343434;stop-opacity:1"
          offset="0"
          id="stop13412" />
       <stop
-         style="stop-color:#bababa;stop-opacity:1"
+         style="stop-color:#cecece;stop-opacity:1"
          offset="1"
          id="stop13414" />
     </linearGradient>
@@ -1135,10 +1135,10 @@
        inkscape:collect="always"
        xlink:href="#linearGradient13416"
        id="linearGradient13418"
-       x1="26.911085"
-       y1="13.866892"
-       x2="0.57880896"
-       y2="13.97276"
+       x1="14.729849"
+       y1="25.863564"
+       x2="14.605687"
+       y2="2.9604306"
        gradientUnits="userSpaceOnUse"
        gradientTransform="translate(0,21.254486)" />
   </defs>
@@ -1153,7 +1153,7 @@
      inkscape:cx="14.21206"
      inkscape:cy="19.827416"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g6"
      showgrid="true"
      inkscape:window-width="1148"
      inkscape:window-height="1041"
@@ -1206,15 +1206,15 @@
     </g>
     <g
        transform="matrix(0.24896704,0,0,0.24896704,88.57248,115.33111)"
-       style="clip-rule:evenodd;fill-rule:evenodd;stroke-miterlimit:10;stroke:#323232;stroke-opacity:1;stroke-width:0.14984413;stroke-dasharray:none"
+       style="clip-rule:evenodd;fill-rule:evenodd;stroke:#323232;stroke-width:0.149844;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="IOPortB_3_">
       <g
          id="g6"
-         style="stroke:#323232;stroke-opacity:1;stroke-width:0.14984413;stroke-miterlimit:10;stroke-dasharray:none">
+         style="stroke:#323232;stroke-width:0.149844;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1">
         <path
            inkscape:connector-curvature="0"
            d="m 5.311,44.048486 c -1.082,-1.866 -2.151,-3.757 -3.221,-5.619 -2.129,-3.715 -2.129,-2.593 0.002,-6.312 1.082,-1.892 2.161,-3.801 3.242,-5.693 2.135,-3.718 1.166,-3.156 5.438,-3.149 2.136,0.004 4.298,0.008 6.431,0.014 4.266,-0.012 3.3,-0.575 5.429,3.141 1.078,1.896 2.176,3.788 3.271,5.689 2.125,3.719 2.122,2.578 -0.018,6.309 -1.07,1.871 -2.151,3.749 -3.217,5.621 -2.142,3.726 -1.166,3.154 -5.426,3.155 -2.175,0.007 -4.341,0.009 -6.521,0.009 -4.254,0 -3.287,0.563 -5.41,-3.165 z"
-           style="fill:url(#linearGradient13418);fill-opacity:1;fill-rule:nonzero;stroke:#323232;stroke-width:0.14984413;stroke-opacity:1;stroke-miterlimit:10;stroke-dasharray:none"
+           style="fill:url(#linearGradient13418);fill-opacity:1;fill-rule:nonzero;stroke:#323232;stroke-width:0.149844;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
            id="path2"
            sodipodi:nodetypes="cccccccccccsc" />
       </g>

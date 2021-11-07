@@ -69,6 +69,13 @@
             "name": "PerfMixer",
             "tags": ["Mixer", "VCA"]
         },
+		
+		 {
+            "slug": "PerfMixer4",
+            "name": "PerfMixer4",
+            "tags": ["Mixer", "VCA"]
+        },
+		
         {
             "slug": "DrMix",
             "name": "DrMix",
