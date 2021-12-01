@@ -351,10 +351,10 @@ QuePasaWidget(QuePasa *module){
   addParam(createParam<VerboDS>(Vec(10+2*kn, 180), module, QuePasa::RES_PARAM));
   addParam(createParam<VerboDS>(Vec(10 + 2 * kn, 180 + kn), module, QuePasa::RES_CV_PARAM));
   addParam(createParam<VerboDS>(Vec(10+kn, 180), module, QuePasa::FREQ_CV_PARAM));
-  addParam(createParam<VerboS>(Vec(10, 180), module, QuePasa::RAD_L_PARAM));
-  addParam(createParam<VerboS>(Vec(10 + 3 * kn, 180), module, QuePasa::RAD_R_PARAM));
-  addParam(createParam<VerboDS>(Vec(10, 180+kn), module, QuePasa::RAD_L_CV_PARAM));
-  addParam(createParam<VerboDS>(Vec(10+3*kn, 180+kn), module, QuePasa::RAD_R_CV_PARAM));
+  addParam(createParam<VerboRS>(Vec(10, 180), module, QuePasa::RAD_L_PARAM));
+  addParam(createParam<VerboRS>(Vec(10 + 3 * kn, 180), module, QuePasa::RAD_R_PARAM));
+  addParam(createParam<VerboS>(Vec(10, 180+kn), module, QuePasa::RAD_L_CV_PARAM));
+  addParam(createParam<VerboS>(Vec(10+3*kn, 180+kn), module, QuePasa::RAD_R_CV_PARAM));
 
   ///Innies
   addInput(createInput<PJ301MIPort>(Vec(10, 20), module, QuePasa::L_INPUT));

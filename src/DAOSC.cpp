@@ -1,24 +1,5 @@
-////////////////////////////////////////////////////////////////////////////
-// <Dual Analog Oscillator>
-// Copyright (C) <2019>  <Giovanni Ghisleni>
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-//
-/////////////////////////////////////////////////////////////////////////////
-
 #include "plugin.hpp"
-
+ 
 
 using simd::float_4;
 
@@ -62,10 +43,6 @@ struct sineOsc {
 	dsp::MinBlepGenerator<QUALITY, OVERSAMPLE, T> sinMinBlep;
 
 	T sinValue = 0.f;
-
-	void setPitch(T pitch) {
-		freq = dsp::FREQ_C4 * simd::pow(2.f, pitch);
-	}
 
 	void process(float deltaTime, T syncValue) {
 		// Advance phase
@@ -189,8 +166,10 @@ struct DAOSC : Module {
      configParam(A_DRIVE_PARAM,  0.0, 5.0, 0.,"Drive");
      configParam(A_SAW_PARAM,  0.0, 1.0, 0.0,"Saw Harmonic");
      configParam(A_SQUARE_PARAM,  0.0, 1.0, 0.0,"Square Harmonic");
-     configParam(A_FM_PARAM,  0.0, 1.0, 0.0,"Fm amount");
-	  configParam(A_FM2_PARAM,  0.0, 1.0, 0.0,"Fm2 amount");
+     configParam(A_FM_PARAM,  -1.0, 1.0, 0.0,"Fm amount");
+	 getParamQuantity(A_FM_PARAM)->randomizeEnabled = false;
+	 configParam(A_FM2_PARAM,  -1.0, 1.0, 0.0,"Fm2 amount");
+	 getParamQuantity(A_FM2_PARAM)->randomizeEnabled = false;
 
      configParam(B_PITCH_PARAM,  -54.f, 54.f, 0.f, "Osc2 Frequency", " Hz", dsp::FREQ_SEMITONE, dsp::FREQ_C4);
      configParam(B_FINE_PARAM,  -1.f, 1.f, 0.f, "Osc2 Fine frequency");
@@ -198,11 +177,13 @@ struct DAOSC : Module {
      configParam(B_DRIVE_PARAM,  0.0, 5.0, 0.,"Drive");
      configParam(B_SAW_PARAM,  0.0, 1.0, 0.0,"Saw Harmonic");
      configParam(B_SQUARE_PARAM,  0.0, 1.0, 0.0,"Square Harmonic");
-     configParam(B_FM_PARAM,  0.0, 1.0, 0.0,"Fm amount");
-	  configParam(B_FM2_PARAM,  0.0, 1.0, 0.0,"Fm2 amount");
-		onReset();
+     configParam(B_FM_PARAM,  -1.0, 1.0, 0.0,"Fm amount");
+	 getParamQuantity(B_FM_PARAM)->randomizeEnabled = false;
+	 configParam(B_FM2_PARAM,  -1.0, 1.0, 0.0,"Fm2 amount");
+	 getParamQuantity(B_FM2_PARAM)->randomizeEnabled = false;
+	
 
-		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+	 panelTheme = (loadDarkAsDefault() ? 1 : 0);
 
 	}
 
@@ -232,70 +213,64 @@ struct DAOSC : Module {
 	float_4 sumA=0.f;
 	float_4 sumB=0.f;
 
-		float_4 pitchA;
-		float_4 pitchB;
+	float_4 pitchA;
+	float_4 pitchB;
 
 	float freqParamA = params[A_PITCH_PARAM].getValue() / 12.f;
-	freqParamA += dsp::quadraticBipolar(params[B_FINE_PARAM].getValue()) * 3.f / 12.f;
-	float fmParamA = dsp::quadraticBipolar(params[A_FM_PARAM].getValue());
-	float fmParamA2 = dsp::quarticBipolar(params[A_FM2_PARAM].getValue());
+	float fmParamA =  params[A_FM_PARAM].getValue();
+	float fmParamA2 = params[A_FM2_PARAM].getValue();
 
 	float freqParamB = params[B_PITCH_PARAM].getValue() / 12.f;
-	freqParamB += dsp::quadraticBipolar(params[A_FINE_PARAM].getValue()) * 3.f / 12.f;
-	float fmParamB = dsp::quadraticBipolar(params[B_FM_PARAM].getValue());
-	float fmParamB2 = dsp::quarticBipolar(params[B_FM2_PARAM].getValue());
+	float fmParamB =  params[B_FM_PARAM].getValue();
+	float fmParamB2 = params[B_FM2_PARAM].getValue();
 
 	int channelsA = std::max(inputs[A_PITCH_INPUT].getChannels(), 1);
 	int channelsB = std::max(inputs[B_PITCH_INPUT].getChannels(), 1);
 
 	for (int c = 0; c < channelsA; c += 4)
 	{
-			//	auto *oscillator = &oscillator_a[c / 4];
-			osc_a->channels = std::min(channelsA - c, 4);
-			osc_a->analog = 0;
-			osc_a->soft = 0;
+			auto& oscA = osc_a[c / 4];
+			oscA.channels = std::min(channelsA - c, 4);
+			oscA.analog = true;
+			oscA.soft = 0;
 
 
-			pitchA = freqParamA;
-			pitchA += inputs[A_PITCH_INPUT].getVoltageSimd<float_4>(c);
+			pitchA = freqParamA + inputs[A_PITCH_INPUT].getVoltageSimd<float_4>(c);
+			float_4 freqA;
 
-			if (inputs[A_FM_INPUT].isConnected()) {
-				pitchA += fmParamA * inputs[A_FM_INPUT].getPolyVoltageSimd<float_4>(c);
-			}
-			if (inputs[A_FM2_INPUT].isConnected())
-			{
-				pitchA += fmParamA2 * inputs[A_FM2_INPUT].getPolyVoltageSimd<float_4>(c);
-			}
+			pitchA += fmParamA * inputs[A_FM_INPUT].getPolyVoltageSimd<float_4>(c);		
+			freqA += dsp::FREQ_C4 * inputs[A_FM2_INPUT].getPolyVoltageSimd<float_4>(c) * fmParamA2;
 
-			osc_a->setPitch(pitchA);
-			osc_a->process(args.sampleTime, 0.f);
-			va+=osc_a->sin();
+
+			freqA += dsp::FREQ_C4 * dsp::approxExp2_taylor5(pitchA + 30.f) / std::pow(2.f, 30.f);
+			freqA = clamp(freqA, 0.f, args.sampleRate / 2.f);
+
+			oscA.freq=freqA;
+			oscA.process(args.sampleTime, 0.f);
+			va+=oscA.sin();
 	}
 
 	for (int c = 0; c < channelsB; c += 4)
 	{
-			//	auto *oscillator = &oscillator_a[c / 4];
-			osc_b->channels = std::min(channelsB - c, 4);
-			osc_b->analog = 0;
-			osc_b->soft = 0;
+			auto& oscB = osc_b[c / 4];
+			oscB.channels = std::min(channelsB - c, 4);
+			oscB.analog = true;
+			oscB.soft = 0;
 
 
-			pitchB = freqParamB;
-			pitchB += inputs[B_PITCH_INPUT].getVoltageSimd<float_4>(c);
+			pitchB = freqParamB + inputs[B_PITCH_INPUT].getVoltageSimd<float_4>(c);
+			float_4 freqB;
 
-			if (inputs[B_FM_INPUT].isConnected()) {
-				pitchB += fmParamB * inputs[B_FM_INPUT].getPolyVoltageSimd<float_4>(c);
-			}
-			if (inputs[B_FM2_INPUT].isConnected())
-			{
-				pitchB += fmParamB2 * inputs[B_FM2_INPUT].getPolyVoltageSimd<float_4>(c);
-			}
+			pitchB += fmParamB * inputs[B_FM_INPUT].getPolyVoltageSimd<float_4>(c);
+			freqB += dsp::FREQ_C4 * inputs[B_FM2_INPUT].getPolyVoltageSimd<float_4>(c) * fmParamB2;
+			
+			freqB += dsp::FREQ_C4 * dsp::approxExp2_taylor5(pitchB + 30.f) / std::pow(2.f, 30.f);
+			freqB = clamp(freqB, 0.f, args.sampleRate / 2.f);
 
-			osc_b->setPitch(pitchB);
-			osc_b->process(args.sampleTime, 0.f);
-			vb+=osc_b->sin();
+			oscB.freq=freqB;
+			oscB.process(args.sampleTime, 0.f);
+			vb+=oscB.sin();
 	}
-
 
 
 	for (int i =0; i < 10; i++)
@@ -477,8 +452,8 @@ addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
 addChild(createWidget<ScrewBlack>(Vec(15, 365)));
 addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 365)));
 
-addParam(createParam<LRoundWhy>(Vec(box.size.x-mid-50, top), module, DAOSC::A_PITCH_PARAM));
-addParam(createParam<RoundWhy>(Vec(box.size.x-mid-knob*2 - 10, top), module, DAOSC::A_FINE_PARAM));
+addParam(createParam<LRoundWhy>(Vec(box.size.x-mid-70, top), module, DAOSC::A_PITCH_PARAM));
+// addParam(createParam<RoundWhy>(Vec(box.size.x-mid-knob*2 - 10, top), module, DAOSC::A_FINE_PARAM));
 addParam(createParam<RoundWhy>(Vec(box.size.x - mid - knob * 1 , top + knob + 8), module, DAOSC::A_FM_PARAM));
 addParam(createParam<RoundWhy>(Vec(box.size.x - mid - knob * 1, top + knob + 48), module, DAOSC::A_FM2_PARAM));
 
@@ -499,8 +474,8 @@ addInput(createInput<PJ301MCPort>(Vec(box.size.x-mid-jack*3-5, 230+down), module
 
 addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid-jack-5, 230+down), module, DAOSC::A_OUTPUT));
 
-addParam(createParam<LRoundWhy>(Vec(box.size.x-mid+5, top), module, DAOSC::B_PITCH_PARAM));
-addParam(createParam<RoundWhy>(Vec(box.size.x-mid+5+knob+10, top), module, DAOSC::B_FINE_PARAM));
+addParam(createParam<LRoundWhy>(Vec(box.size.x-mid+25, top), module, DAOSC::B_PITCH_PARAM));
+// addParam(createParam<RoundWhy>(Vec(box.size.x-mid+5+knob+10, top), module, DAOSC::B_FINE_PARAM));
 addParam(createParam<RoundWhy>(Vec(box.size.x - mid + 5, top + knob+8), module, DAOSC::B_FM_PARAM));
 addParam(createParam<RoundWhy>(Vec(box.size.x - mid + 5, top + knob + 48), module, DAOSC::B_FM2_PARAM));
 

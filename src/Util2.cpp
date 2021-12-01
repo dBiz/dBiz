@@ -290,15 +290,6 @@ void process(const ProcessArgs &args) override
 }
 };
 
-template <typename BASE>
-struct ULight : BASE
-{
-  ULight()
-  {
-    this->box.size = mm2px(Vec(5, 5));
-  }
-};
-
 struct Util2Widget : ModuleWidget
 {
 
@@ -368,8 +359,9 @@ struct Util2Widget : ModuleWidget
         addParam(createParam<SDKnob>(Vec(40 + knob * i, 158-knob), module, Util2::FALL_PARAM + i));
         addParam(createParam<SDKnob>(Vec(40+knob*i, 160), module, Util2::SHAPE_PARAM + i));
         addParam(createParam<MCKSSS>(Vec(si +7+ 3* knob * i, 94 + knob * 2.8), module, Util2::RANGE_PARAM + i));
-        addParam(createParam<LEDB>(Vec(si+3 + 3*knob * i, 94), module, Util2::EBUTTON_PARAM + i));
-        addChild(createLight<ULight<OrangeLight>>(Vec(si + 6 +3*knob * i, 97), module, Util2::EBUTTON_LIGHT + i));
+
+        addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(si+3 + 3*knob * i, 94), module, Util2::EBUTTON_PARAM + i,Util2::EBUTTON_LIGHT + i));
+       
     }
 
 
@@ -391,10 +383,10 @@ struct Util2Widget : ModuleWidget
 
     for (int i=0;i<4;i++)
     {
-    addParam(createParam<LEDB>(Vec(si+5+knob * i,170+sp), module, Util2::BUTTON_PARAM + i));
     addParam(createParam<SDKnob>(Vec(si +2 + knob * i, 170 + jack+sp), module, Util2::VALUE_PARAM + i));
     addParam(createParam<MCKSSS2>(Vec(si + 10 + knob * i, 175 + jack*4+sp), module, Util2::MODE_PARAM + i));
-    addChild(createLight<ULight<OrangeLight>>(Vec(si +5+ 3 + knob * i, 173+sp), module, Util2::BUTTON_LIGHT + i));
+    
+    addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(si+5+knob * i,170+sp), module, Util2::BUTTON_PARAM + i,Util2::BUTTON_LIGHT + i));
     }
 
     addInput(createInput<PJ301MVAPort>(Vec(si + 3.5 + knob * 0, 175 + jack * 2+sp), module, Util2::BUTTON_INPUT + 0));

@@ -601,9 +601,9 @@ struct SmorphWidget : ModuleWidget
         for(int i=0;i<4;i++)
         {
 
-            addParam(createParam<VerboS>(Vec(20, 60+i*seq), module, Smorph::SEQA_PARAM+i));
-            addParam(createParam<VerboS>(Vec(70, 60 + i * seq), module, Smorph::SEQB_PARAM + i));
-            addParam(createParam<VerboS>(Vec(120, 60 + i * seq), module, Smorph::SEQC_PARAM + i));
+            addParam(createParam<VerboDS>(Vec(20, 60+i*seq), module, Smorph::SEQA_PARAM+i));
+            addParam(createParam<VerboDS>(Vec(70, 60 + i * seq), module, Smorph::SEQB_PARAM + i));
+            addParam(createParam<VerboDS>(Vec(120, 60 + i * seq), module, Smorph::SEQC_PARAM + i));
 
 
             
@@ -626,8 +626,8 @@ struct SmorphWidget : ModuleWidget
                 addParam(createParam<Trim>(Vec(30 + i * gli, 290), module, Smorph::GLIDE_PARAM + i));
         }
 
-        addParam(createParam<VerboS>(Vec(45,15), module, Smorph::ROOT_NOTE_PARAM));
-        addParam(createParam<VerboS>(Vec(90,15), module, Smorph::SCALE_PARAM));
+        addParam(createParam<VerboDS>(Vec(45,15), module, Smorph::ROOT_NOTE_PARAM));
+        addParam(createParam<VerboDS>(Vec(90,15), module, Smorph::SCALE_PARAM));
 
         addInput(createInput<PJ301MCPort>(Vec(25 +low*3, 320), module, Smorph::CV_INPUT));
         addInput(createInput<PJ301MCPort>(Vec(25 +low*4, 320), module, Smorph::REV_INPUT));

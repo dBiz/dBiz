@@ -440,15 +440,11 @@ struct DualMatrixWidget : ModuleWidget {
             addInput(createInput<PJ301MCPort>(Vec(box.size.x / 2 + 5, 210 + j * 2), module, DualMatrix::MUTE_C_INPUT));
             addInput(createInput<PJ301MCPort>(Vec(box.size.x / 2 + 5, 210 + j * 3), module, DualMatrix::MUTE_D_INPUT));
 
-            addParam(createParam<LEDB>(Vec(box.size.x / 2 - 33, 212 + j * 0), module, DualMatrix::MUTE_A_PARAM));
-            addParam(createParam<LEDB>(Vec(box.size.x / 2 - 33, 212 + j * 1), module, DualMatrix::MUTE_B_PARAM));
-            addParam(createParam<LEDB>(Vec(box.size.x / 2 - 33, 212 + j * 2), module, DualMatrix::MUTE_C_PARAM));
-            addParam(createParam<LEDB>(Vec(box.size.x / 2 - 33, 212 + j * 3), module, DualMatrix::MUTE_D_PARAM));
+            addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(box.size.x / 2 - 35, 212 + j * 0), module, DualMatrix::MUTE_A_PARAM, DualMatrix::MUTE_A_LIGHT));
+            addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(box.size.x / 2 - 35, 212 + j * 1), module, DualMatrix::MUTE_B_PARAM, DualMatrix::MUTE_B_LIGHT));
+            addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(box.size.x / 2 - 35, 212 + j * 2), module, DualMatrix::MUTE_C_PARAM, DualMatrix::MUTE_C_LIGHT));
+            addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(box.size.x / 2 - 35, 212 + j * 3), module, DualMatrix::MUTE_D_PARAM, DualMatrix::MUTE_D_LIGHT));
 
-            addChild(createLight<ULight<OrangeLight>>(Vec(box.size.x / 2 - 30, 215 + j * 0), module, DualMatrix::MUTE_A_LIGHT));
-            addChild(createLight<ULight<OrangeLight>>(Vec(box.size.x / 2 - 30, 215 + j * 1), module, DualMatrix::MUTE_B_LIGHT));
-            addChild(createLight<ULight<OrangeLight>>(Vec(box.size.x / 2 - 30, 215 + j * 2), module, DualMatrix::MUTE_C_LIGHT));
-            addChild(createLight<ULight<OrangeLight>>(Vec(box.size.x / 2 - 30, 215 + j * 3), module, DualMatrix::MUTE_D_LIGHT));
 
     }
     void step() override

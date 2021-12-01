@@ -237,6 +237,17 @@ struct VerboDS : VerboSmall
 	}
 };
 
+struct VerboRS : VerboSmall
+{
+	VerboRS()
+	{
+
+		setSvg(Svg::load(asset::plugin(pluginInstance,"res/component/VerboRS.svg")));
+		bg->setSvg(Svg::load(asset::plugin(pluginInstance,"res/component/VerboDS-bg.svg")));
+		fg->setSvg(Svg::load(asset::plugin(pluginInstance,"res/component/VerboRS-cap.svg")));
+	}
+};
+
 struct VerboDSSnapKnob : VerboDS
 {
 	VerboDSSnapKnob()
@@ -252,7 +263,7 @@ struct VerboS : VerboSmall
 	{
 		setSvg(Svg::load(asset::plugin(pluginInstance,"res/component/VerboS.svg")));
 		bg->setSvg(Svg::load(asset::plugin(pluginInstance,"res/component/VerboS-bg.svg")));
-		fg->setSvg(Svg::load(asset::plugin(pluginInstance,"res/component/VerboDS-cap.svg")));
+		fg->setSvg(Svg::load(asset::plugin(pluginInstance,"res/component/VerboS-cap.svg")));
 	}
 };
 

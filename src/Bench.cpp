@@ -172,8 +172,7 @@ struct Bench : Module {
   dsp::SchmittTrigger swap_trigger;
   dsp::SchmittTrigger swap_low_trigger;
   dsp::ClockDivider lightDivider;
-  dsp::VuMeter2 lfometer,a1meter,a2meter,b1meter,b2meter,fademeter,multmeter,multlmeter,fadelmeter;
-
+  
   Bench()
   {
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -422,36 +421,27 @@ struct Bench : Module {
         outputs[FADE_OUTPUT].setVoltage(((b_channel * (1 - xfade)) + (a_channel * xfade))*fade_level);
         outputs[FADE_LOW_OUTPUT].setVoltage((b_low_channel * (1 - xfade2)) + (a_low_channel * xfade2));
 
-        lfometer.process(args.sampleTime, outputs[LFO_OUTPUT].getVoltage() / 5.f);
-        a1meter.process(args.sampleTime, outputs[A1_OUTPUT].getVoltage() / 5.f);
-        a2meter.process(args.sampleTime, outputs[A2_OUTPUT].getVoltage() / 5.f);
-        b1meter.process(args.sampleTime, outputs[B1_OUTPUT].getVoltage() / 5.f);
-        b2meter.process(args.sampleTime, outputs[B2_OUTPUT].getVoltage() / 5.f);
-        fademeter.process(args.sampleTime, outputs[FADE_OUTPUT].getVoltage() / 5.f);
-        multmeter.process(args.sampleTime, outputs[MULT_OUTPUT].getVoltage() / 5.f);
-        multlmeter.process(args.sampleTime, outputs[MULT_LOW_OUTPUT].getVoltage() / 5.f);
-        fadelmeter.process(args.sampleTime, outputs[FADE_LOW_OUTPUT].getVoltage() / 5.f);
       }
 
       if (lightDivider.process())
       {
-        float l = lfometer.getBrightness(-24.f, 0.f);
+        float l = outputs[LFO_OUTPUT].getVoltage() / 10.f;
         lights[LFO_LIGHT].setBrightness(l);
-        float a1 = a1meter.getBrightness(-24.f, 0.f);
+        float a1 = outputs[A1_OUTPUT].getVoltage() / 10.f;
         lights[A1_LIGHT].setBrightness(a1);
-        float a2 = a2meter.getBrightness(-24.f, 0.f);
+        float a2 = outputs[A2_OUTPUT].getVoltage() / 10.f;
         lights[A2_LIGHT].setBrightness(a2);
-        float b1 = b1meter.getBrightness(-24.f, 0.f);
+        float b1 = outputs[B1_OUTPUT].getVoltage() / 10.f;
         lights[B1_LIGHT].setBrightness(b1);
-        float b2 = b2meter.getBrightness(-24.f, 0.f);
+        float b2 = outputs[B2_OUTPUT].getVoltage() / 10.f;
         lights[B2_LIGHT].setBrightness(b2);
-        float fa = fademeter.getBrightness(-24.f, 0.f);
+        float fa = outputs[FADE_OUTPUT].getVoltage() / 10.f;
         lights[FADE_LIGHT].setBrightness(fa);
-        float mu = multmeter.getBrightness(-24.f, 0.f);
+        float mu = outputs[MULT_OUTPUT].getVoltage() / 10.f;
         lights[MULT_LIGHT].setBrightness(mu);
-        float fal = fadelmeter.getBrightness(-24.f, 0.f);
+        float fal = outputs[FADE_LOW_OUTPUT].getVoltage() / 10.f;
         lights[FADE_LOW_LIGHT].setBrightness(fal);
-        float mul = multlmeter.getBrightness(-24.f, 0.f);
+        float mul = outputs[MULT_LOW_OUTPUT].getVoltage() / 10.f;
         lights[MULT_LOW_LIGHT].setBrightness(mul);
 
       }
@@ -614,7 +604,7 @@ addOutput(createOutput<PJ301MOPort>(Vec(15+space*7,  65),  module, Bench::B2_OUT
 addParam(createParam<SilverSwitch>(Vec(15+space*1, 110), module, Bench::UNI_PARAM));
 addParam(createParam<VerboS>(Vec(13 + space * 2, 107), module, Bench::RATE_PARAM));
 addParam(createParam<SilverSwitch3>(Vec(15+space*3, 110), module, Bench::RANGE_A_PARAM));
-addParam(createParam<VerboS>(Vec(13 + space * 4, 107), module, Bench::LEVEL_PARAM));
+addParam(createParam<VerboDS>(Vec(13 + space * 4, 107), module, Bench::LEVEL_PARAM));
 addOutput(createOutput<PJ301MOPort>(Vec(15+space*5, 110),  module, Bench::FADE_OUTPUT));
 addParam(createParam<SilverSwitch3>(Vec(15+space*6, 110), module, Bench::RANGE_B_PARAM));
 
@@ -632,8 +622,7 @@ addParam(createLightParam<LEDLightSliderFixed<GreenLight>>(Vec(17+space*5, 160),
 addParam(createLightParam<LEDLightSliderFixed<YellowLight>>(Vec(17 + space * 6, 160), module, Bench::B1_PARAM, Bench::B1_LIGHT));
 addParam(createLightParam<LEDLightSliderFixed<YellowLight>>(Vec(17 + space * 7, 160), module, Bench::B2_PARAM, Bench::B2_LIGHT));
 
-addParam(createParam<BPush>(Vec(335,215), module, Bench::SWAP_PARAM));
-addChild(createLight<BigLight<OrangeLight>>(Vec(337.5,217.5), module, Bench::SWAP_BUTTON_LIGHT));
+addParam(createLightParam<LEDLightBezel<RedLight>>(Vec(337,217), module, Bench::SWAP_PARAM,Bench::SWAP_BUTTON_LIGHT));
 
   for(int i=0;i<3;i++)
   {
@@ -656,10 +645,10 @@ addInput(createInput<PJ301MIPort>(Vec(15+space*4, 275),  module, Bench::FADE_A_L
 addInput(createInput<PJ301MIPort>(Vec(15+space*4, 275+45),  module, Bench::FADE_B_LOW_INPUT));
 addOutput(createOutput<PJ301MOPort>(Vec(15+space*5, 275),  module, Bench::FADE_LOW_OUTPUT));
 
-addParam(createParam<BPush>(Vec(15+space*5,275+45), module, Bench::SWAP_LOW_PARAM));
-addChild(createLight<BigLight<OrangeLight>>(Vec(17.5+space*5,275+47.5), module, Bench::SWAP_LOW_BUTTON_LIGHT));
+addParam(createLightParam<LEDLightBezel<RedLight>>(Vec(17+space*5,277+45), module, Bench::SWAP_LOW_PARAM,Bench::SWAP_LOW_BUTTON_LIGHT));
 
-addParam(createParam<VerboS>(Vec(25 + space * 6, 290), module, Bench::MULT_LOW_PARAM));
+
+addParam(createParam<VerboDS>(Vec(25 + space * 6, 290), module, Bench::MULT_LOW_PARAM));
 addChild(createLight<MediumLight<OrangeLight>>(Vec(55 + space * 6, 280), module, Bench::MULT_LOW_LIGHT));
 
 addParam(createParam<VerboS>(Vec(15 + space * 7.5, 290), module, Bench::FADE_LOW_PARAM));

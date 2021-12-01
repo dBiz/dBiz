@@ -167,7 +167,7 @@ NavControlWidget(NavControl *module){
 
    //
 
-   addParam(createParam<MicroBlu>(Vec(17.5, 115), module, NavControl::ATTENUVERTER));
+   addParam(createParam<VerboDS>(Vec(12.5, 125), module, NavControl::ATTENUVERTER));
    addParam(createParam<SlidePotL>(Vec(22.5, 170), module, NavControl::FADER));
 
    addInput(createInput<PJ301MIPort>(Vec(2, 12 + 10),  module, NavControl::ATTENUVERTER_INPUT));

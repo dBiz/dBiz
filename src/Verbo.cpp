@@ -651,7 +651,7 @@ struct VerboWidget : ModuleWidget {
 	addChild(createWidget<ScrewBlack>(Vec(box.size.x-30, 365)));
 
 
-	addParam(createParam<VerboL>(Vec(15, 160), module, Verbo::FREQ_PARAM));
+	addParam(createParam<VerboDL>(Vec(15, 160), module, Verbo::FREQ_PARAM));
 	addParam(createParam<Trimpot>(Vec(85, 140), module, Verbo::FINE_PARAM));
 
 
@@ -684,20 +684,20 @@ struct VerboWidget : ModuleWidget {
 	int ks = 60;
 	int vp=20;
 
-		addParam(createParam<VerboS>(Vec(10, vp+272), module, Verbo::FM_PARAM));
+		addParam(createParam<VerboDS>(Vec(10, vp+272), module, Verbo::FM_PARAM));
 		addInput(createInput<PJ301MCPort>(Vec(15, vp+320), module, Verbo::FM_INPUT));
-		addParam(createParam<VerboS>(Vec(55, vp+272), module, Verbo::CV_PARAM));
+		addParam(createParam<VerboDS>(Vec(55, vp+272), module, Verbo::CV_PARAM));
 		addInput(createInput<PJ301MCPort>(Vec(60, vp+320),module, Verbo::CV_INPUT));
 		addInput(createInput<PJ301MCPort>(Vec(90, vp+320),module, Verbo::PITCH_INPUT));
 
-		addParam(createParam<VerboS>(Vec(30+left+ks, vp+272), module, Verbo::WIDTH_CV_PARAM));
-		addParam(createParam<VerboS>(Vec(30+left+ks+space*2, vp+272), module, Verbo::WIDTH_PARAM));
+		addParam(createParam<VerboDS>(Vec(30+left+ks, vp+272), module, Verbo::WIDTH_CV_PARAM));
+		addParam(createParam<VerboDS>(Vec(30+left+ks+space*2, vp+272), module, Verbo::WIDTH_PARAM));
 
 		addParam(createParam<Trimpot>(Vec(30+left+ks*2-15, vp+322.5), module, Verbo::SLOPE_PARAM));
 		addInput(createInput<PJ301MCPort>(Vec(30+left+ks*2+25, vp+320),module, Verbo::SLOPE_INPUT));
 
-		addParam(createParam<VerboS>(Vec(30+left+ks*3, vp+272), module, Verbo::CENTER_CV_PARAM));
-		addParam(createParam<VerboS>(Vec(30+left+ks*3+space*2, vp+272), module, Verbo::CENTER_PARAM));
+		addParam(createParam<VerboDS>(Vec(30+left+ks*3, vp+272), module, Verbo::CENTER_CV_PARAM));
+		addParam(createParam<VerboDS>(Vec(30+left+ks*3+space*2, vp+272), module, Verbo::CENTER_PARAM));
 
 		addInput(createInput<PJ301MCPort>(Vec(30+left+ks+5, vp+320),  module, Verbo::WIDTH_INPUT));
 		addInput(createInput<PJ301MCPort>(Vec(30+left+ks*3+5, vp+320), module, Verbo::CENTER_INPUT));

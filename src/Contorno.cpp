@@ -127,8 +127,9 @@ struct Contorno : Module {
 		if(cycle[c].process(params[CYCLE_PARAM+c].getValue()+inputs[CYCLE_INPUT+c].getVoltage()))
 		{
 			cycleState[c]=!cycleState[c];
-			lights[CYCLE_LIGHT+c].setBrightness(cycleState[c] ? 1.0 : 0.0);
 		}
+			lights[CYCLE_LIGHT+c].setBrightness(cycleState[c] ? 1.0 : 0.0);
+		
 		
 
 		float in = inputs[IN_INPUT + c].getVoltage();

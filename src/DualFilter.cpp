@@ -319,14 +319,14 @@ struct DualFilterWidget:ModuleWidget {
 	 addParam(createParam<VerboDS>(Vec(i-85+16, 30), module, DualFilter::CUTOFF_PARAM));
 	 addParam(createParam<VerboDS>(Vec(i+50-16, 30), module, DualFilter::CUTOFF2_PARAM));
 	 //
-	 addParam(createParam<VerboDS>(Vec(of + 75, 83), module, DualFilter::Q_PARAM));
+	 addParam(createParam<VerboS>(Vec(of + 75, 83), module, DualFilter::Q_PARAM));
 	 addParam(createParam<VerboDS>(Vec(of + 33, 103), module, DualFilter::CMOD_PARAM));
 	 //
-	 addParam(createParam<VerboDS>(Vec(of + 32 + i, 83), module, DualFilter::Q2_PARAM));
+	 addParam(createParam<VerboS>(Vec(of + 32 + i, 83), module, DualFilter::Q2_PARAM));
 	 addParam(createParam<VerboDS>(Vec(137, 103), module, DualFilter::CMOD2_PARAM));
 	 //
-	 addParam(createParam<VerboS>(Vec(of + 75, 135), module, DualFilter::DRIVE_PARAM));
-	 addParam(createParam<VerboS>(Vec(of + 32 + i, 135), module, DualFilter::DRIVE2_PARAM));
+	 addParam(createParam<VerboRS>(Vec(of + 75, 135), module, DualFilter::DRIVE_PARAM));
+	 addParam(createParam<VerboRS>(Vec(of + 32 + i, 135), module, DualFilter::DRIVE2_PARAM));
 
 	 addParam(createParam<VerboDS>(Vec(of + 33, 155), module, DualFilter::CMOD_PARAM2));
 	 addParam(createParam<VerboDS>(Vec(137, 155), module, DualFilter::CMOD2_PARAM2));

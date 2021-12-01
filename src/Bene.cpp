@@ -29,6 +29,8 @@ struct Bene : Module {
   {
     ROOT_NOTE_PARAM,
     SCALE_PARAM,
+    X_LOCK_PARAM,
+    Y_LOCK_PARAM,
     X_DIR_PARAM,
     Y_DIR_PARAM,
     ENUMS(KNOB_PARAM, 16),
@@ -41,8 +43,10 @@ struct Bene : Module {
     SCALE_INPUT,
     Y_CLK,
     X_CLK,
-    X_CV,
-    Y_CV,
+    X_DIR_INPUT,
+    X_LOCK_INPUT,
+    Y_DIR_INPUT,
+    Y_LOCK_INPUT,
     X_RESET,
     Y_RESET,
     X_PAD,
@@ -54,6 +58,7 @@ struct Bene : Module {
   enum OutputIds {
 		GATE_OUT,
     QUANT_OUT,
+    TRIG_OUT,
     ENUMS(ROW_OUT, 4),
     ENUMS(COLUMN_OUT, 4),
 		NUM_OUTPUTS
@@ -64,6 +69,8 @@ struct Bene : Module {
     ENUMS(GRID_LIGHTS, 16),
     X_DIR_LIGHT,
     Y_DIR_LIGHT,
+    X_LOCK_LIGHT,    
+    Y_LOCK_LIGHT,
     NUM_LIGHTS
   };
 
@@ -130,20 +137,25 @@ struct Bene : Module {
     dsp::SchmittTrigger rightTrigger;
     dsp::SchmittTrigger xdirTrigger;
     dsp::SchmittTrigger ydirTrigger;
+    dsp::SchmittTrigger xlockTrigger;
+    dsp::SchmittTrigger ylockTrigger;
     dsp::SchmittTrigger resetTrigger;
     dsp::SchmittTrigger x_resetTrigger;
     dsp::SchmittTrigger y_resetTrigger;
 
     dsp::SchmittTrigger gateTrig[4][4];
     dsp::PulseGenerator trig_out[4][4];
+
     
     bool trig[4][4];
+
 
     bool gates[4][4];
 
     float row_outs[4] = {0.0,0.0,0.0,0.0};
     float column_outs[4] = {0.0,0.0,0.0,0.0};
     float quant_out = 0;
+    float trig_gen;
 
     int x_position = 0;
     int y_position = 0;
@@ -156,6 +168,8 @@ struct Bene : Module {
 
     bool xdir=false;
     bool ydir=false;
+    bool xlock=false;
+    bool ylock=false;
 
 	float consumerMessage[3] = {};// this module must read from here
 	float producerMessage[3] = {};// mother will write into here
@@ -171,10 +185,12 @@ struct Bene : Module {
           for (int i = 0; i < 16; i++)
           {
             configParam(KNOB_PARAM + i, -2.0, 2.0, 0.0, "Note Range");
-            configParam(GRID_PARAM + i, 0.0, 1.0, 0.0, "Gate Step");
+            configButton(GRID_PARAM + i,"Gate Step");
           }
-          configParam(X_DIR_PARAM , 0.0, 1.0, 0.0, "Direction X");
-          configParam(Y_DIR_PARAM , 0.0, 1.0, 0.0, "Direction Y");
+          configButton(X_DIR_PARAM ,"Direction X");
+          configButton(Y_DIR_PARAM ,"Direction Y");
+          configButton(X_LOCK_PARAM,"Lock X");
+          configButton(Y_LOCK_PARAM,"Lock Y");
 
         rightExpander.producerMessage = producerMessage;
 		    rightExpander.consumerMessage = consumerMessage;
@@ -357,17 +373,29 @@ struct Bene : Module {
 
 
     //////// Loop direction /////////////////////////////
-    if (xdirTrigger.process(params[X_DIR_PARAM].getValue() * 10.0))
+    if (xdirTrigger.process(params[X_DIR_PARAM].getValue()+inputs[X_DIR_INPUT].getVoltage()))
     {
       xdir = !xdir;
     }
     lights[X_DIR_LIGHT].setSmoothBrightness(xdir ? 1.0 : 0.0, args.sampleTime);
 
-    if (ydirTrigger.process(params[Y_DIR_PARAM].getValue() * 10.0))
+    if (ydirTrigger.process(params[Y_DIR_PARAM].getValue()+inputs[Y_DIR_INPUT].getVoltage()))
     {
       ydir = !ydir;
     }
       lights[Y_DIR_LIGHT].setSmoothBrightness(ydir ? 1.0 : 0.0, args.sampleTime);
+
+    if (xlockTrigger.process(params[X_LOCK_PARAM].getValue()+inputs[X_LOCK_INPUT].getVoltage()))
+    {
+      xlock = !xlock;
+    }
+    lights[X_LOCK_LIGHT].setSmoothBrightness(xlock ? 1.0 : 0.0, args.sampleTime);
+
+    if (ylockTrigger.process(params[Y_LOCK_PARAM].getValue()+inputs[Y_LOCK_INPUT].getVoltage()))
+    {
+      ylock = !ylock;
+    }
+      lights[Y_LOCK_LIGHT].setSmoothBrightness(ylock ? 1.0 : 0.0, args.sampleTime);
 
 
     ///////////// CLK ////////////////////////////////////
@@ -378,8 +406,8 @@ struct Bene : Module {
     bool step_up = false;
     bool step_down = false;
 
-    float xd = inputs[X_CV].getVoltage();
-    float yd = inputs[Y_CV].getVoltage();
+   //float xd = inputs[X_CV].getVoltage();
+   //float yd = inputs[Y_CV].getVoltage();
 
     // handle clock inputs
 
@@ -387,8 +415,8 @@ struct Bene : Module {
     {
 			if (rightTrigger.process(inputs[Y_CLK].value))
       {
-        if(yd>=0.f) step_down = true;
-        else step_up = true;
+        if(xdir) step_up = true;
+        else step_down = true;
 		  }
     }
 
@@ -396,8 +424,8 @@ struct Bene : Module {
     {
 			if (leftTrigger.process(inputs[X_CLK].value))
       {
-        if(xd>=0.f) step_right = true;
-        else step_left = true;
+        if(xdir) step_left = true;
+        else step_right = true;
 			}
 		}
 
@@ -428,7 +456,7 @@ struct Bene : Module {
     // handle button triggers
    
     if(rightExpander.module && rightExpander.module->model == modelBenePads) {
-	 float *messagesFromExpander = (float*)rightExpander.consumerMessage;
+	   float *messagesFromExpander = (float*)rightExpander.consumerMessage;
      int xpad = round(messagesFromExpander[0]);
      int ypad = round(messagesFromExpander[1]);
      bool gated = messagesFromExpander[2]>0.0;
@@ -452,12 +480,13 @@ struct Bene : Module {
     if (step_right)
     {
       lights[GRID_LIGHTS + x_position + y_position*4].value=0;
-      if(gates[x_position][y_position]) trig_out[x_position][y_position].trigger(deltaTime);
+      if(gates[x_position][y_position])
+        trig_out[x_position][y_position].trigger(1e-3);
       x_position += 1;
       if (x_position > 3)
       {
         x_position = 0;
-        if(xdir)
+        if(!xlock)
         {
           y_position += 1 ;
           if(y_position>3) y_position = 0;
@@ -468,12 +497,13 @@ struct Bene : Module {
     if (step_left)
     {
       lights[GRID_LIGHTS + x_position + y_position*4].value=0;
-      if(gates[x_position][y_position]) trig_out[x_position][y_position].trigger(deltaTime);
+      if(gates[x_position][y_position])
+        trig_out[x_position][y_position].trigger(1e-3);
       x_position -= 1;
       if (x_position < 0)
       {
         x_position = 3;
-        if(xdir)
+        if(!xlock)
         {
           y_position -= 1 ;
           if(y_position<0) y_position = 3;
@@ -484,12 +514,13 @@ struct Bene : Module {
     if (step_down)
     {
       lights[GRID_LIGHTS + x_position + y_position*4].value=0;
-      if(gates[x_position][y_position]) trig_out[x_position][y_position].trigger(deltaTime);
+      if(gates[x_position][y_position])
+        trig_out[x_position][y_position].trigger(1e-3);
       y_position += 1;
       if (y_position > 3)
       {
         y_position = 0;
-        if(ydir)
+        if(!ylock)
         {
           x_position += 1 ;
           if(x_position>3) x_position = 0;
@@ -500,12 +531,13 @@ struct Bene : Module {
     if (step_up)
     {
       lights[GRID_LIGHTS + x_position + y_position*4].value=0;
-      if(gates[x_position][y_position]) trig_out[x_position][y_position].trigger(deltaTime);
+      if(gates[x_position][y_position])
+        trig_out[x_position][y_position].trigger(1e-3);
       y_position -= 1;
       if (y_position < 0)
       {
         y_position = 3;
-        if(ydir)
+        if(!ylock)
         {
           x_position -= 1 ;
           if(x_position<0) x_position = 3;
@@ -514,14 +546,15 @@ struct Bene : Module {
       lights[GRID_LIGHTS + x_position + y_position*4].value=1;
     }
 
-  trig[x_position][y_position] = trig_out[x_position][y_position].process(deltaTime);
-  /// set outputs
-  
-  
-  if(gates[x_position][y_position])
-  {
-    quant_out = closestVoltageInScale(params[KNOB_PARAM + which_knob].value);
-    lights[GRID_LIGHTS + x_position + y_position*4].value=1;
+    trig[x_position][y_position] = trig_out[x_position][y_position].process(deltaTime);
+    outputs[TRIG_OUT].setVoltage(trig[x_position][y_position]?10.f:0.f);
+
+    /// set outputs
+
+    if (gates[x_position][y_position])
+    {
+      quant_out = closestVoltageInScale(params[KNOB_PARAM + which_knob].value);
+      lights[GRID_LIGHTS + x_position + y_position * 4].value = 1;
 
   }
   for (int i = 0 ; i < 4 ; i++) 
@@ -535,16 +568,16 @@ struct Bene : Module {
   
   
   outputs[QUANT_OUT].setVoltage(quant_out);
-  outputs[GATE_OUT].setVoltage(trig[x_position][y_position] ? 10.f : 0.f);
+  outputs[GATE_OUT].setVoltage(gates[x_position][y_position] ? 10.f : 0.f);
+
   if(rightExpander.module && rightExpander.module->model == modelBenePads) 
   {
   	float *messagesFromExpander = (float*)rightExpander.consumerMessage;
     bool trigpad = messagesFromExpander[2]>0;
     outputs[QUANT_OUT].setVoltage(closestVoltageInScale(params[KNOB_PARAM + which_knob].value));
-    outputs[GATE_OUT].setVoltage(trigpad || trig[x_position][y_position] ? 10.f : 0.f);
+    outputs[GATE_OUT].setVoltage(trigpad || gates[x_position][y_position] ? 10.f : 0.f);
   }
-   
-  }
+    }
 };
 
 template <typename BASE>
@@ -721,53 +754,52 @@ BeneWidget(Bene *module){
     darkPanel->visible = false;
     addChild(darkPanel);
   }
-  int top = 20;
+  int top = 15;
   int top2 = 35;
   int left = 8;
+  int left2 = 30;
   int column_spacing = 35;
   int row_spacing = 35;
 
   if (module != NULL)
   {
-    BeneDisplay *display = createWidget<BeneDisplay>(Vec(10, 95));
+    BeneDisplay *display = createWidget<BeneDisplay>(Vec(10, 65));
     display->module = module;
-    display->box.pos = Vec(left, top + 105);
+    display->box.pos = Vec(left, 110);
     display->box.size = Vec(250, 60);
     addChild(display);
   }
 
 
-  addInput(createInput<PJ301MCPort>(Vec(left, top), module, Bene::X_CLK));
-  addInput(createInput<PJ301MCPort>(Vec(left+column_spacing, top), module, Bene::Y_CLK));
+  addInput(createInput<PJ301MCPort>(Vec(left2, top), module, Bene::X_CLK));
+  addInput(createInput<PJ301MCPort>(Vec(left2 + 30, top), module, Bene::Y_CLK));
 
-  addInput(createInput<PJ301MCPort>(Vec(left, top + 40), module, Bene::X_CV));
-  addInput(createInput<PJ301MCPort>(Vec(left + column_spacing, top + 40), module, Bene::Y_CV));
+  addInput(createInput<PJ301MCPort>(Vec(left2 + 60, top), module, Bene::X_RESET));
+  addInput(createInput<PJ301MCPort>(Vec(left2 + 90, top), module, Bene::Y_RESET));
 
-  addInput(createInput<PJ301MCPort>(Vec(left+column_spacing * 2, top), module, Bene::X_RESET));
-  addInput(createInput<PJ301MCPort>(Vec(left + column_spacing * 2, top + 40), module, Bene::Y_RESET));
+  addInput(createInput<PJ301MCPort>(Vec(left2 + 60, top + 35), module, Bene::X_DIR_INPUT));
+  addInput(createInput<PJ301MCPort>(Vec(left2 + 60, top + 65), module, Bene::Y_DIR_INPUT));
 
-  //  addInput(createInput<PJ301MOrPort>(Vec(left , top+85), module, Bene::X_PAD));
-  //  addInput(createInput<PJ301MOrPort>(Vec(left + column_spacing , top + 85), module, Bene::Y_PAD));
-  //  addInput(createInput<PJ301MOrPort>(Vec(left + column_spacing * 2, top + 85), module, Bene::G_PAD));
-
-   addParam(createParam<LEDB>(Vec(left +10+ column_spacing * 3 , top + 5  ), module, Bene::X_DIR_PARAM));
-   addParam(createParam<LEDB>(Vec(left +10+ column_spacing * 3 , top + 5  + 40 ), module, Bene::Y_DIR_PARAM));
-
-   addChild(createLight<ULight<OrangeLight>>(Vec(left + 13 + column_spacing * 3, top + 5  + 3 ), module, Bene::X_DIR_LIGHT));
-   addChild(createLight<ULight<OrangeLight>>(Vec(left + 13 + column_spacing * 3, top + 5 +40 + 3 ), module, Bene::Y_DIR_LIGHT));
+  addInput(createInput<PJ301MCPort>(Vec(left2 + 90, top + 35), module, Bene::X_LOCK_INPUT));
+  addInput(createInput<PJ301MCPort>(Vec(left2 + 90, top + 65), module, Bene::Y_LOCK_INPUT));
 
 
-  addOutput(createOutput<PJ301MOPort>(Vec(left + column_spacing * 5-20, top), module, Bene::QUANT_OUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(left + column_spacing * 5-20, top + 40), module, Bene::GATE_OUT));
+   addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(left2 , top + 40  ), module, Bene::X_DIR_PARAM, Bene::X_DIR_LIGHT));
+   addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(left2 , top + 70 ), module, Bene::Y_DIR_PARAM, Bene::Y_DIR_LIGHT));
+
+   addParam(createLightParam<LEDLightBezel<GreenLight>>(Vec(left2 +30, top + 40  ), module, Bene::X_LOCK_PARAM, Bene::X_LOCK_LIGHT));
+   addParam(createLightParam<LEDLightBezel<GreenLight>>(Vec(left2 +30, top + 70 ), module, Bene::Y_LOCK_PARAM, Bene::Y_LOCK_LIGHT));
+
+
+  addOutput(createOutput<PJ301MOPort>(Vec(160,20), module, Bene::QUANT_OUT));
+  addOutput(createOutput<PJ301MOPort>(Vec(160,50), module, Bene::GATE_OUT));
+  addOutput(createOutput<PJ301MOPort>(Vec(160, 80), module, Bene::TRIG_OUT));
 
   for ( int i = 0 ; i < 4 ; i++)
   {
     for ( int j = 0 ; j < 4 ; j++)
     {
-      addParam(createParam<VerboDS>(Vec(left+column_spacing * i +1 , top2 + row_spacing * j + 150 ), module, Bene::KNOB_PARAM + i + j * 4));
-
-
-      
+      addParam(createParam<VerboDS>(Vec(left+column_spacing * i +1 , top2 + row_spacing * j + 150 ), module, Bene::KNOB_PARAM + i + j * 4)); 
       addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(left + column_spacing * i + 8, top2 + row_spacing * j + 150 + 6), module, Bene::GRID_PARAM + i + j * 4,Bene::GRID_LIGHTS + i + j * 4));
      }
 	}
@@ -781,11 +813,11 @@ BeneWidget(Bene *module){
     addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * 2 + 155 ), module, Bene::COLUMN_OUT + 2));
     addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * 3 + 155 ), module, Bene::COLUMN_OUT + 3));
 
-  addParam(createParam<VerboDS>(Vec(left + column_spacing*3-5, top + 85 + row_spacing), module, Bene::ROOT_NOTE_PARAM));
-  addParam(createParam<VerboDS>(Vec(left + column_spacing*4 , top + 85 + row_spacing), module, Bene::SCALE_PARAM));
+  addParam(createParam<FlatA>(Vec(left + column_spacing*3-5, top + 95 + row_spacing), module, Bene::ROOT_NOTE_PARAM));
+  addParam(createParam<FlatA>(Vec(left + column_spacing*4 , top + 95 + row_spacing), module, Bene::SCALE_PARAM));
 
-  addInput(createInput<PJ301MCPort>(Vec(column_spacing * 4-25, top + 85), module, Bene::ROOT_NOTE_INPUT));
-  addInput(createInput<PJ301MCPort>(Vec(column_spacing * 4 +15, top + 85), module, Bene::SCALE_INPUT));
+  addInput(createInput<PJ301MCPort>(Vec(2 + left + column_spacing * 3 - 5, top + 100), module, Bene::ROOT_NOTE_INPUT));
+  addInput(createInput<PJ301MCPort>(Vec(2 + left + column_spacing * 4, top + 100), module, Bene::SCALE_INPUT));
 
   addChild(createWidget<ScrewBlack>(Vec(15, 0)));
   addChild(createWidget<ScrewBlack>(Vec(box.size.x-30, 0)));

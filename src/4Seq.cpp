@@ -328,11 +328,11 @@ struct FourSeqWidget : ModuleWidget {
                addParam(createParam<SDKnob>(Vec(70, 28 + knob * i), module, FourSeq::SEQA_PARAM + i));
 
                 
-               addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(15, 31 + knob * i), module, FourSeq::GATEA_PARAM + i,FourSeq::GATEA_LIGHT + i));
+               addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(15, 33 + knob * i), module, FourSeq::GATEA_PARAM + i,FourSeq::GATEA_LIGHT + i));
              
                addParam(createParam<SDKnob>(Vec(70, 172 + knob * i), module, FourSeq::SEQB_PARAM + i));
 
-               addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(15, 175 + knob * i), module, FourSeq::GATEB_PARAM + i,FourSeq::GATEB_LIGHT + i));
+               addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(15, 178 + knob * i), module, FourSeq::GATEB_PARAM + i,FourSeq::GATEB_LIGHT + i));
     
 
                addChild(createLight<SmallLight<RedLight>>(Vec(105, 38 + knob * i), module, FourSeq::SEQA_LIGHT + i));
