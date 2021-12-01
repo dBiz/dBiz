@@ -1,27 +1,9 @@
-////////////////////////////////////////////////////////////////////////////
-// <Control Panel>
-// Copyright (C) <2019>  <Giovanni Ghisleni>
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-//
-/////////////////////////////////////////////////////////////////////////////
 
 #include "plugin.hpp"
 
 using namespace std;
 
-/////added fine out /////////////////////////////////////////////////
+
 
 struct Order : Module {
   enum ParamIds
@@ -82,13 +64,6 @@ struct Order : Module {
     NUM_LIGHTS
   };
 
-  dsp::SchmittTrigger polar_trig[4];
-
-  bool pol1 = false;
-  bool pol2 = false;
-  bool pol3 = false;
-  bool pol4 = false;
-
   int panelTheme;
 
   Order()
@@ -112,10 +87,10 @@ struct Order : Module {
     configParam(MASTER_SHP_PARAM, 0.0, 10.0, 0, "Master Shift Positive");
     configParam(MASTER_SHM_PARAM, -10.0, 0.0, 0, "Master Shift Negative");
 
-    configParam(G1_POLAR_PARAM, 0.0, 1.0, 0, "Group A Polarity");
-    configParam(G2_POLAR_PARAM, 0.0, 1.0, 0, "Group A Polarity");
-    configParam(G3_POLAR_PARAM, 0.0, 1.0, 0, "Group A Polarity");
-    configParam(G4_POLAR_PARAM, 0.0, 1.0, 0, "Group A Polarity");
+    configParam(G1_POLAR_PARAM, 0.f,1.f,0.f, "Group A Polarity");
+    configParam(G2_POLAR_PARAM, 0.f,1.f,0.f, "Group B Polarity");
+    configParam(G3_POLAR_PARAM, 0.f,1.f,0.f, "Group C Polarity");
+    configParam(G4_POLAR_PARAM, 0.f,1.f,0.f, "Group D Polarity");
 
 
     for (int i = 0; i < 4; i++)
@@ -133,11 +108,6 @@ struct Order : Module {
     json_t *dataToJson() override {
       json_t *rootJ = json_object();
 
-      json_object_set_new(rootJ, "polar1", json_boolean(pol1));
-      json_object_set_new(rootJ, "polar2", json_boolean(pol2));
-      json_object_set_new(rootJ, "polar3", json_boolean(pol3));
-      json_object_set_new(rootJ, "polar4", json_boolean(pol4));
-
       // panelTheme
       json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
       return rootJ;
@@ -148,24 +118,16 @@ struct Order : Module {
         if (panelThemeJ)
           panelTheme = json_integer_value(panelThemeJ);
 
-        json_t *Polar1J = json_object_get(rootJ, "polar1");
-        if (Polar1J)
-          pol1 = json_boolean_value(Polar1J);
-        json_t *Polar2J = json_object_get(rootJ, "polar2");
-        if (Polar2J)
-          pol2 = json_boolean_value(Polar2J);
-        json_t *Polar3J = json_object_get(rootJ, "polar3");
-        if (Polar3J)
-          pol3 = json_boolean_value(Polar3J);
-        json_t *Polar4J = json_object_get(rootJ, "polar4");
-        if (Polar4J)
-          pol4 = json_boolean_value(Polar4J);
-
       }
 
 
   void process(const ProcessArgs &args) override
   {
+    
+      bool pol1 = params[G1_POLAR_PARAM].getValue() > 0.f;
+      bool pol2 = params[G2_POLAR_PARAM].getValue() > 0.f;
+      bool pol3 = params[G3_POLAR_PARAM].getValue() > 0.f;
+      bool pol4 = params[G4_POLAR_PARAM].getValue() > 0.f;
 
       float G1 = 0.f, G2 = 0.f, G3 = 0.f, G4 = 0.f;
 
@@ -213,29 +175,10 @@ struct Order : Module {
         att4[i] = params[G4_ATT_PARAM + i].getValue();
         }
 
-        if(polar_trig[0].process(params[G1_POLAR_PARAM].getValue()))
-        {
-          pol1^=true;
-        }
-        lights[G1_LIGHT].setBrightness(pol1 ? 1.f : 0.f);
-
-        if (polar_trig[1].process(params[G2_POLAR_PARAM].getValue()))
-        {
-          pol2 ^= true;
-        }
-        lights[G2_LIGHT].setBrightness(pol2 ? 1.f : 0.f);
-
-        if (polar_trig[2].process(params[G3_POLAR_PARAM].getValue()))
-        {
-          pol3 ^= true;
-        }
-        lights[G3_LIGHT].setBrightness(pol3 ? 1.f : 0.f);
-
-        if (polar_trig[3].process(params[G4_POLAR_PARAM].getValue()))
-        {
-          pol4 ^= true;
-        }
-        lights[G4_LIGHT].setBrightness(pol4 ? 1.f : 0.f);
+        lights[G1_LIGHT].setBrightness(pol1);
+        lights[G2_LIGHT].setBrightness(pol2);
+        lights[G3_LIGHT].setBrightness(pol3);
+        lights[G4_LIGHT].setBrightness(pol4);
 
         if(pol1) G1 = rescale(G1,-5.0,5.0,0.0,10.0);
         if(pol2) G2 = rescale(G2,-5.0,5.0,0.0,10.0);
@@ -364,14 +307,10 @@ for (int i = 0; i < 4; i++)
     addOutput(createOutput<PJ301MOPort>(Vec(100 + jack * i, 211 + jack * 3), module, Order::G4_ATT_OUTPUT + i));
 }
 
-addParam(createParam<LEDB>(Vec(70, 215), module, Order::G1_POLAR_PARAM));
-addParam(createParam<LEDB>(Vec(70, 215+ jack * 1), module, Order::G2_POLAR_PARAM));
-addParam(createParam<LEDB>(Vec(70, 215+ jack * 2), module, Order::G3_POLAR_PARAM));
-addParam(createParam<LEDB>(Vec(70, 215+ jack * 3), module, Order::G4_POLAR_PARAM));
-addChild(createLight<ULight<OrangeLight>>(Vec(73, 218 ), module, Order::G1_LIGHT));
-addChild(createLight<ULight<OrangeLight>>(Vec(73, 218 + jack * 1), module, Order::G2_LIGHT));
-addChild(createLight<ULight<OrangeLight>>(Vec(73, 218 + jack * 2), module, Order::G3_LIGHT));
-addChild(createLight<ULight<OrangeLight>>(Vec(73, 218 + jack * 3), module, Order::G4_LIGHT));
+addParam(createLightParamCentered<VCVLightLatch<MediumSimpleLight<OrangeLight>>>(Vec(78, 225), module, Order::G1_POLAR_PARAM, Order::G1_LIGHT));
+addParam(createLightParamCentered<VCVLightLatch<MediumSimpleLight<OrangeLight>>>(Vec(78, 225+ jack * 1), module, Order::G2_POLAR_PARAM, Order::G2_LIGHT));
+addParam(createLightParamCentered<VCVLightLatch<MediumSimpleLight<OrangeLight>>>(Vec(78, 225+ jack * 2), module, Order::G3_POLAR_PARAM, Order::G3_LIGHT));
+addParam(createLightParamCentered<VCVLightLatch<MediumSimpleLight<OrangeLight>>>(Vec(78, 225+ jack * 3), module, Order::G4_POLAR_PARAM, Order::G4_LIGHT));
 
 //Screw
 addChild(createWidget<ScrewBlack>(Vec(15, 0)));

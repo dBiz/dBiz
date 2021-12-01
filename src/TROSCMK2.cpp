@@ -184,13 +184,6 @@ void TROSCMK2::onSampleRateChange()
 
 		for (int i = 0; i < 3; i++)
 		{
-
-			// if (resetTrigger[i].process(inputs[RESET_INPUT + i].getVoltage()))
-			// {
-			// 	phase[i] = 0.0f;
-    		// }
-
-
 			for (int j = 0; j <= 2; ++j)
 			{
     	   	 	sawBuffer[i][j] = sawBuffer[i][j + 1];
@@ -306,9 +299,6 @@ void TROSCMK2::onSampleRateChange()
 				sin[i] = (5.0f * sin_01(0.5f * (1.0f - phase[i])));
 			}
 
-	 //   sin[i]=(5.0f * sin_01(phase[i]));
-
-   
 
     	oldPhase[i] = phase[i];
     	oldDiscont[i] = discont[i];
@@ -341,9 +331,6 @@ void TROSCMK2::onSampleRateChange()
 	output[i] = 5.0f * foldedOutput[i];
 
 	outputs[OSC_OUTPUT + i].setVoltage(output[i] * (std::pow(params[LEVEL_PARAM+i].getValue(), 2.f) + (params[OSC_LEVEL_PARAM+i].getValue()* (inputs[VOL_INPUT+i].getVoltage()/10.f))));
-
-	//////////////////////////////////////////////////////////////////////////////////////
-	// outputs[OSC_OUTPUT+i].setVoltage(out_a[i]*params[LEVEL_PARAM+i].getValue());
 
 	}
 	osc_a=outputs[OSC_OUTPUT+0].getVoltage();
@@ -508,7 +495,7 @@ struct TROSCMK2Widget : ModuleWidget {
 	 addOutput(createOutput<PJ301MOPort>(Vec(256, 22 + 272), module, TROSCMK2::OSC_OUTPUT+2));
 
 	 addOutput(createOutput<PJ301MOPort>(Vec(295, 220), module, TROSCMK2::MASTER_OUTPUT));
-	 addParam(createParam<VerboS>(Vec(290, 180), module, TROSCMK2::MASTER_PARAM));
+	 addParam(createParam<VerboDS>(Vec(290, 180), module, TROSCMK2::MASTER_PARAM));
 }
 void step() override {
   if (module) {

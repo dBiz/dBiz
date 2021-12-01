@@ -459,6 +459,23 @@
          style="stop-color:#1F1E1F"
          id="stop16-4" />
     </linearGradient>
+    <linearGradient
+       id="SVGID_1_-5"
+       gradientUnits="userSpaceOnUse"
+       x1="22.499969"
+       y1="-7.8279836e-06"
+       x2="22.499969"
+       y2="44.999989"
+       gradientTransform="matrix(0.50490237,0,0,0.50490237,-0.02245861,0.10113576)">
+      <stop
+         offset="0"
+         style="stop-color:#B0ACAE"
+         id="stop3-5" />
+      <stop
+         offset="1"
+         style="stop-color:#000000"
+         id="stop5-4" />
+    </linearGradient>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -469,7 +486,7 @@
      inkscape:pageshadow="2"
      inkscape:zoom="3.3755772"
      inkscape:cx="32.340108"
-     inkscape:cy="62.328587"
+     inkscape:cy="86.028238"
      inkscape:document-units="px"
      inkscape:current-layer="g29-7"
      showgrid="true"
@@ -480,7 +497,7 @@
      inkscape:window-width="1507"
      inkscape:window-height="941"
      inkscape:window-x="89"
-     inkscape:window-y="43"
+     inkscape:window-y="826"
      inkscape:window-maximized="0"
      inkscape:snap-grids="false"
      showguides="false"
@@ -497,7 +514,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -668,6 +685,54 @@
          fill="#ffffff"
          d="M 11.33704,11.32658 8.99926,2.60187 C 8.2368,2.80617 7.5044,3.10954 6.82079,3.50422 6.13718,3.8989 5.50826,4.38149 4.9501,4.93965 Z"
          id="path27-3" />
+      <circle
+         fill="url(#SVGID_1_)"
+         cx="11.337827"
+         cy="11.461434"
+         r="11.360303"
+         id="circle8-8"
+         style="display:inline;fill:url(#SVGID_1_-5);stroke-width:0.504903" />
+      <path
+         fill="#ffffff"
+         d="M 11.335962,11.459031 8.3963943,0.48842623 C 7.4376662,0.74531543 6.5167285,1.1267793 5.6571575,1.6230528 4.7975864,2.1193265 4.0067581,2.7261535 3.3049233,3.4279929 Z"
+         id="path10-1"
+         style="display:inline;stroke-width:0.504903" />
+      <path
+         opacity="0.25"
+         fill="#ffffff"
+         d="m 11.337854,11.461419 2.622413,9.777565 c 0.85529,-0.228953 1.676861,-0.568934 2.443697,-1.011239 0.766835,-0.44231 1.472331,-0.983135 2.098449,-1.608654 z"
+         id="path12-41"
+         style="display:inline;stroke-width:0.504903" />
+      <ellipse
+         fill="url(#SVGID_2_)"
+         cx="11.337827"
+         cy="11.461434"
+         rx="9.643343"
+         ry="9.6248474"
+         id="ellipse19-8"
+         style="display:inline;fill:#cfcfcf;fill-opacity:1;stroke-width:0.504903" />
+      <path
+         opacity="0.5"
+         d="m 11.335941,11.461434 8.345006,4.81799 c 0.845676,-1.464742 1.290979,-3.126647 1.290979,-4.81799 0,-1.6913427 -0.445308,-3.3532486 -1.290979,-4.8179905 z"
+         id="path21-1"
+         style="display:inline;fill:#b7b7b7;fill-opacity:1;stroke-width:0.504903" />
+      <path
+         opacity="0.5"
+         d="M 11.335956,11.461434 2.9909498,6.6434435 c -0.8456763,1.464747 -1.2909792,3.1266478 -1.2909792,4.8179905 0,1.691343 0.4453079,3.353243 1.2909792,4.81799 z"
+         id="path23-5"
+         style="display:inline;fill:#b7b7b7;fill-opacity:1;stroke-width:0.504903" />
+      <path
+         opacity="0.1"
+         fill="#ffffff"
+         d="m 11.335896,11.458949 2.493051,9.295258 c 0.813099,-0.217664 1.594148,-0.540871 2.323156,-0.961359 0.729009,-0.420487 1.399706,-0.934641 1.994936,-1.529298 z"
+         id="path25-2"
+         style="display:inline;opacity:0.302139;fill:#ffffff;fill-opacity:1;stroke-width:0.504903" />
+      <path
+         opacity="0.1"
+         fill="#ffffff"
+         d="M 11.335941,11.459005 8.8386433,2.1389621 C 8.024155,2.3572011 7.2417793,2.6812727 6.5115338,3.1028813 5.7812884,3.52449 5.1094445,4.0400104 4.5132006,4.6362597 Z"
+         id="path27-4"
+         style="display:inline;opacity:0.302139;fill:#ffffff;fill-opacity:1;stroke-width:0.504903" />
     </g>
   </g>
 </svg>

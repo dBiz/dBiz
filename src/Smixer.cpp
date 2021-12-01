@@ -471,8 +471,9 @@ struct SmixerWidget : ModuleWidget {
 				addInput(createInput<PJ301MCPort>(Vec(10.5 + i * 30, 217), module, Smixer::CH_CV_IN+i));
 
       	addChild(createLight<MediumLight<BlueLight>>(Vec(18 + i * 30, 105), module, Smixer::SLIGHT + i));
-      	addParam(createParam<BPush>(Vec(12.5 + i * 30, 152.5), module, Smixer::BUTTONS + i));
-      	addChild(createLight<BigLight<BlueLight>>(Vec(15 + i * 30, 155), module, Smixer::BUTTON_LIGHT + i));
+
+		addParam(createLightParam<LEDLightBezel<BlueLight>>(Vec(14.5 + i * 30, 154), module, Smixer::BUTTONS + i, Smixer::BUTTON_LIGHT + i));
+
       	addParam(createParam<MCKSSS>(Vec(20 + i * 30, 188), module, Smixer::OUT_SEL + i));
     	}
 
@@ -480,12 +481,11 @@ struct SmixerWidget : ModuleWidget {
 			addInput(createInput<PJ301MCPort>(Vec(10.5 + 90, 220+down), module, Smixer::RESET_IN));
 			addParam(createParam<Trim>(Vec(40, 222.5+down), module, Smixer::CLOCK_PARAM));
 
-      addParam(createParam<BPush>(Vec(65, 222+down), module, Smixer::RUN_PARAM));
-      addChild(createLight<BigLight<BlueLight>>(Vec(67.5, 224.5+down), module, Smixer::RUNNING_LIGHT));
-      addParam(createParam<BPush>(Vec(130, 222+down), module, Smixer::RESET_PARAM));
-      addChild(createLight<BigLight<BlueLight>>(Vec(132.5, 224.5+down), module, Smixer::RESET_LIGHT));
+			addParam(createLightParam<LEDLightBezel<BlueLight>>(Vec(65, 224 + down), module, Smixer::RUN_PARAM, Smixer::RUNNING_LIGHT));
 
-			addParam(createParam<BPush>(Vec(165, 222+down), module, Smixer::MODE_PARAM));
+			addParam(createLightParam<LEDLightBezel<BlueLight>>(Vec(130, 224 + down), module, Smixer::RESET_PARAM, Smixer::RESET_LIGHT));
+
+			addParam(createParam<LEDBezel>(Vec(165, 224 + down), module, Smixer::MODE_PARAM));
 			for(int i=0;i<4;i++){
 		//	addChild(createLight<MediumLight<BlueLight>>(Vec(192 + i*13, 230+down), module, Smixer::MODE_LIGHT + i));
 			}
