@@ -57,7 +57,6 @@ struct TROSCMK2 : Module
 		ENUMS(EXP_FM_INPUT, 3),
 		ENUMS(FOLD_CV_INPUT, 3),
 		ENUMS(SYMM_CV_INPUT, 3),
-		ENUMS(RESET_INPUT, 3),
 		ENUMS(WAVE_MIX_INPUT, 3),
 		ENUMS(VOL_INPUT, 3),
 		NUM_INPUTS
@@ -406,10 +405,6 @@ struct TROSCMK2Widget : ModuleWidget {
 	 addParam(createParam<MicroBluSnapKnob>(Vec(72, 20-13), module, TROSCMK2::COARSE_PARAM+0));
 	 addParam(createParam<MicroBluSnapKnob>(Vec(72,150-13), module, TROSCMK2::COARSE_PARAM+1));
 	 addParam(createParam<MicroBluSnapKnob>(Vec(72,280-13), module, TROSCMK2::COARSE_PARAM+2));
-
-	  addInput(createInput<PJ301MCPort>(Vec(2,   20-4), module, TROSCMK2::RESET_INPUT+0));
-	  addInput(createInput<PJ301MCPort>(Vec(2,  150-4), module, TROSCMK2::RESET_INPUT+1));
-	  addInput(createInput<PJ301MCPort>(Vec(2,  280-4), module, TROSCMK2::RESET_INPUT+2));
 
 	 addParam(createParam<Trim>(Vec(30, 50+ 20), module, TROSCMK2::FINE_PARAM+0));
 	 addParam(createParam<Trim>(Vec(30, 50+150), module, TROSCMK2::FINE_PARAM+1));
