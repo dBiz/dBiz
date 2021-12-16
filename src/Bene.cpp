@@ -594,25 +594,21 @@ struct ULight : BASE
 struct BeneDisplay : TransparentWidget{
   Bene *module;
   int frame = 0;
-  std::shared_ptr<Font> font;
 
   std::string note, scale;
 
-  BeneDisplay()
-  {
-
-    font = (APP->window->loadFont(asset::plugin(pluginInstance, "res/DOTMATRI.ttf")));
-  }
 
   void drawMessage(NVGcontext *vg, Vec pos, std::string note, std::string scale)
   {
+    std::shared_ptr<Font> font = (APP->window->loadFont(asset::plugin(pluginInstance, "res/DOTMATRI.ttf")));
+    if (font){
     nvgFontSize(vg, 16);
     nvgFontFaceId(vg, font->handle);
     nvgTextLetterSpacing(vg, -2);
     nvgFillColor(vg, nvgRGBA(0xff, 0xd4, 0x2a, 0xff));
     nvgText(vg, pos.x + 8, pos.y + 23, note.c_str(), NULL);
     nvgText(vg, pos.x + 25, pos.y + 23, scale.c_str(), NULL);
-
+    }
   }
 
   std::string displayRootNote(int value)

@@ -414,24 +414,21 @@ struct SmorphDisplay : TransparentWidget
 {
     Smorph *module;
     int frame = 0;
-    std::shared_ptr<Font> font;
 
     std::string note, scale;
 
-    SmorphDisplay()
-    {
-
-        font = (APP->window->loadFont(asset::plugin(pluginInstance, "res/DOTMATRI.ttf")));
-    }
-
     void drawMessage(NVGcontext *vg, Vec pos, std::string note, std::string scale)
     {
-        nvgFontSize(vg, 16);
-        nvgFontFaceId(vg, font->handle);
-        nvgTextLetterSpacing(vg, -2);
-        nvgFillColor(vg, nvgRGBA(0xff, 0xd4, 0x2a, 0xff));
-        nvgText(vg, pos.x + 13, pos.y + 13, note.c_str(), NULL);
-        nvgText(vg, pos.x + 35, pos.y + 13, scale.c_str(), NULL);
+        std::shared_ptr<Font> font = (APP->window->loadFont(asset::plugin(pluginInstance, "res/DOTMATRI.ttf")));
+        if (font)
+        {
+            nvgFontSize(vg, 16);
+            nvgFontFaceId(vg, font->handle);
+            nvgTextLetterSpacing(vg, -2);
+            nvgFillColor(vg, nvgRGBA(0xff, 0xd4, 0x2a, 0xff));
+            nvgText(vg, pos.x + 13, pos.y + 13, note.c_str(), NULL);
+            nvgText(vg, pos.x + 35, pos.y + 13, scale.c_str(), NULL);
+        }
     }
 
     std::string displayRootNote(int value)
