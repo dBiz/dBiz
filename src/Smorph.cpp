@@ -1,12 +1,23 @@
-///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+// <3 Voice quantizer>
+// Copyright (C) <2019>  <Giovanni Ghisleni>
 //
-//  
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 //
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 //
-/////////////////////////////////////////////
-
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+/////////////////////////////////////////////////////////////////////////////
 #include "plugin.hpp"
-
+ 
 static float DeltaT(float delta, float tau)
 {
     float lin = sgn(delta) * 10.f / tau;
@@ -32,9 +43,9 @@ struct Smorph : Module {
 		REV_INPUT,
         CLK_INPUT,
         RESET_INPUT,
-        CV_INPUT, 
+        CV_INPUT,
      // LINK_INPUT,
-		ENUMS(GATE_INPUT, 4), 
+		ENUMS(GATE_INPUT, 4),
 		NUM_INPUTS
 	};
 	enum OutputIds {
@@ -118,16 +129,13 @@ struct Smorph : Module {
     int rootNote = 0;
     int curScaleVal = 0;
 
-    float seq_a[4]{};
-    float seq_b[4]{};
-    float seq_c[4]{};
-
-
+    int panelTheme;
 
     dsp::SchmittTrigger trigger[4];
     dsp::SchmittTrigger clk;
+    dsp::SchmittTrigger resetTrigger;
 
-    Smorph() 
+    Smorph()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
@@ -140,15 +148,39 @@ struct Smorph : Module {
             configParam(SEQA_PARAM + i, -5.0, 5.0, 0.0, "Seq A Range");
             configParam(SEQB_PARAM + i, -5.0, 5.0, 0.0, "Seq B Range");
             configParam(SEQC_PARAM + i, -5.0, 5.0, 0.0, "Seq C Range");
-            configParam(GBUTTON_PARAM + i, 0.0, 1.0, 0.0, "Seq Button");
+            configButton(GBUTTON_PARAM + i,"Seq Button");
 
-            
+
         }
         for (int i = 0; i < 4; i++)
         {
             configParam(GLIDE_PARAM + i, 0.0, 1.0, 0.0, "Glide");
         }
+
+
+        onReset();
+
+    	panelTheme = (loadDarkAsDefault() ? 1 : 0);
     }
+
+    json_t *dataToJson() override 
+    {
+        json_t *rootJ = json_object();
+
+        // panelTheme
+        json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+        return rootJ;
+    }
+
+    void dataFromJson(json_t *rootJ) override 
+    {
+        // panelTheme
+        json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+        if (panelThemeJ)
+        panelTheme = json_integer_value(panelThemeJ);
+    
+    }
+
 
 ////////////////////////////////////////////////////////////////////////////////////
  float closestVoltageInScale(float voltsIn)
@@ -251,11 +283,15 @@ struct Smorph : Module {
 ////////////////////////////////////////////////////////////////
 
 
-	void process(const ProcessArgs &args) override 
+	void process(const ProcessArgs &args) override
 	{
+////////////////////////////////////////
+        float seq_a[4]{};
+        float seq_b[4]{};
+        float seq_c[4]{};
 
-        if (inputs[CLK_INPUT].isConnected())
-        {
+            if (inputs[CLK_INPUT].isConnected())
+            {
             if (clk.process(inputs[CLK_INPUT].getVoltage()))
             {
                 if (inputs[REV_INPUT].getVoltage() > 0)
@@ -272,25 +308,37 @@ struct Smorph : Module {
             }
             }
 
-        if (inputs[CV_INPUT].isConnected())
-        {
+            if (inputs[RESET_INPUT].isConnected())
+            {
+             if(resetTrigger.process(inputs[RESET_INPUT].getVoltage()))
+             {
+                  index=0;
+             }
+            }
+
+            if (inputs[CV_INPUT].isConnected())
+            {
             index = round(math::rescale(inputs[CV_INPUT].getVoltage(),-5.0,5.0, 0.0, 3.0f));
-        }
+            }
 
         for (int i = 0; i < 4; i++)
         {
-            if(params[RANGE_PARAM].getValue()==0)
+            if(i<4)
             {
-                seq_a[i] = params[SEQA_PARAM + i].getValue();
-                seq_b[i] = params[SEQB_PARAM + i].getValue();
-                seq_c[i] = params[SEQC_PARAM + i].getValue();
+                if(params[RANGE_PARAM].getValue()==0)
+                {
+                    seq_a[i] = params[SEQA_PARAM + i].getValue();
+                    seq_b[i] = params[SEQB_PARAM + i].getValue();
+                    seq_c[i] = params[SEQC_PARAM + i].getValue();
+                }
+                else
+                {
+                    seq_a[i] = params[SEQA_PARAM + i].getValue()/2.0;
+                    seq_b[i] = params[SEQB_PARAM + i].getValue()/2.0;
+                    seq_c[i] = params[SEQC_PARAM + i].getValue()/2.0;
+                }
             }
-            else
-            {
-                seq_a[i] = params[SEQA_PARAM + i].getValue()/2.0;
-                seq_b[i] = params[SEQB_PARAM + i].getValue()/2.0;
-                seq_c[i] = params[SEQC_PARAM + i].getValue()/2.0;
-            }
+
 
             if (trigger[i].process(params[GBUTTON_PARAM + i].getValue() * 10 + inputs[GATE_INPUT + i].getVoltage()))
             {
@@ -305,7 +353,9 @@ struct Smorph : Module {
         ins[0] = seq_a[index];
         ins[1] = seq_b[index];
         ins[2] = seq_c[index];
-    
+
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////
         for (int g=0;g<3;g++)
@@ -339,6 +389,7 @@ struct Smorph : Module {
             }
 
             outputs[SEQ_OUTPUT + g].setVoltage(outs[g]);
+        
         }
 
     }
@@ -350,7 +401,9 @@ struct BLight : BASE
 {
     BLight()
     {
-        this->box.size = mm2px(Vec(10, 10));
+        this->borderColor = color::BLACK_TRANSPARENT;
+		this->bgColor = color::BLACK_TRANSPARENT;
+        this->box.size = mm2px(Vec(10,10));
     }
 };
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -361,24 +414,21 @@ struct SmorphDisplay : TransparentWidget
 {
     Smorph *module;
     int frame = 0;
-    std::shared_ptr<Font> font;
 
     std::string note, scale;
 
-    SmorphDisplay()
-    {
-
-        font = (APP->window->loadFont(asset::plugin(pluginInstance, "res/Rounded_Elegance.ttf")));
-    }
-
     void drawMessage(NVGcontext *vg, Vec pos, std::string note, std::string scale)
     {
-        nvgFontSize(vg, 18);
-        nvgFontFaceId(vg, font->handle);
-        nvgTextLetterSpacing(vg, -2);
-        nvgFillColor(vg, nvgRGBA(0xff, 0xff, 0xff, 0xff));
-        nvgText(vg, pos.x + 8, pos.y + 13, note.c_str(), NULL);
-        nvgText(vg, pos.x + 30, pos.y + 13, scale.c_str(), NULL);
+        std::shared_ptr<Font> font = (APP->window->loadFont(asset::plugin(pluginInstance, "res/DOTMATRI.ttf")));
+        if (font)
+        {
+            nvgFontSize(vg, 16);
+            nvgFontFaceId(vg, font->handle);
+            nvgTextLetterSpacing(vg, -2);
+            nvgFillColor(vg, nvgRGBA(0xff, 0xd4, 0x2a, 0xff));
+            nvgText(vg, pos.x + 13, pos.y + 13, note.c_str(), NULL);
+            nvgText(vg, pos.x + 35, pos.y + 13, scale.c_str(), NULL);
+        }
     }
 
     std::string displayRootNote(int value)
@@ -475,11 +525,55 @@ struct SmorphDisplay : TransparentWidget
 
 struct SmorphWidget : ModuleWidget
 {
+
+
+  SvgPanel* darkPanel;
+  struct PanelThemeItem : MenuItem {
+    Smorph *module;
+    int theme;
+    void onAction(const event::Action &e) override {
+      module->panelTheme = theme;
+    }
+    void step() override {
+      rightText = (module->panelTheme == theme) ? "✔" : "";
+    }
+  };
+  void appendContextMenu(Menu *menu) override {
+    MenuLabel *spacerLabel = new MenuLabel();
+    menu->addChild(spacerLabel);
+
+    Smorph *module = dynamic_cast<Smorph*>(this->module);
+    assert(module);
+
+    MenuLabel *themeLabel = new MenuLabel();
+    themeLabel->text = "Panel Theme";
+    menu->addChild(themeLabel);
+
+    PanelThemeItem *lightItem = new PanelThemeItem();
+    lightItem->text = lightPanelID;
+    lightItem->module = module;
+    lightItem->theme = 0;
+    menu->addChild(lightItem);
+
+    PanelThemeItem *darkItem = new PanelThemeItem();
+    darkItem->text = darkPanelID;
+    darkItem->module = module;
+    darkItem->theme = 1;
+    menu->addChild(darkItem);
+
+    menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+  }
     SmorphWidget(Smorph *module)
     {
 
         setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Smorph.svg")));
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Smorph.svg")));
+        if (module) {
+          darkPanel = new SvgPanel();
+          darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Smorph.svg")));
+          darkPanel->visible = false;
+          addChild(darkPanel);
+        }
 
         addChild(createWidget<ScrewBlack>(Vec(15, 0)));
         addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
@@ -508,6 +602,8 @@ struct SmorphWidget : ModuleWidget
             addParam(createParam<VerboDS>(Vec(70, 60 + i * seq), module, Smorph::SEQB_PARAM + i));
             addParam(createParam<VerboDS>(Vec(120, 60 + i * seq), module, Smorph::SEQC_PARAM + i));
 
+
+            
             addParam(createParam<BLEDB>(Vec(180, 60 + i * seq), module, Smorph::GBUTTON_PARAM + i));
             addChild(createLight<BLight<OrangeLight>>(Vec(183, 63 + i * seq), module, Smorph::STEP_LIGHT + i));
 
@@ -524,7 +620,7 @@ struct SmorphWidget : ModuleWidget
             for (int i = 0; i < 3; i++)
             {
 
-                addParam(createParam<Trimpot>(Vec(30 + i * gli, 290), module, Smorph::GLIDE_PARAM + i));
+                addParam(createParam<Trim>(Vec(30 + i * gli, 290), module, Smorph::GLIDE_PARAM + i));
         }
 
         addParam(createParam<VerboDS>(Vec(45,15), module, Smorph::ROOT_NOTE_PARAM));
@@ -534,6 +630,14 @@ struct SmorphWidget : ModuleWidget
         addInput(createInput<PJ301MCPort>(Vec(25 +low*4, 320), module, Smorph::REV_INPUT));
         addInput(createInput<PJ301MCPort>(Vec(25 + low * 5, 320), module, Smorph::CLK_INPUT));
         addInput(createInput<PJ301MCPort>(Vec(45 + low*4, 320-low), module, Smorph::RESET_INPUT));
+}
+void step() override {
+  if (module) {
+    Widget* panel = getPanel();
+    panel->visible = ((((Smorph*)module)->panelTheme) == 0);
+    darkPanel->visible  = ((((Smorph*)module)->panelTheme) == 1);
+  }
+  Widget::step();
 }
 };
 Model *modelSmorph = createModel<Smorph, SmorphWidget>("Smorph");

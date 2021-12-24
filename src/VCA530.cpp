@@ -1,12 +1,24 @@
-///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+// <Another 8 channel mixer with cv - kind of Roland 530>
+// Copyright (C) <2019>  <Giovanni Ghisleni>
 //
-//   VCA530 Clone
-//  based on Fundamental Mixer
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 //
-///////////////////////////////////////////////////
- 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+/////////////////////////////////////////////////////////////////////////////
+
 #include "plugin.hpp"
- 
+
 ///////////////////////////////////////////////////
 struct VCA530 : Module {
     enum ParamIds
@@ -62,11 +74,13 @@ struct VCA530 : Module {
         NUM_LIGHTS
     };
 
+    int panelTheme;
+
     VCA530(){
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
     configParam(MIX1_PARAM,  0.0, 1.0, 0.0,"Mix 1 Level");
-    configParam(MIX2_PARAM,  0.0, 1.0, 0.0,"Mix 2 Level");     
+    configParam(MIX2_PARAM,  0.0, 1.0, 0.0,"Mix 2 Level");
 
     configParam(CH1_PARAM,  0.0, 1.0, 0.0, "Ch 1 Level");
     configParam(CH2_PARAM,  0.0, 1.0, 0.0, "Ch 2 Level");
@@ -81,11 +95,31 @@ struct VCA530 : Module {
     configParam(CV4_PARAM,  0.0, 1.0, 0.0, "Ch 4 CV");
     configParam(CV5_PARAM,  0.0, 1.0, 0.0, "Ch 5 CV");
     configParam(CV6_PARAM,  0.0, 1.0, 0.0, "Ch 6 CV");
+    onReset();
+
+		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 
     }
 
-void process(const ProcessArgs &args) override 
-{      
+
+      json_t *dataToJson() override {
+        json_t *rootJ = json_object();
+
+        // panelTheme
+        json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+        return rootJ;
+        }
+        void dataFromJson(json_t *rootJ) override {
+          // panelTheme
+          json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+          if (panelThemeJ)
+            panelTheme = json_integer_value(panelThemeJ);
+        }
+
+
+
+void process(const ProcessArgs &args) override
+{
 
     float ch1 = inputs[CH1_INPUT].getVoltage() * params[CH1_PARAM].getValue();
     float ch2 = inputs[CH2_INPUT].getVoltage() * params[CH2_PARAM].getValue();
@@ -134,9 +168,53 @@ void process(const ProcessArgs &args) override
 };
 
 struct VCA530Widget : ModuleWidget {
+
+
+  SvgPanel* darkPanel;
+  struct PanelThemeItem : MenuItem {
+    VCA530 *module;
+    int theme;
+    void onAction(const event::Action &e) override {
+      module->panelTheme = theme;
+    }
+    void step() override {
+      rightText = (module->panelTheme == theme) ? "✔" : "";
+    }
+  };
+  void appendContextMenu(Menu *menu) override {
+    MenuLabel *spacerLabel = new MenuLabel();
+    menu->addChild(spacerLabel);
+
+    VCA530 *module = dynamic_cast<VCA530*>(this->module);
+    assert(module);
+
+    MenuLabel *themeLabel = new MenuLabel();
+    themeLabel->text = "Panel Theme";
+    menu->addChild(themeLabel);
+
+    PanelThemeItem *lightItem = new PanelThemeItem();
+    lightItem->text = lightPanelID;
+    lightItem->module = module;
+    lightItem->theme = 0;
+    menu->addChild(lightItem);
+
+    PanelThemeItem *darkItem = new PanelThemeItem();
+    darkItem->text = darkPanelID;
+    darkItem->module = module;
+    darkItem->theme = 1;
+    menu->addChild(darkItem);
+
+    menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+  }
 VCA530Widget(VCA530 *module) {
     setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/VCA530.svg")));
+    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/VCA530.svg")));
+    if (module) {
+      darkPanel = new SvgPanel();
+      darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/VCA530.svg")));
+      darkPanel->visible = false;
+      addChild(darkPanel);
+    }
 
     int column_1 = -15;
     int top_row = 60;
@@ -200,6 +278,13 @@ VCA530Widget(VCA530 *module) {
     addChild(createLight<SmallLight<WhiteLight>>(Vec(42, med - 10 + 20), module, VCA530::CLIP1_LIGHTS));
     addChild(createLight<SmallLight<WhiteLight>>(Vec(122, med - 10 + 20), module, VCA530::CLIP2_LIGHTS));
 }
+void step() override {
+  if (module) {
+    Widget* panel = getPanel();
+    panel->visible = ((((VCA530*)module)->panelTheme) == 0);
+    darkPanel->visible  = ((((VCA530*)module)->panelTheme) == 1);
+  }
+  Widget::step();
+}
 };
 Model *modelVCA530 = createModel<VCA530, VCA530Widget>("VCA530");
-

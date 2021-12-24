@@ -1,7 +1,21 @@
-///////////////////////////////////////////////////
-//  dBiz FourSeq
-// 
-///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+// <4seq - Simple 4 step sequencer>
+// Copyright (C) <2019>  <Giovanni Ghisleni>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+/////////////////////////////////////////////////////////////////////////////
 
 #include "plugin.hpp"
 
@@ -10,7 +24,7 @@ using namespace std;
 /////added fine out /////////////////////////////////////////////////
 struct FourSeq : Module {
     enum ParamIds
-    {   
+    {
         RESET_PARAM,
         STEPA_PARAM,
         STEPB_PARAM,
@@ -43,7 +57,7 @@ struct FourSeq : Module {
         RESET_LIGHT,
         ENUMS(SEQA_LIGHT, 4),
         ENUMS(SEQB_LIGHT, 4),
-        ENUMS(GATEA_LIGHT, 4), 
+        ENUMS(GATEA_LIGHT, 4),
         ENUMS(GATEB_LIGHT, 4),
 		NUM_LIGHTS
 	};
@@ -61,18 +75,20 @@ struct FourSeq : Module {
 
     bool gateState_a[4] = {};
     bool gateState_b[4] = {};
- 
-    bool pulse1; 
-    bool pulse2; 
 
-    bool running_a = true;    
+    bool pulse1;
+    bool pulse2;
+
+    bool running_a = true;
     bool running_b = true;
 
     int clk1C = 0;
     int clk2C = 0;
 
     int maxStepA = 0;
-    int maxStepB = 0;  
+    int maxStepB = 0;
+
+    int panelTheme;
 
     enum GateMode
     {
@@ -94,10 +110,12 @@ struct FourSeq : Module {
         {
             configParam(GATEA_PARAM + i, 0.0, 1.0, 0.0, ("Seq A gate"));
             configParam(GATEB_PARAM + i, 0.0, 1.0, 0.0, ("Seq B gate"));
-            configParam(SEQA_PARAM+i, -3.0,3.0, 0.0,("SeqA  param")); 
+            configParam(SEQA_PARAM+i, -3.0,3.0, 0.0,("SeqA  param"));
             configParam(SEQB_PARAM+i, -3.0,3.0, 0.0,("SeqB  param"));
         }
         onReset();
+
+    		panelTheme = (loadDarkAsDefault() ? 1 : 0);
     }
     void onReset() override
     {
@@ -127,6 +145,9 @@ struct FourSeq : Module {
         }
         json_object_set_new(rootJ, "gatesB", gatesBJ);
 
+        // panelTheme
+        json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+
         return rootJ;
     }
 
@@ -154,16 +175,20 @@ struct FourSeq : Module {
                     gateState_b[i] = !!json_integer_value(gateJ);
             }
         }
+
+        json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+        if (panelThemeJ)
+          panelTheme = json_integer_value(panelThemeJ);
     }
 
-    void process(const ProcessArgs &args) override 
+    void process(const ProcessArgs &args) override
     {
-        if (params[STEPA_PARAM].value == 0)  maxStepA = 3; 
-        if (params[STEPA_PARAM].value == 1) { maxStepA = 2; lights[SEQA_LIGHT+3].value = 0.0;} 
+        if (params[STEPA_PARAM].value == 0)  maxStepA = 3;
+        if (params[STEPA_PARAM].value == 1) { maxStepA = 2; lights[SEQA_LIGHT+3].value = 0.0;}
         if (params[STEPA_PARAM].value == 2) {maxStepA = 1;  lights[SEQA_LIGHT+2].value = 0.0;}
 
         if (params[STEPB_PARAM].value == 0) maxStepB = 3;
-        if (params[STEPB_PARAM].value == 1) {maxStepB = 2; lights[SEQB_LIGHT+3].value = 0.0;} 
+        if (params[STEPB_PARAM].value == 1) {maxStepB = 2; lights[SEQB_LIGHT+3].value = 0.0;}
         if (params[STEPB_PARAM].value == 2) {maxStepB = 1; lights[SEQB_LIGHT+2].value = 0.0;}
 
         bool gateAIn = false;
@@ -194,7 +219,7 @@ struct FourSeq : Module {
             {
                 clk2C = 0;
             }
-			}	
+			}
 
 /////////////////////////////////////////////////////////////////
 
@@ -235,7 +260,7 @@ struct FourSeq : Module {
 
         lights[SEQA_LIGHT+i].setSmoothBrightness((gateAIn && i == clk1C) ? 1.f : 0.0, args.sampleTime);
         lights[SEQB_LIGHT+i].setSmoothBrightness((gateBIn && i == clk2C) ? 1.f : 0.0, args.sampleTime);
-    
+
     }
     outputs[GATEA_OUTPUT].setVoltage((gateAIn && gateState_a[clk1C]) ? 10.f : 0.f);
     outputs[GATEB_OUTPUT].setVoltage((gateBIn && gateState_b[clk2C]) ? 10.f : 0.f);
@@ -243,20 +268,52 @@ struct FourSeq : Module {
     }
 };
 
-template <typename BASE>
-struct SLight : BASE
-{
-  SLight()
-  {
-    this->box.size = mm2px(Vec(5, 5));
-  }
-};
-
 struct FourSeqWidget : ModuleWidget {
+  SvgPanel* darkPanel;
+  struct PanelThemeItem : MenuItem {
+    FourSeq *module;
+    int theme;
+    void onAction(const event::Action &e) override {
+      module->panelTheme = theme;
+    }
+    void step() override {
+      rightText = (module->panelTheme == theme) ? "✔" : "";
+    }
+  };
+  void appendContextMenu(Menu *menu) override {
+    MenuLabel *spacerLabel = new MenuLabel();
+    menu->addChild(spacerLabel);
+
+    FourSeq *module = dynamic_cast<FourSeq*>(this->module);
+    assert(module);
+
+    MenuLabel *themeLabel = new MenuLabel();
+    themeLabel->text = "Panel Theme";
+    menu->addChild(themeLabel);
+
+    PanelThemeItem *lightItem = new PanelThemeItem();
+    lightItem->text = lightPanelID;
+    lightItem->module = module;
+    lightItem->theme = 0;
+    menu->addChild(lightItem);
+
+    PanelThemeItem *darkItem = new PanelThemeItem();
+    darkItem->text = darkPanelID;
+    darkItem->module = module;
+    darkItem->theme = 1;
+    menu->addChild(darkItem);
+
+    menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+  }
    FourSeqWidget(FourSeq *module){
        setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/FourSeq.svg")));
-         
+        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/FourSeq.svg")));
+        if (module) {
+          darkPanel = new SvgPanel();
+          darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/FourSeq.svg")));
+          darkPanel->visible = false;
+          addChild(darkPanel);
+        }
            //Screw
            addChild(createWidget<ScrewBlack>(Vec(15, 0)));
            addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
@@ -269,12 +326,14 @@ struct FourSeqWidget : ModuleWidget {
            for (int i = 0; i < 4; i++)
            {
                addParam(createParam<SDKnob>(Vec(70, 28 + knob * i), module, FourSeq::SEQA_PARAM + i));
-               addParam(createParam<LEDB>(Vec(15, 31 + knob * i), module, FourSeq::GATEA_PARAM + i));
-               addChild(createLight<SLight<OrangeLight>>(Vec(18, 34 + knob * i), module, FourSeq::GATEA_LIGHT + i));
 
+                
+               addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(15, 33 + knob * i), module, FourSeq::GATEA_PARAM + i,FourSeq::GATEA_LIGHT + i));
+             
                addParam(createParam<SDKnob>(Vec(70, 172 + knob * i), module, FourSeq::SEQB_PARAM + i));
-               addParam(createParam<LEDB>(Vec(15, 175 + knob * i), module, FourSeq::GATEB_PARAM + i));
-               addChild(createLight<SLight<OrangeLight>>(Vec(18, 178 + knob * i),module, FourSeq::GATEB_LIGHT + i));
+
+               addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(15, 178 + knob * i), module, FourSeq::GATEB_PARAM + i,FourSeq::GATEB_LIGHT + i));
+    
 
                addChild(createLight<SmallLight<RedLight>>(Vec(105, 38 + knob * i), module, FourSeq::SEQA_LIGHT + i));
                addChild(createLight<SmallLight<RedLight>>(Vec(105, 180 + knob * i), module, FourSeq::SEQB_LIGHT + i));
@@ -302,10 +361,17 @@ struct FourSeqWidget : ModuleWidget {
            addParam(createParam<MCKSSS>(Vec(14 + jack * 3, 172 + knob * 4), module, FourSeq::STEPA_PARAM));
            addParam(createParam<MCKSSS>(Vec(14 + jack * 3, 199 + knob * 4), module, FourSeq::STEPB_PARAM));
 
-           addParam(createParam<LEDB>(Vec(35 + jack, 4), module, FourSeq::RESET_PARAM));
-           addChild(createLight<SLight<OrangeLight>>(Vec(38 + jack, 7), module, FourSeq::RESET_LIGHT));
+           addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(35 + jack, 4), module, FourSeq::RESET_PARAM, FourSeq::RESET_LIGHT));
 
            addInput(createInput<PJ301MVAPort>(Vec(35, 4), module, FourSeq::RESET_INPUT));
+}
+void step() override {
+  if (module) {
+    Widget* panel = getPanel();
+    panel->visible = ((((FourSeq*)module)->panelTheme) == 0);
+    darkPanel->visible  = ((((FourSeq*)module)->panelTheme) == 1);
+  }
+  Widget::step();
 }
 };
 

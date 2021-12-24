@@ -1,7 +1,21 @@
-///////////////////////////////////////////////////
-//  dBiz Utility
-// 
-///////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+// <Quantizer>
+// Copyright (C) <2019>  <Giovanni Ghisleni>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+/////////////////////////////////////////////////////////////////////////////
 
 #include "plugin.hpp"
 
@@ -108,9 +122,11 @@ struct Utility : Module {
   float octave_out[3] {};
   float semitone_out[3] {};
   float fine_out[3] {};
-  
 
-  Utility() 
+  int panelTheme;
+
+
+  Utility()
   {
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
@@ -125,7 +141,25 @@ struct Utility : Module {
      configParam(SEMITONE_SHIFT+i,  -5.0 ,5.0, 0.0,"Semitone shift");
      configParam(FINE_SHIFT+i,  -1.0, 1.0, 0.0,"Fine tune");
     }
+    onReset();
+
+		panelTheme = (loadDarkAsDefault() ? 1 : 0);
   }
+
+    json_t *dataToJson() override {
+      json_t *rootJ = json_object();
+
+      // panelTheme
+      json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+      return rootJ;
+      }
+      void dataFromJson(json_t *rootJ) override {
+        // panelTheme
+        json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+        if (panelThemeJ)
+          panelTheme = json_integer_value(panelThemeJ);
+      }
+
 
   float closestVoltageInScale(float voltsIn)
   {
@@ -224,7 +258,7 @@ struct Utility : Module {
     return octaveInVolts + rootNote/12.0 + closestVal;
   }
 
-  void process(const ProcessArgs &args) override 
+  void process(const ProcessArgs &args) override
   {
 
 
@@ -258,24 +292,21 @@ struct UtilityDisplay : TransparentWidget
 {
   Utility *module;
   int frame = 0;
-  std::shared_ptr<Font> font;
 
   std::string note, scale;
 
-  UtilityDisplay()
-  {
-    font = (APP->window->loadFont(asset::plugin(pluginInstance, "res/Rounded_Elegance.ttf")));
-  }
-
   void drawMessage(NVGcontext *vg, Vec pos, std::string note, std::string scale)
   {
-    nvgFontSize(vg, 18);
-    nvgFontFaceId(vg, font->handle);
-    nvgTextLetterSpacing(vg, -2);
-    nvgFillColor(vg, nvgRGBA(0xff, 0xff, 0xff, 0xff));
-    nvgText(vg, pos.x + 8, pos.y + 23, note.c_str(), NULL);
-    nvgText(vg, pos.x + 30, pos.y + 23, scale.c_str(), NULL);
-  
+    std::shared_ptr<Font> font = (APP->window->loadFont(asset::plugin(pluginInstance, "res/DOTMATRI.ttf")));
+    if (font)
+    {
+      nvgFontSize(vg, 16);
+      nvgFontFaceId(vg, font->handle);
+      nvgTextLetterSpacing(vg, -2);
+      nvgFillColor(vg, nvgRGBA(0xff, 0xd4, 0x2a, 0xff));
+      nvgText(vg, pos.x + 8, pos.y + 25, note.c_str(), NULL);
+      nvgText(vg, pos.x + 30, pos.y + 25, scale.c_str(), NULL);
+    }
   }
 
   std::string displayRootNote(int value)
@@ -370,11 +401,55 @@ struct UtilityDisplay : TransparentWidget
 
 
 //////////////////////////////////////////////////////////////////
-struct UtilityWidget : ModuleWidget 
+struct UtilityWidget : ModuleWidget
 {
+
+
+  SvgPanel* darkPanel;
+  struct PanelThemeItem : MenuItem {
+    Utility *module;
+    int theme;
+    void onAction(const event::Action &e) override {
+      module->panelTheme = theme;
+    }
+    void step() override {
+      rightText = (module->panelTheme == theme) ? "✔" : "";
+    }
+  };
+  void appendContextMenu(Menu *menu) override {
+    MenuLabel *spacerLabel = new MenuLabel();
+    menu->addChild(spacerLabel);
+
+    Utility *module = dynamic_cast<Utility*>(this->module);
+    assert(module);
+
+    MenuLabel *themeLabel = new MenuLabel();
+    themeLabel->text = "Panel Theme";
+    menu->addChild(themeLabel);
+
+    PanelThemeItem *lightItem = new PanelThemeItem();
+    lightItem->text = lightPanelID;
+    lightItem->module = module;
+    lightItem->theme = 0;
+    menu->addChild(lightItem);
+
+    PanelThemeItem *darkItem = new PanelThemeItem();
+    darkItem->text = darkPanelID;
+    darkItem->module = module;
+    darkItem->theme = 1;
+    menu->addChild(darkItem);
+
+    menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+  }
 UtilityWidget(Utility *module){
   setModule(module);
-  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Utility.svg")));
+  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Utility.svg")));
+  if (module) {
+    darkPanel = new SvgPanel();
+    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Utility.svg")));
+    darkPanel->visible = false;
+    addChild(darkPanel);
+  }
 
   if (module != NULL)
     {
@@ -397,11 +472,11 @@ UtilityWidget(Utility *module){
     for (int i = 0; i < 3; i++)
     {
       addParam(createParam<FlatASnap>(Vec(10 + knob * i, 20), module, Utility::OCTAVE_SHIFT + i));
-      addParam(createParam<FlatGSnap>(Vec(10 + knob * i, 60), module, Utility::SEMITONE_SHIFT + i));
-      addParam(createParam<FlatR>(Vec(10 + knob * i, 100), module, Utility::FINE_SHIFT + i));
+      addParam(createParam<FlatASnap>(Vec(10 + knob * i, 60), module, Utility::SEMITONE_SHIFT + i));
+      addParam(createParam<FlatA>(Vec(10 + knob * i, 100), module, Utility::FINE_SHIFT + i));
 
     }
-    
+
       addInput(createInput<PJ301MIPort>(Vec(12.5 + knob * 0, 100 + knob * 1.3), module, Utility::OCTAVE_INPUT + 0));
       addInput(createInput<PJ301MIPort>(Vec(12.5 + knob * 1, 100 + knob * 1.3), module, Utility::OCTAVE_INPUT + 1));
       addInput(createInput<PJ301MIPort>(Vec(12.5 + knob * 2, 100 + knob * 1.3), module, Utility::OCTAVE_INPUT + 2));
@@ -431,6 +506,14 @@ UtilityWidget(Utility *module){
 
   addParam(createParam<CKSSS>(Vec(39,150), module, Utility::LINK_A_PARAM));
   addParam(createParam<CKSSS>(Vec(74.5, 150), module, Utility::LINK_B_PARAM));
+}
+void step() override {
+  if (module) {
+    Widget* panel = getPanel();
+    panel->visible = ((((Utility*)module)->panelTheme) == 0);
+    darkPanel->visible  = ((((Utility*)module)->panelTheme) == 1);
+  }
+  Widget::step();
 }
 };
 Model *modelUtility = createModel<Utility, UtilityWidget>("Utility");

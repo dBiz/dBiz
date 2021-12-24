@@ -1,5 +1,5 @@
 #include "plugin.hpp"
-
+ 
 
 using simd::float_4;
 
@@ -43,10 +43,6 @@ struct sineOsc {
 	dsp::MinBlepGenerator<QUALITY, OVERSAMPLE, T> sinMinBlep;
 
 	T sinValue = 0.f;
-
-	void setPitch(T pitch) {
-		freq = dsp::FREQ_C4 * simd::pow(2.f, pitch);
-	}
 
 	void process(float deltaTime, T syncValue) {
 		// Advance phase
@@ -159,17 +155,21 @@ struct DAOSC : Module {
 	sineOsc <8, 8, float_4> b_harmonic[10] = {};
 	sineOsc <8, 8, float_4> b_harmonicq[10] = {};
 
+	int panelTheme;
+
 	DAOSC(){
 	config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_sinS);
-	
+
 	 configParam(A_PITCH_PARAM,  -54.f, 54.f, 0.f, "Osc1 Frequency", " Hz", dsp::FREQ_SEMITONE, dsp::FREQ_C4);
      configParam(A_FINE_PARAM,  -1.f, 1.f, 0.f, "Osc1 Fine frequency");
      configParam(A_FOLD_PARAM,  0.0, 5.0, 0.0,"Fold");
      configParam(A_DRIVE_PARAM,  0.0, 5.0, 0.,"Drive");
      configParam(A_SAW_PARAM,  0.0, 1.0, 0.0,"Saw Harmonic");
      configParam(A_SQUARE_PARAM,  0.0, 1.0, 0.0,"Square Harmonic");
-     configParam(A_FM_PARAM,  0.0, 1.0, 0.0,"Fm amount");
-	  configParam(A_FM2_PARAM,  0.0, 1.0, 0.0,"Fm2 amount");
+     configParam(A_FM_PARAM,  -1.0, 1.0, 0.0,"Fm amount");
+	 getParamQuantity(A_FM_PARAM)->randomizeEnabled = false;
+	 configParam(A_FM2_PARAM,  -1.0, 1.0, 0.0,"Fm2 amount");
+	 getParamQuantity(A_FM2_PARAM)->randomizeEnabled = false;
 
      configParam(B_PITCH_PARAM,  -54.f, 54.f, 0.f, "Osc2 Frequency", " Hz", dsp::FREQ_SEMITONE, dsp::FREQ_C4);
      configParam(B_FINE_PARAM,  -1.f, 1.f, 0.f, "Osc2 Fine frequency");
@@ -177,12 +177,31 @@ struct DAOSC : Module {
      configParam(B_DRIVE_PARAM,  0.0, 5.0, 0.,"Drive");
      configParam(B_SAW_PARAM,  0.0, 1.0, 0.0,"Saw Harmonic");
      configParam(B_SQUARE_PARAM,  0.0, 1.0, 0.0,"Square Harmonic");
-     configParam(B_FM_PARAM,  0.0, 1.0, 0.0,"Fm amount");
-	  configParam(B_FM2_PARAM,  0.0, 1.0, 0.0,"Fm2 amount");
+     configParam(B_FM_PARAM,  -1.0, 1.0, 0.0,"Fm amount");
+	 getParamQuantity(B_FM_PARAM)->randomizeEnabled = false;
+	 configParam(B_FM2_PARAM,  -1.0, 1.0, 0.0,"Fm2 amount");
+	 getParamQuantity(B_FM2_PARAM)->randomizeEnabled = false;
 	
+
+	 panelTheme = (loadDarkAsDefault() ? 1 : 0);
+
 	}
 
-	void process(const ProcessArgs &args) override 
+	  json_t *dataToJson() override {
+	    json_t *rootJ = json_object();
+
+	    // panelTheme
+	    json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+	    return rootJ;
+	    }
+	    void dataFromJson(json_t *rootJ) override {
+	      // panelTheme
+	      json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+	      if (panelThemeJ)
+	        panelTheme = json_integer_value(panelThemeJ);
+	    }
+
+	void process(const ProcessArgs &args) override
 	{
 
 	float_4 va=0.f;
@@ -194,98 +213,92 @@ struct DAOSC : Module {
 	float_4 sumA=0.f;
 	float_4 sumB=0.f;
 
-		float_4 pitchA;
-		float_4 pitchB;
+	float_4 pitchA;
+	float_4 pitchB;
 
 	float freqParamA = params[A_PITCH_PARAM].getValue() / 12.f;
-	freqParamA += dsp::quadraticBipolar(params[B_FINE_PARAM].getValue()) * 3.f / 12.f;
-	float fmParamA = dsp::quadraticBipolar(params[A_FM_PARAM].getValue());
-	float fmParamA2 = dsp::quarticBipolar(params[A_FM2_PARAM].getValue());
+	float fmParamA =  params[A_FM_PARAM].getValue();
+	float fmParamA2 = params[A_FM2_PARAM].getValue();
 
 	float freqParamB = params[B_PITCH_PARAM].getValue() / 12.f;
-	freqParamB += dsp::quadraticBipolar(params[A_FINE_PARAM].getValue()) * 3.f / 12.f;
-	float fmParamB = dsp::quadraticBipolar(params[B_FM_PARAM].getValue());
-	float fmParamB2 = dsp::quarticBipolar(params[B_FM2_PARAM].getValue());
+	float fmParamB =  params[B_FM_PARAM].getValue();
+	float fmParamB2 = params[B_FM2_PARAM].getValue();
 
 	int channelsA = std::max(inputs[A_PITCH_INPUT].getChannels(), 1);
 	int channelsB = std::max(inputs[B_PITCH_INPUT].getChannels(), 1);
 
 	for (int c = 0; c < channelsA; c += 4)
 	{
-			//	auto *oscillator = &oscillator_a[c / 4];
-			osc_a->channels = std::min(channelsA - c, 4);
-			osc_a->analog = 0;
-			osc_a->soft = 0;
+			auto& oscA = osc_a[c / 4];
+			oscA.channels = std::min(channelsA - c, 4);
+			oscA.analog = true;
+			oscA.soft = 0;
 
 
-			pitchA = freqParamA;
-			pitchA += inputs[A_PITCH_INPUT].getVoltageSimd<float_4>(c);
-			
-			if (inputs[A_FM_INPUT].isConnected()) {
-				pitchA += fmParamA * inputs[A_FM_INPUT].getPolyVoltageSimd<float_4>(c);
-			}
-			if (inputs[A_FM2_INPUT].isConnected())
-			{
-				pitchA += fmParamA2 * inputs[A_FM2_INPUT].getPolyVoltageSimd<float_4>(c);
-			}
+			pitchA = freqParamA + inputs[A_PITCH_INPUT].getVoltageSimd<float_4>(c);
+			float_4 freqA;
 
-			osc_a->setPitch(pitchA);
-			osc_a->process(args.sampleTime, 0.f);		
-			va+=osc_a->sin();
+			pitchA += fmParamA * inputs[A_FM_INPUT].getPolyVoltageSimd<float_4>(c);		
+			freqA += dsp::FREQ_C4 * inputs[A_FM2_INPUT].getPolyVoltageSimd<float_4>(c) * fmParamA2;
+
+
+			freqA += dsp::FREQ_C4 * dsp::approxExp2_taylor5(pitchA + 30.f) / std::pow(2.f, 30.f);
+			freqA = clamp(freqA, 0.f, args.sampleRate / 2.f);
+
+			oscA.freq=freqA;
+			oscA.process(args.sampleTime, 0.f);
+			va+=oscA.sin();
 	}
-		
+
 	for (int c = 0; c < channelsB; c += 4)
 	{
-			//	auto *oscillator = &oscillator_a[c / 4];
-			osc_b->channels = std::min(channelsB - c, 4);
-			osc_b->analog = 0;
-			osc_b->soft = 0;
+			auto& oscB = osc_b[c / 4];
+			oscB.channels = std::min(channelsB - c, 4);
+			oscB.analog = true;
+			oscB.soft = 0;
 
 
-			pitchB = freqParamB;
-			pitchB += inputs[B_PITCH_INPUT].getVoltageSimd<float_4>(c);
+			pitchB = freqParamB + inputs[B_PITCH_INPUT].getVoltageSimd<float_4>(c);
+			float_4 freqB;
+
+			pitchB += fmParamB * inputs[B_FM_INPUT].getPolyVoltageSimd<float_4>(c);
+			freqB += dsp::FREQ_C4 * inputs[B_FM2_INPUT].getPolyVoltageSimd<float_4>(c) * fmParamB2;
 			
-			if (inputs[B_FM_INPUT].isConnected()) {
-				pitchB += fmParamB * inputs[B_FM_INPUT].getPolyVoltageSimd<float_4>(c);
-			}
-			if (inputs[B_FM2_INPUT].isConnected())
-			{
-				pitchB += fmParamB2 * inputs[B_FM2_INPUT].getPolyVoltageSimd<float_4>(c);
-			}
+			freqB += dsp::FREQ_C4 * dsp::approxExp2_taylor5(pitchB + 30.f) / std::pow(2.f, 30.f);
+			freqB = clamp(freqB, 0.f, args.sampleRate / 2.f);
 
-			osc_b->setPitch(pitchB);
-			osc_b->process(args.sampleTime, 0.f);		
-			vb+=osc_b->sin();
+			oscB.freq=freqB;
+			oscB.process(args.sampleTime, 0.f);
+			vb+=oscB.sin();
 	}
-		
- 
+
 
 	for (int i =0; i < 10; i++)
-	{ 
-		 
+	{
+
 		a_harmonic[i].freq=(((i+1)*2) * osc_a->freq);
 		a_harmonic[i].process(args.sampleTime, 0.f);
 
 		vaE+=(a_harmonic[i].sin()/(i+2))*params[A_SAW_PARAM].getValue();
 		if(inputs[A_SAW_INPUT].isConnected())
-			vaE *=clamp(inputs[A_SAW_INPUT].getVoltage()/10.f,-1.f,1.f);	
+			vaE *=clamp(inputs[A_SAW_INPUT].getVoltage()/10.f,-1.f,1.f);
 
 		a_harmonicq[i].freq=((((i+1)*2)+1) * osc_a->freq);
-		a_harmonicq[i].process(args.sampleTime, 0.f);	
+		a_harmonicq[i].process(args.sampleTime, 0.f);
 
 		vaO+=(a_harmonicq[i].sin()/(i+2))*params[A_SQUARE_PARAM].getValue();
 		if(inputs[A_SQUARE_INPUT].isConnected())
 			vaO *= clamp(inputs[A_SQUARE_INPUT].getVoltage() / 10.f, -1.f, 1.f);
 
 		b_harmonic[i].freq=(((i+1)*2) * osc_b->freq);
-		b_harmonic[i].process(args.sampleTime, 0.f);	
+		b_harmonic[i].process(args.sampleTime, 0.f);
 
 		vbE+=(b_harmonic[i].sin()/(i+2))*params[B_SAW_PARAM].getValue();
 		if(inputs[B_SAW_INPUT].isConnected())
 			vbE *= clamp(inputs[B_SAW_INPUT].getVoltage() / 10.f, -1.f, 1.f);
 
 		b_harmonicq[i].freq=((((i+1)*2)+1) * osc_b->freq);
-		b_harmonicq[i].process(args.sampleTime, 0.f);	
+		b_harmonicq[i].process(args.sampleTime, 0.f);
 
 		vbO+=(b_harmonicq[i].sin()/(i+2))*params[B_SQUARE_PARAM].getValue();
 		if(inputs[B_SQUARE_INPUT].isConnected())
@@ -299,7 +312,7 @@ struct DAOSC : Module {
 		float_4 sumDB;
 		float_4 sumDA;
 		float_4 a_outputf;
-		float_4 b_outputf; 
+		float_4 b_outputf;
 
 	/////////////////////////////////////////////////////////////////////////////
 
@@ -379,9 +392,54 @@ struct DAOSC : Module {
 };
 
 struct DAOSCWidget : ModuleWidget{
+
+
+	SvgPanel* darkPanel;
+	struct PanelThemeItem : MenuItem {
+	  DAOSC *module;
+	  int theme;
+	  void onAction(const event::Action &e) override {
+	    module->panelTheme = theme;
+	  }
+	  void step() override {
+	    rightText = (module->panelTheme == theme) ? "✔" : "";
+	  }
+	};
+	void appendContextMenu(Menu *menu) override {
+	  MenuLabel *spacerLabel = new MenuLabel();
+	  menu->addChild(spacerLabel);
+
+	  DAOSC *module = dynamic_cast<DAOSC*>(this->module);
+	  assert(module);
+
+	  MenuLabel *themeLabel = new MenuLabel();
+	  themeLabel->text = "Panel Theme";
+	  menu->addChild(themeLabel);
+
+	  PanelThemeItem *lightItem = new PanelThemeItem();
+	  lightItem->text = lightPanelID;
+	  lightItem->module = module;
+	  lightItem->theme = 0;
+	  menu->addChild(lightItem);
+
+	  PanelThemeItem *darkItem = new PanelThemeItem();
+	  darkItem->text = darkPanelID;
+	  darkItem->module = module;
+	  darkItem->theme = 1;
+	  menu->addChild(darkItem);
+
+	  menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+	}
+
 DAOSCWidget(DAOSC *module) {
 setModule(module);
-setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/DAOSC.svg")));
+setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/DAOSC.svg")));
+if (module) {
+	darkPanel = new SvgPanel();
+	darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DAOSC.svg")));
+	darkPanel->visible = false;
+	addChild(darkPanel);
+}
 
 int knob=42;
 int jack=30;
@@ -394,8 +452,8 @@ addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
 addChild(createWidget<ScrewBlack>(Vec(15, 365)));
 addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 365)));
 
-addParam(createParam<LRoundWhy>(Vec(box.size.x-mid-50, top), module, DAOSC::A_PITCH_PARAM));
-addParam(createParam<RoundWhy>(Vec(box.size.x-mid-knob*2 - 10, top), module, DAOSC::A_FINE_PARAM));
+addParam(createParam<LRoundWhy>(Vec(box.size.x-mid-70, top), module, DAOSC::A_PITCH_PARAM));
+// addParam(createParam<RoundWhy>(Vec(box.size.x-mid-knob*2 - 10, top), module, DAOSC::A_FINE_PARAM));
 addParam(createParam<RoundWhy>(Vec(box.size.x - mid - knob * 1 , top + knob + 8), module, DAOSC::A_FM_PARAM));
 addParam(createParam<RoundWhy>(Vec(box.size.x - mid - knob * 1, top + knob + 48), module, DAOSC::A_FM2_PARAM));
 
@@ -416,8 +474,8 @@ addInput(createInput<PJ301MCPort>(Vec(box.size.x-mid-jack*3-5, 230+down), module
 
 addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid-jack-5, 230+down), module, DAOSC::A_OUTPUT));
 
-addParam(createParam<LRoundWhy>(Vec(box.size.x-mid+5, top), module, DAOSC::B_PITCH_PARAM));
-addParam(createParam<RoundWhy>(Vec(box.size.x-mid+5+knob+10, top), module, DAOSC::B_FINE_PARAM));
+addParam(createParam<LRoundWhy>(Vec(box.size.x-mid+25, top), module, DAOSC::B_PITCH_PARAM));
+// addParam(createParam<RoundWhy>(Vec(box.size.x-mid+5+knob+10, top), module, DAOSC::B_FINE_PARAM));
 addParam(createParam<RoundWhy>(Vec(box.size.x - mid + 5, top + knob+8), module, DAOSC::B_FM_PARAM));
 addParam(createParam<RoundWhy>(Vec(box.size.x - mid + 5, top + knob + 48), module, DAOSC::B_FM2_PARAM));
 
@@ -439,6 +497,14 @@ addInput(createInput<PJ301MCPort>(Vec(box.size.x-mid+10+jack*2, 230+down), modul
 addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid+10, 230+down), module, DAOSC::B_OUTPUT));
 
 addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid-12.5, 265+down), module, DAOSC::SUM_OUTPUT));
+}
+void step() override {
+  if (module) {
+	Widget* panel = getPanel();
+    panel->visible = ((((DAOSC*)module)->panelTheme) == 0);
+    darkPanel->visible  = ((((DAOSC*)module)->panelTheme) == 1);
+  }
+  Widget::step();
 }
 };
 Model *modelDAOSC = createModel<DAOSC, DAOSCWidget>("DAOSC");
