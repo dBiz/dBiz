@@ -1,11 +1,27 @@
-///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+// <Contorno is a simple 4 X envelope generator>
+// Copyright (C) <2019>  <Giovanni Ghisleni>
 //
-//  Based on Befaco Rampage
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 //
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
 //
-/////////////////////////////////////////////
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+/////////////////////////////////////////////////////////////////////////////
 
 #include "plugin.hpp"
+
+inline float ifelse(bool cond, float a, float b) {
+	return cond ? a : b;
+}
 
 static float shapeDelta(float delta, float tau, float shape) {
 	float lin = sgn(delta) * 10.f / tau;
@@ -26,13 +42,13 @@ struct Contorno : Module {
 		ENUMS(CYCLE_PARAM, 4),
 		ENUMS(SHAPE_PARAM, 4),
 		ENUMS(RISE_PARAM, 4),
-		ENUMS(FALL_PARAM, 4), 
+		ENUMS(FALL_PARAM, 4),
 		NUM_PARAMS
 	};
 	enum InputIds {
 		ENUMS(TRIGG_INPUT, 4),
-		ENUMS(CYCLE_INPUT, 4), 
-		ENUMS(RISE_INPUT, 4), 
+		ENUMS(CYCLE_INPUT, 4),
+		ENUMS(RISE_INPUT, 4),
 		ENUMS(FALL_INPUT, 4),
 		ENUMS(IN_INPUT, 4),
 		NUM_INPUTS
@@ -52,38 +68,76 @@ struct Contorno : Module {
 	};
 
 	float out[4] {};
-	bool gate[4] = {};
+	float gate[4] = {};
+
+	int panelTheme;
 
 	dsp::SchmittTrigger trigger[4];
+	dsp::SchmittTrigger cycle[4];
+	bool cycleState[4];
 	dsp::PulseGenerator endOfCyclePulse[4];
 
-	Contorno() 
+	Contorno()
 	{
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-		
+
 		for (int i = 0; i < 4; i++)
 		{
-			configParam(RANGE_PARAM + i,  0.0, 2.0, 0.0, "range");
-			configParam(TRIGG_PARAM + i,  0.0, 1.0, 0.0, "trig");
-			configParam(CYCLE_PARAM + i,  0.0, 1.0, 0.0, "Cycle");
+			configSwitch(RANGE_PARAM +i , 0.0, 2.0, 0.0, "Ch range", {"Medium", "Fast", "Slow"});
+			configButton(TRIGG_PARAM + i ,"trig");
+			configSwitch(CYCLE_PARAM +i , 0.0, 1.0, 0.0, "Ch cycle", {"Off", "On"});
 			configParam(SHAPE_PARAM + i,  -1.0, 1.0, 0.0, "Shape");
 			configParam(RISE_PARAM + i,  0.0, 1.0, 0.0, "Raise");
 			configParam(FALL_PARAM + i,  0.0, 1.0, 0.0, "Fall");
 		}
-	
+
+		//onReset();
+
+		panelTheme = (loadDarkAsDefault() ? 1 : 0);
+
 	}
 
-	void process(const ProcessArgs &args) override 
-	{	
+	  json_t *dataToJson() override {
+	    json_t *rootJ = json_object();
+		// mute states
+    	json_t *cycle_statesJ = json_array();
+    	for (int i = 0; i < 4; i++)
+    	{
+    	  json_t *cycle_stateJ = json_boolean(cycleState[i]);
+    	  json_array_append_new(cycle_statesJ, cycle_stateJ);
+    	}
+    	json_object_set_new(rootJ, "mutes", cycle_statesJ);
+
+	    // panelTheme
+	    json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+	    return rootJ;
+	    }
+	    void dataFromJson(json_t *rootJ) override {
+	      // panelTheme
+	      json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+	      if (panelThemeJ)
+	        panelTheme = json_integer_value(panelThemeJ);
+	    }
+
+	void process(const ProcessArgs &args) override
+	{
 
 	for (int c=0;c<4;c++)
 	{
-	
-	float in = inputs[IN_INPUT + c].getVoltage();
-		if (trigger[c].process(params[TRIGG_PARAM + c].getValue() * 10.0 + inputs[TRIGG_INPUT + c].getVoltage())) {
+		if(cycle[c].process(params[CYCLE_PARAM+c].getValue()+inputs[CYCLE_INPUT+c].getVoltage()))
+		{
+			cycleState[c]=!cycleState[c];
+		}
+			lights[CYCLE_LIGHT+c].setBrightness(cycleState[c] ? 1.0 : 0.0);
+		
+		
+
+		float in = inputs[IN_INPUT + c].getVoltage();
+
+		if (trigger[c].process(params[TRIGG_PARAM + c].getValue() * 10.0 + inputs[TRIGG_INPUT + c].getVoltage()/2.0)) {
 			gate[c] = true;
 		}
-		if (gate[c]) {
+				if (gate[c]) {
 			in = 10.0;
 		}
 
@@ -121,45 +175,79 @@ struct Contorno : Module {
 			falling = (in - out[c] < -1e-3);
 			if (!falling) {
 				// End of cycle, check if we should turn the gate back on (cycle mode)
-				endOfCyclePulse[c].trigger(1e-3);
-				if (params[CYCLE_PARAM + c].getValue() * 10.0 + inputs[CYCLE_INPUT + c].getVoltage() >= 4.0) {
+				if (cycleState[c]) {
 					gate[c] = true;
 				}
 			}
 		}
 		else {
 			gate[c] = false;
-			lights[CYCLE_LIGHT+c].setBrightness(0.0);
+			//lights[CYCLE_LIGHT+c].setBrightness(0.0);
 		}
 
 		if (!rising && !falling) {
 			out[c] = in;
 		}
 
-		if (params[CYCLE_PARAM + c].getValue() == 1.0 || inputs[CYCLE_INPUT+c].getVoltage()>0.0) lights[CYCLE_LIGHT + c].setBrightness(1.0);
+		//if (params[CYCLE_PARAM + c].getValue() == 1.0 || inputs[CYCLE_INPUT+c].getVoltage()>0.0) lights[CYCLE_LIGHT + c].setBrightness(1.0);
 
 		lights[RISE_LIGHT + c].setSmoothBrightness(rising ? 1.0 : 0.0, args.sampleTime);
 		lights[FALL_LIGHT + c].setSmoothBrightness(falling ? 1.0 : 0.0, args.sampleTime);
 		outputs[OUT_OUTPUT + c].setVoltage(out[c]);
 		}
-		
+
 }
 };
 
-template <typename BASE>
-struct CLight : BASE
-{
-  CLight()
-  {
-    this->box.size = mm2px(Vec(5, 5));
-  }
-};
-
-
 struct ContornoWidget : ModuleWidget {
+
+
+	SvgPanel* darkPanel;
+	struct PanelThemeItem : MenuItem {
+	  Contorno *module;
+	  int theme;
+	  void onAction(const event::Action &e) override {
+	    module->panelTheme = theme;
+	  }
+	  void step() override {
+	    rightText = (module->panelTheme == theme) ? "✔" : "";
+	  }
+	};
+	void appendContextMenu(Menu *menu) override {
+	  MenuLabel *spacerLabel = new MenuLabel();
+	  menu->addChild(spacerLabel);
+
+	  Contorno *module = dynamic_cast<Contorno*>(this->module);
+	  assert(module);
+
+	  MenuLabel *themeLabel = new MenuLabel();
+	  themeLabel->text = "Panel Theme";
+	  menu->addChild(themeLabel);
+
+	  PanelThemeItem *lightItem = new PanelThemeItem();
+	  lightItem->text = lightPanelID;
+	  lightItem->module = module;
+	  lightItem->theme = 0;
+	  menu->addChild(lightItem);
+
+	  PanelThemeItem *darkItem = new PanelThemeItem();
+	  darkItem->text = darkPanelID;
+	  darkItem->module = module;
+	  darkItem->theme = 1;
+	  menu->addChild(darkItem);
+
+	  menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+	}
+
 	ContornoWidget(Contorno *module){
 	 setModule(module);
-	 setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Contorno.svg")));
+	 setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/Contorno.svg")));
+	 if (module) {
+     darkPanel = new SvgPanel();
+     darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Contorno.svg")));
+     darkPanel->visible = false;
+     addChild(darkPanel);
+   }
 
 	 addChild(createWidget<ScrewBlack>(Vec(15, 0)));
 	 addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
@@ -172,9 +260,10 @@ struct ContornoWidget : ModuleWidget {
 	 {
 
 		 addParam(createParam<MCKSSS>(Vec(space * i + 52, 25), module, Contorno::RANGE_PARAM + i));
-		 addParam(createParam<LEDT>(Vec(space * i + 7, 297), module, Contorno::CYCLE_PARAM + i));
 
-		 addChild(createLight<CLight<BlueLight>>(Vec(space * i + 10, 300), module, Contorno::CYCLE_LIGHT + i));
+
+		 addParam(createLightParam<LEDLightBezel<BlueLight>>(Vec(space * i + 7, 297), module, Contorno::CYCLE_PARAM + i,Contorno::CYCLE_LIGHT + i));
+	
 
 		 addParam(createParam<RoundWhy>(Vec(space * i + 12.5, 39), module, ::Contorno::SHAPE_PARAM + i));
 
@@ -220,6 +309,14 @@ struct ContornoWidget : ModuleWidget {
 		 addInput(createInput<PJ301MIPort>(Vec(space * 3 + 5, 335), module, ::Contorno::IN_INPUT + 3));
 
 
+}
+void step() override {
+  if (module) {
+	Widget* panel = getPanel();
+    panel->visible = ((((Contorno*)module)->panelTheme) == 0);
+    darkPanel->visible  = ((((Contorno*)module)->panelTheme) == 1);
+  }
+  Widget::step();
 }
 };
 Model *modelContorno = createModel<Contorno, ContornoWidget>("Contorno");

@@ -1,3 +1,22 @@
+////////////////////////////////////////////////////////////////////////////
+// <Harmonic Oscillator>
+// Copyright (C) <2019>  <Giovanni Ghisleni>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+/////////////////////////////////////////////////////////////////////////////
+
 #include "plugin.hpp"
 
 int clampInt(const int _in, const int min = 0, const int max = 7)
@@ -52,7 +71,7 @@ struct sineOsc
 	// For optimizing in serial code
 	int channels = 0;
 
-	
+
 	T phase = 0.f;
 	T freq;
 	T syncDirection = 1.f;
@@ -411,17 +430,21 @@ struct Verbo : Module {
 		NUM_OUTPUTS
 	};
 	enum LightIds {
-		ENUMS(HARM_LIGHT, 8),
+		ENUMS(HARM_LIGHT, 10),
 		NUM_LIGHTS
 	};
 
 	Oscillator<8, 8, float_4> oscillator[4];
 	sineOsc<8, 8, float_4> bank[8] = {};
 
-	float inMults[8] = {};
-    float widthTable[9] = {0, 0, 0, 0.285, 0.285, 0.2608, 0.23523, 0.2125, 0.193};
 
-    Verbo() {
+
+	float inMults[8] = {};
+  float widthTable[9] = {0, 0, 0, 0.285, 0.285, 0.2608, 0.23523, 0.2125, 0.193};
+
+	int panelTheme;
+
+  Verbo() {
 	config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
 	for (int i = 0; i < 8; i++)
@@ -432,19 +455,37 @@ struct Verbo : Module {
 		configParam(CV_PARAM,  -1.0, 1.0, 0.0, "Cv Param");
 
 		configParam(WIDTH_CV_PARAM,  -1.0, 1.0, 0.0, "Width Cv Param");
-		configParam(WIDTH_PARAM,  1.0, 8.0, 0.0, "Width Param");
+		configParam(WIDTH_PARAM,  0.0, 7.0, 0.0, "Width Param");
 
 		configParam(SLOPE_PARAM,  0.0, 5.0, 0.0, "Slope Param");
 
 		configParam(CENTER_CV_PARAM,  -1.0, 1.0, 0.0, "Center Cv Param");
-		configParam(CENTER_PARAM,  -1.0, 8.0, -1.0, "Center Param");
+		configParam(CENTER_PARAM,  0.0, 7.0, 0.0, "Center Param");
 
 		configParam(FREQ_PARAM,  -54.f, 54.f, 0.f, "Frequency", "Hz", std::pow(2, 1 / 12.f), dsp::FREQ_C4);
 		configParam(FINE_PARAM,  -1.f, 1.f, 0.f, "Fine frequency");
+		onReset();
+
+		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
 
+	  json_t *dataToJson() override {
+	    json_t *rootJ = json_object();
 
-	void process(const ProcessArgs &args) override 
+	    // panelTheme
+	    json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+	    return rootJ;
+	    }
+	    void dataFromJson(json_t *rootJ) override {
+	      // panelTheme
+	      json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+	      if (panelThemeJ)
+	        panelTheme = json_integer_value(panelThemeJ);
+	    }
+
+
+
+	void process(const ProcessArgs &args) override
 	{
 
 
@@ -468,10 +509,10 @@ struct Verbo : Module {
 			{
 				pitch += fmParam * inputs[FM_INPUT].getPolyVoltageSimd<float_4>(c);
 			}
-	
+
 			oscillator->setPitch(pitch);
-			oscillator->process(args.sampleTime,0.f);	
-	
+			oscillator->process(args.sampleTime,0.f);
+
 		}
 
 	///////////////////////////////////////////
@@ -499,7 +540,7 @@ struct Verbo : Module {
     		float invWidth = 1.0f/(LERP(widthControl, float(stages), invStages+invStages));
 
     		float subStage = 0.0f;
-    		for(int i = -1; i < 8; i++)
+    		for(int i = 0; i < 8; i++)
     		{
     		    inMults[i] = (scanFinal + subStage) * invWidth;
     		    subStage = subStage - invStages;
@@ -526,26 +567,19 @@ struct Verbo : Module {
 
 		harms[i]=(5 * bank[i].sin() * clamp((params[HARM_PARAM + i].getValue() + inputs[HARM_INPUT + i].getVoltage()), 0.0, 1.0));
 		harm_out += 0.5 * bank[i].sin() * clamp((params[HARM_PARAM + i].getValue()+ inputs[HARM_INPUT + i].getVoltage()), 0.0f, 1.0f);
-		lights[HARM_LIGHT + i].setSmoothBrightness(params[HARM_PARAM + i].getValue() * 1.2, args.sampleTime);
+		lights[HARM_LIGHT + i].setSmoothBrightness(params[HARM_PARAM + i].getValue() * 1.2,APP->engine->getSampleTime());
 
 		outputs[HARM_OUTPUT + i].setVoltageSimd(harms[i], 0);
 	}
 
-	if (params[CENTER_PARAM].getValue() < 0)
+	
+	for (int i = 0; i < 8; i++)
 	{
-		harm_sum = crossfade(0.0, bank[0].sin() * inMults[0], params[CENTER_PARAM].getValue() +1.f);
-		lights[HARM_LIGHT].setSmoothBrightness(math::crossfade(inMults[0], 0.0, params[CENTER_PARAM].getValue() * -1.0), args.sampleTime);
+		harm_sum += bank[i].sin() * inMults[i] * 1.2;
+		lights[HARM_LIGHT + i].setSmoothBrightness(std::fmax(0.0, inMults[i]),APP->engine->getSampleTime());
 	}
 
-	if (params[CENTER_PARAM].getValue() >= 0)
-	{
-		for (int i = 0; i < 8; i++)
-		{
-			harm_sum += bank[i].sin() * inMults[i] * 1.2;
-			lights[HARM_LIGHT + i].setSmoothBrightness(std::fmax(0.0, inMults[i]), args.sampleTime);
-		}
-
-	}
+	
 	for (int c = 0; c < channels; c += 4)
 	{
 		outputs[SAW_OUTPUT].setVoltageSimd(5*oscillator->saw(),c);
@@ -558,17 +592,58 @@ struct Verbo : Module {
 		outputs[SQR_OUTPUT].setChannels(channels);
 		outputs[TRI_OUTPUT].setChannels(channels);
 		outputs[SIN_OUTPUT].setChannels(channels);
-  }  
+  }
 
 };
 
 
 struct VerboWidget : ModuleWidget {
+
+	SvgPanel* darkPanel;
+	struct PanelThemeItem : MenuItem {
+	  Verbo *module;
+	  int theme;
+	  void onAction(const event::Action &e) override {
+	    module->panelTheme = theme;
+	  }
+	  void step() override {
+	    rightText = (module->panelTheme == theme) ? "✔" : "";
+	  }
+	};
+	void appendContextMenu(Menu *menu) override {
+	  MenuLabel *spacerLabel = new MenuLabel();
+	  menu->addChild(spacerLabel);
+
+	  Verbo *module = dynamic_cast<Verbo*>(this->module);
+	  assert(module);
+
+	  MenuLabel *themeLabel = new MenuLabel();
+	  themeLabel->text = "Panel Theme";
+	  menu->addChild(themeLabel);
+
+	  PanelThemeItem *lightItem = new PanelThemeItem();
+	  lightItem->text = lightPanelID;
+	  lightItem->module = module;
+	  lightItem->theme = 0;
+	  menu->addChild(lightItem);
+
+	  PanelThemeItem *darkItem = new PanelThemeItem();
+	  darkItem->text = darkPanelID;
+	  darkItem->module = module;
+	  darkItem->theme = 1;
+	  menu->addChild(darkItem);
+
+	  menu->addChild(createMenuItem<DarkDefaultItem>("Dark as default", CHECKMARK(loadDarkAsDefault())));
+	}
  VerboWidget(Verbo *module){
 	setModule(module);
-
-	box.size = Vec(15*25, 380);
-	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Verbo.svg")));
+	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,"res/Light/Verbo.svg")));
+	if (module) {
+    darkPanel = new SvgPanel();
+    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance,"res/Dark/Verbo.svg")));
+    darkPanel->visible = false;
+    addChild(darkPanel);
+  }
 
 	addChild(createWidget<ScrewBlack>(Vec(15, 0)));
 	addChild(createWidget<ScrewBlack>(Vec(box.size.x-30, 0)));
@@ -576,10 +651,10 @@ struct VerboWidget : ModuleWidget {
 	addChild(createWidget<ScrewBlack>(Vec(box.size.x-30, 365)));
 
 
-	addParam(createParam<VerboL>(Vec(15, 160), module, Verbo::FREQ_PARAM));
+	addParam(createParam<VerboDL>(Vec(15, 160), module, Verbo::FREQ_PARAM));
 	addParam(createParam<Trimpot>(Vec(85, 140), module, Verbo::FINE_PARAM));
-	
-	
+
+
 	int space=30;
 	int left=40;
 	for(int i=0; i<8;i++)
@@ -609,24 +684,24 @@ struct VerboWidget : ModuleWidget {
 	int ks = 60;
 	int vp=20;
 
-		addParam(createParam<VerboS>(Vec(10, vp+272), module, Verbo::FM_PARAM));
+		addParam(createParam<VerboDS>(Vec(10, vp+272), module, Verbo::FM_PARAM));
 		addInput(createInput<PJ301MCPort>(Vec(15, vp+320), module, Verbo::FM_INPUT));
-		addParam(createParam<VerboS>(Vec(55, vp+272), module, Verbo::CV_PARAM));
+		addParam(createParam<VerboDS>(Vec(55, vp+272), module, Verbo::CV_PARAM));
 		addInput(createInput<PJ301MCPort>(Vec(60, vp+320),module, Verbo::CV_INPUT));
 		addInput(createInput<PJ301MCPort>(Vec(90, vp+320),module, Verbo::PITCH_INPUT));
 
-		addParam(createParam<VerboS>(Vec(30+left+ks, vp+272), module, Verbo::WIDTH_CV_PARAM));
-		addParam(createParam<VerboS>(Vec(30+left+ks+space*2, vp+272), module, Verbo::WIDTH_PARAM));
+		addParam(createParam<VerboDS>(Vec(30+left+ks, vp+272), module, Verbo::WIDTH_CV_PARAM));
+		addParam(createParam<VerboDS>(Vec(30+left+ks+space*2, vp+272), module, Verbo::WIDTH_PARAM));
 
 		addParam(createParam<Trimpot>(Vec(30+left+ks*2-15, vp+322.5), module, Verbo::SLOPE_PARAM));
 		addInput(createInput<PJ301MCPort>(Vec(30+left+ks*2+25, vp+320),module, Verbo::SLOPE_INPUT));
 
-		addParam(createParam<VerboS>(Vec(30+left+ks*3, vp+272), module, Verbo::CENTER_CV_PARAM));
-		addParam(createParam<VerboS>(Vec(30+left+ks*3+space*2, vp+272), module, Verbo::CENTER_PARAM));
+		addParam(createParam<VerboDS>(Vec(30+left+ks*3, vp+272), module, Verbo::CENTER_CV_PARAM));
+		addParam(createParam<VerboDS>(Vec(30+left+ks*3+space*2, vp+272), module, Verbo::CENTER_PARAM));
 
 		addInput(createInput<PJ301MCPort>(Vec(30+left+ks+5, vp+320),  module, Verbo::WIDTH_INPUT));
 		addInput(createInput<PJ301MCPort>(Vec(30+left+ks*3+5, vp+320), module, Verbo::CENTER_INPUT));
-	
+
 
 
 		addOutput(createOutput<PJ301MOPort>(Vec(5, 80), module, Verbo::TRI_OUTPUT));
@@ -634,9 +709,16 @@ struct VerboWidget : ModuleWidget {
 		addOutput(createOutput<PJ301MOPort>(Vec(61, 80),module, Verbo::SAW_OUTPUT));
 		addOutput(createOutput<PJ301MOPort>(Vec(89, 80),module, Verbo::SIN_OUTPUT));
 
-	
- }
 
+ }
+ void step() override {
+   if (module) {
+	 Widget* panel = getPanel();
+     panel->visible = ((((Verbo*)module)->panelTheme) == 0);
+     darkPanel->visible  = ((((Verbo*)module)->panelTheme) == 1);
+   }
+   Widget::step();
+ }
 };
 
 Model *modelVerbo = createModel<Verbo, VerboWidget>("Verbo");

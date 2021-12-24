@@ -1,7 +1,7 @@
 {
 
  "slug": "dBiz",
-  "version": "1.1.2",
+  "version": "2.0.3",
   "license": "BSD-3-Clause",
   "name": "dBiz",
   "brand": "dBiz",
@@ -12,27 +12,28 @@
   "manualUrl": "https://github.com/dBiz/dBiz/wiki",
   "sourceUrl": "https://github.com/dBiz/dBiz",
   "donateUrl": "https://www.paypal.me/GiovanniGhisleni",
- 
+
     "modules": [
 
         {
-            "slug": "Multiple",
-            "name": "Multiple",
+            "slug": "NavControl",
+            "name": "NavControl",
             "tags": ["Utility"]
         },
+
+        {
+            "slug": "Bench",
+            "name": "Bench",
+            "tags": ["Utility"]
+        },
+
+
         {
             "slug": "Contorno",
             "name": "Contorno",
             "tags": ["Envelope Generator"]
         },
-        {
-            "slug": "ContornoMK2",
-            "name": "ContornoMK2",
-            "tags": [
-                "Envelope Generator"
-            ]
-        },
-        
+
         {
             "slug": "Transpose",
             "name": "Transpose",
@@ -62,10 +63,22 @@
             "name": "BenePads",
             "tags": ["Utility"]
         },
-        
+
         {
             "slug": "PerfMixer",
             "name": "PerfMixer",
+            "tags": ["Mixer", "VCA"]
+        },
+		
+		 {
+            "slug": "PerfMixer4",
+            "name": "PerfMixer4",
+            "tags": ["Mixer", "VCA"]
+        },
+		
+        {
+            "slug": "DrMix",
+            "name": "DrMix",
             "tags": ["Mixer", "VCA"]
         },
 
@@ -86,10 +99,10 @@
             "name": "VCA4",
             "tags": ["Mixer", "VCA"]
              },
-        
+
         {
             "slug": "VCA530",
-            "name": "VCA530",   
+            "name": "VCA530",
             "tags": ["Mixer", "VCA"]
         },
 
@@ -98,7 +111,7 @@
             "name": "Verbo",
             "tags": ["VCO"]
         },
-            
+
         {
             "slug": "DVCO",
             "name": "DVCO",
@@ -118,8 +131,20 @@
         },
 
         {
+            "slug": "TROSCMK2",
+            "name": "TROSCMK2",
+            "tags": ["VCO"]
+        },
+
+        {
             "slug": "SuHa",
             "name": "SuHa",
+            "tags": ["VCO"]
+        },
+
+        {
+            "slug": "SuHaMK2",
+            "name": "SuHaMK2",
             "tags": ["VCO"]
         },
 
@@ -148,10 +173,40 @@
         },
 
         {
+            "slug": "BigSmorph",
+            "name": "BigSmorph",
+            "tags": ["Sequencer"]
+        },
+
+
+        {
             "slug": "QuePasa",
             "name": "QuePasa",
             "tags": [
-                "Blank"
+                "Filter"
+            ]
+        },
+        {
+            "slug": "DualFilter",
+            "name": "DualFilter",
+            "tags": [
+                "Filter"
+            ]
+        },
+
+        {
+            "slug": "Order",
+            "name": "Order",
+            "tags": [
+                "Utility"
+            ]
+        },
+
+        {
+            "slug": "DualMatrix",
+            "name": "DualMatrix",
+            "tags": [
+                "Mixer"
             ]
         },
 
@@ -162,8 +217,8 @@
                 "VCA"
             ]
         }
+ 
 
-        
     ]
 
 }
