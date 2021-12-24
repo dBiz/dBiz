@@ -2,4 +2,4 @@
 
 V2 port of dBiz modules ... manuals soon!
 
-![alt text](https://github.com/dBiz/dBiz/blob/v2/screenshots/v2.jpg)
+![alt text](https://github.com/dBiz/dBiz/blob/master/screenshots/v2.jpg)
