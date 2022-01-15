@@ -83,12 +83,12 @@ struct Contorno : Module {
 
 		for (int i = 0; i < 4; i++)
 		{
-			configSwitch(RANGE_PARAM +i , 0.0, 2.0, 0.0, "Ch range", {"Medium", "Fast", "Slow"});
-			configButton(TRIGG_PARAM + i ,"trig");
-			configSwitch(CYCLE_PARAM +i , 0.0, 1.0, 0.0, "Ch cycle", {"Off", "On"});
-			configParam(SHAPE_PARAM + i,  -1.0, 1.0, 0.0, "Shape");
-			configParam(RISE_PARAM + i,  0.0, 1.0, 0.0, "Raise");
-			configParam(FALL_PARAM + i,  0.0, 1.0, 0.0, "Fall");
+			configSwitch(RANGE_PARAM +i , 0.0, 2.0, 0.0, string::f("Ch %d range",i + 1), {"Medium", "Fast", "Slow"});
+			configButton(TRIGG_PARAM + i ,string::f("Ch %d trig",i + 1));
+			configSwitch(CYCLE_PARAM + i , 0.0, 1.0, 0.0, string::f("Ch %d cycle", i + 1), {"Off", "On"});
+			configParam(SHAPE_PARAM + i,  -1.0, 1.0, 0.0, string::f("Ch %d Shape",i+1));
+			configParam(RISE_PARAM + i,  0.0, 1.0, 0.0, string::f("Ch % dRaise",i+1));
+			configParam(FALL_PARAM + i,  0.0, 1.0, 0.0, string::f("Ch %d Fall",i+1));
 		}
 
 		//onReset();
@@ -99,19 +99,10 @@ struct Contorno : Module {
 
 	  json_t *dataToJson() override {
 	    json_t *rootJ = json_object();
-		// mute states
-    	json_t *cycle_statesJ = json_array();
-    	for (int i = 0; i < 4; i++)
-    	{
-    	  json_t *cycle_stateJ = json_boolean(cycleState[i]);
-    	  json_array_append_new(cycle_statesJ, cycle_stateJ);
-    	}
-    	json_object_set_new(rootJ, "mutes", cycle_statesJ);
-
-	    // panelTheme
-	    json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
-	    return rootJ;
-	    }
+		// panelTheme
+	     json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+	     return rootJ;
+	     }
 	    void dataFromJson(json_t *rootJ) override {
 	      // panelTheme
 	      json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
