@@ -83,32 +83,19 @@ struct Contorno : Module {
 
 		for (int i = 0; i < 4; i++)
 		{
-			configSwitch(RANGE_PARAM +i , 0.0, 2.0, 0.0, string::f("Ch %d range",i + 1), {"Medium", "Fast", "Slow"});
-			configButton(TRIGG_PARAM + i ,string::f("Ch %d trig",i + 1));
-			configSwitch(CYCLE_PARAM + i , 0.0, 1.0, 0.0, string::f("Ch %d cycle", i + 1), {"Off", "On"});
-			configParam(SHAPE_PARAM + i,  -1.0, 1.0, 0.0, string::f("Ch %d Shape",i+1));
-			configParam(RISE_PARAM + i,  0.0, 1.0, 0.0, string::f("Ch % dRaise",i+1));
-			configParam(FALL_PARAM + i,  0.0, 1.0, 0.0, string::f("Ch %d Fall",i+1));
+			configSwitch(RANGE_PARAM +i , 0.0, 2.0, 0.0, "Ch range", {"Medium", "Fast", "Slow"});
+			configButton(TRIGG_PARAM + i ,"trig");
+			configSwitch(CYCLE_PARAM +i , 0.0, 1.0, 0.0, "Ch cycle", {"Off", "On"});
+			configParam(SHAPE_PARAM + i,  -1.0, 1.0, 0.0, "Shape");
+			configParam(RISE_PARAM + i,  0.0, 1.0, 0.0, "Raise");
+			configParam(FALL_PARAM + i,  0.0, 1.0, 0.0, "Fall");
 		}
 
-		//onReset();
-
+		onReset();
+		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 
 	}
-
-	  json_t *dataToJson() override {
-	    json_t *rootJ = json_object();
-		// panelTheme
-	     json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
-	     return rootJ;
-	     }
-	    void dataFromJson(json_t *rootJ) override {
-	      // panelTheme
-	      json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
-	      if (panelThemeJ)
-	        panelTheme = json_integer_value(panelThemeJ);
-	    }
 
 	void process(const ProcessArgs &args) override
 	{
@@ -187,8 +174,55 @@ struct Contorno : Module {
 		outputs[OUT_OUTPUT + c].setVoltage(out[c]);
 		}
 
-}
+	}
+
+	void onReset() override
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			cycleState[i] = false;
+		}
+	}
+
+	json_t *dataToJson() override
+	{
+		json_t *rootJ = json_object();
+		// cycle states
+		json_t *cycleStatesJ = json_array();
+		for (int i = 0; i < 4; i++)
+		{
+			json_t *cycleStateJ = json_boolean(cycleState[i]);
+			json_array_append_new(cycleStatesJ, cycleStateJ);
+		}
+
+		json_object_set_new(rootJ, "cycles", cycleStatesJ);
+
+		// panelTheme
+		json_object_set_new(rootJ, "panelTheme", json_integer(panelTheme));
+		return rootJ;
+	}
+
+	void dataFromJson(json_t *rootJ) override
+	{
+		// cycle states
+		json_t *cycleStatesJ = json_object_get(rootJ, "cycles");
+		if (cycleStatesJ)
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				json_t *cycleStateJ = json_array_get(cycleStatesJ, i);
+				if (cycleStateJ)
+					cycleState[i] = json_boolean_value(cycleStateJ);
+			}
+		}
+		// panelTheme
+		json_t *panelThemeJ = json_object_get(rootJ, "panelTheme");
+		if (panelThemeJ)
+			panelTheme = json_integer_value(panelThemeJ);
+	}
 };
+
+
 
 struct ContornoWidget : ModuleWidget {
 
