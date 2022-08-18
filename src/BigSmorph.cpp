@@ -407,7 +407,7 @@ struct BigSmorphDisplay : TransparentWidget
 
     void drawMessage(NVGcontext *vg, Vec pos, std::string note, std::string scale)
     {
-        std::shared_ptr<Font> font = (APP->window->loadFont(asset::plugin(pluginInstance, "res/DOTMATRI.ttf")));
+        std::shared_ptr<Font> font = (APP->window->loadFont(asset::plugin(pluginInstance, "res/ShareTechMono-Regular.ttf")));
         if (font)
         {
             nvgFontSize(vg, 13);
