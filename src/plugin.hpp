@@ -48,20 +48,27 @@ extern Model *modelDualMatrix;
 
 ///////////////////////////////////////////////////////////////////////
 
-static const std::string lightPanelID = "Light";
-static const std::string darkPanelID = "Dark";
+ static const std::string lightPanelID = "Light";
+ static const std::string darkPanelID = "Dark";
+
+// ******** Panel Theme management ********
 
 
 void saveDarkAsDefault(bool darkAsDefault);
 bool loadDarkAsDefault();
 
+bool isDark(int* panelTheme);
+
+void writeDarkAsDefault();
+void readDarkAsDefault();
+
 struct DarkDefaultItem : MenuItem {
 	void onAction(const event::Action &e) override {
 		saveDarkAsDefault(rightText.empty());// implicitly toggled
 	}
-};
+};	
 
-//////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 
 template <typename TLightBase = RedLight>
 struct LEDLightSliderFixed : LEDLightSlider<TLightBase> {

@@ -292,9 +292,11 @@ void process(const ProcessArgs &args) override
 
 struct Util2Widget : ModuleWidget
 {
-
-
-	SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  Util2 *module;
 	  int theme;
@@ -332,14 +334,11 @@ struct Util2Widget : ModuleWidget
 	}
     Util2Widget(Util2 * module){
     setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/Util2.svg")));
-		if (module) {
-	    darkPanel = new SvgPanel();
-	    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Util2.svg")));
-	    darkPanel->visible = false;
-	    addChild(darkPanel);
-	  }
-
+    // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Util2.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Util2.svg"));
+		int panelTheme = isDark(module ? (&(((Util2*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
     //Screw
     addChild(createWidget<ScrewBlack>(Vec(15, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
@@ -402,12 +401,13 @@ struct Util2Widget : ModuleWidget
 
 }
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((Util2*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Util2*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Util2*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelUtil2 = createModel<Util2, Util2Widget>("Util2");

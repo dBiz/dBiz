@@ -200,8 +200,10 @@ void process(const ProcessArgs &args) override
 
 struct MultipleWidget : ModuleWidget {
 
-
-	SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  Multiple *module;
 	  int theme;
@@ -240,13 +242,11 @@ struct MultipleWidget : ModuleWidget {
 
 	MultipleWidget(Multiple *module) {
 		setModule(module);
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/Multiple.svg")));
-		if (module) {
-	    darkPanel = new SvgPanel();
-	    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Multiple.svg")));
-	    darkPanel->visible = false;
-	    addChild(darkPanel);
-	  }
+		// Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Multiple.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Multiple.svg"));
+		int panelTheme = isDark(module ? (&(((Multiple*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
 		addChild(createWidget<ScrewBlack>(Vec(15, 0)));
 		addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
@@ -287,46 +287,15 @@ struct MultipleWidget : ModuleWidget {
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-		 //addParam(createParam<RoundWhy>(Vec(13, 175), module, Multiple::L1_PARAM));
-		 //addParam(createParam<RoundWhy>(Vec(13 + 60, 175), module, Multiple::L2_PARAM));
-		 //addParam(createParam<RoundWhy>(Vec(13 + 120, 175), module, Multiple::L3_PARAM));
-		 //addParam(createParam<RoundWhy>(Vec(13 + 180, 175), module, Multiple::L4_PARAM));
- 
-		 //addInput(createInput<PJ301MIPort>(Vec(11, 230), module, Multiple::M1_INPUT));
-		 //addInput(createInput<PJ301MIPort>(Vec(11 + 70, 230), module, Multiple::M2_INPUT));
-		 //addInput(createInput<PJ301MIPort>(Vec(130, 230), module, Multiple::M3_INPUT));
-		 //addInput(createInput<PJ301MIPort>(Vec(130 + 70, 230), module, Multiple::M4_INPUT));
- 
-		 //addOutput(createOutput<PJ301MOPort>(Vec(11 + 35, 230), module, Multiple::M12_OUTPUT));
-		 //addOutput(createOutput<PJ301MOPort>(Vec(130 + 35, 230), module, Multiple::M34_OUTPUT));
-
-		////////////////////////////////////////////////////////////////////////////////////////////
-
-		//addInput(createInput<PJ301MIPort>(Vec(8, 280), module, Multiple::A_INPUT));
-		//addOutput(createOutput<PJ301MOPort>(Vec(8 + 30 * 1, 280), module, Multiple::A11_OUTPUT));
-		//addOutput(createOutput<PJ301MOPort>(Vec(8 + 30 * 2, 280), module, Multiple::A12_OUTPUT));
-
-		//addInput(createInput<PJ301MIPort>(Vec(8, 320), module, Multiple::B_INPUT));
-		//addOutput(createOutput<PJ301MOPort>(Vec(8 + 30 * 1, 320), module, Multiple::B11_OUTPUT));
-		//addOutput(createOutput<PJ301MOPort>(Vec(8 + 30 * 2, 320), module, Multiple::B12_OUTPUT));
-
-		//addInput(createInput<PJ301MIPort>(Vec(115, 280), module, Multiple::A1_INPUT));
-		//addOutput(createOutput<PJ301MOPort>(Vec(115 + 30 * 1, 280), module, Multiple::A1_OUTPUT));
-		//addOutput(createOutput<PJ301MOPort>(Vec(115 + 30 * 2, 280), module, Multiple::A2_OUTPUT));
-		//addOutput(createOutput<PJ301MOPort>(Vec(115 + 30 * 3, 280), module, Multiple::A3_OUTPUT));
-
-		//addInput(createInput<PJ301MIPort>(Vec(115, 320), module, Multiple::B1_INPUT));
-		//addOutput(createOutput<PJ301MOPort>(Vec(115 + 30 * 1, 320), module, Multiple::B1_OUTPUT));
-		//addOutput(createOutput<PJ301MOPort>(Vec(115 + 30 * 2, 320), module, Multiple::B2_OUTPUT));
-		//addOutput(createOutput<PJ301MOPort>(Vec(115 + 30 * 3, 320), module, Multiple::B3_OUTPUT));
 }
 void step() override {
-  if (module) {
-	Widget* panel = getPanel();
-    panel->visible = ((((Multiple*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Multiple*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Multiple*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelMultiple = createModel<Multiple, MultipleWidget>("Multiple");

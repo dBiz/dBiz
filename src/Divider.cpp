@@ -317,8 +317,10 @@ else
 
 struct DividerWidget : ModuleWidget {
 
-
-  SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     Divider *module;
     int theme;
@@ -357,13 +359,11 @@ struct DividerWidget : ModuleWidget {
 
 DividerWidget(Divider *module){
 	setModule(module);
-	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/Divider.svg")));
-  if (module) {
-    darkPanel = new SvgPanel();
-    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Divider.svg")));
-    darkPanel->visible = false;
-    addChild(darkPanel);
-  }
+	// Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Divider.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Divider.svg"));
+		int panelTheme = isDark(module ? (&(((Divider*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
 //Screw
   addChild(createWidget<ScrewBlack>(Vec(15, 0)));
@@ -416,13 +416,14 @@ addOutput(createOutput<PJ301MVAPort>(Vec(15 + jack * 3, 310 + jack), module, Div
 addParam(createParam<MCKSSS2>(Vec(15 + jack * 4, 313 + jack), module, Divider::MODE_PARAM + 1));
 }
 void step() override {
-  if (module) {
-	Widget* panel = getPanel();
-    panel->visible = ((((Divider*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Divider*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Divider*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 
 Model *modelDivider = createModel<Divider, DividerWidget>("Divider");

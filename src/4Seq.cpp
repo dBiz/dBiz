@@ -269,7 +269,11 @@ struct FourSeq : Module {
 };
 
 struct FourSeqWidget : ModuleWidget {
-  SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     FourSeq *module;
     int theme;
@@ -307,13 +311,16 @@ struct FourSeqWidget : ModuleWidget {
   }
    FourSeqWidget(FourSeq *module){
        setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/FourSeq.svg")));
-        if (module) {
-          darkPanel = new SvgPanel();
-          darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/FourSeq.svg")));
-          darkPanel->visible = false;
-          addChild(darkPanel);
-        }
+	   
+	   // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/FourSeq.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/FourSeq.svg"));
+		int panelTheme = isDark(module ? (&(((FourSeq*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
+	   
+	  	
+		///////////////////////////// 
+		
            //Screw
            addChild(createWidget<ScrewBlack>(Vec(15, 0)));
            addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
@@ -365,14 +372,15 @@ struct FourSeqWidget : ModuleWidget {
 
            addInput(createInput<PJ301MVAPort>(Vec(35, 4), module, FourSeq::RESET_INPUT));
 }
-void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((FourSeq*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((FourSeq*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+	void step() override {
+		int panelTheme = isDark(module ? (&(((FourSeq*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 
 Model *modelFourSeq = createModel<FourSeq, FourSeqWidget>("FourSeq");

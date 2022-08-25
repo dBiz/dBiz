@@ -342,9 +342,11 @@ void TROSCMK2::onSampleRateChange()
 
 
 struct TROSCMK2Widget : ModuleWidget {
-
-
-	SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  TROSCMK2 *module;
 	  int theme;
@@ -382,13 +384,11 @@ struct TROSCMK2Widget : ModuleWidget {
 	}
 	TROSCMK2Widget(TROSCMK2 *module){
 	 setModule(module);
-	 setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/TROSCMK2.svg")));
-	 if (module) {
-     darkPanel = new SvgPanel();
-     darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/TROSCMK2.svg")));
-     darkPanel->visible = false;
-     addChild(darkPanel);
-   }
+	 // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/TROSCMK2.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/TROSCMK2.svg"));
+		int panelTheme = isDark(module ? (&(((TROSCMK2*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
 	 addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
 	 addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -493,13 +493,14 @@ struct TROSCMK2Widget : ModuleWidget {
 	 addParam(createParam<VerboDS>(Vec(290, 180), module, TROSCMK2::MASTER_PARAM));
 }
 void step() override {
-  if (module) {
-	Widget* panel = getPanel();
-    panel->visible = ((((TROSCMK2*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((TROSCMK2*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((TROSCMK2*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 
 

@@ -197,7 +197,11 @@ struct ULight : BASE
 //////////////////////////////////////////////////////////////////
 struct DrMixWidget : ModuleWidget 
 {
-    	SvgPanel* darkPanel;
+	
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  DrMix *module;
 	  int theme;
@@ -237,13 +241,11 @@ struct DrMixWidget : ModuleWidget
 
 	    DrMixWidget(DrMix *module) {
 		setModule(module);
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/DrMix.svg")));
-		if (module) {
-	    darkPanel = new SvgPanel();
-	    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DrMix.svg")));
-	    darkPanel->visible = false;
-	    addChild(darkPanel);
-	  }
+		// Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/DrMix.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DrMix.svg"));
+		int panelTheme = isDark(module ? (&(((DrMix*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
     
 
@@ -324,15 +326,14 @@ struct DrMixWidget : ModuleWidget
   
   }
 
-    void step() override
-    {
-      if (module)
-      {
-        Widget* panel = getPanel();
-        panel->visible = ((((DrMix *)module)->panelTheme) == 0);
-        darkPanel->visible = ((((DrMix *)module)->panelTheme) == 1);
-      }
-      Widget::step();
-    }
+    void step() override {
+		int panelTheme = isDark(module ? (&(((DrMix*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelDrMix = createModel<DrMix, DrMixWidget>("DrMix");

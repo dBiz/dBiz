@@ -704,8 +704,11 @@ struct BeneDisplay : TransparentWidget{
 /////////////////////////////////
 
 struct BeneWidget : ModuleWidget{
-
-  SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     Bene *module;
     int theme;
@@ -743,13 +746,13 @@ struct BeneWidget : ModuleWidget{
   }
 BeneWidget(Bene *module){
   setModule(module);
-  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Bene.svg")));
-  if (module) {
-    darkPanel = new SvgPanel();
-    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Bene.svg")));
-    darkPanel->visible = false;
-    addChild(darkPanel);
-  }
+  
+    // Main panels from Inkscape
+ 	light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Bene.svg"));
+	dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Bene.svg"));
+	int panelTheme = isDark(module ? (&(((Bene*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+	setPanel(panelTheme == 0 ? light_svg : dark_svg);	
+  
   int top = 15;
   int top2 = 35;
   int left = 8;
@@ -821,12 +824,13 @@ BeneWidget(Bene *module){
   addChild(createWidget<ScrewBlack>(Vec(box.size.x-30, 365)));
 }
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((Bene*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Bene*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Bene*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelBene = createModel<Bene, BeneWidget>("Bene");
