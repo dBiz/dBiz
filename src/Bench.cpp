@@ -522,9 +522,11 @@ struct Bench : Module {
 
 //////////////////////////////////////////////////////////////////
 struct BenchWidget : ModuleWidget {
-
-
-	SvgPanel* darkPanel;
+	
+int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  Bench *module;
 	  int theme;
@@ -562,13 +564,13 @@ struct BenchWidget : ModuleWidget {
 	}
 BenchWidget(Bench *module){
    setModule(module);
-   setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/Bench.svg")));
-	 if (module) {
-     darkPanel = new SvgPanel();
-     darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Bench.svg")));
-     darkPanel->visible = false;
-     addChild(darkPanel);
-   }
+   
+    // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Bench.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Bench.svg"));
+		int panelTheme = isDark(module ? (&(((Bench*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
+		
 
    //Screw
 
@@ -658,21 +660,15 @@ addChild(createLight<MediumLight<RedGreenBlueLight>>(Vec(43 + space * 5, 275+48)
 addChild(createLight<MediumLight<RedGreenBlueLight>>(Vec(43 + space * 5, 290+48), module, Bench::SWAP_LOW_B_LIGHT));
 
 
-
-
-
-
-
-
-
 }
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((Bench*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Bench*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Bench*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelBench = createModel<Bench, BenchWidget>("Bench");

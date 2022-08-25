@@ -507,8 +507,10 @@ struct DVCO : Module {
 struct DVCOWidget : ModuleWidget
 {
 
-
-	SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  DVCO *module;
 	  int theme;
@@ -548,13 +550,11 @@ struct DVCOWidget : ModuleWidget
 DVCOWidget(DVCO *module)
 {
 	setModule(module);
-	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/DVCO.svg")));
-	if (module) {
-    darkPanel = new SvgPanel();
-    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DVCO.svg")));
-    darkPanel->visible = false;
-    addChild(darkPanel);
-  }
+	// Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/DVCO.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DVCO.svg"));
+		int panelTheme = isDark(module ? (&(((DVCO*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
 
 	int jacks = 27;
@@ -636,12 +636,13 @@ DVCOWidget(DVCO *module)
 
 }
 void step() override {
-  if (module) {
-	Widget* panel = getPanel();
-    panel->visible = ((((DVCO*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((DVCO*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((DVCO*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelDVCO = createModel<DVCO, DVCOWidget>("DVCO");

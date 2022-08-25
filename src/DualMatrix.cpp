@@ -319,9 +319,10 @@ struct ULight : BASE
 //////////////////////////////////////////////////////////////////
 struct DualMatrixWidget : ModuleWidget {
 
-    /////////////////////////////////
-
-    SvgPanel *darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
     struct PanelThemeItem : MenuItem
     {
         DualMatrix *module;
@@ -366,14 +367,11 @@ struct DualMatrixWidget : ModuleWidget {
     DualMatrixWidget(DualMatrix *module)
     {
         setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/DualMatrix.svg")));
-        if (module)
-        {
-            darkPanel = new SvgPanel();
-            darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DualMatrix.svg")));
-            darkPanel->visible = false;
-            addChild(darkPanel);
-        }
+        // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/DualMatrix.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DualMatrix.svg"));
+		int panelTheme = isDark(module ? (&(((DualMatrix*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
         int k = 35;
         int j = 29;
@@ -447,15 +445,14 @@ struct DualMatrixWidget : ModuleWidget {
 
 
     }
-    void step() override
-    {
-        if (module)
-        {
-            Widget* panel = getPanel();
-            panel->visible = ((((DualMatrix *)module)->panelTheme) == 0);
-            darkPanel->visible = ((((DualMatrix *)module)->panelTheme) == 1);
-        }
-        Widget::step();
-    }
+    void step() override {
+		int panelTheme = isDark(module ? (&(((DualMatrix*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelDualMatrix = createModel<DualMatrix, DualMatrixWidget>("DualMatrix");

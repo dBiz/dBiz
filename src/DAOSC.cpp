@@ -393,8 +393,10 @@ struct DAOSC : Module {
 
 struct DAOSCWidget : ModuleWidget{
 
-
-	SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  DAOSC *module;
 	  int theme;
@@ -433,13 +435,11 @@ struct DAOSCWidget : ModuleWidget{
 
 DAOSCWidget(DAOSC *module) {
 setModule(module);
-setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/DAOSC.svg")));
-if (module) {
-	darkPanel = new SvgPanel();
-	darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DAOSC.svg")));
-	darkPanel->visible = false;
-	addChild(darkPanel);
-}
+// Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/DAOSC.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DAOSC.svg"));
+		int panelTheme = isDark(module ? (&(((DAOSC*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
 int knob=42;
 int jack=30;
@@ -499,12 +499,13 @@ addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid+10, 230+down), module, 
 addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid-12.5, 265+down), module, DAOSC::SUM_OUTPUT));
 }
 void step() override {
-  if (module) {
-	Widget* panel = getPanel();
-    panel->visible = ((((DAOSC*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((DAOSC*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((DAOSC*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelDAOSC = createModel<DAOSC, DAOSCWidget>("DAOSC");

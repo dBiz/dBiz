@@ -134,7 +134,11 @@ struct BenePadsWidget : ModuleWidget {
 /////////////////////////////////
 
 
-SvgPanel* darkPanel;
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
+	
 struct PanelThemeItem : MenuItem {
   BenePads *module;
   int theme;
@@ -174,13 +178,14 @@ void appendContextMenu(Menu *menu) override {
 /////////////////////////////////////
 BenePadsWidget(BenePads *module){
   setModule(module);
-  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/BenePad.svg")));
-  if (module) {
-    darkPanel = new SvgPanel();
-    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/BenePad.svg")));
-    darkPanel->visible = false;
-    addChild(darkPanel);
-  }
+  
+  // Main panels from Inkscape
+	light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/BenePad.svg"));
+	dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/BenePad.svg"));
+	int panelTheme = isDark(module ? (&(((BenePads*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+	setPanel(panelTheme == 0 ? light_svg : dark_svg);	
+		
+  
 
    int top = 20;
   int left = 3;
@@ -208,12 +213,13 @@ BenePadsWidget(BenePads *module){
 
 }
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((BenePads*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((BenePads*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((BenePads*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelBenePads = createModel<BenePads, BenePadsWidget>("BenePads");

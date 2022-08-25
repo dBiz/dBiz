@@ -525,9 +525,11 @@ struct SmorphDisplay : TransparentWidget
 
 struct SmorphWidget : ModuleWidget
 {
-
-
-  SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     Smorph *module;
     int theme;
@@ -567,13 +569,11 @@ struct SmorphWidget : ModuleWidget
     {
 
         setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Smorph.svg")));
-        if (module) {
-          darkPanel = new SvgPanel();
-          darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Smorph.svg")));
-          darkPanel->visible = false;
-          addChild(darkPanel);
-        }
+        // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Smorph.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Smorph.svg"));
+		int panelTheme = isDark(module ? (&(((Smorph*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
         addChild(createWidget<ScrewBlack>(Vec(15, 0)));
         addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
@@ -632,12 +632,13 @@ struct SmorphWidget : ModuleWidget
         addInput(createInput<PJ301MCPort>(Vec(45 + low*4, 320-low), module, Smorph::RESET_INPUT));
 }
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((Smorph*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Smorph*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Smorph*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelSmorph = createModel<Smorph, SmorphWidget>("Smorph");
