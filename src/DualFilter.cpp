@@ -120,7 +120,7 @@ DualFilter()
     configParam(CMOD_PARAM2, -1.f, 1.f, 0.f, "Freq. Mod2", "%", 0.f, 100.f);
     configParam(DRIVE_PARAM, -5.f, 5.f, 0.f, "Drive Level", "%", 0.f, 100.f);
 
-    configParam(CUTOFF2_PARAM, 0.f, 1.f, 1.f, "Center Freq.", " Hz", params[CUTOFF_PARAM].getValue(), 20.f * 410.58f);
+    configParam(CUTOFF2_PARAM, 0.f, 1.f, 1.f, "Center Freq.", " Hz", params[CUTOFF2_PARAM].getValue(), 20.f * 410.58f);
     configParam(Q2_PARAM, .1f, 1.f, .1f, "Q factor", "", params[Q2_PARAM].getValue(), 20.f);
     configParam(CMOD2_PARAM, 0.f, 1.f, 0.f, "Freq. Mod", "%", 0.f, 100.f);
     configParam(CMOD2_PARAM2, -1.f, 1.f, 0.f, "Freq. Mod2", "%", 0.f, 100.f);
