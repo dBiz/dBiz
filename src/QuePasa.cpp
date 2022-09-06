@@ -253,6 +253,12 @@ for (int i = 0; i < 3; i++)
 
      float inl = inputs[L_INPUT].getVoltage() * std::pow(params[VCA_PARAM].getValue(), 2.f)*0.2f;
      float inr = inputs[R_INPUT].getVoltage() * std::pow(params[VCA_PARAM].getValue(), 2.f)*0.2f;
+	 
+	 if (inputs[VCA_INPUT].isConnected()) 
+	 {
+		 inl *= (inputs[VCA_INPUT].getVoltage()/10.f);
+		 inr *= (inputs[VCA_INPUT].getVoltage()/10.f);
+	 }
 
 
      // //filtering
