@@ -191,6 +191,10 @@ struct Bene : Module {
           configButton(Y_DIR_PARAM ,"Direction Y");
           configButton(X_LOCK_PARAM,"Lock X");
           configButton(Y_LOCK_PARAM,"Lock Y");
+	    
+	  configOutput(GATE_OUT, "Gate");
+          configOutput(QUANT_OUT, "V/Oct");
+          configOutput(TRIG_OUT, "Trigger");
 
         rightExpander.producerMessage = producerMessage;
 		    rightExpander.consumerMessage = consumerMessage;
