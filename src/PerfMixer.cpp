@@ -110,8 +110,8 @@ struct PerfMixer : Module {
     configParam(MAIN_VOL_PARAM,  0.0, 1.0, 0.5,"Mix Level", "%", 0, 100);
     configParam(AUX_R1_PARAM,  0.0, 1.0, 0.0,"Aux Return 1", "%", 0, 100);
     configParam(AUX_R2_PARAM,  0.0, 1.0, 0.0,"Aux Return 2", "%", 0, 100);
-    configParam(AUX_S1_PARAM,  0.0, 1.0, 0.0,"Auz Send 1", "%", 0, 100);
-    configParam(AUX_S2_PARAM,  0.0, 1.0, 0.0,"Auz Send 2", "%", 0, 100);
+    configParam(AUX_S1_PARAM,  0.0, 1.0, 0.0,"Aux Send 1", "%", 0, 100);
+    configParam(AUX_S2_PARAM,  0.0, 1.0, 0.0,"Aux Send 2", "%", 0, 100);
 
     for(int i=0;i<8;i++)
     {
