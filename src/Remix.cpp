@@ -235,7 +235,7 @@ struct RemixWidget : ModuleWidget {
     int lastPanelTheme = -1;
 	std::shared_ptr<window::Svg> light_svg;
 	std::shared_ptr<window::Svg> dark_svg;
-	
+
   struct PanelThemeItem : MenuItem {
     Remix *module;
     int theme;
@@ -274,15 +274,15 @@ struct RemixWidget : ModuleWidget {
 RemixWidget(Remix *module) {
     setModule(module);
 	// Main panels from Inkscape
- 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Remix.svg"));
-		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Remix.svg"));
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Remix2.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Remix2.svg"));
 		int panelTheme = isDark(module ? (&(((Remix*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
-		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
-		
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);
+
     int knob = 30;
     int jack = 27;
 
-    
+
     float mid = (15*12)/2;
     float midy= 190;
     int space = 9;
