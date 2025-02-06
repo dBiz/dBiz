@@ -504,8 +504,6 @@ struct Bene : Module {
     if (step_right)
     {
       lights[GRID_LIGHTS + x_position + y_position*4].value=0;
-      if(gates[x_position][y_position])
-        trig_out[x_position][y_position].trigger(1e-3);
       x_position += 1;
       if (x_position > 3)
       {
@@ -521,8 +519,6 @@ struct Bene : Module {
     if (step_left)
     {
       lights[GRID_LIGHTS + x_position + y_position*4].value=0;
-      if(gates[x_position][y_position])
-        trig_out[x_position][y_position].trigger(1e-3);
       x_position -= 1;
       if (x_position < 0)
       {
@@ -538,8 +534,6 @@ struct Bene : Module {
     if (step_down)
     {
       lights[GRID_LIGHTS + x_position + y_position*4].value=0;
-      if(gates[x_position][y_position])
-        trig_out[x_position][y_position].trigger(1e-3);
       y_position += 1;
       if (y_position > 3)
       {
@@ -555,8 +549,6 @@ struct Bene : Module {
     if (step_up)
     {
       lights[GRID_LIGHTS + x_position + y_position*4].value=0;
-      if(gates[x_position][y_position])
-        trig_out[x_position][y_position].trigger(1e-3);
       y_position -= 1;
       if (y_position < 0)
       {
@@ -569,9 +561,6 @@ struct Bene : Module {
       }
       lights[GRID_LIGHTS + x_position + y_position*4].value=1;
     }
-
-    trig[x_position][y_position] = trig_out[x_position][y_position].process(deltaTime);
-    outputs[TRIG_OUT].setVoltage(trig[x_position][y_position]?10.f:0.f);
 
     /// set outputs
 
@@ -590,9 +579,23 @@ struct Bene : Module {
     outputs[COLUMN_OUT + i].value = column_outs[i];
   }
   
-  
   outputs[QUANT_OUT].setVoltage(quant_out);
+
   outputs[GATE_OUT].setVoltage(gates[x_position][y_position] ? 10.f : 0.f);
+
+//outputs a trigger using gates[] and step conditions.
+
+  if(gates[x_position][y_position])
+
+    if (step_up or step_down or step_left or step_right)
+
+      trig_out[x_position][y_position].trigger(1e-3);
+
+
+  trig[x_position][y_position] = trig_out[x_position][y_position].process(deltaTime);
+
+  outputs[TRIG_OUT].setVoltage(trig[x_position][y_position]?10.f:0.f);
+
 
   if(rightExpander.module && rightExpander.module->model == modelBenePads) 
   {
