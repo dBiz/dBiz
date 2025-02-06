@@ -71,16 +71,20 @@ struct DrMix : Module {
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
     for(int i=0;i<6;i++)
     {
-		configParam(CH_PARAM + i,  0.0, M_SQRT2, 1.0, "Ch level", " dB", -10, 40);
-		configParam(CH_PAN_PARAM + i,  0.0, 1.0, 0.5,"Ch Pan", "%", 0, 100);
-		configButton(MUTE_PARAM + i);
+		configParam(CH_PARAM + i, 0.0, M_SQRT2, 1.0, string::f("Ch %d level",i+1), " dB", -10, 40);
+		configParam(CH_PAN_PARAM + i,  0.0, 1.0, 0.5,string::f("Ch %d Pan",i+1), "%", 0, 100);
+		configButton(MUTE_PARAM + i,string::f("Ch %d mute",i+1));
+		configInput(CH_IN +i,string::f("Ch %d",i+1));
+		
     }
 	
     configParam(OUT_PARAM,  0.0, M_SQRT2, 1.0, "Out Level", "%", 0, 100);
+	 configOutput(L_OUTPUT,"MixL_");
+     configOutput(R_OUTPUT,"MixR_");
     
     lightCounter.setDivision(256);
 
-    onReset();
+    // onReset();
     panelTheme = (loadDarkAsDefault() ? 1 : 0);
   }
 
@@ -197,7 +201,11 @@ struct ULight : BASE
 //////////////////////////////////////////////////////////////////
 struct DrMixWidget : ModuleWidget 
 {
-    	SvgPanel* darkPanel;
+	
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  DrMix *module;
 	  int theme;
@@ -237,13 +245,11 @@ struct DrMixWidget : ModuleWidget
 
 	    DrMixWidget(DrMix *module) {
 		setModule(module);
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/DrMix.svg")));
-		if (module) {
-	    darkPanel = new SvgPanel();
-	    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DrMix.svg")));
-	    darkPanel->visible = false;
-	    addChild(darkPanel);
-	  }
+		// Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/DrMix.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DrMix.svg"));
+		int panelTheme = isDark(module ? (&(((DrMix*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
     
 
@@ -297,16 +303,15 @@ struct DrMixWidget : ModuleWidget
     addChild(createLight<MediumLight<OrangeLight>>(Vec(47.5,49.5+sp*2), module, DrMix::MUTE_LIGHT+5));
 
 
-    addInput(createInput<PJ301MIPort>(Vec(10, 205+jk*0 ), module, DrMix::CH_IN));
-    addInput(createInput<PJ301MIPort>(Vec(52.5, 205+jk*0 ), module, DrMix::CH_IN+1));
-    addInput(createInput<PJ301MIPort>(Vec(10, 205+jk*1), module, DrMix::CH_IN+2));
-    addInput(createInput<PJ301MIPort>(Vec(52.5, 205+jk*1), module, DrMix::CH_IN+3));
-    addInput(createInput<PJ301MIPort>(Vec(10, 205+jk*2), module, DrMix::CH_IN+4));
-    addInput(createInput<PJ301MIPort>(Vec(52.5, 205+jk*2), module, DrMix::CH_IN+5));
+    addInput(createInput<PJ301MSPort>(Vec(10, 205+jk*0 ), module, DrMix::CH_IN));
+    addInput(createInput<PJ301MSPort>(Vec(52.5, 205+jk*0 ), module, DrMix::CH_IN+1));
+    addInput(createInput<PJ301MSPort>(Vec(10, 205+jk*1), module, DrMix::CH_IN+2));
+    addInput(createInput<PJ301MSPort>(Vec(52.5, 205+jk*1), module, DrMix::CH_IN+3));
+    addInput(createInput<PJ301MSPort>(Vec(10, 205+jk*2), module, DrMix::CH_IN+4));
+    addInput(createInput<PJ301MSPort>(Vec(52.5, 205+jk*2), module, DrMix::CH_IN+5));
 
 
     addParam(createParam<VerboDS>(Vec(27,295), module, DrMix::OUT_PARAM));
-    // addParam(createParam<MicroBlu>(Vec(50,295), module, DrMix::OUTM_PARAM));
 
     addOutput(createOutput<PJ301MLPort>(Vec(10 , 330 ),  module, DrMix::L_OUTPUT));
     addOutput(createOutput<PJ301MRPort>(Vec(52.5 , 330 ),  module, DrMix::R_OUTPUT));
@@ -324,15 +329,14 @@ struct DrMixWidget : ModuleWidget
   
   }
 
-    void step() override
-    {
-      if (module)
-      {
-        Widget* panel = getPanel();
-        panel->visible = ((((DrMix *)module)->panelTheme) == 0);
-        darkPanel->visible = ((((DrMix *)module)->panelTheme) == 1);
-      }
-      Widget::step();
-    }
+    void step() override {
+		int panelTheme = isDark(module ? (&(((DrMix*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelDrMix = createModel<DrMix, DrMixWidget>("DrMix");

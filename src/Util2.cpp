@@ -93,26 +93,36 @@ struct Util2 : Module {
 
         for(int i=0;i<4;i++)
         {
-            configParam(MODE_PARAM + i,  0.0, 1.0, 0.0, "Mode");
-            configParam(VALUE_PARAM + i,  -10.0, 10.0, 0.0, "Value");
-            configParam(BUTTON_PARAM + i,  0.0, 1.0, 0.0, "Button");
+            configParam(MODE_PARAM + i,  0.0, 1.0, 0.0, string::f("Ch%d Mode",i+1));
+            configParam(VALUE_PARAM + i,  -10.0, 10.0, 0.0,string::f("Ch%d Value",i+1));
+            configParam(BUTTON_PARAM + i,  0.0, 1.0, 0.0, string::f("Ch%d Button",i+1));
+			
+			configInput(BUTTON_INPUT+i,string::f("Ch%d Button",i+1));
+			configOutput(BUTTON_OUTPUT+i,string::f("Ch%d Button",i+1));
         }
 
         for (int c = 0; c < 2; c++)
         {
-            configParam(GLIDE_PARAM + c, 0.0,1.0,0.0,"Glide");
+            configParam(GLIDE_PARAM + c, 0.0,1.0,0.0,string::f("Ch%d Glide",c+1));
+            configParam(RISE_PARAM+c, 0.0,1.0,0.0,string::f("Ch%d Rise",c+1));
+            configParam(FALL_PARAM+c, 0.0,1.0,0.0,string::f("Ch%d Fall",c+1));
+            configParam(RANGE_PARAM+c, 0.0,2.0,0.0,string::f("Ch%d Range",c+1));
+            configParam(SHAPE_PARAM + c, -1.0, 1.0, 0.0,string::f("Ch%d Shape",c+1));
+            configParam(EBUTTON_PARAM + c, 0.0, 1.0, 0.0,string::f("Ch%d Env Button",c+1));
+			
+			configInput(TRIG_INPUT+c,string::f("Ch%d Trig",c+1));
+			configInput(  IN_INPUT+c,string::f("Ch%d",c+1));
+			
+			configOutput(EG_OUTPUT+c ,string::f("Ch%d Env",c+1));
+			configOutput(OUT_OUTPUT+c,string::f("Ch%d",c+1));
         }
-        for(int c=0;c<2;c++)
-        {
-            configParam(RISE_PARAM+c, 0.0,1.0,0.0,"Rise");
-            configParam(FALL_PARAM+c, 0.0,1.0,0.0,"Fall");
-            configParam(RANGE_PARAM+c, 0.0,2.0,0.0,"Range");
-            configParam(SHAPE_PARAM + c, -1.0, 1.0, 0.0, "Shape");
-            configParam(EBUTTON_PARAM + c, 0.0, 1.0, 0.0, "Env Button");
-        }
-				onReset();
+		
+		
+		
+		
+		// onReset();
 
-				panelTheme = (loadDarkAsDefault() ? 1 : 0);
+		panelTheme = (loadDarkAsDefault() ? 1 : 0);
     }
 
 
@@ -292,9 +302,11 @@ void process(const ProcessArgs &args) override
 
 struct Util2Widget : ModuleWidget
 {
-
-
-	SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  Util2 *module;
 	  int theme;
@@ -332,14 +344,11 @@ struct Util2Widget : ModuleWidget
 	}
     Util2Widget(Util2 * module){
     setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/Util2.svg")));
-		if (module) {
-	    darkPanel = new SvgPanel();
-	    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Util2.svg")));
-	    darkPanel->visible = false;
-	    addChild(darkPanel);
-	  }
-
+    // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Util2.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Util2.svg"));
+		int panelTheme = isDark(module ? (&(((Util2*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
     //Screw
     addChild(createWidget<ScrewBlack>(Vec(15, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
@@ -402,12 +411,13 @@ struct Util2Widget : ModuleWidget
 
 }
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((Util2*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Util2*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Util2*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelUtil2 = createModel<Util2, Util2Widget>("Util2");

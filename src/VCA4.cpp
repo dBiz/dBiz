@@ -58,10 +58,40 @@ struct VCA4 : Module {
 
         for(int i=0;i<16;i++)
         {
-            configParam(CV_PARAM,  0.0, 1.0, 0.0,"Ch Cv");
-            configButton(MUTE_PARAM,"Mute Ch");
+			if(i<4)
+			{	
+            configParam(CV_PARAM+i,  0.0, 1.0, 0.0,string::f("A Cv %d",i+1));
+			configButton(MUTE_PARAM+i,string::f("A %d mute",i+1));
+			configInput(CV_INPUT+i,string::f("A %d cv",i+1));
+			}
+			if(i>=4&&i<8)
+			{
+			configParam(CV_PARAM+i,  0.0, 1.0, 0.0,string::f("B Cv %d",i-3));
+			configButton(MUTE_PARAM+i,string::f("B %d mute",i-3));
+			configInput(CV_INPUT+i,string::f("B %d cv",i-3));
+			}
+			if(i>=8&&i<12)
+			{
+			configParam(CV_PARAM+i,  0.0, 1.0, 0.0,string::f("C Cv %d",i-7));
+			configButton(MUTE_PARAM+i,string::f("C %d mute",i-7));
+			configInput(CV_INPUT+i,string::f("C %d cv",i-7));
+			}
+			if(i>=12&&i<16)
+			{
+			configParam(CV_PARAM+i,  0.0, 1.0, 0.0,string::f("D Cv %d",i-11));
+			configButton(MUTE_PARAM+i,string::f("D %d mute",i-11));
+			configInput(CV_INPUT+i,string::f("D %d cv",i-11));
+			}
+		
+            
         }
-        onReset();
+		for(int i=0;i<4;i++)
+        {
+			configInput(CH_INPUT+i,string::f("Ch %d",i+1));
+			configOutput(CH_OUTPUT+i,string::f("Ch %d",i+1));
+		}
+		
+        // onReset();
 
     		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 
@@ -170,9 +200,11 @@ struct MixLight : BASE
 ////////////////////////////////
 
 struct VCA4Widget : ModuleWidget {
-
-
-  SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     VCA4 *module;
     int theme;
@@ -210,13 +242,11 @@ struct VCA4Widget : ModuleWidget {
   }
 VCA4Widget(VCA4 *module) {
     setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/VCA4.svg")));
-    if (module) {
-      darkPanel = new SvgPanel();
-      darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/VCA4.svg")));
-      darkPanel->visible = false;
-      addChild(darkPanel);
-    }
+    // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/VCA4.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/VCA4.svg"));
+		int panelTheme = isDark(module ? (&(((VCA4*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
   int top = 30;
   int left = 2;
@@ -238,40 +268,40 @@ for (int i = 0; i < 4; i++)
   }
 
 
-        addInput(createInput<PJ301MIPort>(Vec(30,24+40*0),module, VCA4::CH_INPUT + 0));
-        addInput(createInput<PJ301MIPort>(Vec(30, 24 + 40 * 1), module, VCA4::CH_INPUT + 1));
-        addInput(createInput<PJ301MIPort>(Vec(30, 24 + 40 * 2), module, VCA4::CH_INPUT + 2));
-        addInput(createInput<PJ301MIPort>(Vec(30, 24 + 40 * 3), module, VCA4::CH_INPUT + 3));
+        addInput(createInput<PJ301MSPort>(Vec(27,24+40*0),module, VCA4::CH_INPUT + 0));
+        addInput(createInput<PJ301MSPort>(Vec(27, 24 + 40 * 1), module, VCA4::CH_INPUT + 1));
+        addInput(createInput<PJ301MSPort>(Vec(27, 24 + 40 * 2), module, VCA4::CH_INPUT + 2));
+        addInput(createInput<PJ301MSPort>(Vec(27, 24 + 40 * 3), module, VCA4::CH_INPUT + 3));
 
 
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 0 + 100, 60 + row_spacing * 0), module, VCA4::CV_INPUT + 0 + 0 * 4));
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 1 + 100, 60 + row_spacing * 0), module, VCA4::CV_INPUT + 1 + 0 * 4));
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 2 + 100, 60 + row_spacing * 0), module, VCA4::CV_INPUT + 2 + 0 * 4));
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 3 + 100, 60 + row_spacing * 0), module, VCA4::CV_INPUT + 3 + 0 * 4));
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 0 + 100, 60 + row_spacing * 0), module, VCA4::CV_INPUT + 0 + 0 * 4));
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 1 + 100, 60 + row_spacing * 0), module, VCA4::CV_INPUT + 1 + 0 * 4));
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 2 + 100, 60 + row_spacing * 0), module, VCA4::CV_INPUT + 2 + 0 * 4));
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 3 + 100, 60 + row_spacing * 0), module, VCA4::CV_INPUT + 3 + 0 * 4));
 
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 0 + 70, 60 + row_spacing * 1), module, VCA4::CV_INPUT + 0 + 1 * 4));
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 1 + 70, 60 + row_spacing * 1), module, VCA4::CV_INPUT + 1 + 1 * 4));
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 2 + 70, 60 + row_spacing * 1), module, VCA4::CV_INPUT + 2 + 1 * 4));
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 3 + 70, 60 + row_spacing * 1), module, VCA4::CV_INPUT + 3 + 1 * 4));
-
-
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 0 + 100, 60 + row_spacing * 2), module, VCA4::CV_INPUT + 0 + 2 * 4));
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 1 + 100, 60 + row_spacing * 2), module, VCA4::CV_INPUT + 1 + 2 * 4));
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 2 + 100, 60 + row_spacing * 2), module, VCA4::CV_INPUT + 2 + 2 * 4));
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 3 + 100, 60 + row_spacing * 2), module, VCA4::CV_INPUT + 3 + 2 * 4));
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 0 + 70, 60 + row_spacing * 1), module, VCA4::CV_INPUT + 0 + 1 * 4));
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 1 + 70, 60 + row_spacing * 1), module, VCA4::CV_INPUT + 1 + 1 * 4));
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 2 + 70, 60 + row_spacing * 1), module, VCA4::CV_INPUT + 2 + 1 * 4));
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 3 + 70, 60 + row_spacing * 1), module, VCA4::CV_INPUT + 3 + 1 * 4));
 
 
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 0 + 70, 60 + row_spacing * 3), module, VCA4::CV_INPUT + 0 + 3 * 4));
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 1 + 70, 60 + row_spacing * 3), module, VCA4::CV_INPUT + 1 + 3 * 4));
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 2 + 70, 60 + row_spacing * 3), module, VCA4::CV_INPUT + 2 + 3 * 4));
-        addInput(createInput<PJ301MCPort>(Vec(column_spacing * 1.5 * 3 + 70, 60 + row_spacing * 3), module, VCA4::CV_INPUT + 3 + 3 * 4));
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 0 + 100, 60 + row_spacing * 2), module, VCA4::CV_INPUT + 0 + 2 * 4));
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 1 + 100, 60 + row_spacing * 2), module, VCA4::CV_INPUT + 1 + 2 * 4));
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 2 + 100, 60 + row_spacing * 2), module, VCA4::CV_INPUT + 2 + 2 * 4));
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 3 + 100, 60 + row_spacing * 2), module, VCA4::CV_INPUT + 3 + 2 * 4));
+
+
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 0 + 70, 60 + row_spacing * 3), module, VCA4::CV_INPUT + 0 + 3 * 4));
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 1 + 70, 60 + row_spacing * 3), module, VCA4::CV_INPUT + 1 + 3 * 4));
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 2 + 70, 60 + row_spacing * 3), module, VCA4::CV_INPUT + 2 + 3 * 4));
+        addInput(createInput<PJ301MSPort>(Vec(column_spacing * 1.5 * 3 + 70, 60 + row_spacing * 3), module, VCA4::CV_INPUT + 3 + 3 * 4));
 
 
 
-        addOutput(createOutput<PJ301MRPort>(Vec(70 + row_spacing *1.9* 0,24), module, VCA4::CH_OUTPUT + 0));
-        addOutput(createOutput<PJ301MRPort>(Vec(70 + row_spacing * 1.9 * 1, 24), module, VCA4::CH_OUTPUT + 1));
-        addOutput(createOutput<PJ301MRPort>(Vec(70 + row_spacing * 1.9 * 2, 24), module, VCA4::CH_OUTPUT + 2));
-        addOutput(createOutput<PJ301MRPort>(Vec(70 + row_spacing * 1.9 * 3, 24), module, VCA4::CH_OUTPUT + 3));
+        addOutput(createOutput<PJ301MRPort>(Vec(70 + row_spacing *1.9* 0   ,21), module, VCA4::CH_OUTPUT + 0));
+        addOutput(createOutput<PJ301MRPort>(Vec(70 + row_spacing * 1.9 * 1, 21), module, VCA4::CH_OUTPUT + 1));
+        addOutput(createOutput<PJ301MRPort>(Vec(70 + row_spacing * 1.9 * 2, 21), module, VCA4::CH_OUTPUT + 2));
+        addOutput(createOutput<PJ301MRPort>(Vec(70 + row_spacing * 1.9 * 3, 21), module, VCA4::CH_OUTPUT + 3));
 
         addChild(createWidget<ScrewBlack>(Vec(15, 0)));
         addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
@@ -279,13 +309,14 @@ for (int i = 0; i < 4; i++)
         addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 365)));
     }
     void step() override {
-      if (module) {
-        Widget* panel = getPanel();
-        panel->visible = ((((VCA4*)module)->panelTheme) == 0);
-        darkPanel->visible  = ((((VCA4*)module)->panelTheme) == 1);
-      }
-      Widget::step();
-    }
+		int panelTheme = isDark(module ? (&(((VCA4*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 
 

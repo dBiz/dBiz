@@ -20,6 +20,7 @@
 #include "plugin.hpp"
 #include "dsp/resampler.hpp"
 
+
 using namespace std;
 
 #define pi 3.14159265359
@@ -51,6 +52,12 @@ struct MultiFilter
     mem2 = g * bp + lp;
   }
 };
+
+void calcFilter(MultiFilter &filterL, MultiFilter &filterR, float inl, float inr) {
+    filterL.calcOutput(inl);
+    filterR.calcOutput(inr);
+}
+
 
 struct VarOut
 {
@@ -149,7 +156,25 @@ struct QuePasa : Module {
       configParam(RAD_R_PARAM, 0.f, 1.f, 0.f, "Space R", "%", std::pow(2, 10.f), dsp::FREQ_C4 / std::pow(2, 5.f));
       configParam(RAD_L_CV_PARAM, -1.f, 1.f, 0.f, "Space L Modulation", "%", 0.f, 100.f);
       configParam(RAD_R_CV_PARAM, -1.f, 1.f, 0.f, "Space R Modulation", "%", 0.f, 100.f);
-      onReset();
+     //  onReset();
+	  
+	   configInput(L_INPUT,"L");
+       configInput(R_INPUT,"R");
+       configInput(VCA_INPUT,"VCA Cv");
+       configInput(RAD_L_INPUT,"Space L");
+       configInput(RAD_R_INPUT,"Space R");
+       configInput(VAR_L_INPUT,"## L");
+       configInput(VAR_R_INPUT,"## R");
+       configInput(FREQ1_INPUT,"Freq Cv mod1");
+       configInput(FREQ2_INPUT,"Freq Cv mod2");
+       configInput(RES_INPUT,"Reso Cv");
+	   
+	   configOutput(LP_L_OUTPUT,"LP_L");
+       configOutput(LP_R_OUTPUT,"LP_R");
+       configOutput(HP_L_OUTPUT,"HP_L");
+       configOutput(HP_R_OUTPUT,"HP_R");
+       configOutput(BP_L_OUTPUT,"BP_L");
+       configOutput(BP_R_OUTPUT,"BP_R");
 
   		panelTheme = (loadDarkAsDefault() ? 1 : 0);
   }
@@ -205,7 +230,7 @@ cfreq = cfreq * 10.f - 5.f;
 float pitch = cfreq + inputs[FREQ1_INPUT].getVoltage() * fcv;
 float cutoff = dsp::FREQ_C4 * std::pow(2.f, pitch);
 cutoff = clamp(cutoff, 1.f, 8000.f);
-float q = 10.0f * clamp(params[RES_PARAM].getValue() + params[RES_CV_PARAM].getValue() * inputs[RES_INPUT].getVoltage() * 0.2f, 0.1f, 1.0f);
+float q = 10.0f * clamp(params[RES_PARAM].getValue() + params[RES_CV_PARAM].getValue() * inputs[RES_INPUT].getVoltage() * 0.2f, 0.1f, 10.0f);
 
 
 float fcvL = params[RAD_L_CV_PARAM].getValue();
@@ -214,7 +239,9 @@ float RfreqL = params[RAD_L_PARAM].getValue();
 RfreqL = RfreqL *10.f-5.f;
 float pitchL = RfreqL +var[0].getVar()+inputs[RAD_L_INPUT].getVoltage() * fcvL;
 float cutoffL = dsp::FREQ_C4 * std::pow(2.f, pitchL);
+
 cutoffL = clamp(cutoffL, 1.f, 8000.f);
+if (cutoff < 100.f) { cutoff = std::round(cutoff * 100.f) / 100.f; }
 
 float fcvR = params[RAD_R_CV_PARAM].getValue();
 fcvR=dsp::quadraticBipolar(fcvR);
@@ -253,13 +280,18 @@ for (int i = 0; i < 3; i++)
 
      float inl = inputs[L_INPUT].getVoltage() * std::pow(params[VCA_PARAM].getValue(), 2.f)*0.2f;
      float inr = inputs[R_INPUT].getVoltage() * std::pow(params[VCA_PARAM].getValue(), 2.f)*0.2f;
+	 
+	 if(inputs[VCA_INPUT].isConnected())
+	 {
+		 inl *= (inputs[VCA_INPUT].getVoltage()/10.f);
+		 inr *= (inputs[VCA_INPUT].getVoltage()/10.f);
+	 }
 
 
      // //filtering
      for (int i = 0; i < 3; i++)
      {
-       filterL[i].calcOutput(inl);
-       filterR[i].calcOutput(inr);
+       calcFilter(filterL[i], filterR[i], inl, inr);
      }
      float LPL=0.f;
      float LPR=0.f;
@@ -271,12 +303,12 @@ for (int i = 0; i < 3; i++)
 
      for (int i = 0; i < 3; i++)
      {
-       LPL+=filterL[i].lp*3.0f;
-       LPR+=filterR[i].lp*3.0f;
-       HPL+=filterL[i].hp*3.0f;
-       HPR+=filterR[i].hp*3.0f;
-       BPL+=filterL[i].bp*3.0f;
-       BPR+=filterR[i].bp*3.0f;
+       LPL+=filterL[i].lp*1.0f;
+       LPR+=filterR[i].lp*1.0f;
+       HPL+=filterL[i].hp*1.0f;
+       HPR+=filterR[i].hp*1.0f;
+       BPL+=filterL[i].bp*1.0f;
+       BPR+=filterR[i].bp*1.0f;
 
      }
 
@@ -295,7 +327,10 @@ struct QuePasaWidget : ModuleWidget
 {
 
 
-  SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     QuePasa *module;
     int theme;
@@ -333,13 +368,11 @@ struct QuePasaWidget : ModuleWidget
   }
 QuePasaWidget(QuePasa *module){
   setModule(module);
-  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/QuePasa.svg")));
-  if (module) {
-    darkPanel = new SvgPanel();
-    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/QuePasa.svg")));
-    darkPanel->visible = false;
-    addChild(darkPanel);
-  }
+  // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/QuePasa.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/QuePasa.svg"));
+		int panelTheme = isDark(module ? (&(((QuePasa*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
   int kn=41;
   int jk=30;
@@ -357,28 +390,24 @@ QuePasaWidget(QuePasa *module){
   addParam(createParam<VerboS>(Vec(10+3*kn, 180+kn), module, QuePasa::RAD_R_CV_PARAM));
 
   ///Innies
-  addInput(createInput<PJ301MIPort>(Vec(10, 20), module, QuePasa::L_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(10+jk, 20), module, QuePasa::R_INPUT));
-
-  addInput(createInput<PJ301MCPort>(Vec(15 , 110), module, QuePasa::VCA_INPUT));
-
-  addInput(createInput<PJ301MCPort>(Vec(15+kn, 280), module, QuePasa::FREQ1_INPUT));
-  addInput(createInput<PJ301MCPort>(Vec(15 + kn, 280 + jk), module, QuePasa::FREQ2_INPUT));
-
-  addInput(createInput<PJ301MCPort>(Vec(15, 280), module, QuePasa::RAD_L_INPUT));
-  addInput(createInput<PJ301MCPort>(Vec(15+3*kn, 280), module, QuePasa::RAD_R_INPUT));
-  addInput(createInput<PJ301MBPort>(Vec(15, 280 + jk), module, QuePasa::VAR_L_INPUT));
-  addInput(createInput<PJ301MBPort>(Vec(15 + 3 * kn, 280 + jk), module, QuePasa::VAR_R_INPUT));
-
-  addInput(createInput<PJ301MCPort>(Vec(15+2*kn, 280), module, QuePasa::RES_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(10, 20), module, QuePasa::L_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(10+jk, 20), module, QuePasa::R_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15 , 110), module, QuePasa::VCA_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15+kn, 280), module, QuePasa::FREQ1_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15 + kn, 280 + jk), module, QuePasa::FREQ2_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15, 280), module, QuePasa::RAD_L_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15+3*kn, 280), module, QuePasa::RAD_R_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15, 280 + jk), module, QuePasa::VAR_L_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15 + 3 * kn, 280 + jk), module, QuePasa::VAR_R_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15+2*kn, 280), module, QuePasa::RES_INPUT));
 
   ///Outies
-  addOutput(createOutput<PJ301MOPort>(Vec(box.size.x-60, 20), module, QuePasa::LP_L_OUTPUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(box.size.x-35, 20), module, QuePasa::LP_R_OUTPUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(box.size.x-60, 20+jk), module, QuePasa::BP_L_OUTPUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(box.size.x-35, 20+jk), module, QuePasa::BP_R_OUTPUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(box.size.x-60, 20+2*jk), module, QuePasa::HP_L_OUTPUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(box.size.x-35, 20+2*jk), module, QuePasa::HP_R_OUTPUT));
+  addOutput(createOutput<PJ301MSPort>(Vec(box.size.x-60, 20), module, QuePasa::LP_L_OUTPUT));
+  addOutput(createOutput<PJ301MSPort>(Vec(box.size.x-35, 20), module, QuePasa::LP_R_OUTPUT));
+  addOutput(createOutput<PJ301MSPort>(Vec(box.size.x-60, 20+jk), module, QuePasa::BP_L_OUTPUT));
+  addOutput(createOutput<PJ301MSPort>(Vec(box.size.x-35, 20+jk), module, QuePasa::BP_R_OUTPUT));
+  addOutput(createOutput<PJ301MSPort>(Vec(box.size.x-60, 20+2*jk), module, QuePasa::HP_L_OUTPUT));
+  addOutput(createOutput<PJ301MSPort>(Vec(box.size.x-35, 20+2*jk), module, QuePasa::HP_R_OUTPUT));
 
 
 
@@ -392,12 +421,13 @@ QuePasaWidget(QuePasa *module){
 }
 
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((QuePasa*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((QuePasa*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((QuePasa*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelQuePasa = createModel<QuePasa, QuePasaWidget>("QuePasa");

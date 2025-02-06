@@ -54,7 +54,7 @@ struct PerfMixer : Module {
   };
 
   enum OutputIds {
-		MIX_OUTPUT_L,
+	MIX_OUTPUT_L,
     MIX_OUTPUT_R,
     SEND_1_L_OUTPUT,
     SEND_1_R_OUTPUT,
@@ -112,14 +112,38 @@ struct PerfMixer : Module {
     configParam(AUX_R2_PARAM,  0.0, 1.0, 0.0,"Aux Return 2", "%", 0, 100);
     configParam(AUX_S1_PARAM,  0.0, 1.0, 0.0,"Auz Send 1", "%", 0, 100);
     configParam(AUX_S2_PARAM,  0.0, 1.0, 0.0,"Auz Send 2", "%", 0, 100);
+	
+	configInput(MIX_IN_L_INPUT,"Mix_L");
+    configInput(MIX_IN_R_INPUT,"Mix_R");
+    configInput(RETURN_1_L_INPUT,"Return_AL");
+    configInput(RETURN_1_R_INPUT,"Return_AR");
+    configInput(RETURN_2_L_INPUT,"Return_BL");
+    configInput(RETURN_2_R_INPUT,"Return_AR");
+	
+	configOutput(MIX_OUTPUT_L,"Mix_L");
+    configOutput(MIX_OUTPUT_R,"Mix_R");
+    configOutput(SEND_1_L_OUTPUT,"Aux_AL");
+    configOutput(SEND_1_R_OUTPUT,"Aux_AR");
+    configOutput(SEND_2_L_OUTPUT,"Aux_BL");
+    configOutput(SEND_2_R_OUTPUT,"Aux_BR");
 
     for(int i=0;i<8;i++)
     {
-      configParam(VOL_PARAM + i,  0.0, 1.0, 0.0,"Ch Level", "%", 0, 100);
-      configParam(PAN_PARAM + i,  0.0, 1.0, 0.5,"Ch Pan", "%", 0, 100);
-      configParam(AUX_1_PARAM + i,  0.0, 1.0, 0.0,"Send 1 Level", "%", 0, 100);
-      configParam(AUX_2_PARAM + i,  0.0, 1.0, 0.0,"Send 2 Level", "%", 0, 100);
-      configButton(MUTE_PARAM + i,"Mute ch");
+      configParam(VOL_PARAM + i,  0.0, 1.0, 0.0,string::f("Ch %d Level", i + 1), "%", 0, 100);
+      configParam(PAN_PARAM + i,  0.0, 1.0, 0.5,string::f("Ch %d Pan", i + 1), "%", 0, 100);
+      configParam(AUX_1_PARAM + i,  0.0, 1.0, 0.0,string::f("Ch %d Aux_A Amount", i + 1), "%", 0, 100); 
+      configParam(AUX_2_PARAM + i,  0.0, 1.0, 0.0,string::f("Ch %d Aux_B Amount", i + 1), "%", 0, 100); 
+      configButton(MUTE_PARAM + i,string::f("Ch %d Mute",i+1));
+	  
+	  
+	configInput(CH_L_INPUT+i,string::f("Ch %d L", i + 1)); 
+    configInput(CH_R_INPUT+i, string::f("Ch %d R", i + 1));
+    configInput(CH_VOL_INPUT+i,string::f("Ch %d vol Cv", i + 1));
+    configInput(CH_MUTE_INPUT+i,string::f("Ch %d mute Cv", i + 1));
+    configInput(CH_PAN_INPUT+i,string::f("Ch %d pan Cv", i + 1));
+    configInput(AUX_1_INPUT+i, string::f("Ch %d Aux_A Cv", i + 1));
+    configInput(AUX_2_INPUT+i,string::f("Ch %d Aux_B Cv", i + 1));
+	  
 
     }
    lightCounter.setDivision(256);
@@ -333,8 +357,10 @@ struct MeterLight : BASE
 
 struct PerfMixerWidget : ModuleWidget {
 
-
-  SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     PerfMixer *module;
     int theme;
@@ -372,13 +398,11 @@ struct PerfMixerWidget : ModuleWidget {
   }
 PerfMixerWidget(PerfMixer *module){
   setModule(module);
-  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/PerfMixer.svg")));
-  if (module) {
-    darkPanel = new SvgPanel();
-    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/PerfMixer.svg")));
-    darkPanel->visible = false;
-    addChild(darkPanel);
-  }
+  // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/PerfMixer.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/PerfMixer.svg"));
+		int panelTheme = isDark(module ? (&(((PerfMixer*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
   int column_1 = 70;
   int lb=5;
@@ -389,7 +413,8 @@ PerfMixerWidget(PerfMixer *module){
   int row_in = 40;
   int column_spacing = 30;
 
-  addParam(createParam<LRoundWhy>(Vec(right_column + 5, 10), module, PerfMixer::MAIN_VOL_PARAM)); // master volume
+  addParam(createParam<LRoundWhy>(Vec(right_column + 10, 15), module, PerfMixer::MAIN_VOL_PARAM)); // master volume
+  
   addParam(createParam<MicroBlu>(Vec(right_column+7.5, 225 ), module, PerfMixer::AUX_R1_PARAM));
   addParam(createParam<MicroBlu>(Vec(right_column+7.5, 285 ), module, PerfMixer::AUX_R2_PARAM));
   addParam(createParam<MicroBlu>(Vec(right_column+7.5, 102.5 ), module, PerfMixer::AUX_S1_PARAM));
@@ -399,84 +424,83 @@ PerfMixerWidget(PerfMixer *module){
     addInput(createInput<PJ301MRPort>(Vec(30,15),module, PerfMixer::MIX_IN_R_INPUT));
 
 
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 0, 14),module, PerfMixer::AUX_1_INPUT + 0));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 1, 14),module, PerfMixer::AUX_1_INPUT + 1));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 2, 14),module, PerfMixer::AUX_1_INPUT + 2));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 3, 14),module, PerfMixer::AUX_1_INPUT + 3));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 4, 14),module, PerfMixer::AUX_1_INPUT + 4));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 5, 14),module, PerfMixer::AUX_1_INPUT + 5));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 6, 14),module, PerfMixer::AUX_1_INPUT + 6));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 7, 14),module, PerfMixer::AUX_1_INPUT + 7));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 0, 14),module, PerfMixer::AUX_1_INPUT + 0));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 1, 14),module, PerfMixer::AUX_1_INPUT + 1));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 2, 14),module, PerfMixer::AUX_1_INPUT + 2));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 3, 14),module, PerfMixer::AUX_1_INPUT + 3));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 4, 14),module, PerfMixer::AUX_1_INPUT + 4));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 5, 14),module, PerfMixer::AUX_1_INPUT + 5));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 6, 14),module, PerfMixer::AUX_1_INPUT + 6));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 7, 14),module, PerfMixer::AUX_1_INPUT + 7));
 
 
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 0, 40),module, PerfMixer::AUX_2_INPUT + 0));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 1, 40),module, PerfMixer::AUX_2_INPUT + 1));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 2, 40),module, PerfMixer::AUX_2_INPUT + 2));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 3, 40),module, PerfMixer::AUX_2_INPUT + 3));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 4, 40),module, PerfMixer::AUX_2_INPUT + 4));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 5, 40),module, PerfMixer::AUX_2_INPUT + 5));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 6, 40),module, PerfMixer::AUX_2_INPUT + 6));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 7, 40),module, PerfMixer::AUX_2_INPUT + 7));
-
-
-
-    addInput(createInput<PJ301MIPort>(Vec(lb, top + row_in * 0), module, PerfMixer::CH_L_INPUT + 0));
-    addInput(createInput<PJ301MIPort>(Vec(lb, top + row_in * 1), module, PerfMixer::CH_L_INPUT + 1));
-    addInput(createInput<PJ301MIPort>(Vec(lb, top + row_in * 2), module, PerfMixer::CH_L_INPUT + 2));
-    addInput(createInput<PJ301MIPort>(Vec(lb, top + row_in * 3), module, PerfMixer::CH_L_INPUT + 3));
-    addInput(createInput<PJ301MIPort>(Vec(lb, top + row_in * 4), module, PerfMixer::CH_L_INPUT + 4));
-    addInput(createInput<PJ301MIPort>(Vec(lb, top + row_in * 5), module, PerfMixer::CH_L_INPUT + 5));
-    addInput(createInput<PJ301MIPort>(Vec(lb, top + row_in * 6), module, PerfMixer::CH_L_INPUT + 6));
-    addInput(createInput<PJ301MIPort>(Vec(lb, top + row_in * 7), module, PerfMixer::CH_L_INPUT + 7));
-
-
-    addInput(createInput<PJ301MIPort>(Vec(lb + 25, top + row_in * 0), module, PerfMixer::CH_R_INPUT + 0));
-    addInput(createInput<PJ301MIPort>(Vec(lb + 25, top + row_in * 1), module, PerfMixer::CH_R_INPUT + 1));
-    addInput(createInput<PJ301MIPort>(Vec(lb + 25, top + row_in * 2), module, PerfMixer::CH_R_INPUT + 2));
-    addInput(createInput<PJ301MIPort>(Vec(lb + 25, top + row_in * 3), module, PerfMixer::CH_R_INPUT + 3));
-    addInput(createInput<PJ301MIPort>(Vec(lb + 25, top + row_in * 4), module, PerfMixer::CH_R_INPUT + 4));
-    addInput(createInput<PJ301MIPort>(Vec(lb + 25, top + row_in * 5), module, PerfMixer::CH_R_INPUT + 5));
-    addInput(createInput<PJ301MIPort>(Vec(lb + 25, top + row_in * 6), module, PerfMixer::CH_R_INPUT + 6));
-    addInput(createInput<PJ301MIPort>(Vec(lb + 25, top + row_in * 7), module, PerfMixer::CH_R_INPUT + 7));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 0, 40),module, PerfMixer::AUX_2_INPUT + 0));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 1, 40),module, PerfMixer::AUX_2_INPUT + 1));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 2, 40),module, PerfMixer::AUX_2_INPUT + 2));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 3, 40),module, PerfMixer::AUX_2_INPUT + 3));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 4, 40),module, PerfMixer::AUX_2_INPUT + 4));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 5, 40),module, PerfMixer::AUX_2_INPUT + 5));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 6, 40),module, PerfMixer::AUX_2_INPUT + 6));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 7, 40),module, PerfMixer::AUX_2_INPUT + 7));
 
 
 
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 0 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 0));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 1 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 1));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 2 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 2));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 3 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 3));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 4 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 4));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 5 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 5));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 6 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 6));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 7 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 7));
+    addInput(createInput<PJ301MSPort>(Vec(lb, top + row_in * 0), module, PerfMixer::CH_L_INPUT + 0));
+    addInput(createInput<PJ301MSPort>(Vec(lb, top + row_in * 1), module, PerfMixer::CH_L_INPUT + 1));
+    addInput(createInput<PJ301MSPort>(Vec(lb, top + row_in * 2), module, PerfMixer::CH_L_INPUT + 2));
+    addInput(createInput<PJ301MSPort>(Vec(lb, top + row_in * 3), module, PerfMixer::CH_L_INPUT + 3));
+    addInput(createInput<PJ301MSPort>(Vec(lb, top + row_in * 4), module, PerfMixer::CH_L_INPUT + 4));
+    addInput(createInput<PJ301MSPort>(Vec(lb, top + row_in * 5), module, PerfMixer::CH_L_INPUT + 5));
+    addInput(createInput<PJ301MSPort>(Vec(lb, top + row_in * 6), module, PerfMixer::CH_L_INPUT + 6));
+    addInput(createInput<PJ301MSPort>(Vec(lb, top + row_in * 7), module, PerfMixer::CH_L_INPUT + 7));
 
-    addInput(createInput<PJ301MOrPort>(Vec(column_1 + column_spacing * 0 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 0));
-    addInput(createInput<PJ301MOrPort>(Vec(column_1 + column_spacing * 1 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 1));
-    addInput(createInput<PJ301MOrPort>(Vec(column_1 + column_spacing * 2 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 2));
-    addInput(createInput<PJ301MOrPort>(Vec(column_1 + column_spacing * 3 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 3));
-    addInput(createInput<PJ301MOrPort>(Vec(column_1 + column_spacing * 4 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 4));
-    addInput(createInput<PJ301MOrPort>(Vec(column_1 + column_spacing * 5 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 5));
-    addInput(createInput<PJ301MOrPort>(Vec(column_1 + column_spacing * 6 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 6));
-    addInput(createInput<PJ301MOrPort>(Vec(column_1 + column_spacing * 7 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 7));
 
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 0 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 0));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 1 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 1));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 2 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 2));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 3 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 3));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 4 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 4));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 5 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 5));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 6 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 6));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 7 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 7));
+    addInput(createInput<PJ301MSPort>(Vec(lb + 25, top + row_in * 0), module, PerfMixer::CH_R_INPUT + 0));
+    addInput(createInput<PJ301MSPort>(Vec(lb + 25, top + row_in * 1), module, PerfMixer::CH_R_INPUT + 1));
+    addInput(createInput<PJ301MSPort>(Vec(lb + 25, top + row_in * 2), module, PerfMixer::CH_R_INPUT + 2));
+    addInput(createInput<PJ301MSPort>(Vec(lb + 25, top + row_in * 3), module, PerfMixer::CH_R_INPUT + 3));
+    addInput(createInput<PJ301MSPort>(Vec(lb + 25, top + row_in * 4), module, PerfMixer::CH_R_INPUT + 4));
+    addInput(createInput<PJ301MSPort>(Vec(lb + 25, top + row_in * 5), module, PerfMixer::CH_R_INPUT + 5));
+    addInput(createInput<PJ301MSPort>(Vec(lb + 25, top + row_in * 6), module, PerfMixer::CH_R_INPUT + 6));
+    addInput(createInput<PJ301MSPort>(Vec(lb + 25, top + row_in * 7), module, PerfMixer::CH_R_INPUT + 7));
+
+
+
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 0 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 0));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 1 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 1));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 2 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 2));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 3 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 3));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 4 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 4));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 5 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 5));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 6 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 6));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 7 - 1, top_row + row_spacing * 6 - 48 + top), module, PerfMixer::CH_VOL_INPUT + 7));
+
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 0 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 0));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 1 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 1));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 2 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 2));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 3 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 3));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 4 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 4));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 5 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 5));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 6 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 6));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 7 - 1, top_row + row_spacing * 6 + top+6), module, PerfMixer::CH_PAN_INPUT + 7));
+
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 0 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 0));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 1 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 1));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 2 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 2));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 3 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 3));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 4 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 4));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 5 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 5));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 6 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 6));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 7 - 1, top_row + row_spacing * 6 + top + 55), module, PerfMixer::CH_MUTE_INPUT + 7));
 
     for (int i = 0; i < 8; i++)
     {
 
       addParam(createParam<MicroBlu>(Vec(column_1 + column_spacing * i, 75), module, PerfMixer::AUX_1_PARAM + i));
       addParam(createParam<MicroBlu>(Vec(column_1 + column_spacing * i, 105), module, PerfMixer::AUX_2_PARAM + i));
-
-     // addParam(createParam<LEDSliderBlue>(Vec(column_1 + column_spacing * i - 5, top_row + row_spacing * 2 - 20 + top), module, PerfMixer::VOL_PARAM + i));
       addParam(createLightParam<LEDLightSliderFixed<BlueLight>>(Vec(column_1 + column_spacing * i - 5, top_row + row_spacing * 2 - 20 + top), module, PerfMixer::VOL_PARAM + i, PerfMixer::FADER_LIGHT + i));
-      /////////////////////////////////////////////////////
+      
+	  /////////////////////////////////////////////////////
 
       addChild(createLight<MeterLight<OrangeLight>>(Vec(column_1 + column_spacing * i + 1, top_row + row_spacing * 6 + top - 13), module, PerfMixer::PAN_L_LIGHT + i));
       addChild(createLight<MeterLight<OrangeLight>>(Vec(column_1 + column_spacing * i + 20, top_row + row_spacing * 6 + top - 13), module, PerfMixer::PAN_R_LIGHT + i));
@@ -539,12 +563,13 @@ PerfMixerWidget(PerfMixer *module){
 }
 
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((PerfMixer*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((PerfMixer*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((PerfMixer*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelPerfMixer = createModel<PerfMixer, PerfMixerWidget>("PerfMixer");

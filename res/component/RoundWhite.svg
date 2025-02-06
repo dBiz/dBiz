@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="40"
    height="40"
    viewBox="0 0 10.583333 10.583333"
    version="1.1"
    id="svg16908"
-   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
-   sodipodi:docname="RoundWhite.svg">
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   sodipodi:docname="RoundWhite.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs16902">
     <clipPath
@@ -66,8 +66,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="8.0174124"
-     inkscape:cx="6.0713667"
-     inkscape:cy="29.675648"
+     inkscape:cx="6.0493333"
+     inkscape:cy="29.623024"
      inkscape:document-units="px"
      inkscape:current-layer="g15"
      showgrid="true"
@@ -83,10 +83,19 @@
      inkscape:snap-grids="false"
      showguides="true"
      inkscape:document-rotation="0"
-     units="px">
+     units="px"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1">
     <inkscape:grid
        type="xygrid"
-       id="grid823" />
+       id="grid823"
+       originx="0"
+       originy="0"
+       spacingy="1"
+       spacingx="1"
+       units="px"
+       visible="true" />
   </sodipodi:namedview>
   <metadata
      id="metadata16905">
@@ -96,7 +105,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -130,7 +139,7 @@
          fill="#ededed"
          d="m 23.38458,3.43714 h -1.76925 v 19.70013 c 0,0.28613 0.23196,0.51809 0.51809,0.51809 h 0.73308 c 0.28613,0 0.51809,-0.23196 0.51809,-0.51809 z"
          id="path7"
-         style="fill:#292929;fill-opacity:1" />
+         style="fill:#f2f2f2;fill-opacity:1" />
       <rect
          x="21.61532"
          y="9.9999997e-06"

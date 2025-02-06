@@ -6,7 +6,7 @@
    xml:space="preserve"
    style="fill-rule:evenodd;clip-rule:evenodd;stroke-miterlimit:1.414;"
    id="svg37"
-   sodipodi:docname="PJ301ML.svg"
+   sodipodi:docname="PJ301MS.svg"
    inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -131,9 +131,9 @@
    inkscape:window-height="863"
    id="namedview39"
    showgrid="false"
-   inkscape:zoom="23.8396"
-   inkscape:cx="12.772865"
-   inkscape:cy="10.843303"
+   inkscape:zoom="95.3584"
+   inkscape:cx="13.365367"
+   inkscape:cy="4.3048122"
    inkscape:window-x="62"
    inkscape:window-y="53"
    inkscape:window-maximized="0"
@@ -190,7 +190,7 @@
      cy="11.93965"
      r="10.44346"
      id="circle154"
-     style="fill:#ffffff;fill-opacity:1" /><linearGradient
+     style="fill:#d3d2d2;fill-opacity:1" /><linearGradient
      id="linearGradient1078"
      gradientUnits="userSpaceOnUse"
      x1="58.861809"
@@ -232,7 +232,7 @@
      cy="11.92791"
      r="8.1665602"
      id="circle170"
-     style="fill:#0e0e0e;fill-opacity:1" /><path
+     style="fill:#101010;fill-opacity:1" /><path
      opacity="0.28"
      fill="#404040"
      d="m 11.85015,4.29678 c 4.21318,0 7.62864,3.78218 7.62864,8.44773 0,4.66555 -3.41546,9.28764 -7.62864,9.28764 -4.21318,0 -7.62864,-4.62209 -7.62864,-9.28764 0,-4.66555 3.41546,-8.44773 7.62864,-8.44773 z"

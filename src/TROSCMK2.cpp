@@ -105,6 +105,8 @@ struct TROSCMK2 : Module
 	std::array<Wavefolder, 4> folder[3];
 
 	HardClipper clipper[3];
+	float clip_out[3];
+	HardClipper masterclip;
 
 	float log2sampleFreq = 15.4284f;
 	float sampleRate = APP->engine->getSampleRate();
@@ -119,26 +121,39 @@ struct TROSCMK2 : Module
 
 	for ( int i=0;i<3;i++)
 	{
-	configParam(WAVE_SEL_PARAM+i,  0.f, 1.f, 0.f, "Wave Mix Level");
-	configParam(OCTAVE_PARAM+i,  4, 12, 8, "Osc Octave");
-	configParam(COARSE_PARAM+i,  -7, 7, 0.f, "Osc Coarse note");
-	configParam(FINE_PARAM+i,  -0.083333, 0.083333, 0.0, "Osc1 Fine frequency");
-	configParam(FM_PARAM+i,  -11.7, 11.7, 0.0,  "Osc1 Lin Frequency modulation");
-	configParam(EXP_FM_PARAM+i,  -1.0, 1.0, 0.0, "Osc1 Exp Frequency modulation");
-	configParam(FOLD_PARAM + i, 0.9f, 10.f, 0.9f, "Folds");
-	configParam(FOLD_ATT_PARAM+i, -1.0f, 1.0f, 0.0f, "Folds CV");
-	configParam(SYMM_PARAM + i, -5.0f, 5.0f, 0.0f, "Symmetry");
-	configParam(SYMM_ATT_PARAM+i, -1.0f, 1.0f, 0.0f, "Folds CV");
-	configParam(LEVEL_PARAM + i, 0.0, 1.0, 0.0, "Osc Amp Level");
-	configParam(WAVE1_PARAM+i,  0.f, 1.f, 0.f, "Wave A Level");
-	configParam(WAVE2_PARAM+i,  0.f, 1.f, 0.f, "Wave 2A Level");
-	configParam(OSC_LEVEL_PARAM+i,  0, 1.f, 0.f, "Osc Level Att");
+	configParam(WAVE_SEL_PARAM+i,  0.f, 1.f, 0.f, string::f("Wave %d Mix Level",i+1));
+	configParam(OCTAVE_PARAM+i,  4, 12, 8,string::f("Osc%d Octave",i+1));
+	configParam(COARSE_PARAM+i,  -7, 7, 0.f, string::f("Osc%d Coarse note",i+1));
+	configParam(FINE_PARAM+i,  -0.083333, 0.083333, 0.0, string::f("Osc%d Fine frequency",i+1));
+	configParam(FM_PARAM+i,  -11.7, 11.7, 0.0,  string::f("Osc%d Lin Frequency modulation",i+1));
+	configParam(EXP_FM_PARAM+i,  -1.0, 1.0, 0.0, string::f("Osc%d Exp Frequency modulation",i+1));
+	configParam(FOLD_PARAM + i, 0.9f, 10.f, 0.9f, string::f("Osc%d Folds",i+1));
+	configParam(FOLD_ATT_PARAM+i, -1.0f, 1.0f, 0.0f, string::f("Osc%d Folds CV",i+1));
+	configParam(SYMM_PARAM + i, -5.0f, 5.0f, 0.0f, string::f("Osc%d Symmetry",i+1));
+	configParam(SYMM_ATT_PARAM+i, -1.0f, 1.0f, 0.0f, string::f("Osc%d Folds CV",i+1));
+	configParam(LEVEL_PARAM + i, 0.0, 1.0, 0.0, string::f("Osc%d  Amp Level",i+1));
+	configParam(WAVE1_PARAM+i,  0.f, 1.f, 0.f, string::f("Osc%d Wave A Level",i+1));
+	configParam(WAVE2_PARAM+i,  0.f, 1.f, 0.f, string::f("Osc%d Wave 2A Level",i+1));
+	configParam(OSC_LEVEL_PARAM+i,  0, 1.f, 0.f, string::f("Osc%d  Level Att",i+1));
+	
+	configInput(PITCH_INPUT + i,string::f("Osc%d V/Oct",i+1));
+	configInput(FM_INPUT+ i,string::f("Osc%d FM",i+1));
+	configInput(EXP_FM_INPUT+ i,string::f("Osc%d Exp FM",i+1));
+	configInput(FOLD_CV_INPUT+ i,string::f("Osc%d Fold Cv",i+1));
+	configInput(SYMM_CV_INPUT+ i,string::f("Osc%d Symm Cv",i+1));
+	configInput(WAVE_MIX_INPUT+ i,string::f("Osc%d WaveMix",i+1));
+	configInput(VOL_INPUT+ i,string::f("Osc%d Level",i+1));
+	
+	configOutput(OSC_OUTPUT+i,string::f("Osc%d ",i+1)); 
+
 	}
 	configParam(MASTER_PARAM, 0.0, M_SQRT2, 1.0, "Ch level", " dB", -10, 40);
 	configParam(LINK_A_PARAM, 0.f, 1.f, 0.f, "Link A Param");
 	configParam(LINK_B_PARAM, 0.f, 1.f, 0.f, "Link B Param");
+	
+	configOutput(MASTER_OUTPUT,"Master Level");
 
-	onReset();
+	// onReset();
 
 	panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
@@ -190,10 +205,11 @@ void TROSCMK2::onSampleRateChange()
     	    	triBuffer[i][j] = triBuffer[i][j + 1];
     		}
 
-			freq[0] = params[OCTAVE_PARAM + 0].getValue() + 0.031360 + 0.083333 * params[COARSE_PARAM + 0].getValue() + params[FINE_PARAM + 0].getValue() + linka;
-			freq[1] = params[OCTAVE_PARAM + 1].getValue() + 0.031360 + 0.083333 * params[COARSE_PARAM + 1].getValue() + params[FINE_PARAM + 1].getValue() + linkb;
-			freq[2] = params[OCTAVE_PARAM + 2].getValue() + 0.031360 + 0.083333 * params[COARSE_PARAM + 2].getValue() + params[FINE_PARAM + 2].getValue() + linkc;
+			 freq[0] = params[OCTAVE_PARAM + 0].getValue() + 0.031360 + 0.083333 * params[COARSE_PARAM + 0].getValue() + params[FINE_PARAM + 0].getValue() + linka;
+			 freq[1] = params[OCTAVE_PARAM + 1].getValue() + 0.031360 + 0.083333 * params[COARSE_PARAM + 1].getValue() + params[FINE_PARAM + 1].getValue() + linkb;
+			 freq[2] = params[OCTAVE_PARAM + 2].getValue() + 0.031360 + 0.083333 * params[COARSE_PARAM + 2].getValue() + params[FINE_PARAM + 2].getValue() + linkc;
 
+			
 			freq[i] += params[EXP_FM_PARAM+i].getValue() * inputs[EXP_FM_INPUT+i].getVoltage();
     		if (freq[i] >= log2sampleFreq)
 			{
@@ -235,6 +251,7 @@ void TROSCMK2::onSampleRateChange()
 
     		sawBuffer[i][3] = phase[i];
     		sqrBuffer[i][3] = square[i];
+			
     		if (square[i] >= 0.0f) {
     		    triBuffer[i][3] = phase[i];
     		}
@@ -329,7 +346,9 @@ void TROSCMK2::onSampleRateChange()
 	// Send samples to output
 	output[i] = 5.0f * foldedOutput[i];
 
-	outputs[OSC_OUTPUT + i].setVoltage(output[i] * (std::pow(params[LEVEL_PARAM+i].getValue(), 2.f) + (params[OSC_LEVEL_PARAM+i].getValue()* (inputs[VOL_INPUT+i].getVoltage()/10.f))));
+	clip_out[i]=output[i] * (std::pow(params[LEVEL_PARAM+i].getValue(), 2.f) + (params[OSC_LEVEL_PARAM+i].getValue()* (inputs[VOL_INPUT+i].getVoltage()/10.f)));
+	clipper[i].process(clip_out[i]);
+	outputs[OSC_OUTPUT + i].setVoltage(clip_out[i]);
 
 	}
 	osc_a=outputs[OSC_OUTPUT+0].getVoltage();
@@ -337,14 +356,19 @@ void TROSCMK2::onSampleRateChange()
 	osc_c=outputs[OSC_OUTPUT+2].getVoltage();
 	float master = osc_a+osc_b+osc_c;
 
-	outputs[MASTER_OUTPUT].setVoltage(0.3*master* std::pow(params[MASTER_PARAM].getValue(),2.f));
+
+	float master_out = 0.3*master* std::pow(params[MASTER_PARAM].getValue(),2.f);
+	masterclip.process(master_out);
+	outputs[MASTER_OUTPUT].setVoltage(master_out);
 }
 
 
 struct TROSCMK2Widget : ModuleWidget {
-
-
-	SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  TROSCMK2 *module;
 	  int theme;
@@ -382,13 +406,11 @@ struct TROSCMK2Widget : ModuleWidget {
 	}
 	TROSCMK2Widget(TROSCMK2 *module){
 	 setModule(module);
-	 setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/TROSCMK2.svg")));
-	 if (module) {
-     darkPanel = new SvgPanel();
-     darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/TROSCMK2.svg")));
-     darkPanel->visible = false;
-     addChild(darkPanel);
-   }
+	 // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/TROSCMK2.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/TROSCMK2.svg"));
+		int panelTheme = isDark(module ? (&(((TROSCMK2*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
 	 addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
 	 addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -398,108 +420,109 @@ struct TROSCMK2Widget : ModuleWidget {
 	 int space = 170;
 	 int js = 30;
 
-	 addParam(createParam<VerboDSSnapKnob>(Vec(34,  20), module, TROSCMK2::OCTAVE_PARAM+0));
-	 addParam(createParam<VerboDSSnapKnob>(Vec(34, 150), module, TROSCMK2::OCTAVE_PARAM+1));
-	 addParam(createParam<VerboDSSnapKnob>(Vec(34, 280), module, TROSCMK2::OCTAVE_PARAM+2));
+	 addParam(createParam<VerboDSSnapKnob>(Vec(41,  20), module, TROSCMK2::OCTAVE_PARAM+0));
+	 addParam(createParam<VerboDSSnapKnob>(Vec(41, 150), module, TROSCMK2::OCTAVE_PARAM+1));
+	 addParam(createParam<VerboDSSnapKnob>(Vec(41, 280), module, TROSCMK2::OCTAVE_PARAM+2));
 
-	 addParam(createParam<MicroBluSnapKnob>(Vec(72, 20-13), module, TROSCMK2::COARSE_PARAM+0));
-	 addParam(createParam<MicroBluSnapKnob>(Vec(72,150-13), module, TROSCMK2::COARSE_PARAM+1));
-	 addParam(createParam<MicroBluSnapKnob>(Vec(72,280-13), module, TROSCMK2::COARSE_PARAM+2));
+	 addParam(createParam<MicroBluSnapKnob>(Vec(79, 20-13), module, TROSCMK2::COARSE_PARAM+0));
+	 addParam(createParam<MicroBluSnapKnob>(Vec(79,150-13), module, TROSCMK2::COARSE_PARAM+1));
+	 addParam(createParam<MicroBluSnapKnob>(Vec(79,280-13), module, TROSCMK2::COARSE_PARAM+2));
 
-	 addParam(createParam<Trim>(Vec(30, 50+ 20), module, TROSCMK2::FINE_PARAM+0));
-	 addParam(createParam<Trim>(Vec(30, 50+150), module, TROSCMK2::FINE_PARAM+1));
-	 addParam(createParam<Trim>(Vec(30, 50+280), module, TROSCMK2::FINE_PARAM+2));
+	 addParam(createParam<Trim>(Vec(37, 50+ 20), module, TROSCMK2::FINE_PARAM+0));
+	 addParam(createParam<Trim>(Vec(37, 50+150), module, TROSCMK2::FINE_PARAM+1));
+	 addParam(createParam<Trim>(Vec(37, 50+280), module, TROSCMK2::FINE_PARAM+2));
 
-	 addParam(createParam<VerboDS>(Vec(114,  20 - 10), module, TROSCMK2::FM_PARAM+0));
-	 addParam(createParam<VerboDS>(Vec(114, 150 - 10), module, TROSCMK2::FM_PARAM+1));
-	 addParam(createParam<VerboDS>(Vec(114, 280 - 10), module, TROSCMK2::FM_PARAM+2));
+	 addParam(createParam<VerboDS>(Vec(121,  20 - 10), module, TROSCMK2::FM_PARAM+0));
+	 addParam(createParam<VerboDS>(Vec(121, 150 - 10), module, TROSCMK2::FM_PARAM+1));
+	 addParam(createParam<VerboDS>(Vec(121, 280 - 10), module, TROSCMK2::FM_PARAM+2));
 
-     addParam(createParam<VerboDS>(Vec(154,  20 - 10), module, TROSCMK2::EXP_FM_PARAM+0));
-	 addParam(createParam<VerboDS>(Vec(154, 150 - 10), module, TROSCMK2::EXP_FM_PARAM+1));
-	 addParam(createParam<VerboDS>(Vec(154, 280 - 10), module, TROSCMK2::EXP_FM_PARAM+2));
+     addParam(createParam<VerboDS>(Vec(161,  20 - 10), module, TROSCMK2::EXP_FM_PARAM+0));
+	 addParam(createParam<VerboDS>(Vec(161, 150 - 10), module, TROSCMK2::EXP_FM_PARAM+1));
+	 addParam(createParam<VerboDS>(Vec(161, 280 - 10), module, TROSCMK2::EXP_FM_PARAM+2));
 
-     addParam(createParam<VerboS>(Vec(69,26+  20), module, TROSCMK2::FOLD_PARAM+0));
-	 addParam(createParam<VerboS>(Vec(69,26+ 150), module, TROSCMK2::FOLD_PARAM+1));
-	 addParam(createParam<VerboS>(Vec(69,26+ 280), module, TROSCMK2::FOLD_PARAM+2));
+     addParam(createParam<VerboS>(Vec(76,26+  20), module, TROSCMK2::FOLD_PARAM+0));
+	 addParam(createParam<VerboS>(Vec(76,26+ 150), module, TROSCMK2::FOLD_PARAM+1));
+	 addParam(createParam<VerboS>(Vec(76,26+ 280), module, TROSCMK2::FOLD_PARAM+2));
 
-	 addParam(createParam<VerboXS>(Vec(107,36+  20), module, TROSCMK2::FOLD_ATT_PARAM+0));
-	 addParam(createParam<VerboXS>(Vec(107,36+ 150), module, TROSCMK2::FOLD_ATT_PARAM+1));
-	 addParam(createParam<VerboXS>(Vec(107,36+ 280), module, TROSCMK2::FOLD_ATT_PARAM+2));
+	 addParam(createParam<VerboXS>(Vec(114,36+  20), module, TROSCMK2::FOLD_ATT_PARAM+0));
+	 addParam(createParam<VerboXS>(Vec(114,36+ 150), module, TROSCMK2::FOLD_ATT_PARAM+1));
+	 addParam(createParam<VerboXS>(Vec(114,36+ 280), module, TROSCMK2::FOLD_ATT_PARAM+2));
 
-	 addParam(createParam<VerboS>(Vec(124+13,26+  20), module, TROSCMK2::SYMM_PARAM+0));
-	 addParam(createParam<VerboS>(Vec(124+13,26+ 150), module, TROSCMK2::SYMM_PARAM+1));
-	 addParam(createParam<VerboS>(Vec(124+13,26+ 280), module, TROSCMK2::SYMM_PARAM+2));
+	 addParam(createParam<VerboS>(Vec(144,26+  20), module, TROSCMK2::SYMM_PARAM+0));
+	 addParam(createParam<VerboS>(Vec(144,26+ 150), module, TROSCMK2::SYMM_PARAM+1));
+	 addParam(createParam<VerboS>(Vec(144,26+ 280), module, TROSCMK2::SYMM_PARAM+2));
 
-	 addParam(createParam<VerboXS>(Vec(164+11, 36 +  20), module, TROSCMK2::SYMM_ATT_PARAM + 0));
-	 addParam(createParam<VerboXS>(Vec(164+11, 36 + 150), module, TROSCMK2::SYMM_ATT_PARAM + 1));
-	 addParam(createParam<VerboXS>(Vec(164+11, 36 + 280), module, TROSCMK2::SYMM_ATT_PARAM + 2));
+	 addParam(createParam<VerboXS>(Vec(182, 36 +  20), module, TROSCMK2::SYMM_ATT_PARAM + 0));
+	 addParam(createParam<VerboXS>(Vec(182, 36 + 150), module, TROSCMK2::SYMM_ATT_PARAM + 1));
+	 addParam(createParam<VerboXS>(Vec(182, 36 + 280), module, TROSCMK2::SYMM_ATT_PARAM + 2));
 
-	 addParam(createParam<VerboDS>(Vec(206, 40 +  25), module, TROSCMK2::LEVEL_PARAM+0));
-	 addParam(createParam<VerboDS>(Vec(206, 40 + 155), module, TROSCMK2::LEVEL_PARAM+1));
-	 addParam(createParam<VerboDS>(Vec(206, 40 + 280), module, TROSCMK2::LEVEL_PARAM+2));
+	 addParam(createParam<VerboDS>(Vec(213, 40 +  25), module, TROSCMK2::LEVEL_PARAM+0));
+	 addParam(createParam<VerboDS>(Vec(213, 40 + 155), module, TROSCMK2::LEVEL_PARAM+1));
+	 addParam(createParam<VerboDS>(Vec(213, 40 + 280), module, TROSCMK2::LEVEL_PARAM+2));
 
-	 addParam(createParam<MicroBlu>(Vec(26 + space, 15 + 20), module, TROSCMK2::WAVE1_PARAM+0));
-	 addParam(createParam<MicroBlu>(Vec(56 + space, 15 + 20), module, TROSCMK2::WAVE2_PARAM+0));
-	 addParam(createParam<MicroBlu>(Vec(26 + space, 15 + 150), module, TROSCMK2::WAVE1_PARAM+1));
-	 addParam(createParam<MicroBlu>(Vec(56 + space, 15 + 150), module, TROSCMK2::WAVE2_PARAM+1));
-	 addParam(createParam<MicroBlu>(Vec(26 + space, 15 + 275), module, TROSCMK2::WAVE1_PARAM+2));
-	 addParam(createParam<MicroBlu>(Vec(56 + space, 15 + 275), module, TROSCMK2::WAVE2_PARAM+2));
+	 addParam(createParam<MicroBlu>(Vec(33 + space, 15 + 20), module, TROSCMK2::WAVE1_PARAM+0));
+	 addParam(createParam<MicroBlu>(Vec(63 + space, 15 + 20), module, TROSCMK2::WAVE2_PARAM+0));
+	 addParam(createParam<MicroBlu>(Vec(33 + space, 15 + 150), module, TROSCMK2::WAVE1_PARAM+1));
+	 addParam(createParam<MicroBlu>(Vec(63 + space, 15 + 150), module, TROSCMK2::WAVE2_PARAM+1));
+	 addParam(createParam<MicroBlu>(Vec(33 + space, 15 + 275), module, TROSCMK2::WAVE1_PARAM+2));
+	 addParam(createParam<MicroBlu>(Vec(63 + space, 15 + 275), module, TROSCMK2::WAVE2_PARAM+2));
 	 
 
-	 addParam(createParam<Trim>(Vec( 43 + space, 20  - 5), module, TROSCMK2::WAVE_SEL_PARAM+0));
-	 addParam(createParam<Trim>(Vec( 43 + space, 150 - 5), module, TROSCMK2::WAVE_SEL_PARAM+1));
-	 addParam(createParam<Trim>(Vec( 43 + space, 275 - 5), module, TROSCMK2::WAVE_SEL_PARAM+2));
+	 addParam(createParam<Trim>(Vec( 50 + space, 20  - 5), module, TROSCMK2::WAVE_SEL_PARAM+0));
+	 addParam(createParam<Trim>(Vec( 50 + space, 150 - 5), module, TROSCMK2::WAVE_SEL_PARAM+1));
+	 addParam(createParam<Trim>(Vec( 50 + space, 275 - 5), module, TROSCMK2::WAVE_SEL_PARAM+2));
 
-	  addInput(createInput<PJ301MCPort>(Vec(71 + space, 20 -  18), module, TROSCMK2::WAVE_MIX_INPUT+0));
-	  addInput(createInput<PJ301MCPort>(Vec(71 + space, 150 - 18), module, TROSCMK2::WAVE_MIX_INPUT+1));
-	  addInput(createInput<PJ301MCPort>(Vec(71 + space, 280 - 18), module, TROSCMK2::WAVE_MIX_INPUT+2));
+	  addInput(createInput<PJ301MSPort>(Vec(77 + space, 20 -  18), module, TROSCMK2::WAVE_MIX_INPUT+0));
+	  addInput(createInput<PJ301MSPort>(Vec(77 + space, 150 - 18), module, TROSCMK2::WAVE_MIX_INPUT+1));
+	  addInput(createInput<PJ301MSPort>(Vec(77 + space, 280 - 18), module, TROSCMK2::WAVE_MIX_INPUT+2));
 
-	 addInput(createInput<PJ301MCPort>(Vec(2, 30 +  20), module, TROSCMK2::PITCH_INPUT+0));
-	 addInput(createInput<PJ301MCPort>(Vec(2, 30 + 150), module, TROSCMK2::PITCH_INPUT+1));
-	 addInput(createInput<PJ301MCPort>(Vec(2, 30 + 280), module, TROSCMK2::PITCH_INPUT+2));
+	 addInput(createInput<PJ301MSPort>(Vec(9, 30 +  20), module, TROSCMK2::PITCH_INPUT+0));
+	 addInput(createInput<PJ301MSPort>(Vec(9, 30 + 150), module, TROSCMK2::PITCH_INPUT+1));
+	 addInput(createInput<PJ301MSPort>(Vec(9, 30 + 280), module, TROSCMK2::PITCH_INPUT+2));
 
-	 addInput(createInput<PJ301MCPort>(Vec(84, 65 +  20), module, TROSCMK2::FOLD_CV_INPUT+0));
-	 addInput(createInput<PJ301MCPort>(Vec(84, 65 + 150), module, TROSCMK2::FOLD_CV_INPUT+1));
-	 addInput(createInput<PJ301MCPort>(Vec(84, 65 + 280), module, TROSCMK2::FOLD_CV_INPUT+2));
+	 addInput(createInput<PJ301MSPort>(Vec(91, 65 +  20), module, TROSCMK2::FOLD_CV_INPUT+0));
+	 addInput(createInput<PJ301MSPort>(Vec(91, 65 + 150), module, TROSCMK2::FOLD_CV_INPUT+1));
+	 addInput(createInput<PJ301MSPort>(Vec(91, 65 + 280), module, TROSCMK2::FOLD_CV_INPUT+2));
 
-	 addInput(createInput<PJ301MCPort>(Vec(84+js*1, 65 +  20), module, TROSCMK2::FM_INPUT+0));
-	 addInput(createInput<PJ301MCPort>(Vec(84+js*1, 65 + 150), module, TROSCMK2::FM_INPUT+1));
-	 addInput(createInput<PJ301MCPort>(Vec(84+js*1, 65 + 280), module, TROSCMK2::FM_INPUT+2));
+	 addInput(createInput<PJ301MSPort>(Vec(91+js*1, 65 +  20), module, TROSCMK2::FM_INPUT+0));
+	 addInput(createInput<PJ301MSPort>(Vec(91+js*1, 65 + 150), module, TROSCMK2::FM_INPUT+1));
+	 addInput(createInput<PJ301MSPort>(Vec(91+js*1, 65 + 280), module, TROSCMK2::FM_INPUT+2));
 
-     addInput(createInput<PJ301MCPort>(Vec(84+js*2, 65 +  20), module, TROSCMK2::EXP_FM_INPUT+0));
-	 addInput(createInput<PJ301MCPort>(Vec(84+js*2, 65 + 150), module, TROSCMK2::EXP_FM_INPUT+1));
-	 addInput(createInput<PJ301MCPort>(Vec(84+js*2, 65 + 280), module, TROSCMK2::EXP_FM_INPUT+2));
+     addInput(createInput<PJ301MSPort>(Vec(91+js*2, 65 +  20), module, TROSCMK2::EXP_FM_INPUT+0));
+	 addInput(createInput<PJ301MSPort>(Vec(91+js*2, 65 + 150), module, TROSCMK2::EXP_FM_INPUT+1));
+	 addInput(createInput<PJ301MSPort>(Vec(91+js*2, 65 + 280), module, TROSCMK2::EXP_FM_INPUT+2));
 
-	 addInput(createInput<PJ301MCPort>(Vec(84+js*3, 65 +  20), module, TROSCMK2::SYMM_CV_INPUT+0));
-	 addInput(createInput<PJ301MCPort>(Vec(84+js*3, 65 + 150), module, TROSCMK2::SYMM_CV_INPUT+1));
-	 addInput(createInput<PJ301MCPort>(Vec(84+js*3, 65 + 280), module, TROSCMK2::SYMM_CV_INPUT+2));
+	 addInput(createInput<PJ301MSPort>(Vec(91+js*3, 65 +  20), module, TROSCMK2::SYMM_CV_INPUT+0));
+	 addInput(createInput<PJ301MSPort>(Vec(91+js*3, 65 + 150), module, TROSCMK2::SYMM_CV_INPUT+1));
+	 addInput(createInput<PJ301MSPort>(Vec(91+js*3, 65 + 280), module, TROSCMK2::SYMM_CV_INPUT+2));
 
-	 addInput(createInput<PJ301MCPort>(Vec(245, 58 +  20), module, TROSCMK2::VOL_INPUT+0));
-	 addInput(createInput<PJ301MCPort>(Vec(245, 58 + 150), module, TROSCMK2::VOL_INPUT+1));
-	 addInput(createInput<PJ301MCPort>(Vec(245, 50 + 280), module, TROSCMK2::VOL_INPUT+2));
+	 addInput(createInput<PJ301MSPort>(Vec(252, 58 +  20), module, TROSCMK2::VOL_INPUT+0));
+	 addInput(createInput<PJ301MSPort>(Vec(252, 58 + 150), module, TROSCMK2::VOL_INPUT+1));
+	 addInput(createInput<PJ301MSPort>(Vec(252, 50 + 280), module, TROSCMK2::VOL_INPUT+2));
 
-	 addParam(createParam<Trim>(Vec( 273, 63 +  20), module, TROSCMK2::OSC_LEVEL_PARAM+0));
-	 addParam(createParam<Trim>(Vec( 273, 63 + 150), module, TROSCMK2::OSC_LEVEL_PARAM+1));
-	 addParam(createParam<Trim>(Vec( 273, 55 + 280), module, TROSCMK2::OSC_LEVEL_PARAM+2));
+	 addParam(createParam<Trim>(Vec( 280, 63 +  20), module, TROSCMK2::OSC_LEVEL_PARAM+0));
+	 addParam(createParam<Trim>(Vec( 280, 63 + 150), module, TROSCMK2::OSC_LEVEL_PARAM+1));
+	 addParam(createParam<Trim>(Vec( 280, 55 + 280), module, TROSCMK2::OSC_LEVEL_PARAM+2));
 
-	 addParam(createParam<SilverSwitch>(Vec(40, 80 + 20), module, TROSCMK2::LINK_A_PARAM));
-	 addParam(createParam<SilverSwitch>(Vec(40, 80 + 150), module, TROSCMK2::LINK_B_PARAM));
+	 addParam(createParam<SilverSwitch>(Vec(47, 80 + 20), module, TROSCMK2::LINK_A_PARAM));
+	 addParam(createParam<SilverSwitch>(Vec(47, 80 + 150), module, TROSCMK2::LINK_B_PARAM));
 
-	 addOutput(createOutput<PJ301MOPort>(Vec(256, 22 +  20), module, TROSCMK2::OSC_OUTPUT+0));
-	 addOutput(createOutput<PJ301MOPort>(Vec(256, 22 + 150), module, TROSCMK2::OSC_OUTPUT+1));
-	 addOutput(createOutput<PJ301MOPort>(Vec(256, 22 + 272), module, TROSCMK2::OSC_OUTPUT+2));
+	 addOutput(createOutput<PJ301MSPort>(Vec(263, 22 +  20), module, TROSCMK2::OSC_OUTPUT+0));
+	 addOutput(createOutput<PJ301MSPort>(Vec(263, 22 + 150), module, TROSCMK2::OSC_OUTPUT+1));
+	 addOutput(createOutput<PJ301MSPort>(Vec(263, 22 + 272), module, TROSCMK2::OSC_OUTPUT+2));
 
-	 addOutput(createOutput<PJ301MOPort>(Vec(295, 220), module, TROSCMK2::MASTER_OUTPUT));
-	 addParam(createParam<VerboDS>(Vec(290, 180), module, TROSCMK2::MASTER_PARAM));
+	 addOutput(createOutput<PJ301MSPort>(Vec(302, 220), module, TROSCMK2::MASTER_OUTPUT));
+	 addParam(createParam<VerboDS>(Vec(297, 180), module, TROSCMK2::MASTER_PARAM));
 }
 void step() override {
-  if (module) {
-	Widget* panel = getPanel();
-    panel->visible = ((((TROSCMK2*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((TROSCMK2*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((TROSCMK2*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 
 

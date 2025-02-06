@@ -274,6 +274,9 @@ struct Oscillator
 	}
 };
 
+
+//////////////////////////////////////////////////////////////////////////////////
+
 struct DVCO : Module {
 	enum ParamIds {
 		MODE_A_PARAM,
@@ -281,7 +284,9 @@ struct DVCO : Module {
 		SYNC_A_PARAM,
 		SYNC_B_PARAM,
 		FREQ_A_PARAM,
+		FINE_A_PARAM,
 		FREQ_B_PARAM,
+		FINE_B_PARAM,
 		OSC_A_LEVEL_PARAM,
 		OSC_B_LEVEL_PARAM,
 		FM_A_PARAM,
@@ -330,6 +335,9 @@ struct DVCO : Module {
 	Oscillator<16, 16, float_4> oscillator_a[4];
 	Oscillator<16, 16, float_4> oscillator_b[4];
 
+
+
+
 	int panelTheme;
 
 	DVCO() {
@@ -343,6 +351,11 @@ struct DVCO : Module {
 		configParam(OSC_B_LEVEL_PARAM,  0.0, 1.41, 1.0,"Osc B Level", " dB", -10, 40 );
 		configParam(FREQ_A_PARAM,  -54.f, 54.f, 0.f, "Osc1 Frequency", " Hz", dsp::FREQ_SEMITONE, dsp::FREQ_C4);
 		configParam(FREQ_B_PARAM,  -54.f, 54.f, 0.f, "Osc2 Frequency", " Hz", dsp::FREQ_SEMITONE, dsp::FREQ_C4);
+
+		configParam(FINE_A_PARAM, -1.f, 1.f, 0.f, "Oscillator A Fine Tune", " semitones");
+		configParam(FINE_B_PARAM, -1.f, 1.f, 0.f, "Oscillator B Fine Tune", " semitones");
+
+
 		configParam(FM_A_PARAM,  -1.f, 1.f, 0.f, "Osc1 Frequency modulation", "%", 0.f, 100.f);
 		configParam(FM2_A_PARAM,  -1.f, 1.f, 0.f, "Osc1 Frequency modulation 2", "%", 0.f, 100.f);
 		configParam(FM_B_PARAM,  -1.f, 1.f, 0.f, "Osc2 Frequency modulation", "%", 0.f, 100.f);
@@ -353,8 +366,26 @@ struct DVCO : Module {
 		configParam(PWM_B_PARAM,  -1.0, 1.0, 0.0,"Osc2 Pulse width modulation", "%", 0.f, 100.f);
 		configParam(WAVE_A_PARAM,  0.0, 3.0, 1.5,"Wave1 Sel");
 		configParam(WAVE_B_PARAM,  0.0, 3.0, 1.5,"Wave2 Sel");
-		onReset();
-
+		
+		configInput(PITCH_A_INPUT,"A V/Oct");
+		configInput(PITCH_B_INPUT,"B V/Oct");
+		configInput(FM_A_INPUT,"A FM");
+		configInput(FM2_A_INPUT,"A FM2");
+		configInput(FM_B_INPUT,"B FM");
+		configInput(FM2_B_INPUT,"B FM2");
+		configInput(SYNC_A_INPUT,"A Sync Cv");
+		configInput(SYNC_B_INPUT,"B Sync Cv");
+		configInput(PW_A_INPUT,"A PW Cv");
+		configInput(PW_B_INPUT,"B PW Cv");
+		configInput(WAVE_A_INPUT,"Wave_A Cv");
+		configInput(WAVE_B_INPUT,"Wave_B Cv");
+		
+		configOutput(OSC_A_OUTPUT,"A ");
+		configOutput(OSC_AN_OUTPUT,"A- ");
+		configOutput(OSC_B_OUTPUT,"B ");
+		configOutput(OSC_BN_OUTPUT,"B- ");
+		configOutput(MASTER_OUTPUT,"Master ");
+		
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
 
@@ -375,10 +406,8 @@ struct DVCO : Module {
 	void process(const ProcessArgs &args) override
  	{
 
-		//////////////////////////////////////////////////////////////////////////
-
 		float freqParamA = params[FREQ_A_PARAM].getValue() / 12.f;
-		
+		float fineTuneA = params[FINE_A_PARAM].getValue() / 12.f;   // Parametro di fine tuning, ±1 semitono	
 		float fmParamA = params[FM_A_PARAM].getValue();
 		float fmParamA2 = params[FM2_A_PARAM].getValue();
 		float waveParamA = params[WAVE_A_PARAM].getValue();
@@ -387,7 +416,7 @@ struct DVCO : Module {
 		float volumeA = std::pow(params[OSC_A_LEVEL_PARAM].getValue(),2.f);
 
 		float freqParamB = params[FREQ_B_PARAM].getValue() / 12.f;
-	
+		float fineTuneB = params[FINE_B_PARAM].getValue() / 12.f;   // Parametro di fine tuning, ±1 semitono
 		float fmParamB = params[FM_B_PARAM].getValue();
 		float fmParamB2 = params[FM2_B_PARAM].getValue();
 		float waveParamB = params[WAVE_B_PARAM].getValue();
@@ -397,7 +426,11 @@ struct DVCO : Module {
 
 		int channelsA = std::max(inputs[PITCH_A_INPUT].getChannels(), 1);
 		int channelsB = std::max(inputs[PITCH_B_INPUT].getChannels(), 1);
-		int channelsM = std::max(channelsA+channelsB, 1);
+		int channelsM = (channelsA > channelsB) ? channelsA : channelsB;
+
+		freqParamA += fineTuneA;
+		freqParamB += fineTuneB;
+
 
 		float_4 va=0.f;
 		float_4 vb=0.f;
@@ -418,7 +451,6 @@ struct DVCO : Module {
 			pitchA += fmParamA * inputs[FM_A_INPUT].getPolyVoltageSimd<float_4>(c);		
 			freqA += dsp::FREQ_C4 * inputs[FM2_A_INPUT].getPolyVoltageSimd<float_4>(c) * fmParamA2;
 
-
 			freqA += dsp::FREQ_C4 * dsp::approxExp2_taylor5(pitchA + 30.f) / std::pow(2.f, 30.f);
 			freqA = clamp(freqA, 0.f, args.sampleRate / 2.f);
 
@@ -436,11 +468,12 @@ struct DVCO : Module {
 
 			va = clamp(va,-1.f,1.f);
 
-			outputs[OSC_A_OUTPUT].setVoltageSimd(5.f * va, c);
-			outputs[OSC_AN_OUTPUT].setVoltageSimd(5.f * va *-1.f, c);
+			outputs[OSC_A_OUTPUT].setVoltageSimd(volumeA*5.f * va, c);
+			outputs[OSC_AN_OUTPUT].setVoltageSimd(volumeA*5.f * va *-1.f, c);
 
 			master += va*volumeA;
-			outputs[MASTER_OUTPUT].setVoltageSimd(5*master,c);
+
+			outputs[MASTER_OUTPUT].setVoltageSimd(2.5*master,c);
 	    }
 
 		for (int c = 0; c < channelsB; c += 4)
@@ -475,11 +508,12 @@ struct DVCO : Module {
 
 			vb = clamp(vb,-1.f,1.f);
 
-			outputs[OSC_B_OUTPUT].setVoltageSimd(5.f * vb, c);
-			outputs[OSC_BN_OUTPUT].setVoltageSimd(5.f * vb * -1.f, c);
+			outputs[OSC_B_OUTPUT].setVoltageSimd(volumeB*5.f * vb, c);
+			outputs[OSC_BN_OUTPUT].setVoltageSimd(volumeB*5.f * vb * -1.f, c);
 
 			master += vb*volumeB;
-			outputs[MASTER_OUTPUT].setVoltageSimd(5*master,c);
+
+			outputs[MASTER_OUTPUT].setVoltageSimd(2.5*master,c);
 		}
 
 		
@@ -501,14 +535,15 @@ struct DVCO : Module {
 
 }
 
+
 };
-
-
 struct DVCOWidget : ModuleWidget
 {
 
-
-	SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  DVCO *module;
 	  int theme;
@@ -548,13 +583,11 @@ struct DVCOWidget : ModuleWidget
 DVCOWidget(DVCO *module)
 {
 	setModule(module);
-	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/DVCO.svg")));
-	if (module) {
-    darkPanel = new SvgPanel();
-    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DVCO.svg")));
-    darkPanel->visible = false;
-    addChild(darkPanel);
-  }
+	// Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/DVCO.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DVCO.svg"));
+		int panelTheme = isDark(module ? (&(((DVCO*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
 
 	int jacks = 27;
@@ -582,17 +615,20 @@ DVCOWidget(DVCO *module)
 
 
 	addParam(createParam<LRoundWhy>(Vec(10, 25), module, DVCO::FREQ_A_PARAM));
-	// addParam(createParam<RoundWhy>(Vec(15+knobs, 15), module, DVCO::FINE_A_PARAM));
-	addParam(createParam<LRoundWhy>(Vec(box.size.x -45-10, 25), module, DVCO::FREQ_B_PARAM));
-	// addParam(createParam<RoundWhy>(Vec(box.size.x-90, 15), module, DVCO::FINE_B_PARAM));
+	addParam(createParam<LRoundWhy>(Vec(box.size.x -55, 25), module, DVCO::FREQ_B_PARAM));
+
+	addParam(createParam<Trim>(Vec(60, 20), module, DVCO::FINE_A_PARAM));
+	addParam(createParam<Trim>(Vec(box.size.x -80, 20), module, DVCO::FINE_B_PARAM));
+
+
 	addParam(createParam<RoundAzz>(Vec(15, 110), module, DVCO::PW_A_PARAM));
-	addParam(createParam<RoundWhy>(Vec(15+knobs+5, 60), module, DVCO::FM_A_PARAM));
+	addParam(createParam<RoundWhy>(Vec(15+knobs+5, 57), module, DVCO::FM_A_PARAM));
 	addParam(createParam<RoundWhy>(Vec(15+knobs+5, 100), module, DVCO::FM2_A_PARAM));
 
 
 	addParam(createParam<RoundAzz>(Vec(5, 160), module, DVCO::PWM_A_PARAM));
 	addParam(createParam<RoundAzz>(Vec(box.size.x - knobs-15, 110), module, DVCO::PW_B_PARAM));
-	addParam(createParam<RoundWhy>(Vec(box.size.x - (knobs*2)-15-5, 60), module, DVCO::FM_B_PARAM));
+	addParam(createParam<RoundWhy>(Vec(box.size.x - (knobs*2)-15-5, 57), module, DVCO::FM_B_PARAM));
 	addParam(createParam<RoundWhy>(Vec(box.size.x - (knobs*2)-15-5, 100), module, DVCO::FM2_B_PARAM));
 
 
@@ -603,45 +639,48 @@ DVCOWidget(DVCO *module)
 	////////////////////////////////jacks//////////////////////////////////////////////////////////
 
 
-	addInput(createInput<PJ301MCPort>(Vec(border-5, 290),module, DVCO::PITCH_A_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(border-5+jacks, 290),module, DVCO::FM_A_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(border-5 + jacks*2, 290),module, DVCO::FM2_A_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(border-5 + jacks*2, 325),module, DVCO::WAVE_A_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(border-5+jacks, 325),module, DVCO::SYNC_A_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(border-5, 325),module, DVCO::PW_A_INPUT));
+	addInput(createInput<PJ301MSPort>(Vec(border-5, 290),module, DVCO::PITCH_A_INPUT));
+	addInput(createInput<PJ301MSPort>(Vec(border-5+jacks, 290),module, DVCO::FM_A_INPUT));
+	addInput(createInput<PJ301MSPort>(Vec(border-5 + jacks*2, 290),module, DVCO::FM2_A_INPUT));
+	addInput(createInput<PJ301MSPort>(Vec(border-5 + jacks*2, 325),module, DVCO::WAVE_A_INPUT));
+	addInput(createInput<PJ301MSPort>(Vec(border-5+jacks, 325),module, DVCO::SYNC_A_INPUT));
+	addInput(createInput<PJ301MSPort>(Vec(border-5, 325),module, DVCO::PW_A_INPUT));
 
-	addInput(createInput<PJ301MCPort>(Vec(box.size.x-8-jacks, 290),module, DVCO::PITCH_B_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(box.size.x-8-jacks*2, 290),module, DVCO::FM_B_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(box.size.x-8-jacks*3, 290),module, DVCO::FM2_B_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(box.size.x-8-jacks*3, 325),module, DVCO::WAVE_B_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(box.size.x-(jacks*2)-8, 325),module, DVCO::SYNC_B_INPUT));
-	addInput(createInput<PJ301MCPort>(Vec(box.size.x-jacks-8, 325),module, DVCO::PW_B_INPUT));
+	addInput(createInput<PJ301MSPort>(Vec(box.size.x-8-jacks, 290),module, DVCO::PITCH_B_INPUT));
+	addInput(createInput<PJ301MSPort>(Vec(box.size.x-8-jacks*2, 290),module, DVCO::FM_B_INPUT));
+	addInput(createInput<PJ301MSPort>(Vec(box.size.x-8-jacks*3, 290),module, DVCO::FM2_B_INPUT));
+	addInput(createInput<PJ301MSPort>(Vec(box.size.x-8-jacks*3, 325),module, DVCO::WAVE_B_INPUT));
+	addInput(createInput<PJ301MSPort>(Vec(box.size.x-(jacks*2)-8, 325),module, DVCO::SYNC_B_INPUT));
+	addInput(createInput<PJ301MSPort>(Vec(box.size.x-jacks-8, 325),module, DVCO::PW_B_INPUT));
 
 
 
 //////////////////////////////OUTPUTS////////////////////////////////////////////////////////////////
 
-	addOutput(createOutput<PJ301MOPort>(Vec(border-4, 225), module, DVCO::OSC_A_OUTPUT));
-	addOutput(createOutput<PJ301MOPort>(Vec(border-4+jacks, 225), module, DVCO::OSC_AN_OUTPUT));
-	addOutput(createOutput<PJ301MOPort>(Vec(box.size.x-jacks-8 , 225), module, DVCO::OSC_B_OUTPUT));
-	addOutput(createOutput<PJ301MOPort>(Vec(box.size.x-jacks*2-8 , 225), module, DVCO::OSC_BN_OUTPUT));
+	addOutput(createOutput<PJ301MSPort>(Vec(border-4, 225), module, DVCO::OSC_A_OUTPUT));
+	addOutput(createOutput<PJ301MSPort>(Vec(border-4+jacks, 225), module, DVCO::OSC_AN_OUTPUT));
+	addOutput(createOutput<PJ301MSPort>(Vec(box.size.x-jacks-8 , 225), module, DVCO::OSC_B_OUTPUT));
+	addOutput(createOutput<PJ301MSPort>(Vec(box.size.x-jacks*2-8 , 225), module, DVCO::OSC_BN_OUTPUT));
 
 
 	addParam(createParam<Trim>(Vec(border+jacks*2, 220), module, DVCO::OSC_A_LEVEL_PARAM));
 	addParam(createParam<Trim>(Vec(jacks*4, 220), module, DVCO::OSC_B_LEVEL_PARAM));
 
 
-	addOutput(createOutput<PJ301MOPort>(Vec(jacks*3, 250), module, DVCO::MASTER_OUTPUT));
+
+
+	addOutput(createOutput<PJ301MSPort>(Vec(jacks*3, 250), module, DVCO::MASTER_OUTPUT));
 
 
 }
 void step() override {
-  if (module) {
-	Widget* panel = getPanel();
-    panel->visible = ((((DVCO*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((DVCO*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((DVCO*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelDVCO = createModel<DVCO, DVCOWidget>("DVCO");

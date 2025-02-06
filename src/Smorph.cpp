@@ -145,20 +145,25 @@ struct Smorph : Module {
 
         for (int i = 0; i < 4; i++)
 		{
-            configParam(SEQA_PARAM + i, -5.0, 5.0, 0.0, "Seq A Range");
-            configParam(SEQB_PARAM + i, -5.0, 5.0, 0.0, "Seq B Range");
-            configParam(SEQC_PARAM + i, -5.0, 5.0, 0.0, "Seq C Range");
-            configButton(GBUTTON_PARAM + i,"Seq Button");
-
+            configParam(SEQA_PARAM + i, -5.0, 5.0, 0.0, string::f("Seq A Step %d Val",i+1));
+            configParam(SEQB_PARAM + i, -5.0, 5.0, 0.0, string::f("Seq B Step %d Val",i+1));
+            configParam(SEQC_PARAM + i, -5.0, 5.0, 0.0, string::f("Seq C Step %d Val",i+1));
+            configParam(GBUTTON_PARAM + i, 0.0, 1.0, 0.0, string::f("Step %d Gate",i+1));
+			configInput(GATE_INPUT + i,string::f("Step %d Gate",i+1));
 
         }
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 3; i++)
         {
-            configParam(GLIDE_PARAM + i, 0.0, 1.0, 0.0, "Glide");
+            configParam(GLIDE_PARAM + i, 0.0, 1.0, 0.0,string::f("Column %d Glide",i+1));
+			configOutput(SEQ_OUTPUT+i,string::f("Seq_%d",i+1));
         }
+		
+		configInput(REV_INPUT,"Reverse");
+        configInput(CLK_INPUT,"Clock");
+        configInput(RESET_INPUT,"Reset");
+        configInput(CV_INPUT,"Cv");
 
-
-        onReset();
+       // onReset();
 
     	panelTheme = (loadDarkAsDefault() ? 1 : 0);
     }
@@ -525,9 +530,11 @@ struct SmorphDisplay : TransparentWidget
 
 struct SmorphWidget : ModuleWidget
 {
-
-
-  SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     Smorph *module;
     int theme;
@@ -567,13 +574,11 @@ struct SmorphWidget : ModuleWidget
     {
 
         setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Smorph.svg")));
-        if (module) {
-          darkPanel = new SvgPanel();
-          darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Smorph.svg")));
-          darkPanel->visible = false;
-          addChild(darkPanel);
-        }
+        // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Smorph.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Smorph.svg"));
+		int panelTheme = isDark(module ? (&(((Smorph*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
         addChild(createWidget<ScrewBlack>(Vec(15, 0)));
         addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
@@ -608,14 +613,14 @@ struct SmorphWidget : ModuleWidget
             addChild(createLight<BLight<OrangeLight>>(Vec(183, 63 + i * seq), module, Smorph::STEP_LIGHT + i));
 
         }
-            addInput(createInput<PJ301MOrPort>(Vec(220, 85 + 0 * seq), module, Smorph::GATE_INPUT+0));
-            addInput(createInput<PJ301MOrPort>(Vec(220, 85 + 1 * seq), module, Smorph::GATE_INPUT + 1));
-            addInput(createInput<PJ301MOrPort>(Vec(220, 85 + 2 * seq), module, Smorph::GATE_INPUT + 2));
-            addInput(createInput<PJ301MOrPort>(Vec(220, 85 + 3 * seq), module, Smorph::GATE_INPUT + 3));
+            addInput(createInput<PJ301MSPort>(Vec(220, 85 + 0 * seq), module, Smorph::GATE_INPUT+0));
+            addInput(createInput<PJ301MSPort>(Vec(220, 85 + 1 * seq), module, Smorph::GATE_INPUT + 1));
+            addInput(createInput<PJ301MSPort>(Vec(220, 85 + 2 * seq), module, Smorph::GATE_INPUT + 2));
+            addInput(createInput<PJ301MSPort>(Vec(220, 85 + 3 * seq), module, Smorph::GATE_INPUT + 3));
 
-            addOutput(createOutput<PJ301MOPort>(Vec(25 + low * 0, 320), module, Smorph::SEQ_OUTPUT + 0));
-            addOutput(createOutput<PJ301MOPort>(Vec(25 + low * 1, 320), module, Smorph::SEQ_OUTPUT + 1));
-            addOutput(createOutput<PJ301MOPort>(Vec(25 + low * 2, 320), module, Smorph::SEQ_OUTPUT + 2));
+            addOutput(createOutput<PJ301MSPort>(Vec(25 + low * 0, 320), module, Smorph::SEQ_OUTPUT + 0));
+            addOutput(createOutput<PJ301MSPort>(Vec(25 + low * 1, 320), module, Smorph::SEQ_OUTPUT + 1));
+            addOutput(createOutput<PJ301MSPort>(Vec(25 + low * 2, 320), module, Smorph::SEQ_OUTPUT + 2));
 
             for (int i = 0; i < 3; i++)
             {
@@ -626,18 +631,19 @@ struct SmorphWidget : ModuleWidget
         addParam(createParam<VerboDS>(Vec(45,15), module, Smorph::ROOT_NOTE_PARAM));
         addParam(createParam<VerboDS>(Vec(90,15), module, Smorph::SCALE_PARAM));
 
-        addInput(createInput<PJ301MCPort>(Vec(25 +low*3, 320), module, Smorph::CV_INPUT));
-        addInput(createInput<PJ301MCPort>(Vec(25 +low*4, 320), module, Smorph::REV_INPUT));
-        addInput(createInput<PJ301MCPort>(Vec(25 + low * 5, 320), module, Smorph::CLK_INPUT));
-        addInput(createInput<PJ301MCPort>(Vec(45 + low*4, 320-low), module, Smorph::RESET_INPUT));
+        addInput(createInput<PJ301MSPort>(Vec(25 +low*3, 320), module, Smorph::CV_INPUT));
+        addInput(createInput<PJ301MSPort>(Vec(25 +low*4, 320), module, Smorph::REV_INPUT));
+        addInput(createInput<PJ301MSPort>(Vec(25 + low * 5, 320), module, Smorph::CLK_INPUT));
+        addInput(createInput<PJ301MSPort>(Vec(45 + low*4, 320-low), module, Smorph::RESET_INPUT));
 }
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((Smorph*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Smorph*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Smorph*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelSmorph = createModel<Smorph, SmorphWidget>("Smorph");

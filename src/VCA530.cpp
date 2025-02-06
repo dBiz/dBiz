@@ -95,7 +95,29 @@ struct VCA530 : Module {
     configParam(CV4_PARAM,  0.0, 1.0, 0.0, "Ch 4 CV");
     configParam(CV5_PARAM,  0.0, 1.0, 0.0, "Ch 5 CV");
     configParam(CV6_PARAM,  0.0, 1.0, 0.0, "Ch 6 CV");
-    onReset();
+	
+	configInput(CH1_INPUT,"Ch 1");
+    configInput(CH1_CV_INPUT,"Ch 1 Cv");
+    configInput(CH2_INPUT,"Ch 2");
+    configInput(CH2_CV_INPUT,"Ch 2 Cv");
+    configInput(CH3_INPUT,"Ch 3");
+    configInput(CH3_CV_INPUT,"Ch 3 Cv");
+    configInput(CH4_INPUT,"Ch 4");
+    configInput(CH4_CV_INPUT,"Ch 4 Cv");
+    configInput(CH5_INPUT,"Ch 5");
+    configInput(CH5_CV_INPUT,"Ch 5 Cv");
+    configInput(CH6_INPUT,"Ch 6");
+    configInput(CH6_CV_INPUT,"Ch 6 Cv");
+	
+	configOutput(SUM_OUTPUT_R,"Sum_A");
+    configOutput(SUM_OUTPUT_L,"Sum_B");
+    configOutput(MIX_OUTPUT_R,"Mix_A");
+    configOutput(MIX_OUTPUT_L,"Mix_B");
+	
+	
+	
+	
+    // onReset();
 
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 
@@ -169,8 +191,11 @@ void process(const ProcessArgs &args) override
 
 struct VCA530Widget : ModuleWidget {
 
-
-  SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     VCA530 *module;
     int theme;
@@ -208,13 +233,11 @@ struct VCA530Widget : ModuleWidget {
   }
 VCA530Widget(VCA530 *module) {
     setModule(module);
-    setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/VCA530.svg")));
-    if (module) {
-      darkPanel = new SvgPanel();
-      darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/VCA530.svg")));
-      darkPanel->visible = false;
-      addChild(darkPanel);
-    }
+    // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/VCA530.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/VCA530.svg"));
+		int panelTheme = isDark(module ? (&(((VCA530*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
     int column_1 = -15;
     int top_row = 60;
@@ -229,12 +252,12 @@ VCA530Widget(VCA530 *module) {
 
     // channel strips
 
-    addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 1 - 5, 30 + up), module, VCA530::CH1_INPUT));
-    addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 2 - 5, 30 + up), module, VCA530::CH2_INPUT));
-    addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 3 - 5, 30 + up), module, VCA530::CH3_INPUT));
-    addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 4 - 5, 30 + up), module, VCA530::CH4_INPUT));
-    addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 5 - 5, 30 + up), module, VCA530::CH5_INPUT));
-    addInput(createInput<PJ301MIPort>(Vec(column_1 + column_spacing * 6 - 5, 30 + up), module, VCA530::CH6_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 1 - 5, 30 + up), module, VCA530::CH1_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 2 - 5, 30 + up), module, VCA530::CH2_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 3 - 5, 30 + up), module, VCA530::CH3_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 4 - 5, 30 + up), module, VCA530::CH4_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 5 - 5, 30 + up), module, VCA530::CH5_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 6 - 5, 30 + up), module, VCA530::CH6_INPUT));
 
     addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 1, top_row + up), module, VCA530::CH1_PARAM));
     addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 2, top_row + up), module, VCA530::CH2_PARAM));
@@ -243,12 +266,12 @@ VCA530Widget(VCA530 *module) {
     addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 5, top_row + up), module, VCA530::CH5_PARAM));
     addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 6, top_row + up), module, VCA530::CH6_PARAM));
 
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 1 - 5, low + up), module, VCA530::CH1_CV_INPUT));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 2 - 5, low + up), module, VCA530::CH2_CV_INPUT));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 3 - 5, low + up), module, VCA530::CH3_CV_INPUT));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 4 - 5, low + up), module, VCA530::CH4_CV_INPUT));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 5 - 5, low + up), module, VCA530::CH5_CV_INPUT));
-    addInput(createInput<PJ301MCPort>(Vec(column_1 + column_spacing * 6 - 5, low + up), module, VCA530::CH6_CV_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 1 - 5, low + up), module, VCA530::CH1_CV_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 2 - 5, low + up), module, VCA530::CH2_CV_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 3 - 5, low + up), module, VCA530::CH3_CV_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 4 - 5, low + up), module, VCA530::CH4_CV_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 5 - 5, low + up), module, VCA530::CH5_CV_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(column_1 + column_spacing * 6 - 5, low + up), module, VCA530::CH6_CV_INPUT));
 
     addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 1, low_f + up), module, VCA530::CV1_PARAM));
     addParam(createParam<SlidePot2>(Vec(column_1 + column_spacing * 2, low_f + up), module, VCA530::CV2_PARAM));
@@ -265,11 +288,11 @@ VCA530Widget(VCA530 *module) {
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 365)));
 
     // outputs
-    addOutput(createOutput<PJ301MOPort>(Vec(15, med + up), module, VCA530::MIX_OUTPUT_L));
-    addOutput(createOutput<PJ301MOPort>(Vec(95, med + up), module, VCA530::MIX_OUTPUT_R));
+    addOutput(createOutput<PJ301MSPort>(Vec(15, med + up), module, VCA530::MIX_OUTPUT_L));
+    addOutput(createOutput<PJ301MSPort>(Vec(95, med + up), module, VCA530::MIX_OUTPUT_R));
     //
-    addOutput(createOutput<PJ301MOPort>(Vec(15, med + 25 + up), module, VCA530::SUM_OUTPUT_L));
-    addOutput(createOutput<PJ301MOPort>(Vec(95, med + 25 + up), module, VCA530::SUM_OUTPUT_R));
+    addOutput(createOutput<PJ301MSPort>(Vec(15, med + 25 + up), module, VCA530::SUM_OUTPUT_L));
+    addOutput(createOutput<PJ301MSPort>(Vec(95, med + 25 + up), module, VCA530::SUM_OUTPUT_R));
 
     // lights
 
@@ -279,12 +302,13 @@ VCA530Widget(VCA530 *module) {
     addChild(createLight<SmallLight<WhiteLight>>(Vec(122, med - 10 + 20), module, VCA530::CLIP2_LIGHTS));
 }
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((VCA530*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((VCA530*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((VCA530*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelVCA530 = createModel<VCA530, VCA530Widget>("VCA530");

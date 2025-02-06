@@ -247,18 +247,31 @@ struct SuHaMK2 : Module {
 
 		for(int i=0;i<2;i++)
 		{
-			configParam(VCO_PARAM+i,  -54.0, 54.0, 0.0,"Freq");
-			configParam(VCO_OCT_PARAM + i, -2.0, 2.0, 0.0, "Octave Select");
-            configParam(VCO_WAVE_PARAM+i,  0.0, 2.0, 0.0,"VCO WAVE SELECT");
-			configParam(SUB1_PARAM+i,  1.0, 15.0, 1.0,"Sub1");
-			configParam(SUB2_PARAM+i,  1.0, 15.0, 1.0,"Sub2");
-			configParam(VCO_VOL_PARAM+i,  0.0, 1.0, 0.0,"Main Vol");
-			configParam(SUB1_VOL_PARAM+i,  0.0, 1.0, 0.0,"Sub 1 Vol");
-			configParam(SUB2_VOL_PARAM+i,  0.0, 1.0, 0.0,"Sub 2 Vol");
-			onReset();
-
-			panelTheme = (loadDarkAsDefault() ? 1 : 0);
+			configParam(VCO_PARAM+i,  -54.0, 54.0, 0.0,string::f("Osc %d Freq",i+1));
+			configParam(VCO_OCT_PARAM + i, -3.0, 2.0, 0.0,string::f("Osc %d Octave Select",i+1));
+			configParam(SUB1_PARAM+i,  1.0, 15.0, 1.0,string::f("Osc %d Sub1",i+1));
+			configParam(SUB2_PARAM+i,  1.0, 15.0, 1.0,string::f("Osc %d Sub2",i+1));
+			configParam(VCO_VOL_PARAM+i,  0.0, 1.0, 0.0,string::f("Osc %d Main Vol",i+1));
+			configParam(SUB1_VOL_PARAM+i,  0.0, 1.0, 0.0,string::f("Osc %d Sub 1 Vol",i+1));
+			configParam(SUB2_VOL_PARAM+i,  0.0, 1.0, 0.0,string::f("Osc %d Sub 2 Vol",i+1));
+			
+			configParam(VCO_WAVE_PARAM+i,  0.0, 2.0, 0.0,string::f("Osc %d VCO WAVE SELECT",i+1));;
+			
+			configInput(VCO_INPUT +i,string::f("Osc%d V/Oct",i+1));
+		    configInput(SUB1_INPUT+i,string::f("Osc%d Sub1 Cv",i+1));
+		    configInput(SUB2_INPUT+i,string::f("Osc%d Sub2 Cv",i+1));
+			
+			configOutput(VCO_OUTPUT+i,string::f("Osc%d",i+1));
+			configOutput(SUB1_OUTPUT+i,string::f("SubA%d",i+1));
+			configOutput(SUB2_OUTPUT+i,string::f("SubB%d",i+1));
+			
+			
+			
 		}
+		configOutput(SUM_OUTPUT,"Mix");
+		
+		// onReset();
+		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
 	json_t *dataToJson() override {
 		json_t *rootJ = json_object();
@@ -356,8 +369,11 @@ struct SuHaMK2 : Module {
 
 struct SuHaMK2Widget : ModuleWidget {
 
-
-	SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  SuHaMK2 *module;
 	  int theme;
@@ -395,13 +411,11 @@ struct SuHaMK2Widget : ModuleWidget {
 	}
 	SuHaMK2Widget(SuHaMK2 *module){
 		setModule(module);
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/SuHaMK2.svg")));
-		if (module) {
-	    darkPanel = new SvgPanel();
-	    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/SuHaMK2.svg")));
-	    darkPanel->visible = false;
-	    addChild(darkPanel);
-	  }
+		// Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/SuHaMK2.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/SuHaMK2.svg"));
+		int panelTheme = isDark(module ? (&(((SuHaMK2*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
 		int KS=44;
 		int JS = 32;
@@ -458,12 +472,13 @@ struct SuHaMK2Widget : ModuleWidget {
 			//////////////////////////////////////////////////////////////////////////////////////////////////////
 	}
 	void step() override {
-	  if (module) {
-		Widget* panel = getPanel();
-	    panel->visible = ((((SuHaMK2*)module)->panelTheme) == 0);
-	    darkPanel->visible  = ((((SuHaMK2*)module)->panelTheme) == 1);
-	  }
-	  Widget::step();
+		int panelTheme = isDark(module ? (&(((SuHaMK2*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
 	}
 };
 

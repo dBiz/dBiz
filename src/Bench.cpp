@@ -130,12 +130,12 @@ struct Bench : Module {
   };
 
   enum OutputIds {
-	ENUMS(MULT_OUTPUT, 3),
+  ENUMS(MULT_OUTPUT, 3),
   ENUMS(MULT_LOW_OUTPUT, 3),
-	SWAP_A_OUTPUT,
-	SWAP_B_OUTPUT,
+  SWAP_A_OUTPUT,
+  SWAP_B_OUTPUT,
   SWAP_LOW_A_OUTPUT,
-	SWAP_LOW_B_OUTPUT,
+  SWAP_LOW_B_OUTPUT,
   FADE_LOW_OUTPUT,
   A1_OUTPUT,
   A2_OUTPUT,
@@ -195,10 +195,46 @@ struct Bench : Module {
     configParam(LEVEL_PARAM, 0.0, 1.0 , 0.0,"Fade Level");
     configParam(RANGE_A_PARAM, 0.0, 2.0 , 0.0,"Input A selector");
     configParam(RANGE_B_PARAM, 0.0, 2.0, 0.0, "Input B selector");
+	
+	configInput(MULT_INPUT,"Mult");
+    configInput(MULT_LOW_INPUT,"Mult");
+    configInput(SWAP_A_INPUT,"Swap_A");
+    configInput(SWAP_B_INPUT,"Swap_B");
+    configInput(SWAP_LOW_A_INPUT,"Swap_A");
+    configInput(SWAP_LOW_B_INPUT,"Swap_B");
+    configInput(FADE_A_LOW_INPUT,"Fade_A");
+    configInput(FADE_B_LOW_INPUT,"Fade_B");
+    configInput(LFO_RESET_INPUT,"LFO Reset Cv");
+    configInput(A_INPUT,"A");
+    configInput(B_INPUT,"B");
+    configInput(A1_INPUT,"A1");
+    configInput(A2_INPUT,"A2");
+    configInput(B1_INPUT,"B1");
+    configInput(B2_INPUT,"B2");
+    configInput(RESET_INPUT,"Reset");
+	
+	for(int i=0;i<3;i++)
+	{
+	configOutput(MULT_OUTPUT+i,string::f("Mult_%d",i+1));
+    configOutput(MULT_LOW_OUTPUT+i,string::f("Mult_%d",i+1));
+	}
+	
+    configOutput(SWAP_A_OUTPUT,"Swap_A");
+    configOutput(SWAP_B_OUTPUT,"Swap_B");
+    configOutput(SWAP_LOW_A_OUTPUT,"Swap_A");
+    configOutput(SWAP_LOW_B_OUTPUT,"Swap_B");
+    configOutput(FADE_LOW_OUTPUT,"Fade");
+    configOutput(A1_OUTPUT,"A1");
+    configOutput(A2_OUTPUT,"A2");
+    configOutput(B1_OUTPUT,"B1");
+    configOutput(B2_OUTPUT,"B2");
+    configOutput(FADE_OUTPUT,"Fade");
+    configOutput(LFO_OUTPUT,"LFO");
+    
 
     lightDivider.setDivision(512);
 
-    onReset();
+   // onReset();
 
     panelTheme = (loadDarkAsDefault() ? 1 : 0);
 
@@ -522,9 +558,11 @@ struct Bench : Module {
 
 //////////////////////////////////////////////////////////////////
 struct BenchWidget : ModuleWidget {
-
-
-	SvgPanel* darkPanel;
+	
+int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  Bench *module;
 	  int theme;
@@ -562,13 +600,13 @@ struct BenchWidget : ModuleWidget {
 	}
 BenchWidget(Bench *module){
    setModule(module);
-   setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/Bench.svg")));
-	 if (module) {
-     darkPanel = new SvgPanel();
-     darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Bench.svg")));
-     darkPanel->visible = false;
-     addChild(darkPanel);
-   }
+   
+    // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Bench.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Bench.svg"));
+		int panelTheme = isDark(module ? (&(((Bench*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
+		
 
    //Screw
 
@@ -580,24 +618,24 @@ BenchWidget(Bench *module){
   addChild(createWidget<ScrewBlack>(Vec(box.size.x-30, 365)));
    //
 
-  addInput(createInput<PJ301MIPort>(Vec(15, 20),  module, Bench::MULT_INPUT));
-  addInput(createInput<PJ301MCPort>(Vec(15+space*1, 20),  module, Bench::LFO_RESET_INPUT));
-addOutput(createOutput<PJ301MOPort>(Vec(15+space*2, 20),  module, Bench::LFO_OUTPUT));;
-  addInput(createInput<PJ301MIPort>(Vec(15+space*3, 20),  module, Bench::A1_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(15+space*4, 20),  module, Bench::A2_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(15+space*5, 20),  module, Bench::A_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(15+space*6, 20),  module, Bench::B1_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(15+space*7, 20),  module, Bench::B2_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(15+space*8, 20),  module, Bench::SWAP_A_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15, 20),  module, Bench::MULT_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15+space*1, 20),  module, Bench::LFO_RESET_INPUT));
+addOutput(createOutput<PJ301MSPort>(Vec(15+space*2, 20),  module, Bench::LFO_OUTPUT));;
+  addInput(createInput<PJ301MSPort>(Vec(15+space*3, 20),  module, Bench::A1_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15+space*4, 20),  module, Bench::A2_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15+space*5, 20),  module, Bench::A_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15+space*6, 20),  module, Bench::B1_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15+space*7, 20),  module, Bench::B2_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15+space*8, 20),  module, Bench::SWAP_A_INPUT));
 
 
    addParam(createParam<SilverSwitch>(Vec(15+space*2,65), module, Bench::LFO_WAVE_PARAM));
-addOutput(createOutput<PJ301MOPort>(Vec(15+space*3,  65),  module, Bench::A1_OUTPUT));
-addOutput(createOutput<PJ301MOPort>(Vec(15+space*4,  65),  module, Bench::A2_OUTPUT));
-  addInput(createInput<PJ301MIPort>(Vec(15+space*5,  65),  module, Bench::B_INPUT));
-addOutput(createOutput<PJ301MOPort>(Vec(15+space*6,  65),  module, Bench::B1_OUTPUT));
-addOutput(createOutput<PJ301MOPort>(Vec(15+space*7,  65),  module, Bench::B2_OUTPUT));
-  addInput(createInput<PJ301MIPort>(Vec(15+space*8,  65),  module, Bench::SWAP_B_INPUT));
+addOutput(createOutput<PJ301MSPort>(Vec(15+space*3,  65),  module, Bench::A1_OUTPUT));
+addOutput(createOutput<PJ301MSPort>(Vec(15+space*4,  65),  module, Bench::A2_OUTPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15+space*5,  65),  module, Bench::B_INPUT));
+addOutput(createOutput<PJ301MSPort>(Vec(15+space*6,  65),  module, Bench::B1_OUTPUT));
+addOutput(createOutput<PJ301MSPort>(Vec(15+space*7,  65),  module, Bench::B2_OUTPUT));
+  addInput(createInput<PJ301MSPort>(Vec(15+space*8,  65),  module, Bench::SWAP_B_INPUT));
 
 
 
@@ -605,13 +643,13 @@ addParam(createParam<SilverSwitch>(Vec(15+space*1, 110), module, Bench::UNI_PARA
 addParam(createParam<VerboS>(Vec(13 + space * 2, 107), module, Bench::RATE_PARAM));
 addParam(createParam<SilverSwitch3>(Vec(15+space*3, 110), module, Bench::RANGE_A_PARAM));
 addParam(createParam<VerboDS>(Vec(13 + space * 4, 107), module, Bench::LEVEL_PARAM));
-addOutput(createOutput<PJ301MOPort>(Vec(15+space*5, 110),  module, Bench::FADE_OUTPUT));
+addOutput(createOutput<PJ301MSPort>(Vec(15+space*5, 110),  module, Bench::FADE_OUTPUT));
 addParam(createParam<SilverSwitch3>(Vec(15+space*6, 110), module, Bench::RANGE_B_PARAM));
 
-addOutput(createOutput<PJ301MOPort>(Vec(15+space*8, 110),  module, Bench::SWAP_A_OUTPUT));
+addOutput(createOutput<PJ301MSPort>(Vec(15+space*8, 110),  module, Bench::SWAP_A_OUTPUT));
 addChild(createLight<MediumLight<RedGreenBlueLight>>(Vec(5 + space * 8, 110), module, Bench::SWAP_A_LIGHT));
 
-addOutput(createOutput<PJ301MOPort>(Vec(15+space*8, 155),  module, Bench::SWAP_B_OUTPUT));
+addOutput(createOutput<PJ301MSPort>(Vec(15+space*8, 155),  module, Bench::SWAP_B_OUTPUT));
 addChild(createLight<MediumLight<RedGreenBlueLight>>(Vec(5 + space * 8, 155), module, Bench::SWAP_B_LIGHT));
 
 addParam(createLightParam<LEDLightSliderFixed<GreenLight>>(Vec(17+space*1, 160), module, Bench::MULT_PARAM, Bench::MULT_LIGHT));
@@ -626,24 +664,24 @@ addParam(createLightParam<LEDLightBezel<RedLight>>(Vec(337,217), module, Bench::
 
   for(int i=0;i<3;i++)
   {
-  	addOutput(createOutput<PJ301MOPort>(Vec(15, 65 + (45*i)), module, Bench::MULT_OUTPUT+i));;
+  	addOutput(createOutput<PJ301MSPort>(Vec(15, 65 + (45*i)), module, Bench::MULT_OUTPUT+i));;
   }
 
   addParam(createParam<VerboS>(Vec(10, 215), module, Bench::VOLTAGE_PARAM));
 
 ////////////////////////////////////////LOWER PART//////////////////////////////////////////////
 
-addInput(createInput<PJ301MIPort>(Vec(15, 275),  module, Bench::SWAP_LOW_A_INPUT));
-addInput(createInput<PJ301MIPort>(Vec(15, 275+45),  module, Bench::SWAP_LOW_B_INPUT));
-addOutput(createOutput<PJ301MOPort>(Vec(15+space, 275),  module, Bench::SWAP_LOW_A_OUTPUT));
-addOutput(createOutput<PJ301MOPort>(Vec(15+space, 275+45),  module, Bench::SWAP_LOW_B_OUTPUT));
-addInput(createInput<PJ301MIPort>(Vec(15+space*2, 275),  module, Bench::MULT_LOW_INPUT));
-addOutput(createOutput<PJ301MOPort>(Vec(15+space*2, 275+45),  module, Bench::MULT_LOW_OUTPUT+0));
-addOutput(createOutput<PJ301MOPort>(Vec(15+space*3, 275),  module, Bench::MULT_LOW_OUTPUT+1));
-addOutput(createOutput<PJ301MOPort>(Vec(15+space*3, 275+45),  module, Bench::MULT_LOW_OUTPUT+2));
-addInput(createInput<PJ301MIPort>(Vec(15+space*4, 275),  module, Bench::FADE_A_LOW_INPUT));
-addInput(createInput<PJ301MIPort>(Vec(15+space*4, 275+45),  module, Bench::FADE_B_LOW_INPUT));
-addOutput(createOutput<PJ301MOPort>(Vec(15+space*5, 275),  module, Bench::FADE_LOW_OUTPUT));
+addInput(createInput<PJ301MSPort>(Vec(15, 275),  module, Bench::SWAP_LOW_A_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(15, 275+45),  module, Bench::SWAP_LOW_B_INPUT));
+addOutput(createOutput<PJ301MSPort>(Vec(15+space, 275),  module, Bench::SWAP_LOW_A_OUTPUT));
+addOutput(createOutput<PJ301MSPort>(Vec(15+space, 275+45),  module, Bench::SWAP_LOW_B_OUTPUT));
+addInput(createInput<PJ301MSPort>(Vec(15+space*2, 275),  module, Bench::MULT_LOW_INPUT));
+addOutput(createOutput<PJ301MSPort>(Vec(15+space*2, 275+45),  module, Bench::MULT_LOW_OUTPUT+0));
+addOutput(createOutput<PJ301MSPort>(Vec(15+space*3, 275),  module, Bench::MULT_LOW_OUTPUT+1));
+addOutput(createOutput<PJ301MSPort>(Vec(15+space*3, 275+45),  module, Bench::MULT_LOW_OUTPUT+2));
+addInput(createInput<PJ301MSPort>(Vec(15+space*4, 275),  module, Bench::FADE_A_LOW_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(15+space*4, 275+45),  module, Bench::FADE_B_LOW_INPUT));
+addOutput(createOutput<PJ301MSPort>(Vec(15+space*5, 275),  module, Bench::FADE_LOW_OUTPUT));
 
 addParam(createLightParam<LEDLightBezel<RedLight>>(Vec(17+space*5,277+45), module, Bench::SWAP_LOW_PARAM,Bench::SWAP_LOW_BUTTON_LIGHT));
 
@@ -658,21 +696,15 @@ addChild(createLight<MediumLight<RedGreenBlueLight>>(Vec(43 + space * 5, 275+48)
 addChild(createLight<MediumLight<RedGreenBlueLight>>(Vec(43 + space * 5, 290+48), module, Bench::SWAP_LOW_B_LIGHT));
 
 
-
-
-
-
-
-
-
 }
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((Bench*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Bench*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Bench*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelBench = createModel<Bench, BenchWidget>("Bench");

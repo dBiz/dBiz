@@ -1,5 +1,5 @@
 SLUG = dBiz
-VERSION = 2.0.3
+VERSION = 2.5
 
 FLAGS +=
 CFLAGS +=

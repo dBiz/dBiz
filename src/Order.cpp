@@ -65,6 +65,29 @@ struct Order : Module {
   };
 
   int panelTheme;
+  
+  //////////////////////////////		
+  
+  void processGroup(float &G, float Sp, float Sm, float att[], float Out[], bool polarity, int attOutputId, float MSP, float MSM, float MASTER) {
+    // Gestione della polarità
+    if (polarity) {
+        G = rescale(G, -5.0, 5.0, 0.0, 10.0);
+    } else {
+        G = -G;  // Inversione completa della polarità
+    }
+
+    // Calcolo per ogni attenuatore
+    for (int i = 0; i < 4; i++) {
+        Out[i] = (((att[i] + Sm + Sp) * G) / 5.0f);
+        if (outputs[attOutputId + i].isConnected()) {
+            float output = (Out[i] + MSP + MSM) * MASTER;
+            outputs[attOutputId + i].setVoltage(clamp(output, -10.0f, 10.0f));
+        }
+    }
+}
+
+///////////////////////////////////
+  
 
   Order()
   {
@@ -91,16 +114,29 @@ struct Order : Module {
     configParam(G2_POLAR_PARAM, 0.f,1.f,0.f, "Group B Polarity");
     configParam(G3_POLAR_PARAM, 0.f,1.f,0.f, "Group C Polarity");
     configParam(G4_POLAR_PARAM, 0.f,1.f,0.f, "Group D Polarity");
+	
+	configInput(G1_INPUT,"Group A");
+    configInput(G2_INPUT,"Group B");
+    configInput(G3_INPUT,"Group C");
+    configInput(G4_INPUT,"Group D");
+    configInput(MASTER_INPUT,"Master Cv");
+    configInput(MASTER_SCALE,"Master Range Cv");
+    configInput(INPUT,"Input");
 
 
     for (int i = 0; i < 4; i++)
     {
-        configParam(G1_ATT_PARAM + i, -5.0, 5.0, 0, "Group A Att");
-        configParam(G2_ATT_PARAM + i, -5.0, 5.0, 0, "Group B Att");
-        configParam(G3_ATT_PARAM + i, -5.0, 5.0, 0, "Group C Att");
-        configParam(G4_ATT_PARAM + i, -5.0, 5.0, 0, "Group D Att");
+        configParam(G1_ATT_PARAM + i, -5.0, 5.0, 0, string::f("Group A%d Att",i+1));
+        configParam(G2_ATT_PARAM + i, -5.0, 5.0, 0, string::f("Group B%d Att",i+1));
+        configParam(G3_ATT_PARAM + i, -5.0, 5.0, 0, string::f("Group C%d Att",i+1));
+        configParam(G4_ATT_PARAM + i, -5.0, 5.0, 0, string::f("Group D%d Att",i+1));
+		
+		configOutput(G1_ATT_OUTPUT+i,string::f("Group A%d",i+1));
+		configOutput(G2_ATT_OUTPUT+i,string::f("Group B%d",i+1));
+		configOutput(G3_ATT_OUTPUT+i,string::f("Group C%d",i+1));
+		configOutput(G4_ATT_OUTPUT+i,string::f("Group D%d",i+1));
     }
-    onReset();
+    //onReset();
 
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
   }
@@ -163,9 +199,12 @@ struct Order : Module {
       if(inputs[G4_INPUT].isConnected()) G4*=inputs[G4_INPUT].getVoltage();
 
       float MSP = params[MASTER_SHP_PARAM].getValue();
-      float MSM = params[MASTER_SHM_PARAM].getValue();
-      float MASTER = params[MASTER_PARAM].getValue();
-      if(inputs[MASTER_INPUT].isConnected()) MASTER*=inputs[MASTER_INPUT].getVoltage();
+	  float MSM = params[MASTER_SHM_PARAM].getValue();
+	  float MASTER = params[MASTER_PARAM].getValue();
+	  if (inputs[MASTER_INPUT].isConnected()) {
+		MASTER *= inputs[MASTER_INPUT].getVoltage();
+	  }
+
 
       for (int i = 0; i < 4; i++)
       {
@@ -173,32 +212,19 @@ struct Order : Module {
         att2[i] = params[G2_ATT_PARAM + i].getValue();
         att3[i] = params[G3_ATT_PARAM + i].getValue();
         att4[i] = params[G4_ATT_PARAM + i].getValue();
-        }
+      }
 
         lights[G1_LIGHT].setBrightness(pol1);
         lights[G2_LIGHT].setBrightness(pol2);
         lights[G3_LIGHT].setBrightness(pol3);
         lights[G4_LIGHT].setBrightness(pol4);
-
-        if(pol1) G1 = rescale(G1,-5.0,5.0,0.0,10.0);
-        if(pol2) G2 = rescale(G2,-5.0,5.0,0.0,10.0);
-        if(pol3) G3 = rescale(G3,-5.0,5.0,0.0,10.0);
-        if(pol4) G4 = rescale(G4,-5.0,5.0,0.0,10.0);
-
-      for (int i = 0; i < 4; i++)
-      {
-
-        Out1[i] = (((att1[i] + Sm1 + Sp1) * G1)/5.0f);
-        Out2[i] = (((att2[i] + Sm2 + Sp2) * G2)/5.0f);
-        Out3[i] = (((att3[i] + Sm3 + Sp3) * G3)/5.0f);
-        Out4[i] = (((att4[i] + Sm4 + Sp4) * G4)/5.0f);
+		
+	processGroup(G1, Sp1, Sm1, att1, Out1, pol1, G1_ATT_OUTPUT, MSP, MSM, MASTER);
+	processGroup(G2, Sp2, Sm2, att2, Out2, pol2, G2_ATT_OUTPUT, MSP, MSM, MASTER);
+	processGroup(G3, Sp3, Sm3, att3, Out3, pol3, G3_ATT_OUTPUT, MSP, MSM, MASTER);
+	processGroup(G4, Sp4, Sm4, att4, Out4, pol4, G4_ATT_OUTPUT, MSP, MSM, MASTER);
 
 
-        if(outputs[G1_ATT_OUTPUT + i].isConnected()) outputs[G1_ATT_OUTPUT + i].setVoltage((Out1[i]+MSP+MSM)*MASTER);
-        if(outputs[G2_ATT_OUTPUT + i].isConnected()) outputs[G2_ATT_OUTPUT + i].setVoltage((Out2[i]+MSP+MSM)*MASTER);
-        if(outputs[G3_ATT_OUTPUT + i].isConnected()) outputs[G3_ATT_OUTPUT + i].setVoltage((Out3[i]+MSP+MSM)*MASTER);
-        if(outputs[G4_ATT_OUTPUT + i].isConnected()) outputs[G4_ATT_OUTPUT + i].setVoltage((Out4[i]+MSP+MSM)*MASTER);
-      }
 
   }
 
@@ -217,9 +243,10 @@ struct ULight : BASE
 struct OrderWidget : ModuleWidget
 {
 
-
-
-  SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     Order *module;
     int theme;
@@ -257,13 +284,11 @@ struct OrderWidget : ModuleWidget
   }
 OrderWidget(Order *module){
   setModule(module);
-  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Order.svg")));
-  if (module) {
-    darkPanel = new SvgPanel();
-    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Order.svg")));
-    darkPanel->visible = false;
-    addChild(darkPanel);
-  }
+  // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Order.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Order.svg"));
+		int panelTheme = isDark(module ? (&(((Order*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
 int knob= 40;
 int jack=35;
@@ -287,12 +312,12 @@ addParam(createParam<FlatG>(Vec(110 + knob * 5, 30 + 45 * 1), module, Order::G2_
 addParam(createParam<FlatG>(Vec(110 + knob * 5, 30 + 45 * 2), module, Order::G3_SHP_PARAM));
 addParam(createParam<FlatG>(Vec(110 + knob * 5, 30 + 45 * 3), module, Order::G4_SHP_PARAM));
 
-addInput(createInput<PJ301MIPort>(Vec(17 ,32), module, Order::G1_INPUT));
-addInput(createInput<PJ301MIPort>(Vec(17, 32 + (45 * 1)), module, Order::G2_INPUT));
-addInput(createInput<PJ301MIPort>(Vec(17, 32 + (45 * 2)), module, Order::G3_INPUT));
-addInput(createInput<PJ301MIPort>(Vec(17, 32 + (45 * 3)), module, Order::G4_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(17 ,32), module, Order::G1_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(17, 32 + (45 * 1)), module, Order::G2_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(17, 32 + (45 * 2)), module, Order::G3_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(17, 32 + (45 * 3)), module, Order::G4_INPUT));
 
-addInput(createInput<PJ301MIPort>(Vec(20, 30 + ((jack + 5) * 5)), module, Order::MASTER_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(20, 30 + ((jack + 5) * 5)), module, Order::MASTER_INPUT));
 
 for (int i = 0; i < 4; i++)
 {
@@ -301,10 +326,10 @@ for (int i = 0; i < 4; i++)
     addParam(createParam<FlatA>(Vec(105 + knob * i, 30 + 45 * 2), module, Order::G3_ATT_PARAM + i));
     addParam(createParam<FlatA>(Vec(105 + knob * i, 30 + 45 * 3), module, Order::G4_ATT_PARAM + i));
 
-    addOutput(createOutput<PJ301MOPort>(Vec(100 + jack * i, 211), module, Order::G1_ATT_OUTPUT + i));
-    addOutput(createOutput<PJ301MOPort>(Vec(100 + jack * i, 211 + jack * 1), module, Order::G2_ATT_OUTPUT + i));
-    addOutput(createOutput<PJ301MOPort>(Vec(100 + jack * i, 211 + jack * 2), module, Order::G3_ATT_OUTPUT + i));
-    addOutput(createOutput<PJ301MOPort>(Vec(100 + jack * i, 211 + jack * 3), module, Order::G4_ATT_OUTPUT + i));
+    addOutput(createOutput<PJ301MSPort>(Vec(100 + jack * i, 211), module, Order::G1_ATT_OUTPUT + i));
+    addOutput(createOutput<PJ301MSPort>(Vec(100 + jack * i, 211 + jack * 1), module, Order::G2_ATT_OUTPUT + i));
+    addOutput(createOutput<PJ301MSPort>(Vec(100 + jack * i, 211 + jack * 2), module, Order::G3_ATT_OUTPUT + i));
+    addOutput(createOutput<PJ301MSPort>(Vec(100 + jack * i, 211 + jack * 3), module, Order::G4_ATT_OUTPUT + i));
 }
 
 addParam(createLightParamCentered<VCVLightLatch<MediumSimpleLight<OrangeLight>>>(Vec(78, 225), module, Order::G1_POLAR_PARAM, Order::G1_LIGHT));
@@ -321,12 +346,13 @@ addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 365)));
 
 }
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((Order*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Order*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Order*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelOrder = createModel<Order, OrderWidget>("Order");
