@@ -82,11 +82,18 @@ struct Smixer : Module {
 		config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 		for(int i=0;i<8;i++)
 		{
-			configParam(GAIN+i,  0.f,1.f,0.f,"Gain");
-			configParam(BUTTONS+i,  0.0,1.0,0.0,"Buttons");
-			configParam(OUT_SEL+i,  0.0,2.0,0.0,"Output Selector");
+			configParam(GAIN+i,  0.f,1.f,0.f,string::f("Ch %d Gain",i+1));
+			configParam(BUTTONS+i,  0.0,1.0,0.0,string::f("Ch %d mute",i+1));
+			configParam(OUT_SEL+i,  0.0,2.0,0.0,string::f("Ch %d Output Selector",i+1));
+			configInput(CH_IN+i,string::f("Ch %d",i+1));
+			configInput(CH_CV_IN+i,string::f("Ch %d Cv",i+1));
 
 		}
+		
+		configInput(CLK_IN,"Clock");
+		configInput(RESET_IN,"Reset Clock");
+		
+		
 		for (int i = 0; i < 3; i++)
 		{
 		  configParam(BUS_VOL + i,  0.0, 1.0, 0.0, "Output Vol");
@@ -373,8 +380,10 @@ void process(const ProcessArgs &args) override {
 
 struct SmixerWidget : ModuleWidget {
 
-
-	SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  Smixer *module;
 	  int theme;
@@ -412,13 +421,11 @@ struct SmixerWidget : ModuleWidget {
 	}
 	SmixerWidget(Smixer *module) {
 		setModule(module);
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Smixer.svg")));
-		if (module) {
-	    darkPanel = new SvgPanel();
-	    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Smixer.svg")));
-	    darkPanel->visible = false;
-	    addChild(darkPanel);
-	  }
+		// Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Smixer.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Smixer.svg"));
+		int panelTheme = isDark(module ? (&(((Smixer*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
 		int down =30;
 		/////////////////////////////////////
@@ -440,18 +447,18 @@ struct SmixerWidget : ModuleWidget {
 
 		for (int i = 0; i < 3; i++)
 		{
-		addOutput(createOutput<PJ301MBPort>(Vec(10.5 + i * 105, 310), module, Smixer::CH_OUT + i));
+		addOutput(createOutput<PJ301MSPort>(Vec(10.5 + i * 105, 310), module, Smixer::CH_OUT + i));
 		addParam(createParam<Trim>(Vec(15 + i * 105, 340), module, Smixer::BUS_VOL + i));
 		}
 
-		addInput(createInput<PJ301MLPort>(Vec(10.5 + 0 * 30, 120), module, Smixer::CH_IN + 0));
-		addInput(createInput<PJ301MLPort>(Vec(10.5 + 1 * 30, 120), module, Smixer::CH_IN + 1));
-		addInput(createInput<PJ301MLPort>(Vec(10.5 + 2 * 30, 120), module, Smixer::CH_IN + 2));
-		addInput(createInput<PJ301MLPort>(Vec(10.5 + 3 * 30, 120), module, Smixer::CH_IN + 3));
-		addInput(createInput<PJ301MLPort>(Vec(10.5 + 4 * 30, 120), module, Smixer::CH_IN + 4));
-		addInput(createInput<PJ301MLPort>(Vec(10.5 + 5 * 30, 120), module, Smixer::CH_IN + 5));
-		addInput(createInput<PJ301MLPort>(Vec(10.5 + 6 * 30, 120), module, Smixer::CH_IN + 6));
-		addInput(createInput<PJ301MLPort>(Vec(10.5 + 7 * 30, 120), module, Smixer::CH_IN + 7));
+		addInput(createInput<PJ301MSPort>(Vec(10.5 + 0 * 30, 120), module, Smixer::CH_IN + 0));
+		addInput(createInput<PJ301MSPort>(Vec(10.5 + 1 * 30, 120), module, Smixer::CH_IN + 1));
+		addInput(createInput<PJ301MSPort>(Vec(10.5 + 2 * 30, 120), module, Smixer::CH_IN + 2));
+		addInput(createInput<PJ301MSPort>(Vec(10.5 + 3 * 30, 120), module, Smixer::CH_IN + 3));
+		addInput(createInput<PJ301MSPort>(Vec(10.5 + 4 * 30, 120), module, Smixer::CH_IN + 4));
+		addInput(createInput<PJ301MSPort>(Vec(10.5 + 5 * 30, 120), module, Smixer::CH_IN + 5));
+		addInput(createInput<PJ301MSPort>(Vec(10.5 + 6 * 30, 120), module, Smixer::CH_IN + 6));
+		addInput(createInput<PJ301MSPort>(Vec(10.5 + 7 * 30, 120), module, Smixer::CH_IN + 7));
 
 		//addOutput(createOutput<PJ301MBPort>(Vec(30, 215), module, Smixer::GATE_OUTPUT));
 
@@ -468,7 +475,7 @@ struct SmixerWidget : ModuleWidget {
 
 			for (int i = 0; i < 8; i++)
 			{
-				addInput(createInput<PJ301MCPort>(Vec(10.5 + i * 30, 217), module, Smixer::CH_CV_IN+i));
+				addInput(createInput<PJ301MSPort>(Vec(10.5 + i * 30, 217), module, Smixer::CH_CV_IN+i));
 
       	addChild(createLight<MediumLight<BlueLight>>(Vec(18 + i * 30, 105), module, Smixer::SLIGHT + i));
 
@@ -477,8 +484,8 @@ struct SmixerWidget : ModuleWidget {
       	addParam(createParam<MCKSSS>(Vec(20 + i * 30, 188), module, Smixer::OUT_SEL + i));
     	}
 
-			addInput(createInput<PJ301MCPort>(Vec(10.5 , 220+down), module, Smixer::CLK_IN));
-			addInput(createInput<PJ301MCPort>(Vec(10.5 + 90, 220+down), module, Smixer::RESET_IN));
+			addInput(createInput<PJ301MSPort>(Vec(10.5 + 90, 220+down), module, Smixer::RESET_IN));
+			addInput(createInput<PJ301MSPort>(Vec(10.5 , 220+down), module, Smixer::CLK_IN));
 			addParam(createParam<Trim>(Vec(40, 222.5+down), module, Smixer::CLOCK_PARAM));
 
 			addParam(createLightParam<LEDLightBezel<BlueLight>>(Vec(65, 224 + down), module, Smixer::RUN_PARAM, Smixer::RUNNING_LIGHT));
@@ -486,9 +493,7 @@ struct SmixerWidget : ModuleWidget {
 			addParam(createLightParam<LEDLightBezel<BlueLight>>(Vec(130, 224 + down), module, Smixer::RESET_PARAM, Smixer::RESET_LIGHT));
 
 			addParam(createParam<LEDBezel>(Vec(165, 224 + down), module, Smixer::MODE_PARAM));
-			for(int i=0;i<4;i++){
-		//	addChild(createLight<MediumLight<BlueLight>>(Vec(192 + i*13, 230+down), module, Smixer::MODE_LIGHT + i));
-			}
+			
 
 			addParam(createParam<RoundWhySnapKnob>(Vec(60,  310), module, Smixer::SI_PARAM));
 			addParam(createParam<RoundWhySnapKnob>(Vec(160, 310), module, Smixer::NS_PARAM));
@@ -497,13 +502,14 @@ struct SmixerWidget : ModuleWidget {
 
     }
 		void step() override {
-		  if (module) {
-			Widget* panel = getPanel();
-		    panel->visible = ((((Smixer*)module)->panelTheme) == 0);
-		    darkPanel->visible  = ((((Smixer*)module)->panelTheme) == 1);
-		  }
-		  Widget::step();
+		int panelTheme = isDark(module ? (&(((Smixer*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
 		}
+		Widget::step();
+	}
 };
 
 

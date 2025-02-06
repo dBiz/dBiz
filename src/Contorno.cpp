@@ -84,11 +84,19 @@ struct Contorno : Module {
 		for (int i = 0; i < 4; i++)
 		{
 			configSwitch(RANGE_PARAM +i , 0.0, 2.0, 0.0, "Ch range", {"Medium", "Fast", "Slow"});
-			configButton(TRIGG_PARAM + i ,"trig");
-			configSwitch(CYCLE_PARAM +i , 0.0, 1.0, 0.0, "Ch cycle", {"Off", "On"});
-			configParam(SHAPE_PARAM + i,  -1.0, 1.0, 0.0, "Shape");
-			configParam(RISE_PARAM + i,  0.0, 1.0, 0.0, "Raise");
-			configParam(FALL_PARAM + i,  0.0, 1.0, 0.0, "Fall");
+			configButton(TRIGG_PARAM + i ,string::f("Channel %d trig", i + 1));
+			configSwitch(CYCLE_PARAM +i , 0.0, 1.0, 0.0, string::f("Channel %d cycle", i + 1));
+			configParam(SHAPE_PARAM + i,  -1.0, 1.0, 0.0, string::f("Channel %d shape", i + 1));
+			configParam(RISE_PARAM + i,  0.0, 1.0, 0.0, string::f("Channel %d rise", i + 1));
+			configParam(FALL_PARAM + i,  0.0, 1.0, 0.0, string::f("Channel %d fall", i + 1));
+			
+			configInput(TRIGG_INPUT + i, string::f("Channel %d trig cv", i + 1));
+			configInput(CYCLE_INPUT + i, string::f("Channel %d cycle cv", i + 1));
+			configInput(RISE_INPUT + i, string::f("Channel %d rise mod", i + 1));
+			configInput(FALL_INPUT + i, string::f("Channel %d fall mod", i + 1));
+			configInput(IN_INPUT + i, string::f("Channel %d", i + 1));
+			
+			configOutput(OUT_OUTPUT + i, string::f("Channel %d", i + 1));
 		}
 
 		onReset();
@@ -227,7 +235,10 @@ struct Contorno : Module {
 struct ContornoWidget : ModuleWidget {
 
 
-	SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  Contorno *module;
 	  int theme;
@@ -266,13 +277,11 @@ struct ContornoWidget : ModuleWidget {
 
 	ContornoWidget(Contorno *module){
 	 setModule(module);
-	 setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/Contorno.svg")));
-	 if (module) {
-     darkPanel = new SvgPanel();
-     darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Contorno.svg")));
-     darkPanel->visible = false;
-     addChild(darkPanel);
-   }
+	 // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Contorno.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Contorno.svg"));
+		int panelTheme = isDark(module ? (&(((Contorno*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
 	 addChild(createWidget<ScrewBlack>(Vec(15, 0)));
 	 addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
@@ -302,46 +311,47 @@ struct ContornoWidget : ModuleWidget {
 		 addChild(createLight<SmallLight<OrangeLight>>(Vec(space * i + 45, 212), module, Contorno::FALL_LIGHT + i));
 	  }
 
-		 addOutput(createOutput<PJ301MOPort>(Vec(space * 0 + 35, 335), module, ::Contorno::OUT_OUTPUT + 0));
-		 addOutput(createOutput<PJ301MOPort>(Vec(space * 1 + 35, 335), module, ::Contorno::OUT_OUTPUT + 1));
-		 addOutput(createOutput<PJ301MOPort>(Vec(space * 2 + 35, 335), module, ::Contorno::OUT_OUTPUT + 2));
-		 addOutput(createOutput<PJ301MOPort>(Vec(space * 3 + 35, 335), module, ::Contorno::OUT_OUTPUT + 3));
+		 addOutput(createOutput<PJ301MSPort>(Vec(space * 0 + 35, 335), module, ::Contorno::OUT_OUTPUT + 0));
+		 addOutput(createOutput<PJ301MSPort>(Vec(space * 1 + 35, 335), module, ::Contorno::OUT_OUTPUT + 1));
+		 addOutput(createOutput<PJ301MSPort>(Vec(space * 2 + 35, 335), module, ::Contorno::OUT_OUTPUT + 2));
+		 addOutput(createOutput<PJ301MSPort>(Vec(space * 3 + 35, 335), module, ::Contorno::OUT_OUTPUT + 3));
 
-		 addInput(createInput<PJ301MLPort>(Vec(35 + space * 0, 294), module, ::Contorno::CYCLE_INPUT + 0));
-		 addInput(createInput<PJ301MLPort>(Vec(35 + space * 1, 294), module, ::Contorno::CYCLE_INPUT + 1));
-		 addInput(createInput<PJ301MLPort>(Vec(35 + space * 2, 294), module, ::Contorno::CYCLE_INPUT + 2));
-		 addInput(createInput<PJ301MLPort>(Vec(35 + space * 3, 294), module, ::Contorno::CYCLE_INPUT + 3));
+		 addInput(createInput<PJ301MSPort>(Vec(35 + space * 0, 294), module, ::Contorno::CYCLE_INPUT + 0));
+		 addInput(createInput<PJ301MSPort>(Vec(35 + space * 1, 294), module, ::Contorno::CYCLE_INPUT + 1));
+		 addInput(createInput<PJ301MSPort>(Vec(35 + space * 2, 294), module, ::Contorno::CYCLE_INPUT + 2));
+		 addInput(createInput<PJ301MSPort>(Vec(35 + space * 3, 294), module, ::Contorno::CYCLE_INPUT + 3));
 
 
-		 addInput(createInput<PJ301MCPort>(Vec(space * 0 + 35, 220), module, ::Contorno::FALL_INPUT + 0));
-		 addInput(createInput<PJ301MCPort>(Vec(space * 1 + 35, 220), module, ::Contorno::FALL_INPUT + 1));
-		 addInput(createInput<PJ301MCPort>(Vec(space * 2 + 35, 220), module, ::Contorno::FALL_INPUT + 2));
-		 addInput(createInput<PJ301MCPort>(Vec(space * 3 + 35, 220), module, ::Contorno::FALL_INPUT + 3));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 0 + 35, 220), module, ::Contorno::FALL_INPUT + 0));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 1 + 35, 220), module, ::Contorno::FALL_INPUT + 1));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 2 + 35, 220), module, ::Contorno::FALL_INPUT + 2));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 3 + 35, 220), module, ::Contorno::FALL_INPUT + 3));
 
-		 addInput(createInput<PJ301MCPort>(Vec(space * 0 + 5, 220), module, ::Contorno::RISE_INPUT + 0));
-		 addInput(createInput<PJ301MCPort>(Vec(space * 1 + 5, 220), module, ::Contorno::RISE_INPUT + 1));
-		 addInput(createInput<PJ301MCPort>(Vec(space * 2 + 5, 220), module, ::Contorno::RISE_INPUT + 2));
-		 addInput(createInput<PJ301MCPort>(Vec(space * 3 + 5, 220), module, ::Contorno::RISE_INPUT + 3));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 0 + 5, 220), module, ::Contorno::RISE_INPUT + 0));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 1 + 5, 220), module, ::Contorno::RISE_INPUT + 1));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 2 + 5, 220), module, ::Contorno::RISE_INPUT + 2));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 3 + 5, 220), module, ::Contorno::RISE_INPUT + 3));
 
-		 addInput(createInput<PJ301MLPort>(Vec(space * 0 + 35, 255), module, ::Contorno::TRIGG_INPUT + 0));
-		 addInput(createInput<PJ301MLPort>(Vec(space * 1 + 35, 255), module, ::Contorno::TRIGG_INPUT + 1));
-		 addInput(createInput<PJ301MLPort>(Vec(space * 2 + 35, 255), module, ::Contorno::TRIGG_INPUT + 2));
-		 addInput(createInput<PJ301MLPort>(Vec(space * 3 + 35, 255), module, ::Contorno::TRIGG_INPUT + 3));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 0 + 35, 255), module, ::Contorno::TRIGG_INPUT + 0));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 1 + 35, 255), module, ::Contorno::TRIGG_INPUT + 1));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 2 + 35, 255), module, ::Contorno::TRIGG_INPUT + 2));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 3 + 35, 255), module, ::Contorno::TRIGG_INPUT + 3));
 
-		 addInput(createInput<PJ301MIPort>(Vec(space * 0 + 5, 335), module, ::Contorno::IN_INPUT + 0));
-		 addInput(createInput<PJ301MIPort>(Vec(space * 1 + 5, 335), module, ::Contorno::IN_INPUT + 1));
-		 addInput(createInput<PJ301MIPort>(Vec(space * 2 + 5, 335), module, ::Contorno::IN_INPUT + 2));
-		 addInput(createInput<PJ301MIPort>(Vec(space * 3 + 5, 335), module, ::Contorno::IN_INPUT + 3));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 0 + 5, 335), module, ::Contorno::IN_INPUT + 0));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 1 + 5, 335), module, ::Contorno::IN_INPUT + 1));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 2 + 5, 335), module, ::Contorno::IN_INPUT + 2));
+		 addInput(createInput<PJ301MSPort>(Vec(space * 3 + 5, 335), module, ::Contorno::IN_INPUT + 3));
 
 
 }
 void step() override {
-  if (module) {
-	Widget* panel = getPanel();
-    panel->visible = ((((Contorno*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Contorno*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Contorno*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelContorno = createModel<Contorno, ContornoWidget>("Contorno");

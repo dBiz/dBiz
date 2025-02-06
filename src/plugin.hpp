@@ -15,7 +15,6 @@ extern Plugin *pluginInstance;
 extern Model *modelNavControl;
 extern Model *modelBench;
 extern Model *modelContorno;
-// extern Model *modelContornoMK2;
 extern Model *modelTranspose;
 extern Model *modelUtility;
 extern Model *modelChord;
@@ -45,23 +44,32 @@ extern Model *modelQuePasa;
 extern Model *modelDualFilter;
 extern Model *modelOrder;
 extern Model *modelDualMatrix;
+// extern Model *modelRaven;
+
 
 ///////////////////////////////////////////////////////////////////////
 
-static const std::string lightPanelID = "Light";
-static const std::string darkPanelID = "Dark";
+ static const std::string lightPanelID = "Light";
+ static const std::string darkPanelID = "Dark";
+
+// ******** Panel Theme management ********
 
 
 void saveDarkAsDefault(bool darkAsDefault);
 bool loadDarkAsDefault();
 
+bool isDark(int* panelTheme);
+
+void writeDarkAsDefault();
+void readDarkAsDefault();
+
 struct DarkDefaultItem : MenuItem {
 	void onAction(const event::Action &e) override {
 		saveDarkAsDefault(rightText.empty());// implicitly toggled
 	}
-};
+};	
 
-//////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 
 template <typename TLightBase = RedLight>
 struct LEDLightSliderFixed : LEDLightSlider<TLightBase> {
@@ -638,14 +646,6 @@ struct PJ301MLPort : SVGPort
 	}
 };
 
-struct PJ301MIPort : SVGPort
-{
-	PJ301MIPort()
-	{
-		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/component/PJ301MA.svg")));
-	}
-};
-
 struct PJ301MVAPort : SVGPort
 {
 	PJ301MVAPort()
@@ -654,6 +654,19 @@ struct PJ301MVAPort : SVGPort
 	}
 };
 
+
+struct PJ301MSPort : SVGPort
+{
+	PJ301MSPort()
+	{
+		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/component/PJ301MS.svg")));
+	}
+};
+
+
+
+
+/*
 struct PJ301MOrPort : SVGPort
 {
 	PJ301MOrPort()
@@ -685,6 +698,9 @@ struct PJ301MBPort : SVGPort
 		setSvg(APP->window->loadSvg(asset::plugin(pluginInstance, "res/component/PJ3410.svg")));
 	}
 };
+
+*/
+
 
 
 //

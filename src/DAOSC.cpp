@@ -181,6 +181,26 @@ struct DAOSC : Module {
 	 getParamQuantity(B_FM_PARAM)->randomizeEnabled = false;
 	 configParam(B_FM2_PARAM,  -1.0, 1.0, 0.0,"Fm2 amount");
 	 getParamQuantity(B_FM2_PARAM)->randomizeEnabled = false;
+	 
+		configInput(A_FM_INPUT,"A_FM");
+		configInput(A_FM2_INPUT,"A_FM2");
+		configInput(A_SAW_INPUT,"A_Pair");
+		configInput(A_SQUARE_INPUT,"A_Odd");
+		configInput(A_PITCH_INPUT,"A_V/Oct");
+		configInput(A_FOLD_INPUT,"A_Fold");
+		configInput(A_DRIVE_INPUT,"A_Drive");
+
+		configInput(B_FM_INPUT,"B_FM");
+		configInput(B_FM2_INPUT,"B_FM2");
+		configInput(B_SAW_INPUT,"B_Pair");
+		configInput(B_SQUARE_INPUT,"B_Odd");
+		configInput(B_PITCH_INPUT,"B_V/Oct");
+		configInput(B_DRIVE_INPUT,"B_Drive");
+		configInput(B_FOLD_INPUT,"B_Fold");
+		
+		configOutput(A_OUTPUT,"A ");
+        configOutput(B_OUTPUT,"B ");
+        configOutput(SUM_OUTPUT,"SUM ");
 	
 
 	 panelTheme = (loadDarkAsDefault() ? 1 : 0);
@@ -217,16 +237,23 @@ struct DAOSC : Module {
 	float_4 pitchB;
 
 	float freqParamA = params[A_PITCH_PARAM].getValue() / 12.f;
+	float fineTuneA = params[A_FINE_PARAM].getValue() / 12.f;
 	float fmParamA =  params[A_FM_PARAM].getValue();
 	float fmParamA2 = params[A_FM2_PARAM].getValue();
 
 	float freqParamB = params[B_PITCH_PARAM].getValue() / 12.f;
+	float fineTuneB = params[B_FINE_PARAM].getValue() / 12.f;
 	float fmParamB =  params[B_FM_PARAM].getValue();
 	float fmParamB2 = params[B_FM2_PARAM].getValue();
 
 	int channelsA = std::max(inputs[A_PITCH_INPUT].getChannels(), 1);
 	int channelsB = std::max(inputs[B_PITCH_INPUT].getChannels(), 1);
 
+
+	freqParamA+=fineTuneA;
+	freqParamB+=fineTuneB;
+	
+	
 	for (int c = 0; c < channelsA; c += 4)
 	{
 			auto& oscA = osc_a[c / 4];
@@ -386,15 +413,17 @@ struct DAOSC : Module {
 
 	outputs[A_OUTPUT].setChannels(channelsA);
 	outputs[B_OUTPUT].setChannels(channelsB);
-	outputs[SUM_OUTPUT].setChannels(channelsB+channelsA);
+	outputs[SUM_OUTPUT].setChannels((channelsA > channelsB) ? channelsA : channelsB);
 
 }
 };
 
 struct DAOSCWidget : ModuleWidget{
 
-
-	SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  DAOSC *module;
 	  int theme;
@@ -433,18 +462,14 @@ struct DAOSCWidget : ModuleWidget{
 
 DAOSCWidget(DAOSC *module) {
 setModule(module);
-setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/DAOSC.svg")));
-if (module) {
-	darkPanel = new SvgPanel();
-	darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DAOSC.svg")));
-	darkPanel->visible = false;
-	addChild(darkPanel);
-}
+// Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/DAOSC.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DAOSC.svg"));
+		int panelTheme = isDark(module ? (&(((DAOSC*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
 int knob=42;
-int jack=30;
-float mid = 97.5;
-int top = 20;
+float mid = 99;
 int down = 50;
 
 addChild(createWidget<ScrewBlack>(Vec(15, 0)));
@@ -452,59 +477,55 @@ addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
 addChild(createWidget<ScrewBlack>(Vec(15, 365)));
 addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 365)));
 
-addParam(createParam<LRoundWhy>(Vec(box.size.x-mid-70, top), module, DAOSC::A_PITCH_PARAM));
-// addParam(createParam<RoundWhy>(Vec(box.size.x-mid-knob*2 - 10, top), module, DAOSC::A_FINE_PARAM));
-addParam(createParam<RoundWhy>(Vec(box.size.x - mid - knob * 1 , top + knob + 8), module, DAOSC::A_FM_PARAM));
-addParam(createParam<RoundWhy>(Vec(box.size.x - mid - knob * 1, top + knob + 48), module, DAOSC::A_FM2_PARAM));
+addParam(createParam<LRoundWhy>(Vec(box.size.x-97.5-70, 20), module, DAOSC::A_PITCH_PARAM));
+addParam(createParam<RoundWhy>(Vec(box.size.x - 97.5 - knob * 1 , 20 + knob + 5), module, DAOSC::A_FM_PARAM));
+addParam(createParam<RoundWhy>(Vec(box.size.x - 97.5 - knob * 1, 20 + knob + 48), module, DAOSC::A_FM2_PARAM));
 
-addParam(createParam<RoundAzz>(Vec(box.size.x - mid - knob * 2 - 5, top + knob + 10), module, DAOSC::A_FOLD_PARAM));
-addParam(createParam<RoundRed>(Vec(box.size.x - mid - knob * 2 - 5, 125), module, DAOSC::A_DRIVE_PARAM));
-addParam(createParam<RoundWhy>(Vec(box.size.x-mid-knob, 160), module, DAOSC::A_SQUARE_PARAM));
-addParam(createParam<RoundWhy>(Vec(box.size.x-mid-knob*2, 177), module, DAOSC::A_SAW_PARAM));
+addParam(createParam<Trim>(Vec(5, 20), module, DAOSC::A_FINE_PARAM));
+addParam(createParam<Trim>(Vec(box.size.x -25, 20), module, DAOSC::B_FINE_PARAM));
 
-addInput(createInput<PJ301MCPort>(Vec(box.size.x-mid-jack-5, 160+down), module, DAOSC::A_FM_INPUT));
-addInput(createInput<PJ301MCPort>(Vec(box.size.x - mid - jack - 5, 190 + down), module, DAOSC::A_FM2_INPUT));
 
-addInput(createInput<PJ301MCPort>(Vec(box.size.x - mid - jack * 3 - 5, 270 + down), module, DAOSC::A_PITCH_INPUT));
+addParam(createParam<RoundAzz>(Vec(box.size.x - 97.5 - knob * 2 - 5, 20 + knob + 10), module, DAOSC::A_FOLD_PARAM));
+addParam(createParam<RoundRed>(Vec(box.size.x - 97.5 - knob * 2 - 5, 125), module, DAOSC::A_DRIVE_PARAM));
+addParam(createParam<RoundWhy>(Vec(box.size.x-97.5-knob, 160), module, DAOSC::A_SQUARE_PARAM));
+addParam(createParam<RoundWhy>(Vec(box.size.x-97.5-knob*2, 177), module, DAOSC::A_SAW_PARAM));
 
-addInput(createInput<PJ301MCPort>(Vec(box.size.x-mid-jack*2-5, 190+down), module, DAOSC::A_FOLD_INPUT));
-addInput(createInput<PJ301MCPort>(Vec(box.size.x-mid-jack*3-5, 190+down), module, DAOSC::A_DRIVE_INPUT));
-addInput(createInput<PJ301MCPort>(Vec(box.size.x-mid-jack*2-5, 230+down), module, DAOSC::A_SQUARE_INPUT));
-addInput(createInput<PJ301MCPort>(Vec(box.size.x-mid-jack*3-5, 230+down), module, DAOSC::A_SAW_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(box.size.x-mid-30-5, 160+down), module, DAOSC::A_FM_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(box.size.x - mid - 30 - 5, 190 + down), module, DAOSC::A_FM2_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(box.size.x - mid - 30 * 3 - 5, 270 + down), module, DAOSC::A_PITCH_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(box.size.x-mid-30*2-5, 190+down), module, DAOSC::A_FOLD_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(box.size.x-mid-30*3-5, 190+down), module, DAOSC::A_DRIVE_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(box.size.x-mid-30*2-5, 230+down), module, DAOSC::A_SQUARE_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(box.size.x-mid-30*3-5, 230+down), module, DAOSC::A_SAW_INPUT));
+addOutput(createOutput<PJ301MSPort>(Vec(box.size.x - mid-30-5, 230+down), module, DAOSC::A_OUTPUT));
 
-addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid-jack-5, 230+down), module, DAOSC::A_OUTPUT));
+addParam(createParam<LRoundWhy>(Vec(box.size.x-mid+25, 20), module, DAOSC::B_PITCH_PARAM));
+addParam(createParam<RoundWhy>(Vec(box.size.x - mid + 5, 20 + knob+5), module, DAOSC::B_FM_PARAM));
+addParam(createParam<RoundWhy>(Vec(box.size.x - mid + 5, 20 + knob + 48), module, DAOSC::B_FM2_PARAM));
 
-addParam(createParam<LRoundWhy>(Vec(box.size.x-mid+25, top), module, DAOSC::B_PITCH_PARAM));
-// addParam(createParam<RoundWhy>(Vec(box.size.x-mid+5+knob+10, top), module, DAOSC::B_FINE_PARAM));
-addParam(createParam<RoundWhy>(Vec(box.size.x - mid + 5, top + knob+8), module, DAOSC::B_FM_PARAM));
-addParam(createParam<RoundWhy>(Vec(box.size.x - mid + 5, top + knob + 48), module, DAOSC::B_FM2_PARAM));
-
-addParam(createParam<RoundAzz>(Vec(box.size.x - mid + 10 + knob, top + knob + 10), module, DAOSC::B_FOLD_PARAM));
+addParam(createParam<RoundAzz>(Vec(box.size.x - mid + 10 + knob, 20 + knob + 10), module, DAOSC::B_FOLD_PARAM));
 addParam(createParam<RoundRed>(Vec(box.size.x - mid + 10 + knob, 125), module, DAOSC::B_DRIVE_PARAM));
 addParam(createParam<RoundWhy>(Vec(box.size.x-mid+5, 160), module, DAOSC::B_SQUARE_PARAM));
 addParam(createParam<RoundWhy>(Vec(box.size.x-mid+5+knob, 177), module, DAOSC::B_SAW_PARAM));
 
-addInput(createInput<PJ301MCPort>(Vec(box.size.x-mid+10, 160+down), module, DAOSC::B_FM_INPUT));
-addInput(createInput<PJ301MCPort>(Vec(box.size.x - mid + 10, 190 + down), module, DAOSC::B_FM2_INPUT));
-
-addInput(createInput<PJ301MCPort>(Vec(box.size.x - mid + 10 + jack * 2, 270 + down), module, DAOSC::B_PITCH_INPUT));
-
-addInput(createInput<PJ301MCPort>(Vec(box.size.x-mid+10+jack, 190+down), module, DAOSC::B_FOLD_INPUT));
-addInput(createInput<PJ301MCPort>(Vec(box.size.x-mid+10+jack*2, 190+down), module, DAOSC::B_DRIVE_INPUT));
-addInput(createInput<PJ301MCPort>(Vec(box.size.x-mid+10+jack, 230+down), module, DAOSC::B_SQUARE_INPUT));
-addInput(createInput<PJ301MCPort>(Vec(box.size.x-mid+10+jack*2, 230+down), module, DAOSC::B_SAW_INPUT));
-
-addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid+10, 230+down), module, DAOSC::B_OUTPUT));
-
-addOutput(createOutput<PJ301MOPort>(Vec(box.size.x - mid-12.5, 265+down), module, DAOSC::SUM_OUTPUT));
+addInput(createInput<PJ301MSPort>(Vec(box.size.x-mid+10, 160+down), module, DAOSC::B_FM_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(box.size.x - mid + 10, 190 + down), module, DAOSC::B_FM2_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(box.size.x - mid + 10 + 30 * 2, 270 + down), module, DAOSC::B_PITCH_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(box.size.x-mid+10+30, 190+down), module, DAOSC::B_FOLD_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(box.size.x-mid+10+30*2, 190+down), module, DAOSC::B_DRIVE_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(box.size.x-mid+10+30, 230+down), module, DAOSC::B_SQUARE_INPUT));
+addInput(createInput<PJ301MSPort>(Vec(box.size.x-mid+10+30*2, 230+down), module, DAOSC::B_SAW_INPUT));
+addOutput(createOutput<PJ301MSPort>(Vec(box.size.x - mid+10, 230+down), module, DAOSC::B_OUTPUT));
+addOutput(createOutput<PJ301MSPort>(Vec(box.size.x - mid-12.5, 265+down), module, DAOSC::SUM_OUTPUT));
 }
 void step() override {
-  if (module) {
-	Widget* panel = getPanel();
-    panel->visible = ((((DAOSC*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((DAOSC*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((DAOSC*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelDAOSC = createModel<DAOSC, DAOSCWidget>("DAOSC");

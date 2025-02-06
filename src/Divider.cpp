@@ -25,7 +25,7 @@ using namespace std;
 struct Divider : Module {
   enum ParamIds
   {
-		ENUMS(MODE_PARAM, 2),
+	ENUMS(MODE_PARAM, 2),
     ENUMS(DIVISION_PARAM, 4),
     ENUMS(DIVISIONB_PARAM, 4),
     ENUMS(ON_SWITCH, 4),
@@ -35,8 +35,8 @@ struct Divider : Module {
   enum InputIds {
     CLOCK_INPUT,
     CLOCKB_INPUT,
-		ENUMS(SUB1_INPUT, 4),
-		ENUMS(SUB2_INPUT, 4),
+	ENUMS(SUB1_INPUT, 4),
+	ENUMS(SUB2_INPUT, 4),
     NUM_INPUTS
 	};
 	enum OutputIds
@@ -109,16 +109,32 @@ struct Divider : Module {
 
 	  for (int i = 0; i < 4; i++)
 	  {
-		  configParam(DIVISION_PARAM + i,  1, 15, 1.0, "Division");
-		  configParam(ON_SWITCH + i,  0.0, 1.0, 0.0, "On/Off");
+		  configParam(DIVISION_PARAM + i,  1, 15, 1.0, string::f("Division A%d",i+1));;
+		  configParam(ON_SWITCH + i,  0.0, 1.0, 0.0,string::f(" Divider %d On/Off",i+1));
 
-		  configParam(DIVISIONB_PARAM + i,  1, 15, 1.0, "Division B");
-		  configParam(ON_SWITCHB + i,  0.0, 1.0, 0.0 ,"On/Off B");
+		  configParam(DIVISIONB_PARAM + i,  1, 15, 1.0,string::f("Division B%d",i+1));
+		  configParam(ON_SWITCHB + i,  0.0, 1.0, 0.0 ,string::f(" Divider %d On/Off B",i+1));
+		  
+		  
+		configInput(SUB1_INPUT+i,string::f("Divider A%d",i+1));
+		configInput(SUB2_INPUT+i,string::f("Divider B%d",i+1));
 	  }
 
 	  configParam(MODE_PARAM,  0.0, 1.0, 0.0,"MODE A");
 	  configParam(MODE_PARAM + 1,  0.0, 1.0, 0.0, "MODE B");
-    onReset();
+	  
+	  configInput( CLOCK_INPUT,"Clock A");
+      configInput(CLOCKB_INPUT,"Clock B");
+	  
+	  configOutput(TRIG_OUTPUT,"Trig A");
+	  configOutput(AB_OUTPUT,"A_B");
+	  configOutput(CD_OUTPUT,"C_D");
+	  configOutput(TRIGB_OUTPUT,"Trig B");
+	  configOutput(AB2_OUTPUT,"A_B 2");
+	  configOutput(CD2_OUTPUT,"C_D 2");  
+	  
+	  
+	  // onReset();
 
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 
@@ -317,8 +333,10 @@ else
 
 struct DividerWidget : ModuleWidget {
 
-
-  SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     Divider *module;
     int theme;
@@ -357,13 +375,11 @@ struct DividerWidget : ModuleWidget {
 
 DividerWidget(Divider *module){
 	setModule(module);
-	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/Divider.svg")));
-  if (module) {
-    darkPanel = new SvgPanel();
-    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Divider.svg")));
-    darkPanel->visible = false;
-    addChild(darkPanel);
-  }
+	// Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Divider.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Divider.svg"));
+		int panelTheme = isDark(module ? (&(((Divider*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
 //Screw
   addChild(createWidget<ScrewBlack>(Vec(15, 0)));
@@ -416,13 +432,14 @@ addOutput(createOutput<PJ301MVAPort>(Vec(15 + jack * 3, 310 + jack), module, Div
 addParam(createParam<MCKSSS2>(Vec(15 + jack * 4, 313 + jack), module, Divider::MODE_PARAM + 1));
 }
 void step() override {
-  if (module) {
-	Widget* panel = getPanel();
-    panel->visible = ((((Divider*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Divider*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Divider*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 
 Model *modelDivider = createModel<Divider, DividerWidget>("Divider");

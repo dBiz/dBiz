@@ -46,14 +46,12 @@ struct Remix : Module {
         CH4_INPUT,
         CH5_INPUT,
         CH6_INPUT,
-
         CH1_CV,
         CH2_CV,
         CH3_CV,
         CH4_CV,
         CH5_CV,
         CH6_CV,
-
         SLOPE_INPUT,
         SCAN_INPUT,
         WIDTH_INPUT,
@@ -62,12 +60,6 @@ struct Remix : Module {
     };
     enum OutputIds
     {
-        OUT1_OUTPUT,
-        OUT2_OUTPUT,
-        OUT3_OUTPUT,
-        OUT4_OUTPUT,
-        OUT5_OUTPUT,
-        OUT6_OUTPUT,
         A_OUTPUT,
         B_OUTPUT,
         C_OUTPUT,
@@ -103,7 +95,31 @@ struct Remix : Module {
         configParam(CH4_LEVEL_PARAM,  0.0, 1.0, 0.0,"Ch 4 Level");
         configParam(CH5_LEVEL_PARAM,  0.0, 1.0, 0.0,"Ch 5 Level");
         configParam(CH6_LEVEL_PARAM,  0.0, 1.0, 0.0,"Ch 6 Level");
-        onReset();
+		
+		
+		configInput(CH1_INPUT,"Ch 1");
+        configInput(CH2_INPUT,"Ch 2");
+        configInput(CH3_INPUT,"Ch 3");
+        configInput(CH4_INPUT,"Ch 4");
+        configInput(CH5_INPUT,"Ch 5");
+        configInput(CH6_INPUT,"Ch 6");
+        configInput(CH1_CV,"Ch 1 Cv");
+        configInput(CH2_CV,"Ch 2 Cv");
+        configInput(CH3_CV,"Ch 3 Cv");
+        configInput(CH4_CV,"Ch 4 Cv");
+        configInput(CH5_CV,"Ch 5 Cv");
+        configInput(CH6_CV,"Ch 6 Cv");
+        configInput(SLOPE_INPUT,"Slope");
+        configInput(SCAN_INPUT,"Ch Scan");
+        configInput(WIDTH_INPUT,"Width");
+        configInput(LEVEL_INPUT,"Level1");
+		
+		
+        configOutput(A_OUTPUT,"A_");
+        configOutput(B_OUTPUT,"B_");
+        configOutput(C_OUTPUT,"C_");
+	
+       // onReset();
 
     		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 
@@ -232,7 +248,10 @@ struct Remix : Module {
 struct RemixWidget : ModuleWidget {
 
 
-  SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     Remix *module;
     int theme;
@@ -270,13 +289,12 @@ struct RemixWidget : ModuleWidget {
   }
 RemixWidget(Remix *module) {
     setModule(module);
-	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/Remix2.svg")));
-  if (module) {
-    darkPanel = new SvgPanel();
-    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Remix2.svg")));
-    darkPanel->visible = false;
-    addChild(darkPanel);
-  }
+	// Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Remix.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Remix.svg"));
+		int panelTheme = isDark(module ? (&(((Remix*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
+		
     int knob = 30;
     int jack = 27;
 
@@ -307,56 +325,56 @@ RemixWidget(Remix *module) {
     addParam(createParam<FlatA>(Vec(mid-15, midy+10+knob+20), module, Remix::CV_WIDTH_PARAM));
 
     addParam(createParam<Trim>(Vec(mid - 25, 322.5), module, Remix::SLOPE_PARAM));
-    addInput(createInput<PJ301MCPort>(Vec(mid + 5 , 320),  module, Remix::SLOPE_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(mid + 5 , 320),  module, Remix::SLOPE_INPUT));
 
     addParam(createParam<FlatR>(Vec(box.size.x - 40 , midy+20), module, Remix::LEVEL_PARAM));
     addParam(createParam<FlatA>(Vec(box.size.x - 40 , midy+10+knob+20), module, Remix::CV_LEVEL_PARAM));
 
-      addOutput(createOutput<PJ301MOPort>(Vec(15 , 20), module, Remix::A_OUTPUT));
-      addInput(createInput<PJ301MCPort>(Vec(15, 320),  module, Remix::SCAN_INPUT));
+      addOutput(createOutput<PJ301MSPort>(Vec(15 , 20), module, Remix::A_OUTPUT));
+      addInput(createInput<PJ301MSPort>(Vec(15, 320),  module, Remix::SCAN_INPUT));
 
-      addOutput(createOutput<PJ301MOPort>(Vec(mid-12 , 20), module, Remix::B_OUTPUT));
-      addInput(createInput<PJ301MCPort>(Vec(mid-12, 290),  module, Remix::WIDTH_INPUT));
+      addOutput(createOutput<PJ301MSPort>(Vec(mid-12 , 20), module, Remix::B_OUTPUT));
+      addInput(createInput<PJ301MSPort>(Vec(mid-12, 290),  module, Remix::WIDTH_INPUT));
 
-      addOutput(createOutput<PJ301MOPort>(Vec(box.size.x-40, 20), module, Remix::C_OUTPUT));
-      addInput(createInput<PJ301MCPort>(Vec(box.size.x-40, 320),  module, Remix::LEVEL_INPUT));
+      addOutput(createOutput<PJ301MSPort>(Vec(box.size.x-40, 20), module, Remix::C_OUTPUT));
+      addInput(createInput<PJ301MSPort>(Vec(box.size.x-40, 320),  module, Remix::LEVEL_INPUT));
 
-            addInput(createInput<PJ301MIPort>(Vec(space + 0 * jack,60),  module, Remix::CH1_INPUT));
+            addInput(createInput<PJ301MSPort>(Vec(space + 0 * jack,60),  module, Remix::CH1_INPUT));
             addParam(createParam<Trim>(Vec(15 + 0 * jack,115),module,Remix::CH1_LEVEL_PARAM));
-            addInput(createInput<PJ301MCPort>(Vec(space  + jack * 0, 140), module, Remix::CH1_CV));
+            addInput(createInput<PJ301MSPort>(Vec(space  + jack * 0, 140), module, Remix::CH1_CV));
 
-            addInput(createInput<PJ301MIPort>(Vec(space + 1 * jack,60),  module, Remix::CH2_INPUT));
+            addInput(createInput<PJ301MSPort>(Vec(space + 1 * jack,60),  module, Remix::CH2_INPUT));
             addParam(createParam<Trim>(Vec(15 + 1 * jack, 115), module, Remix::CH2_LEVEL_PARAM));
-            addInput(createInput<PJ301MCPort>(Vec(space  + jack * 1, 140), module, Remix::CH2_CV));
+            addInput(createInput<PJ301MSPort>(Vec(space  + jack * 1, 140), module, Remix::CH2_CV));
 
-            addInput(createInput<PJ301MIPort>(Vec(space + 2 * jack,60),  module, Remix::CH3_INPUT));
+            addInput(createInput<PJ301MSPort>(Vec(space + 2 * jack,60),  module, Remix::CH3_INPUT));
             addParam(createParam<Trim>(Vec(15 + 2 * jack, 115), module, Remix::CH3_LEVEL_PARAM));
-            addInput(createInput<PJ301MCPort>(Vec(space  + jack * 2, 140), module, Remix::CH3_CV));
+            addInput(createInput<PJ301MSPort>(Vec(space  + jack * 2, 140), module, Remix::CH3_CV));
 
 
-            addInput(createInput<PJ301MIPort>(Vec(space + 3 * jack,60),  module, Remix::CH4_INPUT));
+            addInput(createInput<PJ301MSPort>(Vec(space + 3 * jack,60),  module, Remix::CH4_INPUT));
             addParam(createParam<Trim>(Vec(15 + 3 * jack,115),module,Remix::CH4_LEVEL_PARAM));
-            addInput(createInput<PJ301MCPort>(Vec(space + jack * 3, 140), module, Remix::CH4_CV));
+            addInput(createInput<PJ301MSPort>(Vec(space + jack * 3, 140), module, Remix::CH4_CV));
 
-            addInput(createInput<PJ301MIPort>(Vec(space + 4 * jack,60),  module, Remix::CH5_INPUT));
+            addInput(createInput<PJ301MSPort>(Vec(space + 4 * jack,60),  module, Remix::CH5_INPUT));
             addParam(createParam<Trim>(Vec(15 + 4 * jack, 115), module, Remix::CH5_LEVEL_PARAM));
-            addInput(createInput<PJ301MCPort>(Vec(space + jack * 4, 140), module, Remix::CH5_CV));
+            addInput(createInput<PJ301MSPort>(Vec(space + jack * 4, 140), module, Remix::CH5_CV));
 
-            addInput(createInput<PJ301MIPort>(Vec(space + 5 * jack,60),  module, Remix::CH6_INPUT));
+            addInput(createInput<PJ301MSPort>(Vec(space + 5 * jack,60),  module, Remix::CH6_INPUT));
             addParam(createParam<Trim>(Vec(15 + 5 * jack, 115), module, Remix::CH6_LEVEL_PARAM));
-            addInput(createInput<PJ301MCPort>(Vec(space + jack * 5, 140), module, Remix::CH6_CV));
+            addInput(createInput<PJ301MSPort>(Vec(space + jack * 5, 140), module, Remix::CH6_CV));
 
-            // addChild(createLight<MediumLight<BlueLight>>(Vec(41, 59), module, Remix::CH_LIGHT));
 
 }
 
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((Remix*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Remix*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Remix*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelRemix = createModel<Remix, RemixWidget>("Remix");

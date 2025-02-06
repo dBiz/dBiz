@@ -56,7 +56,7 @@ struct Bene : Module {
     NUM_INPUTS
   };
   enum OutputIds {
-		GATE_OUT,
+	GATE_OUT,
     QUANT_OUT,
     TRIG_OUT,
     ENUMS(ROW_OUT, 4),
@@ -191,6 +191,30 @@ struct Bene : Module {
           configButton(Y_DIR_PARAM ,"Direction Y");
           configButton(X_LOCK_PARAM,"Lock X");
           configButton(Y_LOCK_PARAM,"Lock Y");
+		  
+		  configInput(ROOT_NOTE_INPUT,"Root note Cv");
+		  configInput(Y_CLK,"Y Cock");
+		  configInput(SCALE_INPUT,"Scale Cv");
+		  configInput(X_CLK,"X Cock");
+		  configInput(X_DIR_INPUT,"X Direction Cv");
+		  configInput(X_LOCK_INPUT,"X Lock Cv");
+		  configInput(Y_DIR_INPUT,"Y Direction Cv");
+		  configInput(Y_LOCK_INPUT,"Y Lock Cv");
+		  configInput(X_RESET,"X Reset Cv");
+		  configInput(Y_RESET,"Y Reset Cv");
+		  configInput(RESET,"Reset");
+		  
+		  for (int i = 0; i<4; i++)
+		  {
+			configOutput(ROW_OUT + i,string::f("Row %d", i + 1));
+			configOutput(COLUMN_OUT + i,string::f("Column %d", i + 1));		
+		  }
+		  
+		  configOutput(QUANT_OUT,"Quantized");
+		  configOutput(TRIG_OUT,"Triggers");
+		  configOutput(GATE_OUT,"Gates");
+		  
+		  
 
         rightExpander.producerMessage = producerMessage;
 		    rightExpander.consumerMessage = consumerMessage;
@@ -704,8 +728,11 @@ struct BeneDisplay : TransparentWidget{
 /////////////////////////////////
 
 struct BeneWidget : ModuleWidget{
-
-  SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     Bene *module;
     int theme;
@@ -743,13 +770,13 @@ struct BeneWidget : ModuleWidget{
   }
 BeneWidget(Bene *module){
   setModule(module);
-  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Bene.svg")));
-  if (module) {
-    darkPanel = new SvgPanel();
-    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Bene.svg")));
-    darkPanel->visible = false;
-    addChild(darkPanel);
-  }
+  
+    // Main panels from Inkscape
+ 	light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Bene.svg"));
+	dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Bene.svg"));
+	int panelTheme = isDark(module ? (&(((Bene*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+	setPanel(panelTheme == 0 ? light_svg : dark_svg);	
+  
   int top = 15;
   int top2 = 35;
   int left = 8;
@@ -767,17 +794,17 @@ BeneWidget(Bene *module){
   }
 
 
-  addInput(createInput<PJ301MCPort>(Vec(left2, top), module, Bene::X_CLK));
-  addInput(createInput<PJ301MCPort>(Vec(left2 + 30, top), module, Bene::Y_CLK));
+  addInput(createInput<PJ301MSPort>(Vec(left2, top), module, Bene::X_CLK));
+  addInput(createInput<PJ301MSPort>(Vec(left2 + 30, top), module, Bene::Y_CLK));
 
-  addInput(createInput<PJ301MCPort>(Vec(left2 + 60, top), module, Bene::X_RESET));
-  addInput(createInput<PJ301MCPort>(Vec(left2 + 90, top), module, Bene::Y_RESET));
+  addInput(createInput<PJ301MSPort>(Vec(left2 + 60, top), module, Bene::X_RESET));
+  addInput(createInput<PJ301MSPort>(Vec(left2 + 90, top), module, Bene::Y_RESET));
 
-  addInput(createInput<PJ301MCPort>(Vec(left2 + 60, top + 35), module, Bene::X_DIR_INPUT));
-  addInput(createInput<PJ301MCPort>(Vec(left2 + 60, top + 65), module, Bene::Y_DIR_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(left2 + 60, top + 35), module, Bene::X_DIR_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(left2 + 60, top + 65), module, Bene::Y_DIR_INPUT));
 
-  addInput(createInput<PJ301MCPort>(Vec(left2 + 90, top + 35), module, Bene::X_LOCK_INPUT));
-  addInput(createInput<PJ301MCPort>(Vec(left2 + 90, top + 65), module, Bene::Y_LOCK_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(left2 + 90, top + 35), module, Bene::X_LOCK_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(left2 + 90, top + 65), module, Bene::Y_LOCK_INPUT));
 
 
    addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(left2 , top + 40  ), module, Bene::X_DIR_PARAM, Bene::X_DIR_LIGHT));
@@ -787,9 +814,9 @@ BeneWidget(Bene *module){
    addParam(createLightParam<LEDLightBezel<GreenLight>>(Vec(left2 +30, top + 70 ), module, Bene::Y_LOCK_PARAM, Bene::Y_LOCK_LIGHT));
 
 
-  addOutput(createOutput<PJ301MOPort>(Vec(160,20), module, Bene::QUANT_OUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(160,50), module, Bene::GATE_OUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(160, 80), module, Bene::TRIG_OUT));
+  addOutput(createOutput<PJ301MSPort>(Vec(160,20), module, Bene::QUANT_OUT));
+  addOutput(createOutput<PJ301MSPort>(Vec(160,50), module, Bene::GATE_OUT));
+  addOutput(createOutput<PJ301MSPort>(Vec(160, 80), module, Bene::TRIG_OUT));
 
   for ( int i = 0 ; i < 4 ; i++)
   {
@@ -799,21 +826,21 @@ BeneWidget(Bene *module){
       addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(left + column_spacing * i + 8, top2 + row_spacing * j + 150 + 6), module, Bene::GRID_PARAM + i + j * 4,Bene::GRID_LIGHTS + i + j * 4));
      }
 	}
-    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 0+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + 0));
-    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 1+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + 1));
-    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 2+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + 2));
-    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 3+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + 3));
+    addOutput(createOutput<PJ301MSPort>(Vec(left+column_spacing * 0+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + 0));
+    addOutput(createOutput<PJ301MSPort>(Vec(left+column_spacing * 1+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + 1));
+    addOutput(createOutput<PJ301MSPort>(Vec(left+column_spacing * 2+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + 2));
+    addOutput(createOutput<PJ301MSPort>(Vec(left+column_spacing * 3+5, top2 + row_spacing * 4 + 155 ), module, Bene::ROW_OUT + 3));
 
-    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * 0 + 155 ), module, Bene::COLUMN_OUT + 0));
-    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * 1 + 155 ), module, Bene::COLUMN_OUT + 1));
-    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * 2 + 155 ), module, Bene::COLUMN_OUT + 2));
-    addOutput(createOutput<PJ301MOPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * 3 + 155 ), module, Bene::COLUMN_OUT + 3));
+    addOutput(createOutput<PJ301MSPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * 0 + 155 ), module, Bene::COLUMN_OUT + 0));
+    addOutput(createOutput<PJ301MSPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * 1 + 155 ), module, Bene::COLUMN_OUT + 1));
+    addOutput(createOutput<PJ301MSPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * 2 + 155 ), module, Bene::COLUMN_OUT + 2));
+    addOutput(createOutput<PJ301MSPort>(Vec(left+column_spacing * 4+5, top2 + row_spacing * 3 + 155 ), module, Bene::COLUMN_OUT + 3));
 
   addParam(createParam<FlatA>(Vec(left + column_spacing*3-5, top + 95 + row_spacing), module, Bene::ROOT_NOTE_PARAM));
   addParam(createParam<FlatA>(Vec(left + column_spacing*4 , top + 95 + row_spacing), module, Bene::SCALE_PARAM));
 
-  addInput(createInput<PJ301MCPort>(Vec(2 + left + column_spacing * 3 - 5, top + 100), module, Bene::ROOT_NOTE_INPUT));
-  addInput(createInput<PJ301MCPort>(Vec(2 + left + column_spacing * 4, top + 100), module, Bene::SCALE_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(2 + left + column_spacing * 3 - 5, top + 100), module, Bene::ROOT_NOTE_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(2 + left + column_spacing * 4, top + 100), module, Bene::SCALE_INPUT));
 
   addChild(createWidget<ScrewBlack>(Vec(15, 0)));
   addChild(createWidget<ScrewBlack>(Vec(box.size.x-30, 0)));
@@ -821,12 +848,13 @@ BeneWidget(Bene *module){
   addChild(createWidget<ScrewBlack>(Vec(box.size.x-30, 365)));
 }
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((Bene*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Bene*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Bene*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelBene = createModel<Bene, BeneWidget>("Bene");

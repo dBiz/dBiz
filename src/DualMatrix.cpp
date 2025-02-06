@@ -110,31 +110,66 @@ struct DualMatrix : Module {
     DualMatrix()
     {
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
+		
         for (int i = 0; i < 5; i++)
         {
-            configParam(LEFT_A_PARAM + i, 0.0, 1.0, 0.0, "Left A");
-            configParam(LEFT_B_PARAM + i, 0.0, 1.0, 0.0, "Left B");
-            configParam(LEFT_C_PARAM + i, 0.0, 1.0, 0.0, "Left C");
-            configParam(LEFT_D_PARAM + i, 0.0, 1.0, 0.0, "Left D");
+            configParam(LEFT_A_PARAM + i, 0.0, 1.0, 0.0, string::f("Left A%d",i+1));
+            configParam(LEFT_B_PARAM + i, 0.0, 1.0, 0.0, string::f("Left B%d",i+1));
+            configParam(LEFT_C_PARAM + i, 0.0, 1.0, 0.0, string::f("Left C%d",i+1));
+            configParam(LEFT_D_PARAM + i, 0.0, 1.0, 0.0, string::f("Left D%d",i+1));
 
-            configParam(RIGHT_A_PARAM + i, 0.0, 1.0, 0.0, "Right A");
-            configParam(RIGHT_B_PARAM + i, 0.0, 1.0, 0.0, "Right B");
-            configParam(RIGHT_C_PARAM + i, 0.0, 1.0, 0.0, "Right C");
-            configParam(RIGHT_D_PARAM + i, 0.0, 1.0, 0.0, "Right D");
+            configParam(RIGHT_A_PARAM + i, 0.0, 1.0, 0.0, string::f("Right A%d",i+1));
+            configParam(RIGHT_B_PARAM + i, 0.0, 1.0, 0.0, string::f("Right B%d",i+1));
+            configParam(RIGHT_C_PARAM + i, 0.0, 1.0, 0.0, string::f("Right C%d",i+1));
+            configParam(RIGHT_D_PARAM + i, 0.0, 1.0, 0.0, string::f("Right D%d",i+1));
+			
+			
+			configInput(LINEL_INPUT +i,string::f("Ch%d L",i+1));
+			configInput(LINER_INPUT +i,string::f("Ch%d R",i+1));
+			configInput(LEFT_A_CV_INPUT +i,string::f("A%d Left Cv",i+1));
+			configInput(LEFT_B_CV_INPUT +i,string::f("B%d Left Cv",i+1));
+			configInput(LEFT_C_CV_INPUT +i,string::f("C%d Left Cv",i+1));
+			configInput(LEFT_D_CV_INPUT +i,string::f("D%d Left Cv",i+1));
+			configInput(RIGHT_A_CV_INPUT +i,string::f("A%d Right Cv",i+1));
+			configInput(RIGHT_B_CV_INPUT +i,string::f("B%d Right Cv",i+1));
+			configInput(RIGHT_C_CV_INPUT +i,string::f("C%d Right Cv",i+1));
+			configInput(RIGHT_D_CV_INPUT +i,string::f("D%d Right Cv",i+1));
 
 
         }
-        configParam(STEREO_A_PARAM , 0.0, 1.0, 0.0, "Stereo A");
-        configParam(STEREO_B_PARAM , 0.0, 1.0, 0.0, "Stereo B");
-        configParam(STEREO_C_PARAM , 0.0, 1.0, 0.0, "Stereo C");
-        configParam(STEREO_D_PARAM , 0.0, 1.0, 0.0, "Stereo D");
+		for (int i = 0; i < 4; i++)
+        {
+		
+		configOutput(LEFT_OUTPUT+i,string::f("Ch%d L",i+1));
+		configOutput(LEFTC_OUTPUT+i,string::f("Ch%d L2",i+1));
+		configOutput(RIGHT_OUTPUT+i,string::f("Ch%d R",i+1));
+		configOutput(RIGHTC_OUTPUT+i,string::f("Ch%d R2",i+1));
+		configOutput(STEREOL_OUTPUT+i,string::f("Ch%d Master L",i+1));
+		configOutput(STEREOR_OUTPUT+i,string::f("Ch%d Master R",i+1));
+		
+		}
+		
+        configParam(STEREO_A_PARAM , 0.0, 1.0, 0.0, "Stereo A Level");
+        configParam(STEREO_B_PARAM , 0.0, 1.0, 0.0, "Stereo B Level");
+        configParam(STEREO_C_PARAM , 0.0, 1.0, 0.0, "Stereo C Level");
+        configParam(STEREO_D_PARAM , 0.0, 1.0, 0.0, "Stereo D Level");
 
         configParam(MUTE_A_PARAM, 0.0, 1.0, 0.0, "Mute A");
         configParam(MUTE_B_PARAM, 0.0, 1.0, 0.0, "Mute B");
         configParam(MUTE_C_PARAM, 0.0, 1.0, 0.0, "Mute C");
         configParam(MUTE_D_PARAM, 0.0, 1.0, 0.0, "Mute D");
+		
+		configInput(STEREO_A_CV_INPUT,"A Stereo Cv");
+        configInput(STEREO_B_CV_INPUT,"B Stereo Cv");
+        configInput(STEREO_C_CV_INPUT,"C Stereo Cv");
+        configInput(STEREO_D_CV_INPUT,"D Stereo Cv");
+		
+        configInput(MUTE_A_INPUT,"A mute");
+        configInput(MUTE_B_INPUT,"B mute");
+        configInput(MUTE_C_INPUT,"C mute");
+        configInput(MUTE_D_INPUT,"D mute");
 
-        onReset();
+        // onReset();
         panelTheme = (loadDarkAsDefault() ? 1 : 0);
      }
 
@@ -319,9 +354,10 @@ struct ULight : BASE
 //////////////////////////////////////////////////////////////////
 struct DualMatrixWidget : ModuleWidget {
 
-    /////////////////////////////////
-
-    SvgPanel *darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
     struct PanelThemeItem : MenuItem
     {
         DualMatrix *module;
@@ -366,14 +402,11 @@ struct DualMatrixWidget : ModuleWidget {
     DualMatrixWidget(DualMatrix *module)
     {
         setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/DualMatrix.svg")));
-        if (module)
-        {
-            darkPanel = new SvgPanel();
-            darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DualMatrix.svg")));
-            darkPanel->visible = false;
-            addChild(darkPanel);
-        }
+        // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/DualMatrix.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DualMatrix.svg"));
+		int panelTheme = isDark(module ? (&(((DualMatrix*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
         int k = 35;
         int j = 29;
@@ -397,15 +430,15 @@ struct DualMatrixWidget : ModuleWidget {
             addParam(createParam<FlatA>(Vec(box.size.x-40 - i * k, 70 + k * 2), module, DualMatrix::RIGHT_C_PARAM_LAST - i));
             addParam(createParam<FlatA>(Vec(box.size.x-40 - i * k, 70 + k * 3), module, DualMatrix::RIGHT_D_PARAM_LAST - i));
 
-            addInput(createInput<PJ301MCPort>(Vec(15 + i * j1, 210 + j * 0), module, DualMatrix::LEFT_A_CV_INPUT + i));
-            addInput(createInput<PJ301MCPort>(Vec(15 + i * j1, 210 + j * 1), module, DualMatrix::LEFT_B_CV_INPUT + i));
-            addInput(createInput<PJ301MCPort>(Vec(15 + i * j1, 210 + j * 2), module, DualMatrix::LEFT_C_CV_INPUT + i));
-            addInput(createInput<PJ301MCPort>(Vec(15 + i * j1, 210 + j * 3), module, DualMatrix::LEFT_D_CV_INPUT + i));
+            addInput(createInput<PJ301MSPort>(Vec(15 + i * j1, 210 + j * 0), module, DualMatrix::LEFT_A_CV_INPUT + i));
+            addInput(createInput<PJ301MSPort>(Vec(15 + i * j1, 210 + j * 1), module, DualMatrix::LEFT_B_CV_INPUT + i));
+            addInput(createInput<PJ301MSPort>(Vec(15 + i * j1, 210 + j * 2), module, DualMatrix::LEFT_C_CV_INPUT + i));
+            addInput(createInput<PJ301MSPort>(Vec(15 + i * j1, 210 + j * 3), module, DualMatrix::LEFT_D_CV_INPUT + i));
 
-            addInput(createInput<PJ301MCPort>(Vec(box.size.x-45 - i * j1, 210 + j * 0), module, DualMatrix::RIGHT_A_CV_INPUT_LAST - i));
-            addInput(createInput<PJ301MCPort>(Vec(box.size.x-45 - i * j1, 210 + j * 1), module, DualMatrix::RIGHT_B_CV_INPUT_LAST - i));
-            addInput(createInput<PJ301MCPort>(Vec(box.size.x-45 - i * j1, 210 + j * 2), module, DualMatrix::RIGHT_C_CV_INPUT_LAST - i));
-            addInput(createInput<PJ301MCPort>(Vec(box.size.x-45 - i * j1, 210 + j * 3), module, DualMatrix::RIGHT_D_CV_INPUT_LAST - i));
+            addInput(createInput<PJ301MSPort>(Vec(box.size.x-45 - i * j1, 210 + j * 0), module, DualMatrix::RIGHT_A_CV_INPUT_LAST - i));
+            addInput(createInput<PJ301MSPort>(Vec(box.size.x-45 - i * j1, 210 + j * 1), module, DualMatrix::RIGHT_B_CV_INPUT_LAST - i));
+            addInput(createInput<PJ301MSPort>(Vec(box.size.x-45 - i * j1, 210 + j * 2), module, DualMatrix::RIGHT_C_CV_INPUT_LAST - i));
+            addInput(createInput<PJ301MSPort>(Vec(box.size.x-45 - i * j1, 210 + j * 3), module, DualMatrix::RIGHT_D_CV_INPUT_LAST - i));
         }
         for (int i = 0; i < 5; i++)
         {
@@ -415,11 +448,11 @@ struct DualMatrixWidget : ModuleWidget {
 
         for (int i = 0; i < 4; i++)
         {
-            addOutput(createOutput<PJ301MOPort>(Vec(35 + i * j, 5 + j * 0), module, DualMatrix::LEFT_OUTPUT + i));
-            addOutput(createOutput<PJ301MOPort>(Vec(45 + i * j, 5 + j * 1), module, DualMatrix::LEFTC_OUTPUT + i));
+            addOutput(createOutput<PJ301MSPort>(Vec(35 + i * j, 5 + j * 0), module, DualMatrix::LEFT_OUTPUT + i));
+            addOutput(createOutput<PJ301MSPort>(Vec(45 + i * j, 5 + j * 1), module, DualMatrix::LEFTC_OUTPUT + i));
 
-            addOutput(createOutput<PJ301MOPort>(Vec(box.size.x-65 - i * j, 5 + j * 0), module, DualMatrix::RIGHT_OUTPUT_LAST - i));
-            addOutput(createOutput<PJ301MOPort>(Vec(box.size.x-75 - i * j, 5 + j * 1), module, DualMatrix::RIGHTC_OUTPUT_LAST - i));
+            addOutput(createOutput<PJ301MSPort>(Vec(box.size.x-65 - i * j, 5 + j * 0), module, DualMatrix::RIGHT_OUTPUT_LAST - i));
+            addOutput(createOutput<PJ301MSPort>(Vec(box.size.x-75 - i * j, 5 + j * 1), module, DualMatrix::RIGHTC_OUTPUT_LAST - i));
 
             addOutput(createOutput<PJ301MLPort>(Vec((box.size.x / 3) +17+ i*j , 5 + j * 0), module, DualMatrix::STEREOL_OUTPUT + i));
             addOutput(createOutput<PJ301MRPort>(Vec((box.size.x / 3) +17+ i*j , 5 + j * 1), module, DualMatrix::STEREOR_OUTPUT + i));
@@ -430,15 +463,15 @@ struct DualMatrixWidget : ModuleWidget {
             addParam(createParam<FlatR>(Vec((box.size.x / 2) - 35, 70 + k * 2), module, DualMatrix::STEREO_C_PARAM));
             addParam(createParam<FlatR>(Vec((box.size.x / 2) - 35, 70 + k * 3), module, DualMatrix::STEREO_D_PARAM));
 
-            addInput(createInput<PJ301MCPort>(Vec(box.size.x / 2 +5, 72 + k * 0), module, DualMatrix::STEREO_A_CV_INPUT));
-            addInput(createInput<PJ301MCPort>(Vec(box.size.x / 2 +5, 72 + k * 1), module, DualMatrix::STEREO_B_CV_INPUT));
-            addInput(createInput<PJ301MCPort>(Vec(box.size.x / 2 +5, 72 + k * 2), module, DualMatrix::STEREO_C_CV_INPUT));
-            addInput(createInput<PJ301MCPort>(Vec(box.size.x / 2 +5, 72 + k * 3), module, DualMatrix::STEREO_D_CV_INPUT));
+            addInput(createInput<PJ301MSPort>(Vec(box.size.x / 2 +5, 72 + k * 0), module, DualMatrix::STEREO_A_CV_INPUT));
+            addInput(createInput<PJ301MSPort>(Vec(box.size.x / 2 +5, 72 + k * 1), module, DualMatrix::STEREO_B_CV_INPUT));
+            addInput(createInput<PJ301MSPort>(Vec(box.size.x / 2 +5, 72 + k * 2), module, DualMatrix::STEREO_C_CV_INPUT));
+            addInput(createInput<PJ301MSPort>(Vec(box.size.x / 2 +5, 72 + k * 3), module, DualMatrix::STEREO_D_CV_INPUT));
 
-            addInput(createInput<PJ301MCPort>(Vec(box.size.x / 2 + 5, 210 + j * 0), module, DualMatrix::MUTE_A_INPUT));
-            addInput(createInput<PJ301MCPort>(Vec(box.size.x / 2 + 5, 210 + j * 1), module, DualMatrix::MUTE_B_INPUT));
-            addInput(createInput<PJ301MCPort>(Vec(box.size.x / 2 + 5, 210 + j * 2), module, DualMatrix::MUTE_C_INPUT));
-            addInput(createInput<PJ301MCPort>(Vec(box.size.x / 2 + 5, 210 + j * 3), module, DualMatrix::MUTE_D_INPUT));
+            addInput(createInput<PJ301MSPort>(Vec(box.size.x / 2 + 5, 210 + j * 0), module, DualMatrix::MUTE_A_INPUT));
+            addInput(createInput<PJ301MSPort>(Vec(box.size.x / 2 + 5, 210 + j * 1), module, DualMatrix::MUTE_B_INPUT));
+            addInput(createInput<PJ301MSPort>(Vec(box.size.x / 2 + 5, 210 + j * 2), module, DualMatrix::MUTE_C_INPUT));
+            addInput(createInput<PJ301MSPort>(Vec(box.size.x / 2 + 5, 210 + j * 3), module, DualMatrix::MUTE_D_INPUT));
 
             addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(box.size.x / 2 - 35, 212 + j * 0), module, DualMatrix::MUTE_A_PARAM, DualMatrix::MUTE_A_LIGHT));
             addParam(createLightParam<LEDLightBezel<OrangeLight>>(Vec(box.size.x / 2 - 35, 212 + j * 1), module, DualMatrix::MUTE_B_PARAM, DualMatrix::MUTE_B_LIGHT));
@@ -447,15 +480,14 @@ struct DualMatrixWidget : ModuleWidget {
 
 
     }
-    void step() override
-    {
-        if (module)
-        {
-            Widget* panel = getPanel();
-            panel->visible = ((((DualMatrix *)module)->panelTheme) == 0);
-            darkPanel->visible = ((((DualMatrix *)module)->panelTheme) == 1);
-        }
-        Widget::step();
-    }
+    void step() override {
+		int panelTheme = isDark(module ? (&(((DualMatrix*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelDualMatrix = createModel<DualMatrix, DualMatrixWidget>("DualMatrix");

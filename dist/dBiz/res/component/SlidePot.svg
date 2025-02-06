@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="8.5913172"
+   height="104"
+   viewBox="0 0 2.2731193 27.516666"
+   version="1.1"
+   id="svg1579"
+   sodipodi:docname="SlidePot.svg"
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)">
+  <defs
+     id="defs1573">
+    <linearGradient
+       id="linearGradient1342"
+       x1="-57.089001"
+       x2="-55.999001"
+       y1="128.00999"
+       y2="149.81"
+       gradientTransform="translate(128.49216,-37.144)"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#262626"
+         offset="0"
+         id="stop2" />
+      <stop
+         stop-color="#adadad"
+         offset="1"
+         id="stop4" />
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="52.101693"
+     inkscape:cx="0.2218005"
+     inkscape:cy="49.826591"
+     inkscape:document-units="mm"
+     inkscape:current-layer="g37"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     units="px"
+     inkscape:window-width="1600"
+     inkscape:window-height="882"
+     inkscape:window-x="77"
+     inkscape:window-y="77"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata1576">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-157.03322,-91.343367)">
+    <g
+       transform="matrix(0.25661767,0,0,-0.25661767,-287.89299,711.01086)"
+       id="g1558">
+      <g
+         transform="matrix(0.30380843,0,0,0.85245901,1737.9294,2414.7499)"
+         id="g6763">
+        <g
+           transform="matrix(5.2719728,0,0,-5.7859932,-377.6776,527.08085)"
+           id="g37">
+          <rect
+             x="71.250694"
+             y="91.115997"
+             width="1.7110523"
+             height="21.695999"
+             rx="0.85552615"
+             ry="0.11303883"
+             style="fill:#3d3d3d;fill-opacity:1;stroke-width:1.03818512;paint-order:normal"
+             id="rect9" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

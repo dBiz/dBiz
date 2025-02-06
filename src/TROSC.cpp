@@ -425,7 +425,38 @@ struct TROSC : Module
 
 	configParam(LINK_A_PARAM,  0.f, 1.f, 0.f, "Link A Param");
 	configParam(LINK_B_PARAM,  0.f, 1.f, 0.f, "Link B Param");
-	onReset();
+	
+	
+	configInput(PITCH_A_INPUT,"Osc A V/Oct");
+	configInput(PITCH_B_INPUT,"Osc B V/Oct");
+	configInput(PITCH_C_INPUT,"Osc C V/Oct");
+
+	configInput(SYNC_A_INPUT,"Osc A Sync");
+	configInput(SYNC_B_INPUT,"Osc B Sync");
+	configInput(SYNC_C_INPUT,"Osc C Sync");
+
+	configInput(FM_A_INPUT,"Osc A FM");
+	configInput(FM_B_INPUT,"Osc B FM");
+	configInput(FM_C_INPUT,"Osc C FM");
+
+	configInput(A_WAVE_MIX_INPUT,"Osc A Wave Mix");
+	configInput(B_WAVE_MIX_INPUT,"Osc B Wave Mix");
+	configInput(C_WAVE_MIX_INPUT,"Osc C Wave Mix");
+
+	configInput(A_VOL_IN,"Osc A Level");
+	configInput(B_VOL_IN,"Osc B Level");
+	configInput(C_VOL_IN,"Osc C Level");
+
+	configInput(C_WIDTH_INPUT,"Osc C width");
+	
+	configOutput(A_OUTPUT,"A");
+	configOutput(B_OUTPUT,"B");
+	configOutput(C_OUTPUT,"C");
+	configOutput(MIX_OUTPUT,"Master");
+	
+	
+	
+	//onReset();
 
 	panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
@@ -613,8 +644,11 @@ struct TROSC : Module
 
 struct TROSCWidget : ModuleWidget {
 
-
-	SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  TROSC *module;
 	  int theme;
@@ -652,13 +686,11 @@ struct TROSCWidget : ModuleWidget {
 	}
 	TROSCWidget(TROSC *module){
 	 setModule(module);
-	 setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/TROSC.svg")));
-	 if (module) {
-     darkPanel = new SvgPanel();
-     darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/TROSC.svg")));
-     darkPanel->visible = false;
-     addChild(darkPanel);
-   }
+	 // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/TROSC.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/TROSC.svg"));
+		int panelTheme = isDark(module ? (&(((TROSC*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
 	 addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
 	 addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
@@ -702,45 +734,46 @@ struct TROSCWidget : ModuleWidget {
 	 addParam(createParam<Trim>(Vec(73 + space, 150 - 10), module, TROSC::WAVE_B_SEL_PARAM));
 	 addParam(createParam<Trim>(Vec(73 + space, 280 - 10), module, TROSC::WAVE_C_SEL_PARAM));
 
-	 addInput(createInput<PJ301MCPort>(Vec(100 + space, 20 - 13), module, TROSC::A_WAVE_MIX_INPUT));
-	 addInput(createInput<PJ301MCPort>(Vec(100 + space, 150 - 13), module, TROSC::B_WAVE_MIX_INPUT));
-	 addInput(createInput<PJ301MCPort>(Vec(100 + space, 280 - 13), module, TROSC::C_WAVE_MIX_INPUT));
+	 addInput(createInput<PJ301MSPort>(Vec(100 + space, 20 - 13), module, TROSC::A_WAVE_MIX_INPUT));
+	 addInput(createInput<PJ301MSPort>(Vec(100 + space, 150 - 13), module, TROSC::B_WAVE_MIX_INPUT));
+	 addInput(createInput<PJ301MSPort>(Vec(100 + space, 280 - 13), module, TROSC::C_WAVE_MIX_INPUT));
 
-	 addInput(createInput<PJ301MCPort>(Vec(2, 30 + 20), module, TROSC::PITCH_A_INPUT));
-	 addInput(createInput<PJ301MCPort>(Vec(2, 30 + 150), module, TROSC::PITCH_B_INPUT));
-	 addInput(createInput<PJ301MCPort>(Vec(2, 30 + 280), module, TROSC::PITCH_C_INPUT));
+	 addInput(createInput<PJ301MSPort>(Vec(2, 30 + 20), module, TROSC::PITCH_A_INPUT));
+	 addInput(createInput<PJ301MSPort>(Vec(2, 30 + 150), module, TROSC::PITCH_B_INPUT));
+	 addInput(createInput<PJ301MSPort>(Vec(2, 30 + 280), module, TROSC::PITCH_C_INPUT));
 
 	 addParam(createParam<SilverSwitch>(Vec(60, 90 + 20), module, TROSC::LINK_A_PARAM));
 	 addParam(createParam<SilverSwitch>(Vec(60, 90 + 150), module, TROSC::LINK_B_PARAM));
 
-	 addInput(createInput<PJ301MOrPort>(Vec(115, 55 + 20), module, TROSC::SYNC_A_INPUT));
-	 addInput(createInput<PJ301MOrPort>(Vec(115, 55 + 150), module, TROSC::SYNC_B_INPUT));
-	 addInput(createInput<PJ301MOrPort>(Vec(115, 55 + 280), module, TROSC::SYNC_C_INPUT));
+	 addInput(createInput<PJ301MSPort>(Vec(115, 55 + 20), module, TROSC::SYNC_A_INPUT));
+	 addInput(createInput<PJ301MSPort>(Vec(115, 55 + 150), module, TROSC::SYNC_B_INPUT));
+	 addInput(createInput<PJ301MSPort>(Vec(115, 55 + 280), module, TROSC::SYNC_C_INPUT));
 
-	 addInput(createInput<PJ301MCPort>(Vec(155, 45 + 20), module, TROSC::FM_A_INPUT));
-	 addInput(createInput<PJ301MCPort>(Vec(155, 45 + 150), module, TROSC::FM_B_INPUT));
-	 addInput(createInput<PJ301MCPort>(Vec(155, 45 + 280), module, TROSC::FM_C_INPUT));
+	 addInput(createInput<PJ301MSPort>(Vec(155, 45 + 20), module, TROSC::FM_A_INPUT));
+	 addInput(createInput<PJ301MSPort>(Vec(155, 45 + 150), module, TROSC::FM_B_INPUT));
+	 addInput(createInput<PJ301MSPort>(Vec(155, 45 + 280), module, TROSC::FM_C_INPUT));
 
-	 addInput(createInput<PJ301MCPort>(Vec(290, vspace + 10 + 20), module, TROSC::A_VOL_IN));
-	 addInput(createInput<PJ301MCPort>(Vec(290, vspace + 10 + 150), module, TROSC::B_VOL_IN));
-	 addInput(createInput<PJ301MCPort>(Vec(290, vspace + 10 + 280), module, TROSC::C_VOL_IN));
+	 addInput(createInput<PJ301MSPort>(Vec(290, vspace + 10 + 20), module, TROSC::A_VOL_IN));
+	 addInput(createInput<PJ301MSPort>(Vec(290, vspace + 10 + 150), module, TROSC::B_VOL_IN));
+	 addInput(createInput<PJ301MSPort>(Vec(290, vspace + 10 + 280), module, TROSC::C_VOL_IN));
 
-	 addInput(createInput<PJ301MCPort>(Vec(215, 50 + 280), module, TROSC::C_WIDTH_INPUT));
+	 addInput(createInput<PJ301MSPort>(Vec(215, 50 + 280), module, TROSC::C_WIDTH_INPUT));
 
-	 addOutput(createOutput<PJ301MOPort>(Vec(290, 30), module, TROSC::MIX_OUTPUT));
+	 addOutput(createOutput<PJ301MSPort>(Vec(290, 30), module, TROSC::MIX_OUTPUT));
 
-	 addOutput(createOutput<PJ301MOPort>(Vec(255, 20 + 20), module, TROSC::A_OUTPUT));
-	 addOutput(createOutput<PJ301MOPort>(Vec(255, 20 + 150), module, TROSC::B_OUTPUT));
-	 addOutput(createOutput<PJ301MOPort>(Vec(255, 20 + 280), module, TROSC::C_OUTPUT));
+	 addOutput(createOutput<PJ301MSPort>(Vec(255, 20 + 20), module, TROSC::A_OUTPUT));
+	 addOutput(createOutput<PJ301MSPort>(Vec(255, 20 + 150), module, TROSC::B_OUTPUT));
+	 addOutput(createOutput<PJ301MSPort>(Vec(255, 20 + 280), module, TROSC::C_OUTPUT));
 }
 void step() override {
-  if (module) {
-	Widget* panel = getPanel();
-    panel->visible = ((((TROSC*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((TROSC*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((TROSC*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 
 

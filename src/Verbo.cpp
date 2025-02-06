@@ -449,22 +449,38 @@ struct Verbo : Module {
 
 	for (int i = 0; i < 8; i++)
 	{
-		configParam(HARM_PARAM + i,  0.0, 1.0, 0.0, "Harm Param");
+		configParam(HARM_PARAM + i,  0.0, 1.0, 0.0, string::f("Harm %d Level",i+1));
+		configInput (HARM_INPUT,string::f("Harm %d Cv",i+1));
+		configOutput(HARM_OUTPUT,string::f("Harm %d",i+1));
 	}
-		configParam(FM_PARAM,  0.0, 1.0, 0.0, "Fm Param");
-		configParam(CV_PARAM,  -1.0, 1.0, 0.0, "Cv Param");
+		configParam(FM_PARAM,  0.0, 1.0, 0.0, "Fm Amount");
+		configParam(CV_PARAM,  -1.0, 1.0, 0.0, "Cv Amount");
 
-		configParam(WIDTH_CV_PARAM,  -1.0, 1.0, 0.0, "Width Cv Param");
+		configParam(WIDTH_CV_PARAM,  -1.0, 1.0, 0.0, "Width Cv Amount");
 		configParam(WIDTH_PARAM,  0.0, 7.0, 0.0, "Width Param");
 
 		configParam(SLOPE_PARAM,  0.0, 5.0, 0.0, "Slope Param");
 
-		configParam(CENTER_CV_PARAM,  -1.0, 1.0, 0.0, "Center Cv Param");
+		configParam(CENTER_CV_PARAM,  -1.0, 1.0, 0.0, "Center Cv Amount");
 		configParam(CENTER_PARAM,  0.0, 7.0, 0.0, "Center Param");
 
 		configParam(FREQ_PARAM,  -54.f, 54.f, 0.f, "Frequency", "Hz", std::pow(2, 1 / 12.f), dsp::FREQ_C4);
 		configParam(FINE_PARAM,  -1.f, 1.f, 0.f, "Fine frequency");
-		onReset();
+		
+		
+		configInput(SLOPE_INPUT,"Slope Cv");
+		configInput(PITCH_INPUT,"V/Oct");
+		configInput(CV_INPUT,"Cv");
+		configInput(CENTER_INPUT,"Center Cv");
+		configInput(WIDTH_INPUT,"Width Cv");
+		configInput(FM_INPUT,"Fm");
+		
+		configOutput(SIN_OUTPUT,"Sin");
+		configOutput(TRI_OUTPUT,"Tri");
+		configOutput(SAW_OUTPUT,"Saw");
+		configOutput(SQR_OUTPUT,"Sqr");
+		
+		// onReset();
 
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
 	}
@@ -598,8 +614,11 @@ struct Verbo : Module {
 
 
 struct VerboWidget : ModuleWidget {
-
-	SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  Verbo *module;
 	  int theme;
@@ -637,14 +656,13 @@ struct VerboWidget : ModuleWidget {
 	}
  VerboWidget(Verbo *module){
 	setModule(module);
-	setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,"res/Light/Verbo.svg")));
-	if (module) {
-    darkPanel = new SvgPanel();
-    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance,"res/Dark/Verbo.svg")));
-    darkPanel->visible = false;
-    addChild(darkPanel);
-  }
-
+// Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Verbo.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Verbo.svg"));
+		int panelTheme = isDark(module ? (&(((Verbo*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
+		
+		
 	addChild(createWidget<ScrewBlack>(Vec(15, 0)));
 	addChild(createWidget<ScrewBlack>(Vec(box.size.x-30, 0)));
 	addChild(createWidget<ScrewBlack>(Vec(15, 365)));
@@ -662,63 +680,64 @@ struct VerboWidget : ModuleWidget {
 		addParam(createParam<SlidePot>(Vec(left+95+space*i, 110), module, Verbo::HARM_PARAM+i));
 		addChild(createLight<SmallLight<OrangeLight>>(Vec(left + 95 + space * i, 250), module, Verbo::HARM_LIGHT + i));
 	}
-		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*0, 80), module, Verbo::HARM_OUTPUT+0));
-		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*1, 80), module, Verbo::HARM_OUTPUT+1));
-		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*2, 80), module, Verbo::HARM_OUTPUT+2));
-		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*3, 80), module, Verbo::HARM_OUTPUT+3));
-		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*4, 80), module, Verbo::HARM_OUTPUT+4));
-		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*5, 80), module, Verbo::HARM_OUTPUT+5));
-		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*6, 80), module, Verbo::HARM_OUTPUT+6));
-		addOutput(createOutput<PJ301MOPort>(Vec(left+90+space*7, 80), module, Verbo::HARM_OUTPUT+7));
+		addOutput(createOutput<PJ301MSPort>(Vec(left+90+space*0, 80), module, Verbo::HARM_OUTPUT+0));
+		addOutput(createOutput<PJ301MSPort>(Vec(left+90+space*1, 80), module, Verbo::HARM_OUTPUT+1));
+		addOutput(createOutput<PJ301MSPort>(Vec(left+90+space*2, 80), module, Verbo::HARM_OUTPUT+2));
+		addOutput(createOutput<PJ301MSPort>(Vec(left+90+space*3, 80), module, Verbo::HARM_OUTPUT+3));
+		addOutput(createOutput<PJ301MSPort>(Vec(left+90+space*4, 80), module, Verbo::HARM_OUTPUT+4));
+		addOutput(createOutput<PJ301MSPort>(Vec(left+90+space*5, 80), module, Verbo::HARM_OUTPUT+5));
+		addOutput(createOutput<PJ301MSPort>(Vec(left+90+space*6, 80), module, Verbo::HARM_OUTPUT+6));
+		addOutput(createOutput<PJ301MSPort>(Vec(left+90+space*7, 80), module, Verbo::HARM_OUTPUT+7));
 
-		addInput(createInput<PJ301MIPort>(Vec(left+90+space*0, 222),module, Verbo::HARM_INPUT+0));
-		addInput(createInput<PJ301MIPort>(Vec(left+90+space*1, 222),module, Verbo::HARM_INPUT+1));
-		addInput(createInput<PJ301MIPort>(Vec(left+90+space*2, 222),module, Verbo::HARM_INPUT+2));
-		addInput(createInput<PJ301MIPort>(Vec(left+90+space*3, 222),module, Verbo::HARM_INPUT+3));
-		addInput(createInput<PJ301MIPort>(Vec(left+90+space*4, 222),module, Verbo::HARM_INPUT+4));
-		addInput(createInput<PJ301MIPort>(Vec(left+90+space*5, 222),module, Verbo::HARM_INPUT+5));
-		addInput(createInput<PJ301MIPort>(Vec(left+90+space*6, 222),module, Verbo::HARM_INPUT+6));
-		addInput(createInput<PJ301MIPort>(Vec(left+90+space*7, 222),module, Verbo::HARM_INPUT+7));
+		addInput(createInput<PJ301MSPort>(Vec(left+90+space*0, 222),module, Verbo::HARM_INPUT+0));
+		addInput(createInput<PJ301MSPort>(Vec(left+90+space*1, 222),module, Verbo::HARM_INPUT+1));
+		addInput(createInput<PJ301MSPort>(Vec(left+90+space*2, 222),module, Verbo::HARM_INPUT+2));
+		addInput(createInput<PJ301MSPort>(Vec(left+90+space*3, 222),module, Verbo::HARM_INPUT+3));
+		addInput(createInput<PJ301MSPort>(Vec(left+90+space*4, 222),module, Verbo::HARM_INPUT+4));
+		addInput(createInput<PJ301MSPort>(Vec(left+90+space*5, 222),module, Verbo::HARM_INPUT+5));
+		addInput(createInput<PJ301MSPort>(Vec(left+90+space*6, 222),module, Verbo::HARM_INPUT+6));
+		addInput(createInput<PJ301MSPort>(Vec(left+90+space*7, 222),module, Verbo::HARM_INPUT+7));
 
 
 	int ks = 60;
 	int vp=20;
 
 		addParam(createParam<VerboDS>(Vec(10, vp+272), module, Verbo::FM_PARAM));
-		addInput(createInput<PJ301MCPort>(Vec(15, vp+320), module, Verbo::FM_INPUT));
+		addInput(createInput<PJ301MSPort>(Vec(15, vp+320), module, Verbo::FM_INPUT));
 		addParam(createParam<VerboDS>(Vec(55, vp+272), module, Verbo::CV_PARAM));
-		addInput(createInput<PJ301MCPort>(Vec(60, vp+320),module, Verbo::CV_INPUT));
-		addInput(createInput<PJ301MCPort>(Vec(90, vp+320),module, Verbo::PITCH_INPUT));
+		addInput(createInput<PJ301MSPort>(Vec(60, vp+320),module, Verbo::CV_INPUT));
+		addInput(createInput<PJ301MSPort>(Vec(90, vp+320),module, Verbo::PITCH_INPUT));
 
 		addParam(createParam<VerboDS>(Vec(30+left+ks, vp+272), module, Verbo::WIDTH_CV_PARAM));
 		addParam(createParam<VerboDS>(Vec(30+left+ks+space*2, vp+272), module, Verbo::WIDTH_PARAM));
 
 		addParam(createParam<Trimpot>(Vec(30+left+ks*2-15, vp+322.5), module, Verbo::SLOPE_PARAM));
-		addInput(createInput<PJ301MCPort>(Vec(30+left+ks*2+25, vp+320),module, Verbo::SLOPE_INPUT));
+		addInput(createInput<PJ301MSPort>(Vec(30+left+ks*2+25, vp+320),module, Verbo::SLOPE_INPUT));
 
 		addParam(createParam<VerboDS>(Vec(30+left+ks*3, vp+272), module, Verbo::CENTER_CV_PARAM));
 		addParam(createParam<VerboDS>(Vec(30+left+ks*3+space*2, vp+272), module, Verbo::CENTER_PARAM));
 
-		addInput(createInput<PJ301MCPort>(Vec(30+left+ks+5, vp+320),  module, Verbo::WIDTH_INPUT));
-		addInput(createInput<PJ301MCPort>(Vec(30+left+ks*3+5, vp+320), module, Verbo::CENTER_INPUT));
+		addInput(createInput<PJ301MSPort>(Vec(30+left+ks+5, vp+320),  module, Verbo::WIDTH_INPUT));
+		addInput(createInput<PJ301MSPort>(Vec(30+left+ks*3+5, vp+320), module, Verbo::CENTER_INPUT));
 
 
 
-		addOutput(createOutput<PJ301MOPort>(Vec(5, 80), module, Verbo::TRI_OUTPUT));
-		addOutput(createOutput<PJ301MOPort>(Vec(33, 80),module, Verbo::SQR_OUTPUT));
-		addOutput(createOutput<PJ301MOPort>(Vec(61, 80),module, Verbo::SAW_OUTPUT));
-		addOutput(createOutput<PJ301MOPort>(Vec(89, 80),module, Verbo::SIN_OUTPUT));
+		addOutput(createOutput<PJ301MSPort>(Vec(5, 80), module, Verbo::TRI_OUTPUT));
+		addOutput(createOutput<PJ301MSPort>(Vec(33, 80),module, Verbo::SQR_OUTPUT));
+		addOutput(createOutput<PJ301MSPort>(Vec(61, 80),module, Verbo::SAW_OUTPUT));
+		addOutput(createOutput<PJ301MSPort>(Vec(89, 80),module, Verbo::SIN_OUTPUT));
 
 
  }
  void step() override {
-   if (module) {
-	 Widget* panel = getPanel();
-     panel->visible = ((((Verbo*)module)->panelTheme) == 0);
-     darkPanel->visible  = ((((Verbo*)module)->panelTheme) == 1);
-   }
-   Widget::step();
- }
+		int panelTheme = isDark(module ? (&(((Verbo*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 
 Model *modelVerbo = createModel<Verbo, VerboWidget>("Verbo");

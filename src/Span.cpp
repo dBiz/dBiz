@@ -48,7 +48,7 @@ struct SPan : Module {
         NUM_INPUTS
     };
     enum OutputIds {
-	      L_OUTPUT,
+	    L_OUTPUT,
         R_OUTPUT,
         NUM_OUTPUTS
 };
@@ -79,7 +79,25 @@ struct SPan : Module {
       configParam(PAN_A_PARAM, 0.0, 1.0, 0.5, "Pan A");
       configParam(PAN_B_PARAM, 0.0, 1.0, 0.5, "Pan B");
       configParam(AUX_LEVEL_PARAM, 0.0, 1.0, 0.0, "Aux Level");
-      onReset();
+	  
+	  configInput(A1_INPUT,"A1");
+      configInput(B1_INPUT,"B1");
+      configInput(XFADE_A_INPUT,"Fade A Cv");
+      configInput(A2_INPUT,"A2");
+      configInput(B2_INPUT,"B2");
+      configInput(XFADE_B_INPUT,"Fade B Cv");
+      configInput(PAN_A_INPUT,"Pan A Cv");
+      configInput(PAN_B_INPUT,"Pan B Cv");
+      configInput(AUX_L_INPUT,"Aux_L");
+      configInput(AUX_R_INPUT,"Aux_R");
+      configInput(AUX_LEVEL_INPUT,"Aux Level");
+	  
+	  configOutput(L_OUTPUT,"Mix L");
+      configOutput(R_OUTPUT,"Mix R");
+	  
+	  
+	  
+      // onReset();
 
   		panelTheme = (loadDarkAsDefault() ? 1 : 0);
   }
@@ -163,8 +181,11 @@ struct SPan : Module {
 struct SPanWidget : ModuleWidget
 {
 
-
-  SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     SPan *module;
     int theme;
@@ -202,13 +223,11 @@ struct SPanWidget : ModuleWidget
   }
 SPanWidget(SPan *module){
   setModule(module);
-  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/SPan.svg")));
-  if (module) {
-    darkPanel = new SvgPanel();
-    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/SPan.svg")));
-    darkPanel->visible = false;
-    addChild(darkPanel);
-  }
+  // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/SPan.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/SPan.svg"));
+		int panelTheme = isDark(module ? (&(((SPan*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
   int knob = 40;
   int jack=30;
@@ -220,17 +239,17 @@ SPanWidget(SPan *module){
     addChild(createWidget<ScrewBlack>(Vec(15, 365)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 365)));
 
-    addInput(createInput<PJ301MIPort>(Vec(2, 40), module, SPan::A1_INPUT));
-    addInput(createInput<PJ301MIPort>(Vec(2+(2*jack), 40), module, SPan::B1_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(2, 40), module, SPan::A1_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(2+(2*jack), 40), module, SPan::B1_INPUT));
 
-    addInput(createInput<PJ301MCPort>(Vec(2 + jack, 40), module, SPan::XFADE_A_INPUT));
-    addInput(createInput<PJ301MCPort>(Vec(2 + (jack * 3), 40), module, SPan::PAN_A_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(2 + jack, 40), module, SPan::XFADE_A_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(2 + (jack * 3), 40), module, SPan::PAN_A_INPUT));
 
-    addInput(createInput<PJ301MIPort>(Vec(2, 150), module, SPan::A2_INPUT));
-    addInput(createInput<PJ301MIPort>(Vec(2+(2*jack), 150), module, SPan::B2_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(2, 150), module, SPan::A2_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(2+(2*jack), 150), module, SPan::B2_INPUT));
 
-    addInput(createInput<PJ301MCPort>(Vec(2 + jack, 150), module, SPan::XFADE_B_INPUT));
-    addInput(createInput<PJ301MCPort>(Vec(2 + (jack* 3), 150), module, SPan::PAN_B_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(2 + jack, 150), module, SPan::XFADE_B_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(2 + (jack* 3), 150), module, SPan::PAN_B_INPUT));
 
     addParam(createParam<FlatA>(Vec(30, 80),module, SPan::XFADE_A_PARAM));
     addParam(createParam<FlatA>(Vec(2 * knob, 80), module, SPan::PAN_A_PARAM));
@@ -240,21 +259,22 @@ SPanWidget(SPan *module){
 
     addParam(createParam<FlatA>(Vec((knob), 250), module, SPan::AUX_LEVEL_PARAM));
 
-    addInput(createInput<PJ301MCPort>(Vec(2, 240), module, SPan::AUX_LEVEL_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(2, 240), module, SPan::AUX_LEVEL_INPUT));
 
-    addInput(createInput<PJ301MIPort>(Vec(2, 300), module, SPan::AUX_L_INPUT));
-    addInput(createInput<PJ301MIPort>(Vec(2, 330), module, SPan::AUX_R_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(2, 300), module, SPan::AUX_L_INPUT));
+    addInput(createInput<PJ301MSPort>(Vec(2, 330), module, SPan::AUX_R_INPUT));
 
-    addOutput(createOutput<PJ301MOPort>(Vec(2+(jack*3),300), module, SPan::L_OUTPUT));
-    addOutput(createOutput<PJ301MOPort>(Vec(2+(jack*3),330), module, SPan::R_OUTPUT));
+    addOutput(createOutput<PJ301MSPort>(Vec(2+(jack*3),300), module, SPan::L_OUTPUT));
+    addOutput(createOutput<PJ301MSPort>(Vec(2+(jack*3),330), module, SPan::R_OUTPUT));
 }
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((SPan*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((SPan*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((SPan*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelSPan = createModel<SPan, SPanWidget>("SPan");

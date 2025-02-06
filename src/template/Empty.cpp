@@ -68,7 +68,7 @@ struct EmptyWidget : ModuleWidget
   SvgPanel *darkPanel;
   struct PanelThemeItem : MenuItem
   {
-    BenePads *module;
+    Empty *module;
     int theme;
     void onAction(const event::Action &e) override
     {
@@ -84,7 +84,7 @@ struct EmptyWidget : ModuleWidget
     MenuLabel *spacerLabel = new MenuLabel();
     menu->addChild(spacerLabel);
 
-    BenePads *module = dynamic_cast<BenePads *>(this->module);
+    Empty *module = dynamic_cast<Empty *>(this->module);
     assert(module);
 
     MenuLabel *themeLabel = new MenuLabel();
@@ -129,8 +129,8 @@ struct EmptyWidget : ModuleWidget
     {
       if (module)
       {
-        panel->visible = ((((BenePads *)module)->panelTheme) == 0);
-        darkPanel->visible = ((((BenePads *)module)->panelTheme) == 1);
+        panel->visible = ((((Empty *)module)->panelTheme) == 0);
+        darkPanel->visible = ((((Empty *)module)->panelTheme) == 1);
       }
       Widget::step();
     }

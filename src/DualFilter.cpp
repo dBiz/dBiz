@@ -20,6 +20,15 @@
 #include "plugin.hpp"
 #include "dsp/resampler.hpp"
 
+float calcDrive(float input, float drive, float driveInput) {
+    float shape = drive + clamp(driveInput, -5.0f, 5.0f);
+    shape = clamp(shape, -5.0f, 5.0f) * 0.2f;
+    shape *= 0.99f;
+    float shapeB = (1.0 - shape) / (1.0 + shape);
+    float shapeA = (4.0 * shape) / ((1.0 - shape) * (1.0 + shape));
+    return input * (shapeA + shapeB) / ((std::abs(input) * shapeA) + shapeB);
+}
+
 using namespace std;
 
 #define pi 3.14159265359
@@ -74,6 +83,7 @@ struct DualFilter : Module{
 
 		NUM_PARAMS
 	};
+
 	enum InputIds
 	{
 		CUTOFF_INPUT,
@@ -120,7 +130,7 @@ DualFilter()
     configParam(CMOD_PARAM2, -1.f, 1.f, 0.f, "Freq. Mod2", "%", 0.f, 100.f);
     configParam(DRIVE_PARAM, -5.f, 5.f, 0.f, "Drive Level", "%", 0.f, 100.f);
 
-    configParam(CUTOFF2_PARAM, 0.f, 1.f, 1.f, "Center Freq.", " Hz", params[CUTOFF_PARAM].getValue(), 20.f * 410.58f);
+    configParam(CUTOFF2_PARAM, 0.f, 1.f, 1.f, "Center Freq.", " Hz", params[CUTOFF2_PARAM].getValue(), 20.f * 410.58f);
     configParam(Q2_PARAM, .1f, 1.f, .1f, "Q factor", "", params[Q2_PARAM].getValue(), 20.f);
     configParam(CMOD2_PARAM, 0.f, 1.f, 0.f, "Freq. Mod", "%", 0.f, 100.f);
     configParam(CMOD2_PARAM2, -1.f, 1.f, 0.f, "Freq. Mod2", "%", 0.f, 100.f);
@@ -131,10 +141,26 @@ DualFilter()
 
     configParam(FILTERSEL_PARAM, 0.f, 2.f, 0.f, "FilterA Type");
     configParam(FILTER2SEL_PARAM, 0.f, 2.f, 0.f, "FilterB Type");
+	
+	configInput(CUTOFF_INPUT,"A Cutoff Cv1");
+	configInput(CUTOFF_INPUT2,"A Cutoff Cv2");
+	configInput(Q_INPUT,"A Q");
+	configInput(DRIVE_INPUT,"A Drive");
+	configInput(IN,"A");
+	configInput(IN2,"B");
+	configInput(CUTOFF2_INPUT,"B Cutoff Cv1");
+	configInput(CUTOFF2_INPUT2,"B Cutoff Cv2");
+	configInput(Q2_INPUT,"B Q");
+	configInput(DRIVE2_INPUT,"B Drive");
+	configInput(FADE_CV,"Fade Cv");
+	
+	configOutput(OUT1,"Out A");
+	configOutput(OUT2,"Out B");
+	configOutput(MIXOUT,"Mix");
 
-		configParam(FADE_PARAM, 0.f, 1.f, 0.f, "Fade Filter");
+	configParam(FADE_PARAM, 0.f, 1.f, 0.f, "Fade Filter");
 
-    onReset();
+    // onReset();
 
     panelTheme = (loadDarkAsDefault() ? 1 : 0);
 }
@@ -164,8 +190,11 @@ void process(const ProcessArgs &args) override {
  //float out2BP;
 
 
+	
 	float cutoff = std::pow(2.0f,rescale(clamp(params[CUTOFF_PARAM].getValue() + ((params[CMOD_PARAM2].getValue())*inputs[CUTOFF_INPUT2].getVoltage()+(params[CMOD_PARAM].getValue())*inputs[CUTOFF_INPUT].getVoltage()) *0.2f ,0.0f,1.0f),0.0f,1.0f,4.5f,14.0f));
+	if (cutoff < 100.f) { cutoff = std::round(cutoff * 100.f) / 100.f; }
 	float cutoff2 = std::pow(2.0f,rescale(clamp(params[CUTOFF2_PARAM].getValue() + ((params[CMOD2_PARAM2].getValue())*inputs[CUTOFF2_INPUT2].getVoltage() +(params[CMOD2_PARAM].getValue())*inputs[CUTOFF2_INPUT].getVoltage()) *0.2f ,0.0f,1.0f),0.0f,1.0f,4.5f,14.0f));
+	if (cutoff2 < 100.f) { cutoff2 = std::round(cutoff2 * 100.f) / 100.f; }
 
 	float q = 10.0f * clamp(params[Q_PARAM].getValue() + inputs[Q_INPUT].getVoltage() *0.2f, 0.1f, 1.0f);
 	float q2 = 10.0f * clamp(params[Q2_PARAM].getValue() + inputs[Q2_INPUT].getVoltage() *0.2f, 0.1f, 1.0f);
@@ -199,8 +228,11 @@ void process(const ProcessArgs &args) override {
 	float a_outputd = in * (a_shapeA + a_shapeB);
 	float b_outputd = in2 * (b_shapeA + b_shapeB);
 
-	a_outputd = a_outputd / ((std::abs(in) * a_shapeA) + a_shapeB);
-	b_outputd = b_outputd / ((std::abs(in2) * b_shapeA) + b_shapeB);
+	// a_outputd = a_outputd / ((std::abs(in) * a_shapeA) + a_shapeB);
+	// b_outputd = b_outputd / ((std::abs(in2) * b_shapeA) + b_shapeB);
+
+	a_outputd = calcDrive(in, params[DRIVE_PARAM].getValue(), inputs[DRIVE_INPUT].getVoltage());
+	b_outputd = calcDrive(in2, params[DRIVE2_PARAM].getValue(), inputs[DRIVE2_INPUT].getVoltage());
 
 ///////////////////////////////////////////////////////////////////
 
@@ -216,26 +248,13 @@ void process(const ProcessArgs &args) override {
 	int sel1 = round(params[FILTERSEL_PARAM].getValue());
 	int sel2 = round(params[FILTER2SEL_PARAM].getValue());
 
-	for (int i=0;i<4;i++)
-	{
-	if (sel1 == 0)
-		outputs[OUT1].setVoltage(filterA.lp * 3.0f);
-	if (sel1 == 1)
-		outputs[OUT1].setVoltage(filterA.bp * 3.0f);
-	if (sel1 == 2)
-		outputs[OUT1].setVoltage(filterA.hp * 3.0f);
-    }
+	if (sel1 == 0) outputs[OUT1].setVoltage(filterA.lp * 3.0f);
+	if (sel1 == 1) outputs[OUT1].setVoltage(filterA.bp * 3.0f);
+	if (sel1 == 2) outputs[OUT1].setVoltage(filterA.hp * 3.0f);
 
-
-	for (int i = 0; i < 4; i++)
-	{
-		if (sel2 == 0)
-			outputs[OUT2].setVoltage(filterB.lp * 3.0f);
-		if (sel2 == 1)
-			outputs[OUT2].setVoltage(filterB.bp * 3.0f);
-		if (sel2 == 2)
-			outputs[OUT2].setVoltage(filterB.hp * 3.0f);
-    }
+	if (sel2 == 0) outputs[OUT2].setVoltage(filterB.lp * 3.0f);
+	if (sel2 == 1) outputs[OUT2].setVoltage(filterB.bp * 3.0f);
+	if (sel2 == 2) outputs[OUT2].setVoltage(filterB.hp * 3.0f);
 
 	float filter1 = outputs[OUT1].getVoltage();
 	float filter2 = outputs[OUT2].getVoltage();
@@ -249,7 +268,10 @@ void process(const ProcessArgs &args) override {
 
 struct DualFilterWidget:ModuleWidget {
 
-    SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
     struct PanelThemeItem : MenuItem {
       DualFilter *module;
       int theme;
@@ -289,13 +311,11 @@ struct DualFilterWidget:ModuleWidget {
 
     DualFilterWidget(DualFilter *module){
       setModule(module);
-		setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/DualFilter.svg")));
-    if (module) {
-      darkPanel = new SvgPanel();
-      darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DualFilter.svg")));
-      darkPanel->visible = false;
-      addChild(darkPanel);
-    }
+		// Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/DualFilter.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/DualFilter.svg"));
+		int panelTheme = isDark(module ? (&(((DualFilter*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
     addChild(createWidget<ScrewBlack>(Vec(15, 0)));
     addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
@@ -340,35 +360,36 @@ struct DualFilterWidget:ModuleWidget {
 	 //
 	 //
 	 //
-	  addInput(createInput<PJ301MCPort>(Vec(l, 260),module, DualFilter::CUTOFF_INPUT));
-	  addInput(createInput<PJ301MCPort>(Vec(l + s , 260),module, DualFilter::CUTOFF_INPUT2));
-	  addInput(createInput<PJ301MCPort>(Vec(l , 260+s),module, DualFilter::Q_INPUT));
+	  addInput(createInput<PJ301MSPort>(Vec(l, 260),module, DualFilter::CUTOFF_INPUT));
+	  addInput(createInput<PJ301MSPort>(Vec(l + s , 260),module, DualFilter::CUTOFF_INPUT2));
+	  addInput(createInput<PJ301MSPort>(Vec(l , 260+s),module, DualFilter::Q_INPUT));
 	  addInput(createInput<PJ301MRPort>(Vec(l + s , 260+s),module, DualFilter::DRIVE_INPUT));
 	 //
-	  addInput(createInput<PJ301MCPort>(Vec(l + s , cv+15),module, DualFilter::FADE_CV));
+	  addInput(createInput<PJ301MSPort>(Vec(l + s , cv+15),module, DualFilter::FADE_CV));
 	 //
-	  addInput(createInput<PJ301MCPort>(Vec(i+2+ s*2 , 260),module, DualFilter::CUTOFF2_INPUT));
-	  addInput(createInput<PJ301MCPort>(Vec(i+2+ s , 260),module, DualFilter::CUTOFF2_INPUT2));
-	  addInput(createInput<PJ301MCPort>(Vec(i+2+ s*2 , 260+s),module, DualFilter::Q2_INPUT));
+	  addInput(createInput<PJ301MSPort>(Vec(i+2+ s*2 , 260),module, DualFilter::CUTOFF2_INPUT));
+	  addInput(createInput<PJ301MSPort>(Vec(i+2+ s , 260),module, DualFilter::CUTOFF2_INPUT2));
+	  addInput(createInput<PJ301MSPort>(Vec(i+2+ s*2 , 260+s),module, DualFilter::Q2_INPUT));
 	  addInput(createInput<PJ301MRPort>(Vec(i+2+ s , 260+s),module, DualFilter::DRIVE2_INPUT));
 	 //
-	  addInput(createInput<PJ301MIPort>(Vec(l + s * 2, cv),module, DualFilter::IN));
-	  addInput(createInput<PJ301MIPort>(Vec(i+2, cv),module, DualFilter::IN2));
+	  addInput(createInput<PJ301MSPort>(Vec(l + s * 2, cv),module, DualFilter::IN));
+	  addInput(createInput<PJ301MSPort>(Vec(i+2, cv),module, DualFilter::IN2));
 	 //
-	  addOutput(createOutput<PJ301MOPort>(Vec(l , cv),module, DualFilter::OUT1));
+	  addOutput(createOutput<PJ301MSPort>(Vec(l , cv),module, DualFilter::OUT1));
 	 //
-	  addOutput(createOutput<PJ301MOPort>(Vec(i+2 +  s * 2, cv),module, DualFilter::OUT2));
+	  addOutput(createOutput<PJ301MSPort>(Vec(i+2 +  s * 2, cv),module, DualFilter::OUT2));
 	 //
-	  addOutput(createOutput<PJ301MOPort>(Vec(i+2+s, cv+15),module, DualFilter::MIXOUT));
+	  addOutput(createOutput<PJ301MSPort>(Vec(i+2+s, cv+15),module, DualFilter::MIXOUT));
 }
 void step() override {
-  if (module) {
-	Widget* panel = getPanel();
-    panel->visible = ((((DualFilter*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((DualFilter*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((DualFilter*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 
 Model *modelDualFilter = createModel<DualFilter, DualFilterWidget>("DualFilter");

@@ -38,11 +38,10 @@ struct Utility : Module {
   enum InputIds {
     ROOT_NOTE_INPUT,
     SCALE_INPUT,
-	  ENUMS(OCTAVE_INPUT, 3),
+	ENUMS(OCTAVE_INPUT, 3),
     ENUMS(OCTAVE_CVINPUT, 3),
     ENUMS(SEMITONE_CVINPUT, 3),
     ENUMS(FINE_CVINPUT, 3),
-    ENUMS(AMOUNT_CVINPUT, 3),
     NUM_INPUTS
 	};
 	enum OutputIds {
@@ -134,14 +133,25 @@ struct Utility : Module {
      configParam(LINK_B_PARAM,  0.0, 1.0, 0.0,"Link B");
      configParam(ROOT_NOTE_PARAM,  0.0, Utility::NUM_NOTES - 1 + 0.1, 0,"Root Note");
      configParam(SCALE_PARAM,  0.0, Utility::NUM_SCALES - 1 + 0.1, 0,"Scale");
-    // params[AMOUNT_PARAM,  "");
+    
 
     for(int i=0;i<3;i++){
      configParam(OCTAVE_SHIFT+i,  -4.5, 4.5, 0.0,"Octave shift");
      configParam(SEMITONE_SHIFT+i,  -5.0 ,5.0, 0.0,"Semitone shift");
      configParam(FINE_SHIFT+i,  -1.0, 1.0, 0.0,"Fine tune");
+	 
+	 configInput(OCTAVE_INPUT+i,string::f("Input %d", i + 1));
+	 configInput(SEMITONE_SHIFT+i,string::f("Semitone %d mod", i + 1));
+	 configInput(OCTAVE_CVINPUT+i,string::f("Octave %d mod", i + 1));
+	 configInput(FINE_CVINPUT+i,string::f("Fine %d mod", i + 1));	 
     }
-    onReset();
+	configInput(ROOT_NOTE_INPUT,"Root note");
+	configInput(SCALE_INPUT,"Scale");
+	configOutput(A_OUTPUT,"A");
+	configOutput(B_OUTPUT,"B");
+	configOutput(C_OUTPUT,"C");
+	
+    // onReset();
 
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
   }
@@ -403,9 +413,11 @@ struct UtilityDisplay : TransparentWidget
 //////////////////////////////////////////////////////////////////
 struct UtilityWidget : ModuleWidget
 {
-
-
-  SvgPanel* darkPanel;
+	
+	int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     Utility *module;
     int theme;
@@ -443,13 +455,11 @@ struct UtilityWidget : ModuleWidget
   }
 UtilityWidget(Utility *module){
   setModule(module);
-  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Utility.svg")));
-  if (module) {
-    darkPanel = new SvgPanel();
-    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Utility.svg")));
-    darkPanel->visible = false;
-    addChild(darkPanel);
-  }
+  // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Utility.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Utility.svg"));
+		int panelTheme = isDark(module ? (&(((Utility*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
   if (module != NULL)
     {
@@ -477,43 +487,41 @@ UtilityWidget(Utility *module){
 
     }
 
-      addInput(createInput<PJ301MIPort>(Vec(12.5 + knob * 0, 100 + knob * 1.3), module, Utility::OCTAVE_INPUT + 0));
-      addInput(createInput<PJ301MIPort>(Vec(12.5 + knob * 1, 100 + knob * 1.3), module, Utility::OCTAVE_INPUT + 1));
-      addInput(createInput<PJ301MIPort>(Vec(12.5 + knob * 2, 100 + knob * 1.3), module, Utility::OCTAVE_INPUT + 2));
-
-      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 0, 130 + knob * 1.3), module, Utility::OCTAVE_CVINPUT + 0));
-      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 1, 130 + knob * 1.3), module, Utility::OCTAVE_CVINPUT + 1));
-      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 2, 130 + knob * 1.3), module, Utility::OCTAVE_CVINPUT + 2));
-
-      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 0, 160 + knob * 1.3), module, Utility::SEMITONE_CVINPUT + 0));
-      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 1, 160 + knob * 1.3), module, Utility::SEMITONE_CVINPUT + 1));
-      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 2, 160 + knob * 1.3), module, Utility::SEMITONE_CVINPUT + 2));
-
-      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 0, 190 + knob * 1.3), module, Utility::FINE_CVINPUT + 0));
-      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 1, 190 + knob * 1.3), module, Utility::FINE_CVINPUT + 1));
-      addInput(createInput<PJ301MCPort>(Vec(12.5 + knob * 2, 190 + knob * 1.3), module, Utility::FINE_CVINPUT + 2));
+      addInput(createInput<PJ301MSPort>(Vec(12.5 + knob * 0, 100 + knob * 1.3), module, Utility::OCTAVE_INPUT + 0));
+      addInput(createInput<PJ301MSPort>(Vec(12.5 + knob * 1, 100 + knob * 1.3), module, Utility::OCTAVE_INPUT + 1));
+      addInput(createInput<PJ301MSPort>(Vec(12.5 + knob * 2, 100 + knob * 1.3), module, Utility::OCTAVE_INPUT + 2));
+      addInput(createInput<PJ301MSPort>(Vec(12.5 + knob * 0, 130 + knob * 1.3), module, Utility::OCTAVE_CVINPUT + 0));
+      addInput(createInput<PJ301MSPort>(Vec(12.5 + knob * 1, 130 + knob * 1.3), module, Utility::OCTAVE_CVINPUT + 1));
+      addInput(createInput<PJ301MSPort>(Vec(12.5 + knob * 2, 130 + knob * 1.3), module, Utility::OCTAVE_CVINPUT + 2));
+      addInput(createInput<PJ301MSPort>(Vec(12.5 + knob * 0, 160 + knob * 1.3), module, Utility::SEMITONE_CVINPUT + 0));
+      addInput(createInput<PJ301MSPort>(Vec(12.5 + knob * 1, 160 + knob * 1.3), module, Utility::SEMITONE_CVINPUT + 1));
+      addInput(createInput<PJ301MSPort>(Vec(12.5 + knob * 2, 160 + knob * 1.3), module, Utility::SEMITONE_CVINPUT + 2));
+      addInput(createInput<PJ301MSPort>(Vec(12.5 + knob * 0, 190 + knob * 1.3), module, Utility::FINE_CVINPUT + 0));
+      addInput(createInput<PJ301MSPort>(Vec(12.5 + knob * 1, 190 + knob * 1.3), module, Utility::FINE_CVINPUT + 1));
+      addInput(createInput<PJ301MSPort>(Vec(12.5 + knob * 2, 190 + knob * 1.3), module, Utility::FINE_CVINPUT + 2));
 
 
   addParam(createParam<Trimpot>(Vec(65,304), module, Utility::ROOT_NOTE_PARAM));
   addParam(createParam<Trimpot>(Vec(90,304), module, Utility::SCALE_PARAM));
 
-  addInput(createInput<PJ301MIPort>(Vec(10,300), module, Utility::ROOT_NOTE_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(37,300), module, Utility::SCALE_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(10,300), module, Utility::ROOT_NOTE_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(37,300), module, Utility::SCALE_INPUT));
 
-  addOutput(createOutput<PJ301MOPort>(Vec(12.5,335), module, Utility::A_OUTPUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(12.5+knob*1,335), module, Utility::B_OUTPUT));
-  addOutput(createOutput<PJ301MOPort>(Vec(12.5+knob*2,335), module, Utility::C_OUTPUT));
+  addOutput(createOutput<PJ301MSPort>(Vec(12.5,335), module, Utility::A_OUTPUT));
+  addOutput(createOutput<PJ301MSPort>(Vec(12.5+knob*1,335), module, Utility::B_OUTPUT));
+  addOutput(createOutput<PJ301MSPort>(Vec(12.5+knob*2,335), module, Utility::C_OUTPUT));
 
   addParam(createParam<CKSSS>(Vec(39,150), module, Utility::LINK_A_PARAM));
   addParam(createParam<CKSSS>(Vec(74.5, 150), module, Utility::LINK_B_PARAM));
 }
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((Utility*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Utility*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Utility*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelUtility = createModel<Utility, UtilityWidget>("Utility");

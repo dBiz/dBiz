@@ -145,20 +145,25 @@ struct BigSmorph : Module {
 
         for (int i = 0; i < 8; i++)
 		{
-            configParam(SEQA_PARAM + i, -5.0, 5.0, 0.0, "Seq A Range");
-            configParam(SEQB_PARAM + i, -5.0, 5.0, 0.0, "Seq B Range");
-            configParam(SEQC_PARAM + i, -5.0, 5.0, 0.0, "Seq C Range");
-            configParam(GBUTTON_PARAM + i, 0.0, 1.0, 0.0, "Seq Button");
-
-
+            configParam(SEQA_PARAM + i, -5.0, 5.0, 0.0, string::f("Seq A Step %d Val",i+1));
+            configParam(SEQB_PARAM + i, -5.0, 5.0, 0.0, string::f("Seq B Step %d Val",i+1));
+            configParam(SEQC_PARAM + i, -5.0, 5.0, 0.0, string::f("Seq C Step %d Val",i+1));
+            configParam(GBUTTON_PARAM + i, 0.0, 1.0, 0.0, string::f("Step %d Gate",i+1));
+			configInput(GATE_INPUT + i,string::f("Step %d Gate",i+1));
         }
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < 3; i++)
         {
-            configParam(GLIDE_PARAM + i, 0.0, 1.0, 0.0, "Glide");
+            configParam(GLIDE_PARAM + i, 0.0, 1.0, 0.0,string::f("Column %d Glide",i+1));
+			configOutput(SEQ_OUTPUT+i,string::f("Seq_%d",i+1));
         }
+		
+		configInput(REV_INPUT,"Reverse");
+        configInput(CLK_INPUT,"Clock");
+        configInput(RESET_INPUT,"Reset");
+        configInput(CV_INPUT,"Cv");
 
 
-        onReset();
+       // onReset();
 
     	panelTheme = (loadDarkAsDefault() ? 1 : 0);
     }
@@ -514,8 +519,10 @@ struct BigSmorphDisplay : TransparentWidget
 struct BigSmorphWidget : ModuleWidget
 {
 
-
-  SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
   struct PanelThemeItem : MenuItem {
     BigSmorph *module;
     int theme;
@@ -555,13 +562,12 @@ struct BigSmorphWidget : ModuleWidget
     {
 
         setModule(module);
-        setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/BigSmorph.svg")));
-        if (module) {
-          darkPanel = new SvgPanel();
-          darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/BigSmorph.svg")));
-          darkPanel->visible = false;
-          addChild(darkPanel);
-        }
+		
+		// Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/BigSmorph.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/BigSmorph.svg"));
+		int panelTheme = isDark(module ? (&(((BigSmorph*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
         addChild(createWidget<ScrewBlack>(Vec(15, 0)));
         addChild(createWidget<ScrewBlack>(Vec(box.size.x - 30, 0)));
@@ -596,18 +602,18 @@ struct BigSmorphWidget : ModuleWidget
          
 
         }
-            addInput(createInput<PJ301MOrPort>(Vec(130, 47 + 0 * seq), module, BigSmorph::GATE_INPUT + 0));
-            addInput(createInput<PJ301MOrPort>(Vec(130, 47 + 1 * seq), module, BigSmorph::GATE_INPUT + 1));
-            addInput(createInput<PJ301MOrPort>(Vec(130, 47 + 2 * seq), module, BigSmorph::GATE_INPUT + 2));
-            addInput(createInput<PJ301MOrPort>(Vec(130, 47 + 3 * seq), module, BigSmorph::GATE_INPUT + 3));
-            addInput(createInput<PJ301MOrPort>(Vec(130, 47 + 4 * seq), module, BigSmorph::GATE_INPUT + 4));
-            addInput(createInput<PJ301MOrPort>(Vec(130, 47 + 5 * seq), module, BigSmorph::GATE_INPUT + 5));
-            addInput(createInput<PJ301MOrPort>(Vec(130, 47 + 6 * seq), module, BigSmorph::GATE_INPUT + 6));
-            addInput(createInput<PJ301MOrPort>(Vec(130, 47 + 7 * seq), module, BigSmorph::GATE_INPUT + 7));
+            addInput(createInput<PJ301MSPort>(Vec(130, 47 + 0 * seq), module, BigSmorph::GATE_INPUT + 0));
+            addInput(createInput<PJ301MSPort>(Vec(130, 47 + 1 * seq), module, BigSmorph::GATE_INPUT + 1));
+            addInput(createInput<PJ301MSPort>(Vec(130, 47 + 2 * seq), module, BigSmorph::GATE_INPUT + 2));
+            addInput(createInput<PJ301MSPort>(Vec(130, 47 + 3 * seq), module, BigSmorph::GATE_INPUT + 3));
+            addInput(createInput<PJ301MSPort>(Vec(130, 47 + 4 * seq), module, BigSmorph::GATE_INPUT + 4));
+            addInput(createInput<PJ301MSPort>(Vec(130, 47 + 5 * seq), module, BigSmorph::GATE_INPUT + 5));
+            addInput(createInput<PJ301MSPort>(Vec(130, 47 + 6 * seq), module, BigSmorph::GATE_INPUT + 6));
+            addInput(createInput<PJ301MSPort>(Vec(130, 47 + 7 * seq), module, BigSmorph::GATE_INPUT + 7));
 
-           addOutput(createOutput<PJ301MOPort>(Vec(8 + low * 0, 335), module, BigSmorph::SEQ_OUTPUT + 0));
-           addOutput(createOutput<PJ301MOPort>(Vec(8 + low * 1, 335), module, BigSmorph::SEQ_OUTPUT + 1));
-           addOutput(createOutput<PJ301MOPort>(Vec(8 + low * 2, 335), module, BigSmorph::SEQ_OUTPUT + 2));
+           addOutput(createOutput<PJ301MSPort>(Vec(8 + low * 0, 335), module, BigSmorph::SEQ_OUTPUT + 0));
+           addOutput(createOutput<PJ301MSPort>(Vec(8 + low * 1, 335), module, BigSmorph::SEQ_OUTPUT + 1));
+           addOutput(createOutput<PJ301MSPort>(Vec(8 + low * 2, 335), module, BigSmorph::SEQ_OUTPUT + 2));
 
             for (int i = 0; i < 3; i++)
             {
@@ -618,18 +624,19 @@ struct BigSmorphWidget : ModuleWidget
         addParam(createParam<MicroBlu>(Vec(25,15), module, BigSmorph::ROOT_NOTE_PARAM));
         addParam(createParam<MicroBlu>(Vec(55,15), module, BigSmorph::SCALE_PARAM));
 
-        addInput(createInput<PJ301MCPort>(Vec(100, 306), module, BigSmorph::CV_INPUT));
-        addInput(createInput<PJ301MCPort>(Vec(130, 306), module, BigSmorph::REV_INPUT));
-        addInput(createInput<PJ301MCPort>(Vec(100, 335), module, BigSmorph::CLK_INPUT));
-        addInput(createInput<PJ301MCPort>(Vec(130, 335), module, BigSmorph::RESET_INPUT));
+        addInput(createInput<PJ301MSPort>(Vec(100, 306), module, BigSmorph::CV_INPUT));
+        addInput(createInput<PJ301MSPort>(Vec(130, 306), module, BigSmorph::REV_INPUT));
+        addInput(createInput<PJ301MSPort>(Vec(100, 335), module, BigSmorph::CLK_INPUT));
+        addInput(createInput<PJ301MSPort>(Vec(130, 335), module, BigSmorph::RESET_INPUT));
 }
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((BigSmorph*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((BigSmorph*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((BigSmorph*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelBigSmorph = createModel<BigSmorph, BigSmorphWidget>("BigSmorph");

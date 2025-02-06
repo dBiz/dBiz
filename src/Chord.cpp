@@ -124,8 +124,8 @@ int panelTheme;
     config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
     configParam(OFFSET_PARAM, 0.0, 1.0, 0.5,"Offset");
-    configParam(INVERSION_PARAM, 0.0, 1.0, 0.0,"Inversion");
-    configParam(VOICING_PARAM, 0.0, 1.0, 0.0,"Voicing");
+    configParam(INVERSION_PARAM, 0.0, 1.0, 0.0,"Voicing");
+    configParam(VOICING_PARAM, 0.0, 1.0, 0.0,"Inversion");
     configParam(OFFSET_AMT_PARAM, 0.0, 1.0, 0.5,"Offset Amt");
     configParam(INVERSION_AMT_PARAM, 0.0, 1.0, 0.0,"Inversion Amt");
     configParam(VOICING_AMT_PARAM, 0.0, 1.0, 0.0,"Voicing Amt");
@@ -140,7 +140,34 @@ int panelTheme;
     configParam(SHARP_9_PARAM, 0.0,1.0,0.0,"#9");
     configParam(SIX_FOR_7_PARAM, 0.0,1.0,0.0,"bb7");
     configParam(SHARP_5_PARAM, 0.0,1.0,0.0,"#5");
-		onReset();
+	
+	  configInput(INPUT,"In");
+    configInput(OFFSET_CV_INPUT,"Offset Cv");
+    configInput(INVERSION_CV_INPUT,"Inversion Cv");
+    configInput(VOICING_CV_INPUT,"Voicing Cv");
+    configInput(FLAT_3RD_INPUT,"b3");
+    configInput(FLAT_5TH_INPUT,"b5");
+    configInput(FLAT_7TH_INPUT,"b7");
+    configInput(SUS_2_INPUT,"sus2");
+    configInput(SUS_4_INPUT,"sus4");
+    configInput(SIX_FOR_5_INPUT,"add6");
+    configInput(ONE_FOR_7_INPUT,"for7");
+    configInput(FLAT_9_INPUT,"b9");
+    configInput(SHARP_9_INPUT,"#9");
+    configInput(SIX_FOR_7_INPUT,"bb7");
+    configInput(SHARP_5_INPUT,"#5");
+	
+	  configOutput(OUTPUT_1,"Voice_1");
+    configOutput(OUTPUT_2,"Voice_2");
+    configOutput(OUTPUT_3,"Voice_3");
+    configOutput(OUTPUT_4,"Voice_4");
+    configOutput(OUTPUT_ROOT,"Out Root");
+    configOutput(OUTPUT_THIRD,"Out III");
+    configOutput(OUTPUT_FIFTH,"Out V");
+    configOutput(OUTPUT_SEVENTH,"Out VII");	
+	
+	
+	  // onReset();
 
 		panelTheme = (loadDarkAsDefault() ? 1 : 0);
   }
@@ -191,83 +218,70 @@ int panelTheme;
   int fifth = 7;
   int seventh = 11;
 
-  if (FLAT_3RD.process(params[FLAT_3RD_PARAM].getValue()+inputs[FLAT_3RD_INPUT].getVoltage()))
-  {
-     third = 3;
-     f3=!f3;
-  }
+  if (FLAT_3RD.process(params[FLAT_3RD_PARAM].getValue()+inputs[FLAT_3RD_INPUT].getVoltage())) f3=!f3;
   lights[FLAT_3RD_LIGHT].setBrightness(f3);
+  if (f3) third = 3;
 
-  if (FLAT_5TH.process(params[FLAT_5TH_PARAM].getValue()+inputs[FLAT_5TH_INPUT].getVoltage()))
-  {
-     fifth = 6;
-     f5=!f5;
-  }
+  if (FLAT_5TH.process(params[FLAT_5TH_PARAM].getValue()+inputs[FLAT_5TH_INPUT].getVoltage())) f5=!f5;
   lights[FLAT_5TH_LIGHT].setBrightness(f5);
+  if(f5) fifth = 6;
+  
+  
 
-  if (SHARP_5.process(params[SHARP_5_PARAM].getValue()+inputs[SHARP_5_INPUT].getVoltage()))
-  {
-     fifth = 8;
-     s5=!s5;
-  }
+  if (SHARP_5.process(params[SHARP_5_PARAM].getValue()+inputs[SHARP_5_INPUT].getVoltage())) s5=!s5;
   lights[SHARP_5_LIGHT].setBrightness(s5);
+  if(s5) fifth = 8;
+  
+  
 
-  if (FLAT_7TH.process(inputs[FLAT_7TH_INPUT].getVoltage()+params[FLAT_7TH_PARAM].getValue()))
-  {
-     seventh = 10;
-     f7=!f7;
-  }
+  if (FLAT_7TH.process(inputs[FLAT_7TH_INPUT].getVoltage()+params[FLAT_7TH_PARAM].getValue())) f7=!f7;
   lights[FLAT_7TH_LIGHT].setBrightness(f7);
+  if(f7) seventh = 10;
+  
+  
 
-  if (SUS_2.process(inputs[SUS_2_INPUT].getVoltage()+params[SUS_2_PARAM].getValue()))
-  {
-     root_or_2nd = root + (2 * (1.0/12.0));
-     s2=!s2;
-  }
+  if (SUS_2.process(inputs[SUS_2_INPUT].getVoltage()+params[SUS_2_PARAM].getValue())) s2=!s2;
   lights[SUS_2_LIGHT].setBrightness(s2);
+  if(s2) root_or_2nd = root + (2 * (1.0/12.0));
+  
+  
 
-  if (SUS_4.process(inputs[SUS_4_INPUT].getVoltage()+params[SUS_4_PARAM].getValue()))
-  {
-     third = 5;
-     s4=!s4;
-  }
+  if (SUS_4.process(inputs[SUS_4_INPUT].getVoltage()+params[SUS_4_PARAM].getValue())) s4=!s4;
   lights[SUS_4_LIGHT].setBrightness(s4);
+  if(s4) third = 5;
+  
+  
 
-  if (SIX_FOR_5.process(inputs[SIX_FOR_5_INPUT].getVoltage()+params[SIX_FOR_5_PARAM].getValue()))
-  {
-     fifth = 9;
-     sff=!sff;
-  }
+  if (SIX_FOR_5.process(inputs[SIX_FOR_5_INPUT].getVoltage()+params[SIX_FOR_5_PARAM].getValue())) sff=!sff;
   lights[SIX_FOR_5_LIGHT].setBrightness(sff);
+  if(sff) fifth = 9;
+  
+  
 
-  if (SIX_FOR_7.process(inputs[SIX_FOR_7_INPUT].getVoltage()+params[SIX_FOR_7_PARAM].getValue()))
-  {
-     seventh = 9;
-     sfs=!sfs;
-  }
+  if (SIX_FOR_7.process(inputs[SIX_FOR_7_INPUT].getVoltage()+params[SIX_FOR_7_PARAM].getValue())) sfs=!sfs;
   lights[SIX_FOR_7_LIGHT].setBrightness(sfs);
+  if(sfs) seventh = 9;
+  
+  
 
 
-  if (FLAT_9.process(inputs[FLAT_9_INPUT].getVoltage()+params[FLAT_9_PARAM].getValue()))
-  {
-     root_or_2nd = root + 1.0/12.0;
-     f9=!f9;
-  }
+  if (FLAT_9.process(inputs[FLAT_9_INPUT].getVoltage()+params[FLAT_9_PARAM].getValue())) f9=!f9;
   lights[FLAT_9_LIGHT].setBrightness(f9);
+  if(f9) root_or_2nd = root + 1.0/12.0;
+  
+  
 
-  if (SHARP_9.process(inputs[SHARP_9_INPUT].getVoltage()+params[SHARP_9_PARAM].getValue()))
-  {
-     root_or_2nd = root + (3 * (1.0/12.0));
-     s9=!s9;
-  }
+  if (SHARP_9.process(inputs[SHARP_9_INPUT].getVoltage()+params[SHARP_9_PARAM].getValue())) s9=!s9;
   lights[SHARP_9_LIGHT].setBrightness(s9);
+  if(s9) root_or_2nd = root + (3 * (1.0/12.0));
+  
+  
 
-  if (ONE_FOR_7.process(inputs[ONE_FOR_7_INPUT].getVoltage()+params[ONE_FOR_7_PARAM].getValue()))
-  {
-     seventh = 12;
-     ofs=!ofs;
-  }
+  if (ONE_FOR_7.process(inputs[ONE_FOR_7_INPUT].getVoltage()+params[ONE_FOR_7_PARAM].getValue())) ofs=!ofs;
   lights[ONE_FOR_7_LIGHT].setBrightness(ofs);
+  if(ofs) seventh = 12;
+  
+  
 
   outputs[OUTPUT_ROOT].setVoltage(root);
   outputs[OUTPUT_THIRD].setVoltage(root + third * (1.0/12.0));
@@ -329,9 +343,10 @@ int panelTheme;
 struct ChordWidget : ModuleWidget
 {
 
-
-
-	SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  Chord *module;
 	  int theme;
@@ -370,13 +385,11 @@ struct ChordWidget : ModuleWidget
 
 ChordWidget(Chord *module){
   setModule(module);
-  setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Chord.svg")));
-	if (module) {
-    darkPanel = new SvgPanel();
-    darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Chord.svg")));
-    darkPanel->visible = false;
-    addChild(darkPanel);
-  }
+  // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/Chord.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/Chord.svg"));
+		int panelTheme = isDark(module ? (&(((Chord*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
 
 
   //
@@ -390,9 +403,9 @@ int pot=22;
 int off =2.5;
 int space = 40;
 
-  addInput(createInput<PJ301MCPort>(Vec(off,60+jacks*1), module, Chord::OFFSET_CV_INPUT));
-  addInput(createInput<PJ301MCPort>(Vec(off,60+jacks*2), module, Chord::INVERSION_CV_INPUT));
-  addInput(createInput<PJ301MCPort>(Vec(off,60+jacks*3), module, Chord::VOICING_CV_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(off,60+jacks*1), module, Chord::OFFSET_CV_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(off,60+jacks*2), module, Chord::INVERSION_CV_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(off,60+jacks*3), module, Chord::VOICING_CV_INPUT));
 
   addParam(createParam<Trimpot>(Vec(off*2,pot*1), module, Chord::OFFSET_AMT_PARAM));
   addParam(createParam<Trimpot>(Vec(off*2,pot*2), module, Chord::INVERSION_AMT_PARAM));
@@ -409,19 +422,19 @@ int space = 40;
 int right = 95 ;
 int left = 30;
 
-  addInput(createInput<PJ301MIPort>(Vec(left, 180), module, Chord::FLAT_3RD_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(left, 180+jacks*1), module, Chord::FLAT_5TH_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(left, 180+jacks*2), module, Chord::FLAT_7TH_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(left, 180+jacks*3), module, Chord::SIX_FOR_7_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(left, 180+jacks*4), module, Chord::SHARP_5_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(left, 180), module, Chord::FLAT_3RD_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(left, 180+jacks*1), module, Chord::FLAT_5TH_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(left, 180+jacks*2), module, Chord::FLAT_7TH_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(left, 180+jacks*3), module, Chord::SIX_FOR_7_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(left, 180+jacks*4), module, Chord::SHARP_5_INPUT));
 
   //
-  addInput(createInput<PJ301MIPort>(Vec(right, 180), module, Chord::SUS_2_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(right, 180+jacks*1), module, Chord::SUS_4_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(right, 180+jacks*2), module, Chord::SIX_FOR_5_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(right, 180+jacks*3), module, Chord::ONE_FOR_7_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(right, 180+jacks*4), module, Chord::FLAT_9_INPUT));
-  addInput(createInput<PJ301MIPort>(Vec(right, 180+jacks*5), module, Chord::SHARP_9_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(right, 180), module, Chord::SUS_2_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(right, 180+jacks*1), module, Chord::SUS_4_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(right, 180+jacks*2), module, Chord::SIX_FOR_5_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(right, 180+jacks*3), module, Chord::ONE_FOR_7_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(right, 180+jacks*4), module, Chord::FLAT_9_INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(right, 180+jacks*5), module, Chord::SHARP_9_INPUT));
 //
 
 
@@ -441,26 +454,27 @@ int left = 30;
 
   //
 
-  addOutput(createOutput<PJ301MOPort>(Vec(70,jacks*1), module, Chord::OUTPUT_ROOT));
-  addOutput(createOutput<PJ301MOPort>(Vec(70,jacks*2), module, Chord::OUTPUT_THIRD));
-  addOutput(createOutput<PJ301MOPort>(Vec(70,jacks*3), module, Chord::OUTPUT_FIFTH));
-  addOutput(createOutput<PJ301MOPort>(Vec(70,jacks*4), module, Chord::OUTPUT_SEVENTH));
+  addOutput(createOutput<PJ301MSPort>(Vec(70,jacks*1), module, Chord::OUTPUT_ROOT));
+  addOutput(createOutput<PJ301MSPort>(Vec(70,jacks*2), module, Chord::OUTPUT_THIRD));
+  addOutput(createOutput<PJ301MSPort>(Vec(70,jacks*3), module, Chord::OUTPUT_FIFTH));
+  addOutput(createOutput<PJ301MSPort>(Vec(70,jacks*4), module, Chord::OUTPUT_SEVENTH));
 
-  addOutput(createOutput<PJ301MOPort>(Vec(97,jacks*1 ), module, Chord::OUTPUT_1));
-  addOutput(createOutput<PJ301MOPort>(Vec(97,jacks*2 ), module, Chord::OUTPUT_2));
-  addOutput(createOutput<PJ301MOPort>(Vec(97,jacks*3 ), module, Chord::OUTPUT_3));
-  addOutput(createOutput<PJ301MOPort>(Vec(97,jacks*4 ), module, Chord::OUTPUT_4));
+  addOutput(createOutput<PJ301MSPort>(Vec(97,jacks*1 ), module, Chord::OUTPUT_1));
+  addOutput(createOutput<PJ301MSPort>(Vec(97,jacks*2 ), module, Chord::OUTPUT_2));
+  addOutput(createOutput<PJ301MSPort>(Vec(97,jacks*3 ), module, Chord::OUTPUT_3));
+  addOutput(createOutput<PJ301MSPort>(Vec(97,jacks*4 ), module, Chord::OUTPUT_4));
 
-  addInput(createInput<PJ301MIPort>(Vec(97,57+jacks*3), module, Chord::INPUT));
+  addInput(createInput<PJ301MSPort>(Vec(97,57+jacks*3), module, Chord::INPUT));
 
 }
 void step() override {
-  if (module) {
-    Widget* panel = getPanel();
-    panel->visible = ((((Chord*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((Chord*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((Chord*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelChord = createModel<Chord, ChordWidget>("Chord");

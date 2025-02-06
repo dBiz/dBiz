@@ -49,8 +49,12 @@ struct NavControl : Module {
 
     configParam(ATTENUVERTER,  -5.0, 5.0 , 0.0,"Attenuverter Value");
     configParam(FADER,  0.0, 1.0, 0.0,"Fader Value");
+	configOutput(ATTENUVERTER_OUTPUT,"Attenuverter");
+	configOutput(FADER_OUTPUT,"Fader");
+	configInput(ATTENUVERTER_INPUT," Attenuverter");
+	configInput(FADER_INPUT," Fader");
     
-	onReset();
+	//onReset();
 
 	panelTheme = (loadDarkAsDefault() ? 1 : 0);
 
@@ -113,8 +117,10 @@ struct NavControl : Module {
 //////////////////////////////////////////////////////////////////
 struct NavControlWidget : ModuleWidget {
 
-
-	SvgPanel* darkPanel;
+    int lastPanelTheme = -1;
+	std::shared_ptr<window::Svg> light_svg;
+	std::shared_ptr<window::Svg> dark_svg;
+	
 	struct PanelThemeItem : MenuItem {
 	  NavControl *module;
 	  int theme;
@@ -152,14 +158,11 @@ struct NavControlWidget : ModuleWidget {
 	}
 NavControlWidget(NavControl *module){
    setModule(module);
-   setPanel(APP->window->loadSvg(asset::plugin(pluginInstance,  "res/Light/NavControl.svg")));
-	 if (module) {
-     darkPanel = new SvgPanel();
-     darkPanel->setBackground(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/NavControl.svg")));
-     darkPanel->visible = false;
-     addChild(darkPanel);
-   }
-
+   // Main panels from Inkscape
+ 		light_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Light/NavControl.svg"));
+		dark_svg = APP->window->loadSvg(asset::plugin(pluginInstance, "res/Dark/NavControl.svg"));
+		int panelTheme = isDark(module ? (&(((NavControl*)module)->panelTheme)) : NULL) ? 1 : 0;// need this here since step() not called for module browser
+		setPanel(panelTheme == 0 ? light_svg : dark_svg);	
    //Screw
 
    addChild(createWidget<ScrewBlack>(Vec(15, 0)));
@@ -170,22 +173,23 @@ NavControlWidget(NavControl *module){
    addParam(createParam<VerboDS>(Vec(12.5, 125), module, NavControl::ATTENUVERTER));
    addParam(createParam<SlidePotL>(Vec(22.5, 170), module, NavControl::FADER));
 
-   addInput(createInput<PJ301MIPort>(Vec(2, 12 + 10),  module, NavControl::ATTENUVERTER_INPUT));
-   addInput(createInput<PJ301MIPort>(Vec(2, 12 + 55), module, NavControl::FADER_INPUT));
+   addInput(createInput<PJ301MSPort>(Vec(2, 12 + 10),  module, NavControl::ATTENUVERTER_INPUT));
+   addInput(createInput<PJ301MSPort>(Vec(2, 12 + 55), module, NavControl::FADER_INPUT));
    
 
-   addOutput(createOutput<PJ301MOPort>(Vec(31, 12 + 10), module, NavControl::ATTENUVERTER_OUTPUT));
-   addOutput(createOutput<PJ301MOPort>(Vec(31, 12 + 55),module, NavControl::FADER_OUTPUT));
+   addOutput(createOutput<PJ301MSPort>(Vec(31, 12 + 10), module, NavControl::ATTENUVERTER_OUTPUT));
+   addOutput(createOutput<PJ301MSPort>(Vec(31, 12 + 55),module, NavControl::FADER_OUTPUT));
 
 
 }
 void step() override {
-  if (module) {
-	Widget* panel = getPanel();
-    panel->visible = ((((NavControl*)module)->panelTheme) == 0);
-    darkPanel->visible  = ((((NavControl*)module)->panelTheme) == 1);
-  }
-  Widget::step();
-}
+		int panelTheme = isDark(module ? (&(((NavControl*)module)->panelTheme)) : NULL) ? 1 : 0;
+		if (lastPanelTheme != panelTheme) {
+			lastPanelTheme = panelTheme;
+			SvgPanel* panel = (SvgPanel*)getPanel();
+			panel->setBackground(panelTheme == 0 ? light_svg : dark_svg);
+		}
+		Widget::step();
+	}
 };
 Model *modelNavControl = createModel<NavControl, NavControlWidget>("NavControl");
