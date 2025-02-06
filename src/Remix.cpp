@@ -298,7 +298,7 @@ RemixWidget(Remix *module) {
     int knob = 30;
     int jack = 27;
 
-    
+
     float mid = (15*12)/2;
     float midy= 190;
     int space = 9;
