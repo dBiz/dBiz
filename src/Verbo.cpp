@@ -473,7 +473,7 @@ struct Verbo : Module {
 		configInput(CV_INPUT,"CV");
 		configInput(CENTER_INPUT,"Center CV");
 		configInput(WIDTH_INPUT,"Width CV");
-		configInput(FM_INPUT,"Fm");
+		configInput(FM_INPUT,"FM");
 		
 		configOutput(SIN_OUTPUT,"Sin");
 		configOutput(TRI_OUTPUT,"Tri");
