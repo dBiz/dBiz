@@ -450,30 +450,30 @@ struct Verbo : Module {
 	for (int i = 0; i < 8; i++)
 	{
 		configParam(HARM_PARAM + i,  0.0, 1.0, 0.0, string::f("Harm %d Level",i+1));
-		configInput (HARM_INPUT,string::f("Harm %d Cv",i+1));
-		configOutput(HARM_OUTPUT,string::f("Harm %d",i+1));
+		configInput(HARM_INPUT + i,string::f("Harm %d CV",i+1));
+		configOutput(HARM_OUTPUT + i,string::f("Harm %d",i+1));
 	}
 		configParam(FM_PARAM,  0.0, 1.0, 0.0, "Fm Amount");
-		configParam(CV_PARAM,  -1.0, 1.0, 0.0, "Cv Amount");
+		configParam(CV_PARAM,  -1.0, 1.0, 0.0, "CV Amount");
 
-		configParam(WIDTH_CV_PARAM,  -1.0, 1.0, 0.0, "Width Cv Amount");
+		configParam(WIDTH_CV_PARAM,  -1.0, 1.0, 0.0, "Width CV Amount");
 		configParam(WIDTH_PARAM,  0.0, 7.0, 0.0, "Width Param");
 
 		configParam(SLOPE_PARAM,  0.0, 5.0, 0.0, "Slope Param");
 
-		configParam(CENTER_CV_PARAM,  -1.0, 1.0, 0.0, "Center Cv Amount");
+		configParam(CENTER_CV_PARAM,  -1.0, 1.0, 0.0, "Center CV Amount");
 		configParam(CENTER_PARAM,  0.0, 7.0, 0.0, "Center Param");
 
 		configParam(FREQ_PARAM,  -54.f, 54.f, 0.f, "Frequency", "Hz", std::pow(2, 1 / 12.f), dsp::FREQ_C4);
 		configParam(FINE_PARAM,  -1.f, 1.f, 0.f, "Fine frequency");
 		
 		
-		configInput(SLOPE_INPUT,"Slope Cv");
+		configInput(SLOPE_INPUT,"Slope CV");
 		configInput(PITCH_INPUT,"V/Oct");
-		configInput(CV_INPUT,"Cv");
-		configInput(CENTER_INPUT,"Center Cv");
-		configInput(WIDTH_INPUT,"Width Cv");
-		configInput(FM_INPUT,"Fm");
+		configInput(CV_INPUT,"CV");
+		configInput(CENTER_INPUT,"Center CV");
+		configInput(WIDTH_INPUT,"Width CV");
+		configInput(FM_INPUT,"FM");
 		
 		configOutput(SIN_OUTPUT,"Sin");
 		configOutput(TRI_OUTPUT,"Tri");
